@@ -24,7 +24,9 @@ namespace EthernaIndex.Controllers
         }
 
         [HttpGet]
+#pragma warning disable CA1822 // Mark members as static
         public IEnumerable<WeatherForecast> Get()
+#pragma warning restore CA1822 // Mark members as static
         {
             var rng = new Random();
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
