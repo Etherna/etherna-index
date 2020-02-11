@@ -3,7 +3,6 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <Nullable>enable</Nullable>
     <RootNamespace>Etherna.EthernaIndex.Persistence</RootNamespace>
   </PropertyGroup>
 

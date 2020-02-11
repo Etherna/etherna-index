@@ -1,10 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Etherna.EthernaIndex.Domain.Models
 {
-    class Video
+    public class Video : EntityModelBase<string>
     {
+        // Constructors.
+        public Video(string hash)
+        {
+            Hash = hash ?? throw new ArgumentNullException(nameof(hash));
+        }
+
+        // Properties.
+        public string Hash { get; protected set; }
     }
 }
