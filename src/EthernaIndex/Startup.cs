@@ -1,17 +1,19 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Etherna.EthernaIndex.ApiApplication.V1;
+using Etherna.EthernaIndex.Persistence;
+using Etherna.EthernaIndex.Services;
+using Hangfire;
+using Hangfire.Mongo;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using Microsoft.OpenApi.Models;
+using System;
+using System.IO;
+using System.Reflection;
 
-namespace EthernaIndex
+namespace Etherna.EthernaIndex
 {
     public class Startup
     {
@@ -26,6 +28,47 @@ namespace EthernaIndex
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+
+            // Add Hangfire services.
+            services.AddHangfire(config =>
+            {
+                config.UseMongoStorage(
+                    Configuration["HANGFIRE_CONNECTIONSTRING"],
+                    new MongoStorageOptions
+                    {
+                        MigrationOptions = new MongoMigrationOptions
+                        {
+                            Strategy = MongoMigrationStrategy.Migrate,
+                            BackupStrategy = MongoBackupStrategy.Collections
+                        }
+                    });
+            });
+
+            // Add application services.
+            Configuration["MONGODB_DOCUMENTVERSION"] = typeof(Startup)
+                .GetTypeInfo()
+                .Assembly
+                .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+                .InformationalVersion;
+            services.AddPersistence(Configuration);
+
+            services.AddApiV1Application();
+            services.AddDomainServices();
+
+            // Set Swagger generation services.
+            services.AddSwaggerGen(config =>
+            {
+                config.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Title = "Etherna Index API",
+                    Version = "v1",
+                });
+                config.CustomSchemaIds(sid => sid.Name);
+
+                var xmlFile = $"{typeof(ApiApplication.V1.ServiceCollectionExtensions).Assembly.GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                config.IncludeXmlComments(xmlPath);
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -40,7 +83,30 @@ namespace EthernaIndex
 
             app.UseRouting();
 
-            app.UseAuthorization();
+            // Add Hangfire.
+            app.UseHangfireDashboard(
+                "/admin/hangfire",
+                new DashboardOptions
+                {
+                    AppPath = "/admin"
+                });
+            if (!env.IsStaging()) //don't init server in staging
+                app.UseHangfireServer(new BackgroundJobServerOptions
+                {
+                    Queues = new[]
+                    {
+                        Digicando.MongODM.Tasks.Queues.DB_MAINTENANCE,
+                        "default"
+                    },
+                    WorkerCount = System.Environment.ProcessorCount * 2
+                });
+
+            // Setup Swagger and SwaggerUI.
+            app.UseSwagger();
+            app.UseSwaggerUI(config =>
+            {
+                config.SwaggerEndpoint("/swagger/v1/swagger.json", "Etherna Index API V1");
+            });
 
             app.UseEndpoints(endpoints =>
             {
