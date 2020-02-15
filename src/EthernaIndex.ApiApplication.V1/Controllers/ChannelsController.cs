@@ -42,6 +42,19 @@ namespace Etherna.EthernaIndex.ApiApplication.V1.Controllers
             controllerService.GetChannelsAsync(page, take);
 
         /// <summary>
+        /// Get channel info by address.
+        /// </summary>
+        /// <param name="address">The channel address</param>
+        [HttpGet("{address}")]
+        [SimpleExceptionFilter]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public Task<ChannelDto> FindByAddressAsync(
+            string address) =>
+            controllerService.FindByAddressAsync(address);
+
+        /// <summary>
         /// Get list of videos uploaded by a channel.
         /// </summary>
         /// <param name="address">Address of the channel</param>
@@ -69,15 +82,13 @@ namespace Etherna.EthernaIndex.ApiApplication.V1.Controllers
         public Task<ChannelDto> CreateAsync([Required] ChannelInput channelInput) =>
             controllerService.CreateAsync(channelInput);
 
-        // Put.
-
         /// <summary>
         /// Add a new video to a channel.
         /// </summary>
         /// <param name="address">Address of the channel</param>
         /// <param name="videoInput">Info of new video</param>
         /// <response code="404">Channel not found</response>
-        [HttpPut("{address}/videos")]
+        [HttpPost("{address}/videos")]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -87,12 +98,14 @@ namespace Etherna.EthernaIndex.ApiApplication.V1.Controllers
             [Required] VideoInput videoInput) =>
             controllerService.AddVideoAsync(address, videoInput);
 
+        // Put.
+
         /// <summary>
         /// Update channel info.
         /// </summary>
         /// <param name="address">Address of the channel</param>
         /// <param name="channelInput">Updated channel data</param>
-        [HttpPut]
+        [HttpPut("{address}")]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -108,7 +121,7 @@ namespace Etherna.EthernaIndex.ApiApplication.V1.Controllers
         /// <param name="address">Address of the channel</param>
         /// <param name="videoHash">Hash of the video</param>
         /// <response code="404">Channel not found</response>
-        [HttpDelete("{address}/videos")]
+        [HttpDelete("{address}/videos/{videoHash}")]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

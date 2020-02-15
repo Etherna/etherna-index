@@ -30,6 +30,11 @@ namespace Etherna.EthernaIndex.ApiApplication.V1.Services
             throw new NotImplementedException();
         }
 
+        public Task<ChannelDto> FindByAddressAsync(string address)
+        {
+            throw new NotImplementedException();
+        }
+
         public Task<IEnumerable<ChannelDto>> GetChannelsAsync(int page, int take)
         {
             throw new NotImplementedException();

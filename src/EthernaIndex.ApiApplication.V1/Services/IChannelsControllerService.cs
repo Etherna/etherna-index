@@ -14,5 +14,6 @@ namespace Etherna.EthernaIndex.ApiApplication.V1.Services
         Task<IEnumerable<VideoDto>> GetVideosAsync(string address);
         Task<ActionResult> RemoveVideoAsync(string address, string videoHash);
         Task<ChannelDto> UpdateAsync(string address, ChannelInput channelInput);
+        Task<ChannelDto> FindByAddressAsync(string address);
     }
 }

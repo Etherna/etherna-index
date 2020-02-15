@@ -41,6 +41,19 @@ namespace Etherna.EthernaIndex.ApiApplication.V1.Controllers
             [Range(1, 100)] int take = 25) =>
             controllerService.GetLastUploadedVideosAsync(page, take);
 
+        /// <summary>
+        /// Get video info by hash.
+        /// </summary>
+        /// <param name="hash">The video hash</param>
+        [HttpGet("{hash}")]
+        [SimpleExceptionFilter]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public Task<VideoDto> FindByHashAsync(
+            string hash) =>
+            controllerService.FindByHashAsync(hash);
+
         // Put.
 
         /// <summary>
@@ -48,12 +61,12 @@ namespace Etherna.EthernaIndex.ApiApplication.V1.Controllers
         /// </summary>
         /// <param name="hash">Hash of the video</param>
         /// <param name="videoInput">Updated video info</param>
-        [HttpPut]
+        [HttpPut("{hash}")]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public Task<ChannelDto> UpdateAsync(string hash, [Required] VideoInput videoInput) =>
+        public Task<VideoDto> UpdateAsync(string hash, [Required] VideoInput videoInput) =>
             controllerService.UpdateAsync(hash, videoInput);
     }
 }

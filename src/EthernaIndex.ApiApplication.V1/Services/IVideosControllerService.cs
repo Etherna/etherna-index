@@ -8,6 +8,7 @@ namespace Etherna.EthernaIndex.ApiApplication.V1.Services
     public interface IVideosControllerService
     {
         Task<IEnumerable<VideoDto>> GetLastUploadedVideosAsync(int page, int take);
-        Task<ChannelDto> UpdateAsync(string hash, VideoInput videoInput);
+        Task<VideoDto> UpdateAsync(string hash, VideoInput videoInput);
+        Task<VideoDto> FindByHashAsync(string hash);
     }
 }

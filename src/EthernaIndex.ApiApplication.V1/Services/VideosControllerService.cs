@@ -19,12 +19,17 @@ namespace Etherna.EthernaIndex.ApiApplication.V1.Services
         }
 
         // Methods.
+        public Task<VideoDto> FindByHashAsync(string hash)
+        {
+            throw new NotImplementedException();
+        }
+
         public Task<IEnumerable<VideoDto>> GetLastUploadedVideosAsync(int page, int take)
         {
             throw new NotImplementedException();
         }
 
-        public Task<ChannelDto> UpdateAsync(string hash, VideoInput videoInput)
+        public Task<VideoDto> UpdateAsync(string hash, VideoInput videoInput)
         {
             throw new NotImplementedException();
         }
