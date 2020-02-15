@@ -15,8 +15,8 @@ namespace Etherna.EthernaIndex.Domain.Models
         // Constructors.
         public ChannelTest()
         {
-            channel = new Channel(ChannelAddress);
-            sampleVideo = new Video(VideoHash);
+            channel = new Channel(ChannelAddress, null);
+            sampleVideo = new Video(null, null, "title", VideoHash);
         }
 
         // Tests.
@@ -28,6 +28,7 @@ namespace Etherna.EthernaIndex.Domain.Models
 
             // Assert.
             Assert.Contains(sampleVideo, channel.Videos);
+            Assert.Equal(channel, sampleVideo.OwnerChannel);
         }
 
         [Fact]

@@ -1,5 +1,6 @@
 ﻿using Etherna.EthernaIndex.ApiApplication.V1.DtoModels;
 using Etherna.EthernaIndex.ApiApplication.V1.InputModels;
+using Etherna.EthernaIndex.Domain;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -7,9 +8,19 @@ using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.ApiApplication.V1.Services
 {
-    public class ChannelsControllerService : IChannelsControllerService
+    internal class ChannelsControllerService : IChannelsControllerService
     {
-        public Task<ActionResult> AddVideoAsync(string address, string videoHash)
+        // Fields.
+        private readonly IIndexContext indexContext;
+
+        // Constructors.
+        public ChannelsControllerService(IIndexContext indexContext)
+        {
+            this.indexContext = indexContext;
+        }
+
+        // Methods.
+        public Task<ActionResult> AddVideoAsync(string address, VideoInput videoInput)
         {
             throw new NotImplementedException();
         }
@@ -30,6 +41,11 @@ namespace Etherna.EthernaIndex.ApiApplication.V1.Services
         }
 
         public Task<ActionResult> RemoveVideoAsync(string address, string videoHash)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<ChannelDto> UpdateAsync(string address, ChannelInput channelInput)
         {
             throw new NotImplementedException();
         }

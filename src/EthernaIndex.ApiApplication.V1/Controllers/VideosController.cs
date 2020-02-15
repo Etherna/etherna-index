@@ -1,5 +1,6 @@
 ﻿using Etherna.EthernaIndex.ApiApplication.V1.Attributes;
 using Etherna.EthernaIndex.ApiApplication.V1.DtoModels;
+using Etherna.EthernaIndex.ApiApplication.V1.InputModels;
 using Etherna.EthernaIndex.ApiApplication.V1.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -39,5 +40,20 @@ namespace Etherna.EthernaIndex.ApiApplication.V1.Controllers
             [Range(0, int.MaxValue)] int page,
             [Range(1, 100)] int take = 25) =>
             controllerService.GetLastUploadedVideosAsync(page, take);
+
+        // Put.
+
+        /// <summary>
+        /// Update video info.
+        /// </summary>
+        /// <param name="hash">Hash of the video</param>
+        /// <param name="videoInput">Updated video info</param>
+        [HttpPut]
+        [SimpleExceptionFilter]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public Task<ChannelDto> UpdateAsync(string hash, [Required] VideoInput videoInput) =>
+            controllerService.UpdateAsync(hash, videoInput);
     }
 }

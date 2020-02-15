@@ -75,7 +75,7 @@ namespace Etherna.EthernaIndex.ApiApplication.V1.Controllers
         /// Add a new video to a channel.
         /// </summary>
         /// <param name="address">Address of the channel</param>
-        /// <param name="videoHash">Hash of the video</param>
+        /// <param name="videoInput">Info of new video</param>
         /// <response code="404">Channel not found</response>
         [HttpPut("{address}/videos")]
         [SimpleExceptionFilter]
@@ -84,8 +84,21 @@ namespace Etherna.EthernaIndex.ApiApplication.V1.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public Task<ActionResult> AddVideoAsync(
             [Required] string address,
-            [Required] string videoHash) =>
-            controllerService.AddVideoAsync(address, videoHash);
+            [Required] VideoInput videoInput) =>
+            controllerService.AddVideoAsync(address, videoInput);
+
+        /// <summary>
+        /// Update channel info.
+        /// </summary>
+        /// <param name="address">Address of the channel</param>
+        /// <param name="channelInput">Updated channel data</param>
+        [HttpPut]
+        [SimpleExceptionFilter]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public Task<ChannelDto> UpdateAsync(string address, [Required] ChannelInput channelInput) =>
+            controllerService.UpdateAsync(address, channelInput);
 
         // Delete.
 

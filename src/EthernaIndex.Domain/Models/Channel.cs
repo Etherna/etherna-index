@@ -10,13 +10,15 @@ namespace Etherna.EthernaIndex.Domain.Models
         private List<Video> _videos = new List<Video>();
 
         // Constructors.
-        public Channel(string address)
+        public Channel(string address, string bannerHash)
         {
             Address = address ?? throw new ArgumentNullException(nameof(address));
+            SetBannerHash(bannerHash);
         }
 
         // Properties.
         public virtual string Address { get; protected set; }
+        public virtual string BannerHash { get; protected set; }
         public virtual IEnumerable<Video> Videos
         {
             get => _videos;
@@ -25,16 +27,21 @@ namespace Etherna.EthernaIndex.Domain.Models
 
         // Methods.
         [PropertyAlterer(nameof(Videos))]
-        public void AddVideo(Video video)
+        public virtual void AddVideo(Video video)
         {
             if (!_videos.Contains(video))
                 _videos.Add(video);
+            video.SetOwnerChannel(this);
         }
 
         [PropertyAlterer(nameof(Videos))]
-        public void RemoveVideo(Video video)
+        public virtual void RemoveVideo(Video video)
         {
             _videos.Remove(video);
         }
+
+        [PropertyAlterer(nameof(BannerHash))]
+        public virtual void SetBannerHash(string hash) =>
+            BannerHash = hash;
     }
 }
