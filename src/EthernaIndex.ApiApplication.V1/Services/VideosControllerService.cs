@@ -1,8 +1,11 @@
-﻿using Etherna.EthernaIndex.ApiApplication.V1.DtoModels;
+﻿using Digicando.MongODM.Extensions;
+using Etherna.EthernaIndex.ApiApplication.V1.DtoModels;
 using Etherna.EthernaIndex.ApiApplication.V1.InputModels;
 using Etherna.EthernaIndex.Domain;
-using System;
+using MongoDB.Driver;
+using MongoDB.Driver.Linq;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.ApiApplication.V1.Services
@@ -19,19 +22,30 @@ namespace Etherna.EthernaIndex.ApiApplication.V1.Services
         }
 
         // Methods.
-        public Task<VideoDto> FindByHashAsync(string hash)
-        {
-            throw new NotImplementedException();
-        }
+        public async Task<VideoDto> FindByHashAsync(string hash) =>
+            new VideoDto(await indexContext.Videos.QueryElementsAsync(elements =>
+                elements.Where(v => v.VideoHash == hash)
+                        .FirstAsync()));
 
-        public Task<IEnumerable<VideoDto>> GetLastUploadedVideosAsync(int page, int take)
-        {
-            throw new NotImplementedException();
-        }
+        public async Task<IEnumerable<VideoDto>> GetLastUploadedVideosAsync(int page, int take) =>
+            (await indexContext.Videos.QueryElementsAsync(elements =>
+                elements.PaginateDescending(v => v.CreationDateTime, page, take)
+                        .ToListAsync()))
+                .Select(v => new VideoDto(v));
 
-        public Task<VideoDto> UpdateAsync(string hash, VideoInput videoInput)
+        public async Task<VideoDto> UpdateAsync(VideoInput videoInput)
         {
-            throw new NotImplementedException();
+            var video = await indexContext.Videos.QueryElementsAsync(elements =>
+                elements.Where(v => v.VideoHash == videoInput.VideoHash)
+                        .FirstAsync());
+
+            video.SetDescription(videoInput.Description);
+            video.SetThumbnailHash(videoInput.ThumbnailHash);
+            video.SetTitle(videoInput.Title);
+
+            await indexContext.SaveChangesAsync();
+
+            return new VideoDto(video);
         }
     }
 }

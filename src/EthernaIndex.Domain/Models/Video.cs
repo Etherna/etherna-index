@@ -18,7 +18,7 @@ namespace Etherna.EthernaIndex.Domain.Models
         public virtual string Description { get; protected set; }
         public virtual Channel OwnerChannel { get; protected set; }
         public virtual string Title { get; protected set; }
-        public virtual string ThumbnailHash { get; set; }
+        public virtual string ThumbnailHash { get; protected set; }
         public virtual string VideoHash { get; protected set; }
 
         // Methods.

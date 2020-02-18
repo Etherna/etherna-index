@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Etherna.EthernaIndex.ApiApplication.V1.InputModels
+﻿namespace Etherna.EthernaIndex.ApiApplication.V1.InputModels
 {
     public class ChannelInput
     {
+        public string BannerHash { get; internal set; }
+        public string Address { get; internal set; }
     }
 }

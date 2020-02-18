@@ -93,7 +93,7 @@ namespace Etherna.EthernaIndex.ApiApplication.V1.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public Task<ActionResult> AddVideoAsync(
+        public Task<VideoDto> AddVideoAsync(
             [Required] string address,
             [Required] VideoInput videoInput) =>
             controllerService.AddVideoAsync(address, videoInput);
@@ -103,15 +103,14 @@ namespace Etherna.EthernaIndex.ApiApplication.V1.Controllers
         /// <summary>
         /// Update channel info.
         /// </summary>
-        /// <param name="address">Address of the channel</param>
         /// <param name="channelInput">Updated channel data</param>
-        [HttpPut("{address}")]
+        [HttpPut()]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public Task<ChannelDto> UpdateAsync(string address, [Required] ChannelInput channelInput) =>
-            controllerService.UpdateAsync(address, channelInput);
+        public Task<ChannelDto> UpdateAsync([Required] ChannelInput channelInput) =>
+            controllerService.UpdateAsync(channelInput);
 
         // Delete.
 
