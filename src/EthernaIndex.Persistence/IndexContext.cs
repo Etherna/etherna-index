@@ -21,7 +21,7 @@ namespace Etherna.EthernaIndex.Persistence
     public class IndexContext : DbContext, IIndexContext
     {
         // Consts.
-        private const string SerializersNamespace = "Digicando.Bcerty.Server.Persistence.ClassMaps";
+        private const string SerializersNamespace = "Etherna.EthernaIndex.Persistence.ClassMaps";
 
         // Constructor.
         public IndexContext(
