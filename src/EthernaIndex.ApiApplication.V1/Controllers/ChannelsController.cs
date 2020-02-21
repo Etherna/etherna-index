@@ -58,6 +58,8 @@ namespace Etherna.EthernaIndex.ApiApplication.V1.Controllers
         /// Get list of videos uploaded by a channel.
         /// </summary>
         /// <param name="address">Address of the channel</param>
+        /// <param name="page">Current page of results</param>
+        /// <param name="take">Number of items to retrieve. Max 100</param>
         /// <response code="200">List of channel's videos</response>
         /// <response code="404">Channel not found</response>
         [HttpGet("{address}/videos")]
@@ -65,8 +67,11 @@ namespace Etherna.EthernaIndex.ApiApplication.V1.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public Task<IEnumerable<VideoDto>> GetVideosAsync([Required] string address) =>
-            controllerService.GetVideosAsync(address);
+        public Task<IEnumerable<VideoDto>> GetVideosAsync(
+            [Required] string address,
+            [Range(0, int.MaxValue)] int page,
+            [Range(1, 100)] int take = 25) =>
+            controllerService.GetVideosAsync(address, page, take);
 
         // Post.
 
@@ -79,7 +84,7 @@ namespace Etherna.EthernaIndex.ApiApplication.V1.Controllers
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public Task<ChannelDto> CreateAsync([Required] ChannelInput channelInput) =>
+        public Task<ChannelDto> CreateAsync([Required] ChannelCreateInput channelInput) =>
             controllerService.CreateAsync(channelInput);
 
         /// <summary>
@@ -95,22 +100,22 @@ namespace Etherna.EthernaIndex.ApiApplication.V1.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public Task<VideoDto> AddVideoAsync(
             [Required] string address,
-            [Required] VideoInput videoInput) =>
+            [Required] VideoCreateInput videoInput) =>
             controllerService.AddVideoAsync(address, videoInput);
 
         // Put.
 
-        /// <summary>
-        /// Update channel info.
-        /// </summary>
-        /// <param name="channelInput">Updated channel data</param>
-        [HttpPut()]
-        [SimpleExceptionFilter]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public Task<ChannelDto> UpdateAsync([Required] ChannelInput channelInput) =>
-            controllerService.UpdateAsync(channelInput);
+        ///// <summary>
+        ///// Update channel info.
+        ///// </summary>
+        ///// <param name="channelInput">Updated channel data</param>
+        //[HttpPut()]
+        //[SimpleExceptionFilter]
+        //[ProducesResponseType(StatusCodes.Status200OK)]
+        //[ProducesResponseType(StatusCodes.Status400BadRequest)]
+        //[ProducesResponseType(StatusCodes.Status404NotFound)]
+        //public Task<ChannelDto> UpdateAsync([Required] ChannelInput channelInput) =>
+        //    controllerService.UpdateAsync(channelInput);
 
         // Delete.
 

@@ -13,7 +13,9 @@ namespace Etherna.EthernaIndex.Persistence
     {
         public static void AddPersistence(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddSingleton<IIndexContext, IndexContext>();
+            // MongODM.
+            services.UseMongODM<HangfireTaskRunner>();
+            services.UseMongODMDbContext<IIndexContext, IndexContext>();
 
             services.Configure<DbContextOptions>(nameof(IndexContext), opts =>
             {
@@ -21,9 +23,6 @@ namespace Etherna.EthernaIndex.Persistence
                 opts.DBName = configuration["MONGODB_DBNAME"];
                 opts.DocumentVersion = configuration["MONGODB_DOCUMENTVERSION"];
             });
-
-            // MongODM.
-            services.UseMongODM<HangfireTaskRunner>();
 
             // Add Hangfire filters.
             GlobalJobFilters.Filters.Add(new AsyncLocalContextHangfireFilter(AsyncLocalContext.Instance));

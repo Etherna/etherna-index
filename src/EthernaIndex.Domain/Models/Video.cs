@@ -5,18 +5,32 @@ namespace Etherna.EthernaIndex.Domain.Models
 {
     public class Video : EntityModelBase<string>
     {
-        // Constructors.
-        public Video(string description, string thumbnailHash, string title, string videoHash)
+        // Constructors and dispose.
+        public Video(string description, TimeSpan length, Channel ownerChannel, string thumbnailHash, string title, string videoHash)
         {
             SetDescription(description);
+            Length = length;
+            OwnerChannel = ownerChannel ?? throw new ArgumentNullException(nameof(ownerChannel));
             SetThumbnailHash(thumbnailHash);
             SetTitle(title);
             VideoHash = videoHash ?? throw new ArgumentNullException(nameof(videoHash));
+
+            OwnerChannel.AddVideo(this);
+        }
+        protected Video() { }
+
+        public override void DisposeForDelete()
+        {
+            //owner channel
+            OwnerChannel.RemoveVideo(this);
+
+            base.DisposeForDelete();
         }
 
         // Properties.
         public virtual string Description { get; protected set; }
         public virtual Channel OwnerChannel { get; protected set; }
+        public virtual TimeSpan Length { get; protected set; }
         public virtual string Title { get; protected set; }
         public virtual string ThumbnailHash { get; protected set; }
         public virtual string VideoHash { get; protected set; }
@@ -43,16 +57,6 @@ namespace Etherna.EthernaIndex.Domain.Models
                 throw new ArgumentException("Value can't be empty string", nameof(title));
             
             Title = title;
-        }
-
-        // Internal methods.
-        [PropertyAlterer(nameof(OwnerChannel))]
-        internal virtual void SetOwnerChannel(Channel channel)
-        {
-            if (OwnerChannel != null && OwnerChannel != channel)
-                throw new InvalidOperationException("Owner channel already set");
-
-            OwnerChannel = channel ?? throw new ArgumentNullException(nameof(channel));
         }
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using Xunit;
 
 namespace Etherna.EthernaIndex.Domain.Models
@@ -15,8 +16,8 @@ namespace Etherna.EthernaIndex.Domain.Models
         // Constructors.
         public ChannelTest()
         {
-            channel = new Channel(ChannelAddress, null);
-            sampleVideo = new Video(null, null, "title", VideoHash);
+            channel = new Channel(ChannelAddress);
+            sampleVideo = new Video("", TimeSpan.FromMinutes(10), channel, "", "title", VideoHash);
         }
 
         // Tests.

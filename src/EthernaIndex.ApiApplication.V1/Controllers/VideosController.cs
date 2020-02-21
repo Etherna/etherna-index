@@ -59,13 +59,14 @@ namespace Etherna.EthernaIndex.ApiApplication.V1.Controllers
         /// <summary>
         /// Update video info.
         /// </summary>
+        /// <param name="hash">The video hash</param>
         /// <param name="videoInput">Updated video info</param>
-        [HttpPut()]
+        [HttpPut("{hash}")]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public Task<VideoDto> UpdateAsync([Required] VideoInput videoInput) =>
-            controllerService.UpdateAsync(videoInput);
+        public Task<VideoDto> UpdateAsync(string hash, [Required] VideoUpdateInput videoInput) =>
+            controllerService.UpdateAsync(hash, videoInput);
     }
 }

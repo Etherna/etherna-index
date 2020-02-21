@@ -9,6 +9,6 @@ namespace Etherna.EthernaIndex.ApiApplication.V1.Services
     {
         Task<VideoDto> FindByHashAsync(string hash);
         Task<IEnumerable<VideoDto>> GetLastUploadedVideosAsync(int page, int take);
-        Task<VideoDto> UpdateAsync(VideoInput videoInput);
+        Task<VideoDto> UpdateAsync(string videoHash, VideoUpdateInput videoInput);
     }
 }

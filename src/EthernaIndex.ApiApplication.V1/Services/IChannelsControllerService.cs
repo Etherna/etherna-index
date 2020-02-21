@@ -8,12 +8,12 @@ namespace Etherna.EthernaIndex.ApiApplication.V1.Services
 {
     public interface IChannelsControllerService
     {
-        Task<VideoDto> AddVideoAsync(string address, VideoInput videoInput);
-        Task<ChannelDto> CreateAsync(ChannelInput channelInput);
+        Task<VideoDto> AddVideoAsync(string address, VideoCreateInput videoInput);
+        Task<ChannelDto> CreateAsync(ChannelCreateInput channelInput);
         Task<IEnumerable<ChannelDto>> GetChannelsAsync(int page, int take);
-        Task<IEnumerable<VideoDto>> GetVideosAsync(string address);
+        Task<IEnumerable<VideoDto>> GetVideosAsync(string address, int page, int take);
         Task<ActionResult> RemoveVideoAsync(string address, string videoHash);
-        Task<ChannelDto> UpdateAsync(ChannelInput channelInput);
+        Task<ChannelDto> UpdateAsync(ChannelCreateInput channelInput);
         Task<ChannelDto> FindByAddressAsync(string address);
     }
 }

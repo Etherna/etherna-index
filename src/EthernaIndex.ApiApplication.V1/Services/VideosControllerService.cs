@@ -33,10 +33,10 @@ namespace Etherna.EthernaIndex.ApiApplication.V1.Services
                         .ToListAsync()))
                 .Select(v => new VideoDto(v));
 
-        public async Task<VideoDto> UpdateAsync(VideoInput videoInput)
+        public async Task<VideoDto> UpdateAsync(string videoHash, VideoUpdateInput videoInput)
         {
             var video = await indexContext.Videos.QueryElementsAsync(elements =>
-                elements.Where(v => v.VideoHash == videoInput.VideoHash)
+                elements.Where(v => v.VideoHash == videoHash)
                         .FirstAsync());
 
             video.SetDescription(videoInput.Description);
