@@ -45,14 +45,14 @@ namespace Etherna.EthernaIndex
             });
 
             // Add application services.
-            var softwareVersion = typeof(Startup)
+            var assemblyVersion = typeof(Startup)
                 .GetTypeInfo()
                 .Assembly
                 .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
                 .InformationalVersion;
+            var documentVersion = assemblyVersion.Split('+')[0];
 
-            Configuration["API_VERSION"] = softwareVersion;
-            Configuration["MONGODB_DOCUMENTVERSION"] = softwareVersion;
+            Configuration["MONGODB_DOCUMENTVERSION"] = documentVersion;
             
             services.AddPersistence(Configuration);
             services.AddApiV1Application();
@@ -64,7 +64,7 @@ namespace Etherna.EthernaIndex
                 config.SwaggerDoc("v1", new OpenApiInfo
                 {
                     Title = "Etherna Index API",
-                    Version = Configuration["API_VERSION"]
+                    Version = "0.1"
                 });
                 config.CustomSchemaIds(sid => sid.Name);
 
