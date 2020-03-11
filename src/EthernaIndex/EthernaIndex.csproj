@@ -5,11 +5,12 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <UserSecretsId>e75c0893-75ec-4b73-9eb9-bf583c0d6d1f</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <DockerfileFile>..\..\Dockerfile</DockerfileFile>
     <RootNamespace>Etherna.EthernaIndex</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="GitVersionTask" Version="5.1.3">
+    <PackageReference Include="GitVersionTask" Version="5.2.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
