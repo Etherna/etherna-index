@@ -27,6 +27,14 @@ namespace Etherna.EthernaIndex
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors(options =>
+            {
+                options.AddDefaultPolicy(builder =>
+                {
+                    builder.WithOrigins("http://*.etherna.io")
+                           .SetIsOriginAllowedToAllowWildcardSubdomains();
+                });
+            });
             services.AddControllers();
 
             // Add Hangfire services.
@@ -81,6 +89,8 @@ namespace Etherna.EthernaIndex
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseCors();
 
             app.UseHttpsRedirection();
 
