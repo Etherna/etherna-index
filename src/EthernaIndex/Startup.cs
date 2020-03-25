@@ -5,6 +5,7 @@ using Hangfire;
 using Hangfire.Mongo;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -31,7 +32,8 @@ namespace Etherna.EthernaIndex
             {
                 options.AddDefaultPolicy(builder =>
                 {
-                    builder.WithOrigins("http://*.etherna.io")
+                    builder.WithOrigins("http://*.etherna.io",
+                                        "https://*.etherna.io")
                            .SetIsOriginAllowedToAllowWildcardSubdomains();
                 });
             });
@@ -69,7 +71,7 @@ namespace Etherna.EthernaIndex
             // Set Swagger generation services.
             services.AddSwaggerGen(config =>
             {
-                config.SwaggerDoc("v1", new OpenApiInfo
+                config.SwaggerDoc("v0.1", new OpenApiInfo
                 {
                     Title = "Etherna Index API",
                     Version = "0.1"
@@ -118,12 +120,17 @@ namespace Etherna.EthernaIndex
             app.UseSwagger();
             app.UseSwaggerUI(config =>
             {
-                config.SwaggerEndpoint("/swagger/v1/swagger.json", "Etherna Index API");
+                config.SwaggerEndpoint("/swagger/v0.1/swagger.json", "Etherna Index API");
             });
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+
+                endpoints.MapGet("/", async context =>
+                {
+                    await context.Response.WriteAsync("<h1>Etherna Index</h1><br/><a href=\"/swagger\">Swagger</a");
+                });
             });
         }
     }

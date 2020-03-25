@@ -25,7 +25,7 @@ namespace Etherna.EthernaIndex.ApiApplication.V1.Services
         public Task<SettingsDto> GetSettingsAsync() =>
             Task.FromResult(new SettingsDto(
                 configuration["SWARM_DEAFULT_GATEWAY"],
-                configuration["API_VERSION"]));
+                "0.1"));
 
         public async Task<IActionResult> MigrateDatabaseAsync()
         {
