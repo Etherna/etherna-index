@@ -31,7 +31,8 @@ namespace Etherna.EthernaIndex
             {
                 options.AddDefaultPolicy(builder =>
                 {
-                    builder.WithOrigins("http://*.etherna.io")
+                    builder.WithOrigins("http://*.etherna.io",
+                                        "https://*.etherna.io")
                            .SetIsOriginAllowedToAllowWildcardSubdomains();
                 });
             });
