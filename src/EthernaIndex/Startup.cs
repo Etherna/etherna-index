@@ -71,7 +71,7 @@ namespace Etherna.EthernaIndex
             // Set Swagger generation services.
             services.AddSwaggerGen(config =>
             {
-                config.SwaggerDoc("v1", new OpenApiInfo
+                config.SwaggerDoc("v0.1", new OpenApiInfo
                 {
                     Title = "Etherna Index API",
                     Version = "0.1"
@@ -120,7 +120,7 @@ namespace Etherna.EthernaIndex
             app.UseSwagger();
             app.UseSwaggerUI(config =>
             {
-                config.SwaggerEndpoint("/swagger/v1/swagger.json", "Etherna Index API");
+                config.SwaggerEndpoint("/swagger/v0.1/swagger.json", "Etherna Index API");
             });
 
             app.UseEndpoints(endpoints =>
