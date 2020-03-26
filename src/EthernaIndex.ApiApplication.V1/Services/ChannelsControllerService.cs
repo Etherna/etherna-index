@@ -6,6 +6,7 @@ using Etherna.EthernaIndex.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
+using Nethereum.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -50,10 +51,19 @@ namespace Etherna.EthernaIndex.ApiApplication.V1.Services
             return new ChannelDto(channel);
         }
 
-        public async Task<ChannelDto> FindByAddressAsync(string address) =>
-            new ChannelDto(await indexContext.Channels.QueryElementsAsync(elements =>
+        public async Task<ChannelDto> FindByAddressAsync(string address)
+        {
+            if (address is null)
+                throw new ArgumentNullException(nameof(address));
+            if (!address.IsValidEthereumAddressHexFormat())
+                throw new ArgumentException("The value is not a valid address", nameof(address));
+
+            address = address.ConvertToEthereumChecksumAddress();
+
+            return new ChannelDto(await indexContext.Channels.QueryElementsAsync(elements =>
                 elements.Where(c => c.Address == address)
                         .FirstAsync()));
+        }
 
         public async Task<IEnumerable<ChannelDto>> GetChannelsAsync(int page, int take) =>
             (await indexContext.Channels.QueryElementsAsync(elements =>

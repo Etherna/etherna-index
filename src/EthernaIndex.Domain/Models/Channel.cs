@@ -1,4 +1,5 @@
 ﻿using Digicando.DomainHelper.Attributes;
+using Nethereum.Util;
 using System;
 using System.Collections.Generic;
 
@@ -12,7 +13,7 @@ namespace Etherna.EthernaIndex.Domain.Models
         // Constructors.
         public Channel(string address)
         {
-            Address = address ?? throw new ArgumentNullException(nameof(address));
+            SetAddress(address);
         }
         protected Channel() { }
 
@@ -36,6 +37,17 @@ namespace Etherna.EthernaIndex.Domain.Models
         protected internal virtual void RemoveVideo(Video video)
         {
             _videos.Remove(video);
+        }
+
+        // Helpers.
+        private void SetAddress(string address)
+        {
+            if (address is null)
+                throw new ArgumentNullException(nameof(address));
+            if (!address.IsValidEthereumAddressHexFormat())
+                throw new ArgumentException("The value is not a valid address", nameof(address));
+
+            Address = address.ConvertToEthereumChecksumAddress();
         }
     }
 }
