@@ -6,7 +6,7 @@ namespace Etherna.EthernaIndex.Domain.Models
     public class ChannelTest
     {
         // Consts.
-        private const string ChannelAddress = "ImAnAddress";
+        private const string ChannelAddress = "0xFb6916095cA1Df60bb79ce92cE3EA74c37C5d359";
         private const string VideoHash = "ImAnHash";
 
         // Fields.
@@ -30,6 +30,14 @@ namespace Etherna.EthernaIndex.Domain.Models
             // Assert.
             Assert.Contains(sampleVideo, channel.Videos);
             Assert.Equal(channel, sampleVideo.OwnerChannel);
+        }
+
+        [Fact]
+        public void InvalidAddress()
+        {
+            // Assert.
+            Assert.Throws<ArgumentNullException>(() => new Channel(null));
+            Assert.Throws<ArgumentException>(() => new Channel("ImNotAnAddress"));
         }
 
         [Fact]
