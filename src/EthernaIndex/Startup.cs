@@ -34,7 +34,9 @@ namespace Etherna.EthernaIndex
                 {
                     builder.WithOrigins("http://*.etherna.io",
                                         "https://*.etherna.io")
-                           .SetIsOriginAllowedToAllowWildcardSubdomains();
+                           .SetIsOriginAllowedToAllowWildcardSubdomains()
+                           .AllowAnyHeader()
+                           .AllowAnyMethod();
                 });
             });
             services.AddControllers();
