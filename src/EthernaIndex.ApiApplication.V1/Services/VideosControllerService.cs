@@ -23,9 +23,7 @@ namespace Etherna.EthernaIndex.ApiApplication.V1.Services
 
         // Methods.
         public async Task<VideoDto> FindByHashAsync(string hash) =>
-            new VideoDto(await indexContext.Videos.QueryElementsAsync(elements =>
-                elements.Where(v => v.VideoHash == hash)
-                        .FirstAsync()));
+            new VideoDto(await indexContext.Videos.FindOneAsync(v => v.VideoHash == hash));
 
         public async Task<IEnumerable<VideoDto>> GetLastUploadedVideosAsync(int page, int take) =>
             (await indexContext.Videos.QueryElementsAsync(elements =>
@@ -35,9 +33,7 @@ namespace Etherna.EthernaIndex.ApiApplication.V1.Services
 
         public async Task<VideoDto> UpdateAsync(string videoHash, VideoUpdateInput videoInput)
         {
-            var video = await indexContext.Videos.QueryElementsAsync(elements =>
-                elements.Where(v => v.VideoHash == videoHash)
-                        .FirstAsync());
+            var video = await indexContext.Videos.FindOneAsync(v => v.VideoHash == videoHash);
 
             video.SetDescription(videoInput.Description);
             video.SetThumbnailHash(videoInput.ThumbnailHash);
