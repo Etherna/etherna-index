@@ -28,9 +28,7 @@ namespace Etherna.EthernaIndex.ApiApplication.V1.Services
         // Methods.
         public async Task<VideoDto> AddVideoAsync(string address, VideoCreateInput videoInput)
         {
-            var channel = await indexContext.Channels.QueryElementsAsync(elements =>
-                elements.Where(c => c.Address == address)
-                        .FirstAsync());
+            var channel = await indexContext.Channels.FindOneAsync(c => c.Address == address);
             var video = new Video(
                 videoInput.Description,
                 TimeSpan.FromSeconds(videoInput.LengthInSeconds),
@@ -60,9 +58,7 @@ namespace Etherna.EthernaIndex.ApiApplication.V1.Services
 
             address = address.ConvertToEthereumChecksumAddress();
 
-            return new ChannelDto(await indexContext.Channels.QueryElementsAsync(elements =>
-                elements.Where(c => c.Address == address)
-                        .FirstAsync()));
+            return new ChannelDto(await indexContext.Channels.FindOneAsync(c => c.Address == address));
         }
 
         public async Task<IEnumerable<ChannelDto>> GetChannelsAsync(int page, int take) =>
@@ -73,18 +69,14 @@ namespace Etherna.EthernaIndex.ApiApplication.V1.Services
 
         public async Task<IEnumerable<VideoDto>> GetVideosAsync(string address, int page, int take)
         {
-            var channel = await indexContext.Channels.QueryElementsAsync(elements =>
-                elements.Where(c => c.Address == address)
-                        .FirstAsync());
+            var channel = await indexContext.Channels.FindOneAsync(c => c.Address == address);
             return channel.Videos.PaginateDescending(v => v.CreationDateTime, page, take)
                                  .Select(v => new VideoDto(v));
         }
 
         public async Task<ActionResult> RemoveVideoAsync(string address, string videoHash)
         {
-            var channel = await indexContext.Channels.QueryElementsAsync(elements =>
-                elements.Where(c => c.Address == address)
-                        .FirstAsync());
+            var channel = await indexContext.Channels.FindOneAsync(c => c.Address == address);
             var video = channel.Videos.First(v => v.VideoHash == videoHash);
 
             await indexContext.Videos.DeleteAsync(video);
@@ -94,9 +86,7 @@ namespace Etherna.EthernaIndex.ApiApplication.V1.Services
 
         public async Task<ChannelDto> UpdateAsync(ChannelCreateInput channelInput)
         {
-            var channel = await indexContext.Channels.QueryElementsAsync(elements =>
-                elements.Where(c => c.Address == channelInput.Address)
-                        .FirstAsync());
+            var channel = await indexContext.Channels.FindOneAsync(c => c.Address == channelInput.Address);
 
             await indexContext.SaveChangesAsync();
 
