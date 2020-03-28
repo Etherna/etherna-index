@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\EthernaIndex.ApiApplication.V1\EthernaIndex.ApiApplication.V1.csproj" />
+    <ProjectReference Include="..\EthernaIndex.ApiApplication\EthernaIndex.ApiApplication.csproj" />
     <ProjectReference Include="..\EthernaIndex.Persistence\EthernaIndex.Persistence.csproj" />
   </ItemGroup>
 

@@ -1,4 +1,4 @@
-using Etherna.EthernaIndex.ApiApplication.V1;
+using Etherna.EthernaIndex.ApiApplication;
 using Etherna.EthernaIndex.Persistence;
 using Etherna.EthernaIndex.Services;
 using Hangfire;
@@ -70,7 +70,7 @@ namespace Etherna.EthernaIndex
                 });
                 config.CustomSchemaIds(sid => sid.Name);
 
-                var xmlFile = $"{typeof(ApiApplication.V1.ServiceCollectionExtensions).Assembly.GetName().Name}.xml";
+                var xmlFile = $"{typeof(ApiApplication.ServiceCollectionExtensions).Assembly.GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 config.IncludeXmlComments(xmlPath);
             });

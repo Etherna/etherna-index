@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <RootNamespace>Etherna.EthernaIndex.ApiApplication.V1</RootNamespace>
+    <RootNamespace>Etherna.EthernaIndex.ApiApplication</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

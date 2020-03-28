@@ -1,7 +1,7 @@
 ﻿using Etherna.EthernaIndex.Domain.Models;
 using System;
 
-namespace Etherna.EthernaIndex.ApiApplication.V1.DtoModels
+namespace Etherna.EthernaIndex.ApiApplication.DtoModels
 {
     public class VideoDto
     {
