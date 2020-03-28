@@ -1,7 +1,7 @@
-﻿using Etherna.EthernaIndex.ApiApplication.V1.Attributes;
-using Etherna.EthernaIndex.ApiApplication.V1.DtoModels;
-using Etherna.EthernaIndex.ApiApplication.V1.InputModels;
-using Etherna.EthernaIndex.ApiApplication.V1.Services;
+﻿using Etherna.EthernaIndex.ApiApplication.Attributes;
+using Etherna.EthernaIndex.ApiApplication.DtoModels;
+using Etherna.EthernaIndex.ApiApplication.InputModels;
+using Etherna.EthernaIndex.ApiApplication.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 
-namespace Etherna.EthernaIndex.ApiApplication.V1.Controllers
+namespace Etherna.EthernaIndex.ApiApplication.Controllers
 {
     [ApiController]
     [Route("[controller]")]

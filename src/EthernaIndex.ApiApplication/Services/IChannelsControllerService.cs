@@ -1,10 +1,10 @@
-﻿using Etherna.EthernaIndex.ApiApplication.V1.DtoModels;
-using Etherna.EthernaIndex.ApiApplication.V1.InputModels;
+﻿using Etherna.EthernaIndex.ApiApplication.DtoModels;
+using Etherna.EthernaIndex.ApiApplication.InputModels;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Etherna.EthernaIndex.ApiApplication.V1.Services
+namespace Etherna.EthernaIndex.ApiApplication.Services
 {
     public interface IChannelsControllerService
     {

@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Reflection;
 
-namespace Etherna.EthernaIndex.ApiApplication.V1
+namespace Etherna.EthernaIndex.ApiApplication
 {
     public static class ServiceCollectionExtensions
     {

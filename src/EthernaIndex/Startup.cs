@@ -1,4 +1,4 @@
-using Etherna.EthernaIndex.ApiApplication.V1;
+using Etherna.EthernaIndex.ApiApplication;
 using Etherna.EthernaIndex.Persistence;
 using Etherna.EthernaIndex.Services;
 using Hangfire;
@@ -28,15 +28,7 @@ namespace Etherna.EthernaIndex
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddCors(options =>
-            {
-                options.AddDefaultPolicy(builder =>
-                {
-                    builder.WithOrigins("http://*.etherna.io",
-                                        "https://*.etherna.io")
-                           .SetIsOriginAllowedToAllowWildcardSubdomains();
-                });
-            });
+            services.AddCors();
             services.AddControllers();
 
             // Add Hangfire services.
@@ -78,7 +70,7 @@ namespace Etherna.EthernaIndex
                 });
                 config.CustomSchemaIds(sid => sid.Name);
 
-                var xmlFile = $"{typeof(ApiApplication.V1.ServiceCollectionExtensions).Assembly.GetName().Name}.xml";
+                var xmlFile = $"{typeof(ApiApplication.ServiceCollectionExtensions).Assembly.GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 config.IncludeXmlComments(xmlPath);
             });
@@ -92,7 +84,23 @@ namespace Etherna.EthernaIndex
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseCors();
+            app.UseCors(builder =>
+            {
+                if (env.IsDevelopment())
+                {
+                    builder.AllowAnyOrigin()
+                           .AllowAnyHeader()
+                           .AllowAnyMethod();
+                }
+                else
+                {
+                    builder.WithOrigins("http://*.etherna.io",
+                                        "https://*.etherna.io")
+                           .SetIsOriginAllowedToAllowWildcardSubdomains()
+                           .AllowAnyHeader()
+                           .AllowAnyMethod();
+                }
+            });
 
             app.UseHttpsRedirection();
 
