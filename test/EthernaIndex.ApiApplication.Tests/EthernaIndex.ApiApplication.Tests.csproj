@@ -1,10 +1,10 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <IsPackable>false</IsPackable>
-    <RootNamespace>Etherna.EthernaIndex.ApiApplication.V1</RootNamespace>
+    <RootNamespace>Etherna.EthernaIndex.ApiApplication</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\EthernaIndex.ApiApplication.V1\EthernaIndex.ApiApplication.V1.csproj" />
+    <ProjectReference Include="..\..\src\EthernaIndex.ApiApplication\EthernaIndex.ApiApplication.csproj" />
   </ItemGroup>
 
 </Project>

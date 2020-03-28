@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Etherna.EthernaIndex.ApiApplication.V1.InputModels
+namespace Etherna.EthernaIndex.ApiApplication.InputModels
 {
     public class VideoCreateInput
     {
