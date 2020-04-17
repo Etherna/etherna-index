@@ -1,10 +1,10 @@
-﻿using Etherna.EthernaIndex.ApiApplication.V1.DtoModels;
+﻿using Etherna.EthernaIndex.ApiApplication.DtoModels;
 using Etherna.EthernaIndex.Domain;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System.Threading.Tasks;
 
-namespace Etherna.EthernaIndex.ApiApplication.V1.Services
+namespace Etherna.EthernaIndex.ApiApplication.Services
 {
     internal class SystemControllerService : ISystemControllerService
     {
@@ -25,7 +25,7 @@ namespace Etherna.EthernaIndex.ApiApplication.V1.Services
         public Task<SettingsDto> GetSettingsAsync() =>
             Task.FromResult(new SettingsDto(
                 configuration["SWARM_DEAFULT_GATEWAY"],
-                configuration["API_VERSION"]));
+                "0.1"));
 
         public async Task<IActionResult> MigrateDatabaseAsync()
         {

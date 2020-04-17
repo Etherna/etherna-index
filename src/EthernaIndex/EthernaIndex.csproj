@@ -5,6 +5,7 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <UserSecretsId>e75c0893-75ec-4b73-9eb9-bf583c0d6d1f</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <DockerfileFile>..\..\Dockerfile</DockerfileFile>
     <RootNamespace>Etherna.EthernaIndex</RootNamespace>
   </PropertyGroup>
 
@@ -19,11 +20,11 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.9.10" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="5.1.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="5.2.1" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\EthernaIndex.ApiApplication.V1\EthernaIndex.ApiApplication.V1.csproj" />
+    <ProjectReference Include="..\EthernaIndex.ApiApplication\EthernaIndex.ApiApplication.csproj" />
     <ProjectReference Include="..\EthernaIndex.Persistence\EthernaIndex.Persistence.csproj" />
   </ItemGroup>
 

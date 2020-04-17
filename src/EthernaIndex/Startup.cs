@@ -1,10 +1,11 @@
-using Etherna.EthernaIndex.ApiApplication.V1;
+using Etherna.EthernaIndex.ApiApplication;
 using Etherna.EthernaIndex.Persistence;
 using Etherna.EthernaIndex.Services;
 using Hangfire;
 using Hangfire.Mongo;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -27,6 +28,7 @@ namespace Etherna.EthernaIndex
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors();
             services.AddControllers();
 
             // Add Hangfire services.
@@ -61,14 +63,14 @@ namespace Etherna.EthernaIndex
             // Set Swagger generation services.
             services.AddSwaggerGen(config =>
             {
-                config.SwaggerDoc("v1", new OpenApiInfo
+                config.SwaggerDoc("v0.1", new OpenApiInfo
                 {
                     Title = "Etherna Index API",
                     Version = "0.1"
                 });
                 config.CustomSchemaIds(sid => sid.Name);
 
-                var xmlFile = $"{typeof(ApiApplication.V1.ServiceCollectionExtensions).Assembly.GetName().Name}.xml";
+                var xmlFile = $"{typeof(ApiApplication.ServiceCollectionExtensions).Assembly.GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 config.IncludeXmlComments(xmlPath);
             });
@@ -81,6 +83,24 @@ namespace Etherna.EthernaIndex
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseCors(builder =>
+            {
+                if (env.IsDevelopment())
+                {
+                    builder.AllowAnyOrigin()
+                           .AllowAnyHeader()
+                           .AllowAnyMethod();
+                }
+                else
+                {
+                    builder.WithOrigins("http://*.etherna.io",
+                                        "https://*.etherna.io")
+                           .SetIsOriginAllowedToAllowWildcardSubdomains()
+                           .AllowAnyHeader()
+                           .AllowAnyMethod();
+                }
+            });
 
             app.UseHttpsRedirection();
 
@@ -108,12 +128,17 @@ namespace Etherna.EthernaIndex
             app.UseSwagger();
             app.UseSwaggerUI(config =>
             {
-                config.SwaggerEndpoint("/swagger/v1/swagger.json", "Etherna Index API");
+                config.SwaggerEndpoint("/swagger/v0.1/swagger.json", "Etherna Index API");
             });
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+
+                endpoints.MapGet("/", async context =>
+                {
+                    await context.Response.WriteAsync("<h1>Etherna Index</h1><br/><a href=\"/swagger\">Swagger</a");
+                });
             });
         }
     }

@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using System;
 using System.Collections.Generic;
 
-namespace Etherna.EthernaIndex.ApiApplication.V1.Attributes
+namespace Etherna.EthernaIndex.ApiApplication.Attributes
 {
     public class SimpleExceptionFilterAttribute : ExceptionFilterAttribute
     {

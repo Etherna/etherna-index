@@ -7,11 +7,9 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1-buster AS build
 WORKDIR /src
-COPY ["EthernaIndex/EthernaIndex.csproj", "EthernaIndex/"]
-RUN dotnet restore "EthernaIndex/EthernaIndex.csproj"
 COPY . .
-WORKDIR "/src/EthernaIndex"
-RUN dotnet build "EthernaIndex.csproj" -c Release -o /app/build
+RUN dotnet restore "src/EthernaIndex/EthernaIndex.csproj"
+RUN dotnet build "src/EthernaIndex/EthernaIndex.csproj" -c Release -o /app/build
 
 FROM build AS publish
 RUN dotnet publish "EthernaIndex.csproj" -c Release -o /app/publish
