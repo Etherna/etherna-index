@@ -7,8 +7,8 @@ using Digicando.MongODM.Serialization.Modifiers;
 using Digicando.MongODM.Utility;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
-using Etherna.EthernaIndex.Persistence.Repositories;
 using Microsoft.Extensions.Options;
+using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,16 +39,35 @@ namespace Etherna.EthernaIndex.Persistence
                   proxyGenerator,
                   serializerModifierAccessor)
         {
-            Channels = new ChannelRepository(this);
-            Videos = new VideoRepository(this);
+            // Set properties.
+            EventDispatcher = eventDispatcher;
 
+            // Init repositories.
+            Channels = new CollectionRepository<Channel, string>(this,
+                new CollectionRepositoryOptions<Channel>("channels")
+                {
+                    IndexBuilders = new[]
+                    {
+                        (Builders<Channel>.IndexKeys.Ascending(c => c.Address), new CreateIndexOptions<Channel> { Unique = true })
+                    }
+                });
+
+            Videos = new CollectionRepository<Video, string>(this,
+                new CollectionRepositoryOptions<Video>("videos")
+                {
+                    IndexBuilders = new[]
+                    {
+                        (Builders<Video>.IndexKeys.Ascending(c => c.VideoHash), new CreateIndexOptions<Video> { Unique = true })
+                    }
+                });
+
+            // Init repo collectors.
             ModelCollectionRepositoryMap = new Dictionary<Type, ICollectionRepository>
             {
                 [typeof(Channel)] = Channels,
                 [typeof(Video)] = Videos,
             };
             ModelGridFSRepositoryMap = new Dictionary<Type, IGridFSRepository>();
-            EventDispatcher = eventDispatcher;
         }
 
         // Properties.
