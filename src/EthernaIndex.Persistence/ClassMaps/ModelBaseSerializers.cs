@@ -1,7 +1,5 @@
 ﻿using Digicando.MongODM;
-using Digicando.MongODM.ProxyModels;
 using Digicando.MongODM.Serialization;
-using Digicando.MongODM.Utility;
 using Etherna.EthernaIndex.Domain.Models;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.IdGenerators;
@@ -11,15 +9,12 @@ namespace Etherna.EthernaIndex.Persistence.ClassMaps
 {
     class ModelBaseSerializers : IModelSerializerCollector
     {
-        public void Register(IDBCache dbCache,
-            IDbContext dbContext,
-            IDocumentSchemaRegister documentSchemaRegister,
-            IProxyGenerator proxyGenerator)
+        public void Register(IDbContext dbContext)
         {
             // register class maps.
-            documentSchemaRegister.RegisterModelSchema<ModelBase>("0.1.0");
+            dbContext.DocumentSchemaRegister.RegisterModelSchema<ModelBase>("0.1.0");
 
-            documentSchemaRegister.RegisterModelSchema<EntityModelBase<string>>("0.1.0",
+            dbContext.DocumentSchemaRegister.RegisterModelSchema<EntityModelBase<string>>("0.1.0",
                 cm =>
                 {
                     cm.AutoMap();

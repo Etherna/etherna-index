@@ -1,9 +1,7 @@
 ﻿using Digicando.MongODM;
 using Digicando.MongODM.Extensions;
-using Digicando.MongODM.ProxyModels;
 using Digicando.MongODM.Serialization;
 using Digicando.MongODM.Serialization.Serializers;
-using Digicando.MongODM.Utility;
 using Etherna.EthernaIndex.Domain.Models;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
@@ -12,19 +10,15 @@ namespace Etherna.EthernaIndex.Persistence.ClassMaps
 {
     class ChannelSerializers : IModelSerializerCollector
     {
-        public void Register(
-            IDBCache dbCache,
-            IDbContext dbContext,
-            IDocumentSchemaRegister documentSchemaRegister,
-            IProxyGenerator proxyGenerator)
+        public void Register(IDbContext dbContext)
         {
-            documentSchemaRegister.RegisterModelSchema<Channel>("0.1.0",
+            dbContext.DocumentSchemaRegister.RegisterModelSchema<Channel>("0.1.0",
                 cm =>
                 {
                     cm.AutoMap();
 
                     // Set creator.
-                    cm.SetCreator(() => proxyGenerator.CreateInstance<Channel>(dbContext));
+                    cm.SetCreator(() => dbContext.ProxyGenerator.CreateInstance<Channel>(dbContext));
 
                     // Set members with custom serializers.
                     cm.SetMemberSerializer(c => c.Videos,
