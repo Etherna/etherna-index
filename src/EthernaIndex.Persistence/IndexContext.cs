@@ -5,7 +5,6 @@ using Digicando.MongODM.Serialization;
 using Digicando.MongODM.Utility;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
-using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
@@ -25,9 +24,8 @@ namespace Etherna.EthernaIndex.Persistence
         public IndexContext(
             IDbContextDependencies dbContextDependencies,
             IEventDispatcher eventDispatcher,
-            IOptionsMonitor<DbContextOptions> options)
-            : base(dbContextDependencies,
-                  options.Get(nameof(IndexContext)))
+            DbContextOptions<IndexContext> options)
+            : base(dbContextDependencies, options)
         {
             EventDispatcher = eventDispatcher;
         }

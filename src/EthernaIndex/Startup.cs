@@ -1,4 +1,6 @@
+using Digicando.MongODM.HF.Tasks;
 using Etherna.EthernaIndex.ApiApplication;
+using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Persistence;
 using Etherna.EthernaIndex.Services;
 using Hangfire;
@@ -46,7 +48,7 @@ namespace Etherna.EthernaIndex
                     });
             });
 
-            // Add application services.
+            // Add persistence.
             var assemblyVersion = typeof(Startup)
                 .GetTypeInfo()
                 .Assembly
@@ -54,9 +56,15 @@ namespace Etherna.EthernaIndex
                 .InformationalVersion;
             var documentVersion = assemblyVersion.Split('+')[0];
 
-            Configuration["MONGODB_DOCUMENTVERSION"] = documentVersion;
-            
-            services.AddPersistence(Configuration);
+            services.UseMongODM<HangfireTaskRunner>()
+                .AddDbContext<IIndexContext, IndexContext>(options =>
+                {
+                    options.ConnectionString = Configuration["MONGODB_CONNECTIONSTRING"];
+                    options.DBName = Configuration["MONGODB_DBNAME"];
+                    options.DocumentVersion = documentVersion;
+                });
+
+            // Add application services.
             services.AddApiV1Application();
             services.AddDomainServices();
 
