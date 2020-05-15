@@ -37,7 +37,7 @@ namespace Etherna.EthernaIndex
             services.AddHangfire(config =>
             {
                 config.UseMongoStorage(
-                    Configuration["HANGFIRE_CONNECTIONSTRING"],
+                    Configuration["ConnectionStrings:HangfireDb"],
                     new MongoStorageOptions
                     {
                         MigrationOptions = new MongoMigrationOptions
@@ -59,8 +59,7 @@ namespace Etherna.EthernaIndex
             services.UseMongODM<HangfireTaskRunner>()
                 .AddDbContext<IIndexContext, IndexContext>(options =>
                 {
-                    options.ConnectionString = Configuration["MONGODB_CONNECTIONSTRING"];
-                    options.DBName = Configuration["MONGODB_DBNAME"];
+                    options.ConnectionString = Configuration["ConnectionStrings:SSOServerDb"];
                     options.DocumentVersion = documentVersion;
                 });
 
