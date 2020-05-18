@@ -8,7 +8,8 @@ using System.Threading.Tasks;
 namespace Etherna.EthernaIndex.Areas.Api.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [ApiVersion("0.2")]
+    [Route("api/v{api-version:apiVersion}/[controller]")]
     public class SystemController : ControllerBase
     {
         // Fields.
