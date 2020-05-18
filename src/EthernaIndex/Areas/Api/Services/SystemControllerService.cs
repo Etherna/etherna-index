@@ -1,10 +1,10 @@
-﻿using Etherna.EthernaIndex.ApiApplication.DtoModels;
+﻿using Etherna.EthernaIndex.Areas.Api.DtoModels;
 using Etherna.EthernaIndex.Domain;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System.Threading.Tasks;
 
-namespace Etherna.EthernaIndex.ApiApplication.Services
+namespace Etherna.EthernaIndex.Areas.Api.Services
 {
     internal class SystemControllerService : ISystemControllerService
     {

@@ -1,5 +1,4 @@
 using Digicando.MongODM.HF.Tasks;
-using Etherna.EthernaIndex.ApiApplication;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Persistence;
 using Etherna.EthernaIndex.Services;
@@ -49,11 +48,11 @@ namespace Etherna.EthernaIndex
             });
 
             // Add persistence.
-            var assemblyVersion = typeof(Startup)
+            var assemblyVersion = GetType()
                 .GetTypeInfo()
                 .Assembly
                 .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
-                .InformationalVersion;
+                ?.InformationalVersion!;
             var documentVersion = assemblyVersion.Split('+')[0];
 
             services.UseMongODM<HangfireTaskRunner>()
@@ -64,7 +63,6 @@ namespace Etherna.EthernaIndex
                 });
 
             // Add application services.
-            services.AddApiV1Application();
             services.AddDomainServices();
 
             // Set Swagger generation services.
@@ -77,7 +75,7 @@ namespace Etherna.EthernaIndex
                 });
                 config.CustomSchemaIds(sid => sid.Name);
 
-                var xmlFile = $"{typeof(ApiApplication.ServiceCollectionExtensions).Assembly.GetName().Name}.xml";
+                var xmlFile = $"{GetType().Assembly.GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 config.IncludeXmlComments(xmlPath);
             });

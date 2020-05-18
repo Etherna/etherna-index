@@ -1,6 +1,6 @@
 ﻿using Digicando.MongODM.Extensions;
-using Etherna.EthernaIndex.ApiApplication.DtoModels;
-using Etherna.EthernaIndex.ApiApplication.InputModels;
+using Etherna.EthernaIndex.Areas.Api.DtoModels;
+using Etherna.EthernaIndex.Areas.Api.InputModels;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -12,7 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Etherna.EthernaIndex.ApiApplication.Services
+namespace Etherna.EthernaIndex.Areas.Api.Services
 {
     internal class ChannelsControllerService : IChannelsControllerService
     {

@@ -18,11 +18,11 @@ namespace Etherna.EthernaIndex.Domain.Models
         protected Channel() { }
 
         // Properties.
-        public virtual string Address { get; protected set; }
+        public virtual string Address { get; protected set; } = default!;
         public virtual IEnumerable<Video> Videos
         {
             get => _videos;
-            protected set => _videos = new List<Video>(value ?? new Video[0]);
+            protected set => _videos = new List<Video>(value ?? Array.Empty<Video>());
         }
 
         // Methods.

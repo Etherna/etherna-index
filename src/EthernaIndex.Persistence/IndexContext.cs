@@ -63,7 +63,7 @@ namespace Etherna.EthernaIndex.Persistence
         public override Task SaveChangesAsync(CancellationToken cancellationToken = default)
         {
             // Dispatch events.
-            foreach (var model in ChangedModelsList.Select(m => m as EntityModelBase))
+            foreach (var model in ChangedModelsList.Select(m => (EntityModelBase)m))
             {
                 EventDispatcher.DispatchAsync(model.Events);
                 model.ClearEvents();

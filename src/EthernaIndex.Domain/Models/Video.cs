@@ -11,7 +11,7 @@ namespace Etherna.EthernaIndex.Domain.Models
             SetDescription(description);
             Length = length;
             OwnerChannel = ownerChannel ?? throw new ArgumentNullException(nameof(ownerChannel));
-            SetThumbnailHash(thumbnailHash);
+            ThumbnailHash = thumbnailHash;
             SetTitle(title);
             VideoHash = videoHash ?? throw new ArgumentNullException(nameof(videoHash));
 
@@ -28,16 +28,16 @@ namespace Etherna.EthernaIndex.Domain.Models
         }
 
         // Properties.
-        public virtual string Description { get; protected set; }
-        public virtual Channel OwnerChannel { get; protected set; }
+        public virtual string Description { get; protected set; } = default!;
+        public virtual Channel OwnerChannel { get; protected set; } = default!;
         public virtual TimeSpan Length { get; protected set; }
-        public virtual string Title { get; protected set; }
-        public virtual string ThumbnailHash { get; protected set; }
-        public virtual string VideoHash { get; protected set; }
+        public virtual string Title { get; protected set; } = default!;
+        public virtual string? ThumbnailHash { get; set; }
+        public virtual string VideoHash { get; protected set; } = default!;
 
         // Methods.
         [PropertyAlterer(nameof(Description))]
-        public virtual void SetDescription(string description)
+        public virtual void SetDescription(string? description)
         {
             description ??= "";
             description = description.Trim();
@@ -45,18 +45,13 @@ namespace Etherna.EthernaIndex.Domain.Models
             Description = description;
         }
 
-        [PropertyAlterer(nameof(ThumbnailHash))]
-        public virtual void SetThumbnailHash(string hash) =>
-            ThumbnailHash = hash;
-
         [PropertyAlterer(nameof(Title))]
         public virtual void SetTitle(string title)
         {
-            title = title.Trim();
-            if (string.IsNullOrEmpty(title))
+            if (string.IsNullOrWhiteSpace(title))
                 throw new ArgumentException("Value can't be empty string", nameof(title));
             
-            Title = title;
+            Title = title.Trim();
         }
     }
 }

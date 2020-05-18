@@ -1,6 +1,6 @@
 ﻿using Digicando.MongODM.Extensions;
-using Etherna.EthernaIndex.ApiApplication.DtoModels;
-using Etherna.EthernaIndex.ApiApplication.InputModels;
+using Etherna.EthernaIndex.Areas.Api.DtoModels;
+using Etherna.EthernaIndex.Areas.Api.InputModels;
 using Etherna.EthernaIndex.Domain;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Etherna.EthernaIndex.ApiApplication.Services
+namespace Etherna.EthernaIndex.Areas.Api.Services
 {
     internal class VideosControllerService : IVideosControllerService
     {
@@ -36,7 +36,7 @@ namespace Etherna.EthernaIndex.ApiApplication.Services
             var video = await indexContext.Videos.FindOneAsync(v => v.VideoHash == videoHash);
 
             video.SetDescription(videoInput.Description);
-            video.SetThumbnailHash(videoInput.ThumbnailHash);
+            video.ThumbnailHash = videoInput.ThumbnailHash;
             video.SetTitle(videoInput.Title);
 
             await indexContext.SaveChangesAsync();

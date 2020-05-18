@@ -1,11 +1,11 @@
-﻿using Etherna.EthernaIndex.ApiApplication.Attributes;
-using Etherna.EthernaIndex.ApiApplication.DtoModels;
-using Etherna.EthernaIndex.ApiApplication.Services;
+﻿using Etherna.EthernaIndex.Areas.Api.DtoModels;
+using Etherna.EthernaIndex.Areas.Api.Services;
+using Etherna.EthernaIndex.Attributes;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
-namespace Etherna.EthernaIndex.ApiApplication.Controllers
+namespace Etherna.EthernaIndex.Areas.Api.Controllers
 {
     [ApiController]
     [Route("[controller]")]

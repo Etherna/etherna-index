@@ -1,4 +1,4 @@
-﻿namespace Etherna.EthernaIndex.ApiApplication.DtoModels
+﻿namespace Etherna.EthernaIndex.Areas.Api.DtoModels
 {
     public class SettingsDto
     {
