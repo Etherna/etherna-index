@@ -97,6 +97,7 @@ namespace Etherna.EthernaIndex
             {
                 options.AssemblyVersion = appSettings.AssemblyVersion;
             });
+            services.Configure<SsoServerSettings>(Configuration.GetSection("SsoServer"));
 
             // Configure persistence.
             services.UseMongODM<HangfireTaskRunner>()
