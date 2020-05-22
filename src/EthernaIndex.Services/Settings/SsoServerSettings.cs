@@ -2,7 +2,10 @@
 {
     public class SsoServerSettings
     {
-        public string LoginUrl { get; set; } = default!;
-        public string RegisterUrl { get; set; } = default!;
+        public string BaseUrl { get; set; } = default!;
+        public string LoginPath { get; set; } = default!;
+        public string LoginUrl => BaseUrl + LoginPath;
+        public string RegisterPath { get; set; } = default!;
+        public string RegisterUrl => BaseUrl + RegisterPath;
     }
 }

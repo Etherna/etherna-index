@@ -55,6 +55,17 @@ namespace Etherna.EthernaIndex
                 // can also be used to control the format of the API version in route templates
                 options.SubstituteApiVersionInUrl = true;
             });
+            services.AddAuthentication("defaultUser")
+                .AddJwtBearer("defaultUser", options =>
+                {
+                    options.Authority = Configuration["SsoServer:BaseUrl"];
+                    options.Audience = "ethernaIndexApiDefault";
+                })
+                .AddJwtBearer("adminUser", options =>
+                {
+                    options.Authority = Configuration["SsoServer:BaseUrl"];
+                    options.Audience = "ethernaIndexApiAdmin";
+                });
 
             // Configure Hangfire services.
             services.AddHangfire(options =>
