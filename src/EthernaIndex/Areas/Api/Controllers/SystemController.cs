@@ -4,7 +4,6 @@ using Etherna.EthernaIndex.Attributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Areas.Api.Controllers
@@ -34,14 +33,6 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         public Task<SettingsDto> GetSettingsAsync() =>
             controllerService.GetSettingsAsync();
-
-        //***DEBUG
-        [HttpGet("userClaims")]
-        public IActionResult Get()
-        {
-            return new JsonResult(from c in User.Claims select new { c.Type, c.Value });
-        }
-        //***DEBUG
 
         // Post.
 

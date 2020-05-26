@@ -55,16 +55,26 @@ namespace Etherna.EthernaIndex
                 // can also be used to control the format of the API version in route templates
                 options.SubstituteApiVersionInUrl = true;
             });
-            services.AddAuthentication("defaultUser")
-                .AddJwtBearer("defaultUser", options =>
+            services.AddAuthentication(options =>
                 {
-                    options.Authority = Configuration["SsoServer:BaseUrl"];
-                    options.Audience = "ethernaIndexApiDefault";
+                    options.DefaultScheme = "Cookies";
+                    options.DefaultChallengeScheme = "oidc";
                 })
-                .AddJwtBearer("adminUser", options =>
+                .AddCookie("Cookies")
+                .AddOpenIdConnect("oidc", options => //client config
                 {
                     options.Authority = Configuration["SsoServer:BaseUrl"];
-                    options.Audience = "ethernaIndexApiAdmin";
+
+                    options.ClientId = "ethernaIndexClientId";
+                    options.ClientSecret = Configuration["SsoServer:ClientSecret"];
+                    options.ResponseType = "code";
+
+                    options.SaveTokens = true;
+                })
+                .AddJwtBearer(options => //api config
+                {
+                    options.Authority = Configuration["SsoServer:BaseUrl"];
+                    options.Audience = "ethernaIndexApi";
                 });
 
             // Configure Hangfire services.
