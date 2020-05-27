@@ -70,11 +70,10 @@ namespace Etherna.EthernaIndex
                     options.ResponseType = "code";
 
                     options.SaveTokens = true;
-                })
-                .AddJwtBearer(options => //api config
-                {
-                    options.Authority = Configuration["SsoServer:BaseUrl"];
-                    options.Audience = "ethernaIndexApi";
+
+                    options.Scope.Clear();
+                    options.Scope.Add("openid");
+                    options.Scope.Add("ether_accounts");
                 });
 
             // Configure Hangfire services.
