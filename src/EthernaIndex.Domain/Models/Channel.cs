@@ -1,4 +1,4 @@
-﻿using Digicando.DomainHelper.Attributes;
+﻿using Etherna.MongODM.Attributes;
 using Nethereum.Util;
 using System;
 using System.Collections.Generic;

@@ -1,10 +1,10 @@
-﻿using Digicando.DomainEvents;
-using Digicando.MongODM;
-using Digicando.MongODM.Repositories;
-using Digicando.MongODM.Serialization;
-using Digicando.MongODM.Utility;
+﻿using Etherna.DomainEvents;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
+using Etherna.MongODM;
+using Etherna.MongODM.Repositories;
+using Etherna.MongODM.Serialization;
+using Etherna.MongODM.Utility;
 using MongoDB.Driver;
 using System;
 using System.Collections.Generic;

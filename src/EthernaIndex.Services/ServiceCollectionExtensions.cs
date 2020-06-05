@@ -1,4 +1,4 @@
-﻿using Digicando.DomainEvents;
+﻿using Etherna.DomainEvents;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;

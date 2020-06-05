@@ -1,8 +1,8 @@
-﻿using Digicando.MongODM;
-using Digicando.MongODM.Extensions;
-using Digicando.MongODM.Serialization;
-using Digicando.MongODM.Serialization.Serializers;
-using Etherna.EthernaIndex.Domain.Models;
+﻿using Etherna.EthernaIndex.Domain.Models;
+using Etherna.MongODM;
+using Etherna.MongODM.Extensions;
+using Etherna.MongODM.Serialization;
+using Etherna.MongODM.Serialization.Serializers;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
 

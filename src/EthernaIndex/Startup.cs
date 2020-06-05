@@ -1,11 +1,11 @@
-using Digicando.MongODM;
-using Digicando.MongODM.HF.Tasks;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Persistence;
 using Etherna.EthernaIndex.Services;
 using Etherna.EthernaIndex.Services.Settings;
 using Etherna.EthernaIndex.Swagger;
 using Etherna.EthernaIndex.SystemStore;
+using Etherna.MongODM;
+using Etherna.MongODM.HF.Tasks;
 using Hangfire;
 using Hangfire.Mongo;
 using Microsoft.AspNetCore.Builder;
@@ -162,7 +162,7 @@ namespace Etherna.EthernaIndex
                 {
                     Queues = new[]
                     {
-                        Digicando.MongODM.Tasks.Queues.DB_MAINTENANCE,
+                        MongODM.Tasks.Queues.DB_MAINTENANCE,
                         "default"
                     },
                     WorkerCount = System.Environment.ProcessorCount * 2
