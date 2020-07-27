@@ -27,9 +27,9 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
                 configuration["SWARM_DEAFULT_GATEWAY"],
                 "0.1"));
 
-        public async Task<IActionResult> MigrateDatabaseAsync()
+        public async Task<IActionResult> MigrateDatabaseAsync(string currentUserAddress)
         {
-            await indexContext.DbMigrationManager.StartDbContextMigrationAsync("tempUserId");
+            await indexContext.DbMigrationManager.StartDbContextMigrationAsync(currentUserAddress);
             return new OkResult();
         }
     }
