@@ -1,14 +1,14 @@
-﻿using Digicando.MongODM;
-using Digicando.MongODM.Extensions;
-using Digicando.MongODM.Serialization;
-using Digicando.MongODM.Serialization.Serializers;
-using Etherna.EthernaIndex.Domain.Models;
+﻿using Etherna.EthernaIndex.Domain.Models;
+using Etherna.MongODM;
+using Etherna.MongODM.Extensions;
+using Etherna.MongODM.Serialization;
+using Etherna.MongODM.Serialization.Serializers;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
 
-namespace Etherna.EthernaIndex.Persistence.ClassMaps
+namespace Etherna.EthernaIndex.Persistence.ModelMaps
 {
-    class VideoSerializers : IModelSerializerCollector
+    class VideoMap : IModelMapsCollector
     {
         public void Register(IDbContext dbContext)
         {
@@ -17,11 +17,8 @@ namespace Etherna.EthernaIndex.Persistence.ClassMaps
                 {
                     cm.AutoMap();
 
-                    // Set creator.
-                    cm.SetCreator(() => dbContext.ProxyGenerator.CreateInstance<Video>(dbContext));
-
                     // Set members with custom serializers.
-                    cm.SetMemberSerializer(v => v.OwnerChannel, ChannelSerializers.InformationSerializer(dbContext));
+                    cm.SetMemberSerializer(v => v.OwnerChannel, ChannelMap.InformationSerializer(dbContext));
                 });
         }
 

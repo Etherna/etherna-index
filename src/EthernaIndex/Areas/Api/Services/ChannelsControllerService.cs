@@ -1,8 +1,8 @@
-﻿using Digicando.MongODM.Extensions;
-using Etherna.EthernaIndex.Areas.Api.DtoModels;
+﻿using Etherna.EthernaIndex.Areas.Api.DtoModels;
 using Etherna.EthernaIndex.Areas.Api.InputModels;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
+using Etherna.MongODM.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;

@@ -1,10 +1,10 @@
-﻿using Digicando.DomainEvents;
-using Digicando.MongODM;
-using Digicando.MongODM.Repositories;
-using Digicando.MongODM.Serialization;
-using Digicando.MongODM.Utility;
+﻿using Etherna.DomainEvents;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
+using Etherna.MongODM;
+using Etherna.MongODM.Repositories;
+using Etherna.MongODM.Serialization;
+using Etherna.MongODM.Utility;
 using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
@@ -18,14 +18,14 @@ namespace Etherna.EthernaIndex.Persistence
     public class IndexContext : DbContext, IIndexContext
     {
         // Consts.
-        private const string SerializersNamespace = "Etherna.EthernaIndex.Persistence.ClassMaps";
+        private const string SerializersNamespace = "Etherna.EthernaIndex.Persistence.ModelMaps";
 
         // Constructor.
         public IndexContext(
-            IDbContextDependencies dbContextDependencies,
+            IDbDependencies dbDependencies,
             IEventDispatcher eventDispatcher,
             DbContextOptions<IndexContext> options)
-            : base(dbContextDependencies, options)
+            : base(dbDependencies, options)
         {
             EventDispatcher = eventDispatcher;
         }
@@ -53,11 +53,11 @@ namespace Etherna.EthernaIndex.Persistence
         public IEventDispatcher EventDispatcher { get; }
 
         // Protected properties.
-        protected override IEnumerable<IModelSerializerCollector> SerializerCollectors =>
+        protected override IEnumerable<IModelMapsCollector> ModelMapsCollectors =>
             from t in typeof(IndexContext).GetTypeInfo().Assembly.GetTypes()
             where t.IsClass && t.Namespace == SerializersNamespace
-            where t.GetInterfaces().Contains(typeof(IModelSerializerCollector))
-            select Activator.CreateInstance(t) as IModelSerializerCollector;
+            where t.GetInterfaces().Contains(typeof(IModelMapsCollector))
+            select Activator.CreateInstance(t) as IModelMapsCollector;
 
         // Methods.
         public override Task SaveChangesAsync(CancellationToken cancellationToken = default)

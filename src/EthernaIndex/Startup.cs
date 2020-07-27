@@ -1,13 +1,16 @@
-using Digicando.MongODM;
-using Digicando.MongODM.HF.Tasks;
 using Etherna.EthernaIndex.Domain;
+using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.Persistence;
 using Etherna.EthernaIndex.Services;
 using Etherna.EthernaIndex.Services.Settings;
 using Etherna.EthernaIndex.Swagger;
 using Etherna.EthernaIndex.SystemStore;
+using Etherna.MongODM;
+using Etherna.MongODM.HF.Tasks;
 using Hangfire;
 using Hangfire.Mongo;
+using Hangfire.Mongo.Migration.Strategies;
+using Hangfire.Mongo.Migration.Strategies.Backup;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
@@ -83,10 +86,10 @@ namespace Etherna.EthernaIndex
                     Configuration["ConnectionStrings:HangfireDb"],
                     new MongoStorageOptions
                     {
-                        MigrationOptions = new MongoMigrationOptions
+                        MigrationOptions = new MongoMigrationOptions //don't remove, could throw exception
                         {
-                            Strategy = MongoMigrationStrategy.Migrate,
-                            BackupStrategy = MongoBackupStrategy.Collections
+                            MigrationStrategy = new MigrateMongoMigrationStrategy(),
+                            BackupStrategy = new CollectionMongoBackupStrategy()
                         }
                     });
             });
@@ -120,11 +123,11 @@ namespace Etherna.EthernaIndex
             services.Configure<SsoServerSettings>(Configuration.GetSection("SsoServer"));
 
             // Configure persistence.
-            services.UseMongODM<HangfireTaskRunner>()
+            services.UseMongODM<HangfireTaskRunner, ModelBase>()
                 .AddDbContext<IIndexContext, IndexContext>(options =>
                 {
+                    options.ApplicationVersion = appSettings.SimpleAssemblyVersion;
                     options.ConnectionString = Configuration["ConnectionStrings:IndexDb"];
-                    options.DocumentVersion = appSettings.SimpleAssemblyVersion;
                 });
 
             // Configure domain services.
@@ -182,7 +185,7 @@ namespace Etherna.EthernaIndex
                 {
                     Queues = new[]
                     {
-                        Digicando.MongODM.Tasks.Queues.DB_MAINTENANCE,
+                        MongODM.Tasks.Queues.DB_MAINTENANCE,
                         "default"
                     },
                     WorkerCount = System.Environment.ProcessorCount * 2

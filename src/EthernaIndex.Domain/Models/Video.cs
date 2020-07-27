@@ -1,4 +1,4 @@
-﻿using Digicando.DomainHelper.Attributes;
+﻿using Etherna.MongODM.Attributes;
 using System;
 
 namespace Etherna.EthernaIndex.Domain.Models

@@ -1,7 +1,7 @@
-﻿using Digicando.DomainEvents;
-using Digicando.MongODM;
-using Digicando.MongODM.Repositories;
+﻿using Etherna.DomainEvents;
 using Etherna.EthernaIndex.Domain.Models;
+using Etherna.MongODM;
+using Etherna.MongODM.Repositories;
 
 namespace Etherna.EthernaIndex.Domain
 {

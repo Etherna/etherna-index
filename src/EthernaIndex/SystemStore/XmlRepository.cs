@@ -1,4 +1,4 @@
-﻿using Digicando.MongODM;
+﻿using Etherna.MongODM;
 using Microsoft.AspNetCore.DataProtection.Repositories;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -27,7 +27,7 @@ namespace Etherna.EthernaIndex.SystemStore
 
             // Initialize MongoDB driver.
             var client = new MongoClient(options.ConnectionString);
-            var database = client.GetDatabase(options.DBName);
+            var database = client.GetDatabase(options.DbName);
             collection = database.GetCollection<BsonDocument>(CollectionName);
         }
 
