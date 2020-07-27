@@ -29,7 +29,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
 
         public async Task<IActionResult> MigrateDatabaseAsync()
         {
-            await indexContext.MigrateRepositoriesAsync();
+            await indexContext.DbMigrationManager.StartDbContextMigrationAsync("tempUserId");
             return new OkResult();
         }
     }

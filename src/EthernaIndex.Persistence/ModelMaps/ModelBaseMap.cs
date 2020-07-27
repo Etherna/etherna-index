@@ -5,9 +5,9 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.IdGenerators;
 using MongoDB.Bson.Serialization.Serializers;
 
-namespace Etherna.EthernaIndex.Persistence.ClassMaps
+namespace Etherna.EthernaIndex.Persistence.ModelMaps
 {
-    class ModelBaseSerializers : IModelSerializerCollector
+    class ModelBaseMap : IModelMapsCollector
     {
         public void Register(IDbContext dbContext)
         {

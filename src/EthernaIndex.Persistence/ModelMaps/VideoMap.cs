@@ -6,34 +6,29 @@ using Etherna.MongODM.Serialization.Serializers;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
 
-namespace Etherna.EthernaIndex.Persistence.ClassMaps
+namespace Etherna.EthernaIndex.Persistence.ModelMaps
 {
-    class ChannelSerializers : IModelSerializerCollector
+    class VideoMap : IModelMapsCollector
     {
         public void Register(IDbContext dbContext)
         {
-            dbContext.DocumentSchemaRegister.RegisterModelSchema<Channel>("0.1.0",
+            dbContext.DocumentSchemaRegister.RegisterModelSchema<Video>("0.1.0",
                 cm =>
                 {
                     cm.AutoMap();
 
-                    // Set creator.
-                    cm.SetCreator(() => dbContext.ProxyGenerator.CreateInstance<Channel>(dbContext));
-
                     // Set members with custom serializers.
-                    cm.SetMemberSerializer(c => c.Videos,
-                        new EnumerableSerializer<Video>(
-                            VideoSerializers.InformationSerializer(dbContext, true)));
+                    cm.SetMemberSerializer(v => v.OwnerChannel, ChannelMap.InformationSerializer(dbContext));
                 });
         }
 
         /// <summary>
         /// The full entity serializer without relations
         /// </summary>
-        public static ReferenceSerializer<Channel, string> InformationSerializer(
+        public static ReferenceSerializer<Video, string> InformationSerializer(
             IDbContext dbContext,
             bool useCascadeDelete = false) =>
-            new ReferenceSerializer<Channel, string>(dbContext, useCascadeDelete)
+            new ReferenceSerializer<Video, string>(dbContext, useCascadeDelete)
                 .RegisterType<ModelBase>()
                 .RegisterType<EntityModelBase>(cm => { })
                 .RegisterType<EntityModelBase<string>>(cm =>
@@ -41,9 +36,11 @@ namespace Etherna.EthernaIndex.Persistence.ClassMaps
                     cm.MapIdMember(m => m.Id);
                     cm.IdMemberMap.SetSerializer(new StringSerializer(BsonType.ObjectId));
                 })
-                .RegisterType<Channel>(cm =>
+                .RegisterType<Video>(cm =>
                 {
-                    cm.MapMember(c => c.Address);
+                    cm.MapMember(v => v.ThumbnailHash);
+                    cm.MapMember(v => v.Title);
+                    cm.MapMember(v => v.VideoHash);
                 });
     }
 }
