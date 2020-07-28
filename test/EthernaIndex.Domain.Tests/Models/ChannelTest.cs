@@ -17,7 +17,7 @@ namespace Etherna.EthernaIndex.Domain.Models
         public ChannelTest()
         {
             channel = new Channel(ChannelAddress);
-            sampleVideo = new Video("", TimeSpan.FromMinutes(10), channel, "", "title", VideoHash);
+            sampleVideo = new Video("", TimeSpan.FromMinutes(10), channel, "", false, "title", VideoHash, false);
         }
 
         // Tests.

@@ -16,8 +16,10 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
             Description = video.Description;
             LengthInSeconds = (int)video.Length.TotalSeconds;
             ThumbnailHash = video.ThumbnailHash;
+            ThumbnailHashIsRaw = video.ThumbnailHashIsRaw;
             Title = video.Title;
             VideoHash = video.VideoHash;
+            VideoHashIsRaw = video.VideoHashIsRaw;
         }
 
         // Properties.
@@ -26,7 +28,9 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
         public string Description { get; }
         public int LengthInSeconds { get; }
         public string? ThumbnailHash { get; }
+        public bool ThumbnailHashIsRaw { get; }
         public string Title { get; }
         public string VideoHash { get; }
+        public bool VideoHashIsRaw { get; }
     }
 }
