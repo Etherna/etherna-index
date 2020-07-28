@@ -58,6 +58,26 @@ namespace Etherna.EthernaIndex
                 // can also be used to control the format of the API version in route templates
                 options.SubstituteApiVersionInUrl = true;
             });
+            services.AddAuthentication(options =>
+                {
+                    options.DefaultScheme = "Cookies";
+                    options.DefaultChallengeScheme = "oidc";
+                })
+                .AddCookie("Cookies")
+                .AddOpenIdConnect("oidc", options => //client config
+                {
+                    options.Authority = Configuration["SsoServer:BaseUrl"];
+
+                    options.ClientId = "ethernaIndexClientId";
+                    options.ClientSecret = Configuration["SsoServer:ClientSecret"];
+                    options.ResponseType = "code";
+
+                    options.SaveTokens = true;
+
+                    options.Scope.Clear();
+                    options.Scope.Add("openid");
+                    options.Scope.Add("ether_accounts");
+                });
 
             // Configure Hangfire services.
             services.AddHangfire(options =>

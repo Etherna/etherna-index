@@ -1,6 +1,8 @@
 ﻿using Etherna.EthernaIndex.Areas.Api.DtoModels;
 using Etherna.EthernaIndex.Areas.Api.Services;
 using Etherna.EthernaIndex.Attributes;
+using Etherna.EthernaIndex.Extensions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
@@ -8,6 +10,7 @@ using System.Threading.Tasks;
 namespace Etherna.EthernaIndex.Areas.Api.Controllers
 {
     [ApiController]
+    [Authorize]
     [ApiVersion("0.2")]
     [Route("api/v{api-version:apiVersion}/[controller]")]
     public class SystemController : ControllerBase
@@ -41,6 +44,6 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         [HttpPost("migratedb")]
         [SimpleExceptionFilter]
         public Task<IActionResult> MigrateDatabase() =>
-            controllerService.MigrateDatabaseAsync();
+            controllerService.MigrateDatabaseAsync(User.GetEtherAddress());
     }
 }
