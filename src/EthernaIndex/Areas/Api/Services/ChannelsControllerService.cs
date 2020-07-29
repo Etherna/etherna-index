@@ -34,8 +34,10 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
                 TimeSpan.FromSeconds(videoInput.LengthInSeconds),
                 channel,
                 videoInput.ThumbnailHash,
+                videoInput.ThumbnailHashIsRaw,
                 videoInput.Title,
-                videoInput.VideoHash);
+                videoInput.VideoHash,
+                videoInput.VideoHashIsRaw);
 
             await indexContext.Videos.CreateAsync(video);
 

@@ -5,6 +5,7 @@ using Etherna.MongODM.Serialization;
 using Etherna.MongODM.Serialization.Serializers;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
+using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Persistence.ModelMaps
 {
@@ -19,6 +20,23 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
 
                     // Set members with custom serializers.
                     cm.SetMemberSerializer(v => v.OwnerChannel, ChannelMap.InformationSerializer(dbContext));
+
+                    // Set member to ignore if default.
+                    cm.GetMemberMap(v => v.ThumbnailHashIsRaw).SetIgnoreIfDefault(true);
+                    cm.GetMemberMap(v => v.VideoHashIsRaw).SetIgnoreIfDefault(true);
+                },
+                modelMigrationAsync: (video, semver) =>
+                {
+                    // 0.2.0 fixes.
+                    if (semver < "0.2.0")
+                    {
+                        ReflectionHelper.SetValue(
+                            video, v => v.VideoHashIsRaw, true);
+                        ReflectionHelper.SetValue(
+                            video, v => v.ThumbnailHashIsRaw, true);
+                    }
+
+                    return Task.FromResult(video);
                 });
         }
 
