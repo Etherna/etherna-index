@@ -41,6 +41,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                     cm.MapMember(v => v.ThumbnailHash);
                     cm.MapMember(v => v.Title);
                     cm.MapMember(v => v.VideoHash);
-                });
+                })
+                .RegisterProxyType<Video>();
     }
 }
