@@ -41,6 +41,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                 .RegisterType<Channel>(cm =>
                 {
                     cm.MapMember(c => c.Address);
-                });
+                })
+                .RegisterProxyType<Channel>();
     }
 }
