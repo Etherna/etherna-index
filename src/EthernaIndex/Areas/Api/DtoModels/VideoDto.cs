@@ -14,6 +14,8 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
             ChannelAddress = video.OwnerChannel.Address;
             CreationDateTime = video.CreationDateTime;
             Description = video.Description;
+            EncryptionKey = video.EncryptionKey;
+            EncryptionType = video.EncryptionType;
             LengthInSeconds = (int)video.Length.TotalSeconds;
             ThumbnailHash = video.ThumbnailHash;
             ThumbnailHashIsRaw = video.ThumbnailHashIsRaw;
@@ -26,6 +28,8 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
         public string ChannelAddress { get; }
         public DateTime CreationDateTime { get; }
         public string Description { get; }
+        public string? EncryptionKey { get; }
+        public EncryptionType EncryptionType { get; }
         public int LengthInSeconds { get; }
         public string? ThumbnailHash { get; }
         public bool ThumbnailHashIsRaw { get; }

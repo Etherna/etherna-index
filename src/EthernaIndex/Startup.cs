@@ -22,6 +22,7 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
 using System.IO;
 using System.Reflection;
+using System.Text.Json.Serialization;
 
 namespace Etherna.EthernaIndex
 {
@@ -43,7 +44,9 @@ namespace Etherna.EthernaIndex
 
             services.AddCors();
             services.AddRazorPages();
-            services.AddControllers();
+            services.AddControllers()
+                .AddJsonOptions(options =>
+                    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
             services.AddApiVersioning(options =>
             {
                 options.ReportApiVersions = true;

@@ -1,5 +1,6 @@
 ﻿using Etherna.MongODM.Attributes;
 using System;
+using System.Text.RegularExpressions;
 
 namespace Etherna.EthernaIndex.Domain.Models
 {
@@ -8,6 +9,8 @@ namespace Etherna.EthernaIndex.Domain.Models
         // Constructors and dispose.
         public Video(
             string description,
+            string? encryptionKey,
+            EncryptionType encryptionType,
             TimeSpan length,
             Channel ownerChannel,
             string thumbnailHash,
@@ -17,6 +20,7 @@ namespace Etherna.EthernaIndex.Domain.Models
             bool videoHashIsRaw)
         {
             SetDescription(description);
+            SetEncryptionKey(encryptionKey, encryptionType);
             Length = length;
             OwnerChannel = ownerChannel ?? throw new ArgumentNullException(nameof(ownerChannel));
             ThumbnailHash = thumbnailHash;
@@ -38,11 +42,13 @@ namespace Etherna.EthernaIndex.Domain.Models
 
         // Properties.
         public virtual string Description { get; protected set; } = default!;
-        public virtual Channel OwnerChannel { get; protected set; } = default!;
+        public virtual string? EncryptionKey { get; protected set; }
+        public virtual EncryptionType EncryptionType { get; protected set; }
         public virtual TimeSpan Length { get; protected set; }
-        public virtual string Title { get; protected set; } = default!;
+        public virtual Channel OwnerChannel { get; protected set; } = default!;
         public virtual string? ThumbnailHash { get; set; }
         public virtual bool ThumbnailHashIsRaw { get; protected set; }
+        public virtual string Title { get; protected set; } = default!;
         public virtual string VideoHash { get; protected set; } = default!;
         public virtual bool VideoHashIsRaw { get; protected set; }
 
@@ -54,6 +60,28 @@ namespace Etherna.EthernaIndex.Domain.Models
             description = description.Trim();
 
             Description = description;
+        }
+
+        [PropertyAlterer(nameof(EncryptionKey))]
+        [PropertyAlterer(nameof(EncryptionType))]
+        public virtual void SetEncryptionKey(string? encryptionKey, EncryptionType encryptionType)
+        {
+            switch (encryptionType)
+            {
+                case EncryptionType.AES256:
+                    if (!Regex.IsMatch(encryptionKey, "^[A-Fa-f0-9]{64}$"))
+                        throw new ArgumentException($"Encryption key is not a valid {encryptionType} key");
+                    break;
+                case EncryptionType.Plain:
+                    if (!string.IsNullOrEmpty(encryptionKey))
+                        throw new ArgumentException($"Encryption key must be empty with unencrypted content");
+                    break;
+                default:
+                    throw new InvalidOperationException();
+            }
+
+            EncryptionKey = encryptionKey;
+            EncryptionType = encryptionType;
         }
 
         [PropertyAlterer(nameof(Title))]
