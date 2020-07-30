@@ -19,9 +19,10 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                     cm.AutoMap();
 
                     // Set members with custom serializers.
+                    cm.SetMemberSerializer(v => v.EncryptionKey!, new HexToBinaryDataSerializer());
                     cm.SetMemberSerializer(v => v.OwnerChannel, ChannelMap.InformationSerializer(dbContext));
 
-                    // Set member to ignore if default.
+                    // Set members to ignore if default.
                     cm.GetMemberMap(v => v.ThumbnailHashIsRaw).SetIgnoreIfDefault(true);
                     cm.GetMemberMap(v => v.VideoHashIsRaw).SetIgnoreIfDefault(true);
                 },
@@ -31,9 +32,12 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                     if (semver < "0.2.0")
                     {
                         ReflectionHelper.SetValue(
-                            video, v => v.VideoHashIsRaw, true);
+                            video, v => v.EncryptionType, EncryptionType.Plain);
+
                         ReflectionHelper.SetValue(
                             video, v => v.ThumbnailHashIsRaw, true);
+                        ReflectionHelper.SetValue(
+                            video, v => v.VideoHashIsRaw, true);
                     }
 
                     return Task.FromResult(video);

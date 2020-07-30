@@ -31,6 +31,8 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             var channel = await indexContext.Channels.FindOneAsync(c => c.Address == address);
             var video = new Video(
                 videoInput.Description,
+                videoInput.EncryptionKey,
+                videoInput.EncryptionType,
                 TimeSpan.FromSeconds(videoInput.LengthInSeconds),
                 channel,
                 videoInput.ThumbnailHash,
