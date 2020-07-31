@@ -1,7 +1,8 @@
 ﻿using Etherna.EthernaIndex.Areas.Api.DtoModels;
-using Etherna.EthernaIndex.Areas.Api.InputModels;
 using Etherna.EthernaIndex.Areas.Api.Services;
 using Etherna.EthernaIndex.Attributes;
+using Etherna.EthernaIndex.Extensions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -77,64 +78,15 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         // Post.
 
         /// <summary>
-        /// Create a new channel.
+        /// Create a new channel with current address.
         /// </summary>
-        /// <param name="channelInput">New channel data</param>
         /// <response code="200">The new created channel</response>
         [HttpPost]
+        [Authorize]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public Task<ChannelDto> CreateAsync([Required] ChannelCreateInput channelInput) =>
-            controllerService.CreateAsync(channelInput);
-
-        /// <summary>
-        /// Add a new video to a channel.
-        /// </summary>
-        /// <param name="address">Address of the channel</param>
-        /// <param name="videoInput">Info of new video</param>
-        /// <response code="404">Channel not found</response>
-        [HttpPost("{address}/videos")]
-        [SimpleExceptionFilter]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public Task<VideoDto> AddVideoAsync(
-            [Required] string address,
-            [Required] VideoCreateInput videoInput) =>
-            controllerService.AddVideoAsync(address, videoInput);
-
-        // Put.
-
-        ///// <summary>
-        ///// Update channel info.
-        ///// </summary>
-        ///// <param name="channelInput">Updated channel data</param>
-        //[HttpPut()]
-        //[SimpleExceptionFilter]
-        //[ProducesResponseType(StatusCodes.Status200OK)]
-        //[ProducesResponseType(StatusCodes.Status400BadRequest)]
-        //[ProducesResponseType(StatusCodes.Status404NotFound)]
-        //public Task<ChannelDto> UpdateAsync([Required] ChannelInput channelInput) =>
-        //    controllerService.UpdateAsync(channelInput);
-
-        // Delete.
-
-        /// <summary>
-        /// Remove a video from a channel.
-        /// </summary>
-        /// <param name="address">Address of the channel</param>
-        /// <param name="videoHash">Hash of the video</param>
-        /// <response code="404">Channel not found</response>
-        [HttpDelete("{address}/videos/{videoHash}")]
-        [SimpleExceptionFilter]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public Task<ActionResult> RemoveVideoAsync(
-            [Required] string address,
-            [Required] string videoHash) =>
-            controllerService.RemoveVideoAsync(address, videoHash);
+        public Task<ChannelDto> CreateAsync() =>
+            controllerService.CreateAsync(User.GetEtherAddress());
     }
 }
