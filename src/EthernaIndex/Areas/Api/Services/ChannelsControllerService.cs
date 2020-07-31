@@ -1,9 +1,7 @@
 ﻿using Etherna.EthernaIndex.Areas.Api.DtoModels;
-using Etherna.EthernaIndex.Areas.Api.InputModels;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
 using Etherna.MongODM.Extensions;
-using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 using Nethereum.Util;
@@ -26,30 +24,17 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         }
 
         // Methods.
-        public async Task<VideoDto> AddVideoAsync(string address, VideoCreateInput videoInput)
+        public async Task<ChannelDto> CreateAsync(string address)
         {
-            var channel = await indexContext.Channels.FindOneAsync(c => c.Address == address);
-            var video = new Video(
-                videoInput.Description,
-                videoInput.EncryptionKey,
-                videoInput.EncryptionType,
-                TimeSpan.FromSeconds(videoInput.LengthInSeconds),
-                channel,
-                videoInput.ThumbnailHash,
-                videoInput.ThumbnailHashIsRaw,
-                videoInput.Title,
-                videoInput.VideoHash,
-                videoInput.VideoHashIsRaw);
+            var channel = await indexContext.Channels.QueryElementsAsync(elements =>
+                elements.FirstOrDefaultAsync(c => c.Address == address));
 
-            await indexContext.Videos.CreateAsync(video);
+            if (channel is null)
+            {
+                channel = new Channel(address);
+                await indexContext.Channels.CreateAsync(channel);
+            }
 
-            return new VideoDto(video);
-        }
-
-        public async Task<ChannelDto> CreateAsync(ChannelCreateInput channelInput)
-        {
-            var channel = new Channel(channelInput.Address);
-            await indexContext.Channels.CreateAsync(channel);
             return new ChannelDto(channel);
         }
 
@@ -76,25 +61,6 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             var channel = await indexContext.Channels.FindOneAsync(c => c.Address == address);
             return channel.Videos.PaginateDescending(v => v.CreationDateTime, page, take)
                                  .Select(v => new VideoDto(v));
-        }
-
-        public async Task<ActionResult> RemoveVideoAsync(string address, string videoHash)
-        {
-            var channel = await indexContext.Channels.FindOneAsync(c => c.Address == address);
-            var video = channel.Videos.First(v => v.VideoHash == videoHash);
-
-            await indexContext.Videos.DeleteAsync(video);
-
-            return new OkResult();
-        }
-
-        public async Task<ChannelDto> UpdateAsync(ChannelCreateInput channelInput)
-        {
-            var channel = await indexContext.Channels.FindOneAsync(c => c.Address == channelInput.Address);
-
-            await indexContext.SaveChangesAsync();
-
-            return new ChannelDto(channel);
         }
     }
 }

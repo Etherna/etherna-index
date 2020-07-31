@@ -2,6 +2,8 @@
 using Etherna.EthernaIndex.Areas.Api.InputModels;
 using Etherna.EthernaIndex.Areas.Api.Services;
 using Etherna.EthernaIndex.Attributes;
+using Etherna.EthernaIndex.Extensions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -55,6 +57,23 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
             string hash) =>
             controllerService.FindByHashAsync(hash);
 
+        // Post.
+
+        /// <summary>
+        /// Create a new video with current channel.
+        /// </summary>
+        /// <param name="videoInput">Info of new video</param>
+        /// <response code="404">Channel not found</response>
+        [HttpPost]
+        [Authorize]
+        [SimpleExceptionFilter]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public Task<VideoDto> CreateAsync(
+            [Required] VideoCreateInput videoInput) =>
+            controllerService.CreateAsync(User.GetEtherAddress(), videoInput);
+
         // Put.
 
         /// <summary>
@@ -63,11 +82,31 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// <param name="hash">The video hash</param>
         /// <param name="videoInput">Updated video info</param>
         [HttpPut("{hash}")]
+        [Authorize]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public Task<VideoDto> UpdateAsync(string hash, [Required] VideoUpdateInput videoInput) =>
+        public Task<VideoDto> UpdateAsync(
+            string hash,
+            [Required] VideoUpdateInput videoInput) =>
             controllerService.UpdateAsync(hash, videoInput);
+
+        // Delete.
+
+        /// <summary>
+        /// Delete a video from index.
+        /// </summary>
+        /// <param name="hash">Hash of the video</param>
+        [HttpDelete("{hash}")]
+        [Authorize]
+        [SimpleExceptionFilter]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public Task<ActionResult> DeleteAsync(
+            [Required] string hash) =>
+            controllerService.DeleteAsync(hash);
     }
 }
