@@ -21,10 +21,6 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                     // Set members with custom serializers.
                     cm.SetMemberSerializer(v => v.EncryptionKey!, new HexToBinaryDataSerializer());
                     cm.SetMemberSerializer(v => v.OwnerChannel, ChannelMap.InformationSerializer(dbContext));
-
-                    // Set members to ignore if default.
-                    cm.GetMemberMap(v => v.ThumbnailHashIsRaw).SetIgnoreIfDefault(true);
-                    cm.GetMemberMap(v => v.VideoHashIsRaw).SetIgnoreIfDefault(true);
                 },
                 modelMigrationAsync: (video, semver) =>
                 {
@@ -60,9 +56,9 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                 })
                 .RegisterType<Video>(cm =>
                 {
-                    cm.MapMember(v => v.ThumbnailHash);
+                    cm.MapMember(v => v.Hash);
+                    cm.MapMember(v => v.ThumbHash);
                     cm.MapMember(v => v.Title);
-                    cm.MapMember(v => v.VideoHash);
                 })
                 .RegisterProxyType<Video>();
     }

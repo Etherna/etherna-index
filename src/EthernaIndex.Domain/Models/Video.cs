@@ -1,4 +1,5 @@
-﻿using Etherna.MongODM.Attributes;
+﻿using Etherna.EthernaIndex.Domain.Models.Swarm;
+using Etherna.MongODM.Attributes;
 using System;
 using System.Text.RegularExpressions;
 
@@ -11,23 +12,19 @@ namespace Etherna.EthernaIndex.Domain.Models
             string description,
             string? encryptionKey,
             EncryptionType encryptionType,
+            SwarmContentHash hash,
             TimeSpan length,
             Channel ownerChannel,
-            string thumbnailHash,
-            bool thumbnailHashIsRaw,
-            string title,
-            string videoHash,
-            bool videoHashIsRaw)
+            SwarmContentHash? thumbnailHash,
+            string title)
         {
             SetDescription(description);
             SetEncryptionKey(encryptionKey, encryptionType);
+            Hash = hash ?? throw new ArgumentNullException(nameof(hash));
             Length = length;
             OwnerChannel = ownerChannel ?? throw new ArgumentNullException(nameof(ownerChannel));
-            ThumbnailHash = thumbnailHash;
-            ThumbnailHashIsRaw = thumbnailHashIsRaw;
+            ThumbHash = thumbnailHash;
             SetTitle(title);
-            VideoHash = videoHash ?? throw new ArgumentNullException(nameof(videoHash));
-            VideoHashIsRaw = videoHashIsRaw;
             OwnerChannel.AddVideo(this);
         }
         protected Video() { }
@@ -44,13 +41,11 @@ namespace Etherna.EthernaIndex.Domain.Models
         public virtual string Description { get; protected set; } = default!;
         public virtual string? EncryptionKey { get; protected set; }
         public virtual EncryptionType EncryptionType { get; protected set; }
+        public virtual SwarmContentHash Hash { get; protected set; } = default!;
         public virtual TimeSpan Length { get; protected set; }
         public virtual Channel OwnerChannel { get; protected set; } = default!;
-        public virtual string? ThumbnailHash { get; set; }
-        public virtual bool ThumbnailHashIsRaw { get; protected set; }
+        public virtual SwarmContentHash? ThumbHash { get; set; }
         public virtual string Title { get; protected set; } = default!;
-        public virtual string VideoHash { get; protected set; } = default!;
-        public virtual bool VideoHashIsRaw { get; protected set; }
 
         // Methods.
         [PropertyAlterer(nameof(Description))]
