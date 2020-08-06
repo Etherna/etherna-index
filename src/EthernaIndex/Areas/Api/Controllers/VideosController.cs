@@ -2,7 +2,6 @@
 using Etherna.EthernaIndex.Areas.Api.InputModels;
 using Etherna.EthernaIndex.Areas.Api.Services;
 using Etherna.EthernaIndex.Attributes;
-using Etherna.EthernaIndex.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -72,7 +71,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public Task<VideoDto> CreateAsync(
             [Required] VideoCreateInput videoInput) =>
-            controllerService.CreateAsync(User.GetEtherAddress(), videoInput);
+            controllerService.CreateAsync(videoInput);
 
         // Put.
 
@@ -105,7 +104,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public Task<ActionResult> DeleteAsync(
+        public Task DeleteAsync(
             [Required] string hash) =>
             controllerService.DeleteAsync(hash);
     }

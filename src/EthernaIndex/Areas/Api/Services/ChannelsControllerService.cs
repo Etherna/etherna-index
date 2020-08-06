@@ -1,7 +1,9 @@
 ﻿using Etherna.EthernaIndex.Areas.Api.DtoModels;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
+using Etherna.EthernaIndex.Extensions;
 using Etherna.MongODM.Extensions;
+using Microsoft.AspNetCore.Http;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 using Nethereum.Util;
@@ -15,17 +17,22 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
     internal class ChannelsControllerService : IChannelsControllerService
     {
         // Fields.
+        private readonly IHttpContextAccessor httpContextAccessor;
         private readonly IIndexContext indexContext;
 
         // Constructors.
-        public ChannelsControllerService(IIndexContext indexContext)
+        public ChannelsControllerService(
+            IHttpContextAccessor httpContextAccessor,
+            IIndexContext indexContext)
         {
+            this.httpContextAccessor = httpContextAccessor;
             this.indexContext = indexContext;
         }
 
         // Methods.
-        public async Task<ChannelDto> CreateAsync(string address)
+        public async Task<ChannelDto> CreateAsync()
         {
+            var address = httpContextAccessor.HttpContext.User.GetEtherAddress();
             var channel = await indexContext.Channels.QueryElementsAsync(elements =>
                 elements.FirstOrDefaultAsync(c => c.Address == address));
 
