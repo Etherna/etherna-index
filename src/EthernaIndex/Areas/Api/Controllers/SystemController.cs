@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 namespace Etherna.EthernaIndex.Areas.Api.Controllers
 {
     [ApiController]
-    [Authorize]
     [ApiVersion("0.2")]
     [Route("api/v{api-version:apiVersion}/[controller]")]
     public class SystemController : ControllerBase
@@ -42,6 +41,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPost("migratedb")]
+        [Authorize]
         [SimpleExceptionFilter]
         public Task<IActionResult> MigrateDatabase() =>
             controllerService.MigrateDatabaseAsync(User.GetEtherAddress());

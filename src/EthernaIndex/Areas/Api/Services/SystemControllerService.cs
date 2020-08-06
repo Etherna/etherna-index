@@ -24,8 +24,8 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         // Methods.
         public Task<SettingsDto> GetSettingsAsync() =>
             Task.FromResult(new SettingsDto(
-                configuration["SWARM_DEAFULT_GATEWAY"],
-                "0.1"));
+                configuration["Swarm:GatewayUrl"],
+                "0.2"));
 
         public async Task<IActionResult> MigrateDatabaseAsync(string currentUserAddress)
         {
