@@ -21,8 +21,10 @@ using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
 using System.IO;
+using System.Net;
 using System.Reflection;
 using System.Text.Json.Serialization;
+using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex
 {
@@ -70,6 +72,17 @@ namespace Etherna.EthernaIndex
                 .AddOpenIdConnect("oidc", options => //client config
                 {
                     options.Authority = Configuration["SsoServer:BaseUrl"];
+
+                    // Response 401 for unauthorized call on api.
+                    options.Events.OnRedirectToIdentityProvider = context =>
+                    {
+                        if (context.Request.Path.StartsWithSegments("/api", StringComparison.InvariantCulture))
+                        {
+                            context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                            context.HandleResponse();
+                        }
+                        return Task.CompletedTask;
+                    };
 
                     options.ClientId = "ethernaIndexClientId";
                     options.ClientSecret = Configuration["SsoServer:ClientSecret"];
