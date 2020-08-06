@@ -1,7 +1,6 @@
 ﻿using Etherna.EthernaIndex.Areas.Api.DtoModels;
 using Etherna.EthernaIndex.Areas.Api.Services;
 using Etherna.EthernaIndex.Attributes;
-using Etherna.EthernaIndex.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -87,6 +86,6 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public Task<ChannelDto> CreateAsync() =>
-            controllerService.CreateAsync(User.GetEtherAddress());
+            controllerService.CreateAsync();
     }
 }
