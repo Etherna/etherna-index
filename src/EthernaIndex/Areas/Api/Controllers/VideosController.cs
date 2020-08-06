@@ -76,6 +76,22 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
 
         // Put.
 
+        /// <summary>
+        /// Update video manifest.
+        /// </summary>
+        /// <param name="oldHash">The old video manifest hash</param>
+        /// <param name="newHash">The new video manifest hash</param>
+        [HttpPut("{oldHash}")]
+        [Authorize]
+        [SimpleExceptionFilter]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public Task<VideoDto> UpdateAsync(
+            string oldHash,
+            [Required] string newHash) =>
+            controllerService.UpdateAsync(oldHash, newHash);
+
         // Delete.
 
         /// <summary>

@@ -60,5 +60,16 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
                 elements.PaginateDescending(v => v.CreationDateTime, page, take)
                         .ToListAsync()))
                 .Select(v => new VideoDto(v));
+
+        public async Task<VideoDto> UpdateAsync(string oldHash, string newHash)
+        {
+            var video = await indexContext.Videos.FindOneAsync(v => v.ManifestHash.Hash == oldHash);
+
+            video.SetManifestHash(new SwarmContentHash(newHash));
+
+            await indexContext.SaveChangesAsync();
+
+            return new VideoDto(video);
+        }
     }
 }
