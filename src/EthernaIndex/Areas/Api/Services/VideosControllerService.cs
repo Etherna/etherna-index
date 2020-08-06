@@ -29,20 +29,13 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         public async Task<VideoDto> CreateAsync(string channelAddress, VideoCreateInput videoInput)
         {
             var channel = await indexContext.Channels.FindOneAsync(c => c.Address == channelAddress);
-            var thumbnailHash = videoInput.ThumbnailHash is null ?
-                null :
-                new SwarmContentHash(videoInput.ThumbnailHash, videoInput.ThumbnailHashIsRaw);
-            var videoHash = new SwarmContentHash(videoInput.VideoHash, videoInput.VideoHashIsRaw);
+            var manifestHash = new SwarmContentHash(videoInput.ManifestHash);
 
             var video = new Video(
-                videoInput.Description,
                 videoInput.EncryptionKey,
                 videoInput.EncryptionType,
-                TimeSpan.FromSeconds(videoInput.LengthInSeconds),
-                channel,
-                thumbnailHash,
-                videoInput.Title,
-                videoHash);
+                manifestHash,
+                channel);
 
             await indexContext.Videos.CreateAsync(video);
 
@@ -52,7 +45,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         public async Task<ActionResult> DeleteAsync(string hash)
         {
             var video = await indexContext.Videos.QueryElementsAsync(elements =>
-                elements.FirstAsync(v => v.VideoHash.Hash == hash));
+                elements.FirstAsync(v => v.ManifestHash.Hash == hash));
 
             await indexContext.Videos.DeleteAsync(video);
 
@@ -60,29 +53,12 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         }
 
         public async Task<VideoDto> FindByHashAsync(string hash) =>
-            new VideoDto(await indexContext.Videos.FindOneAsync(v => v.VideoHash.Hash == hash));
+            new VideoDto(await indexContext.Videos.FindOneAsync(v => v.ManifestHash.Hash == hash));
 
         public async Task<IEnumerable<VideoDto>> GetLastUploadedVideosAsync(int page, int take) =>
             (await indexContext.Videos.QueryElementsAsync(elements =>
                 elements.PaginateDescending(v => v.CreationDateTime, page, take)
                         .ToListAsync()))
                 .Select(v => new VideoDto(v));
-
-        public async Task<VideoDto> UpdateAsync(string videoHash, VideoUpdateInput videoInput)
-        {
-            var video = await indexContext.Videos.FindOneAsync(v => v.VideoHash.Hash == videoHash);
-
-            video.SetDescription(videoInput.Description);
-            video.ThumbnailHash = videoInput.ThumbnailHash is null ?
-                null :
-                new SwarmContentHash(
-                    videoInput.ThumbnailHash,
-                    videoInput.ThumbnailHashIsRaw);
-            video.SetTitle(videoInput.Title);
-
-            await indexContext.SaveChangesAsync();
-
-            return new VideoDto(video);
-        }
     }
 }

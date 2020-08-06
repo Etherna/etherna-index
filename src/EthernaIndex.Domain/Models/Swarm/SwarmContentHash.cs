@@ -4,15 +4,9 @@
     {
         // Constructors.
         public SwarmContentHash(
-            string hash,
-            bool isRaw)
+            string hash)
             : base(hash)
-        {
-            IsRaw = isRaw;
-        }
+        { }
         protected SwarmContentHash() { }
-
-        // Properties.
-        public virtual bool IsRaw { get; protected set; }
     }
 }
