@@ -9,23 +9,15 @@ namespace Etherna.EthernaIndex.Domain.Models
     {
         // Constructors and dispose.
         public Video(
-            string description,
             string? encryptionKey,
             EncryptionType encryptionType,
-            TimeSpan length,
-            Channel ownerChannel,
-            SwarmContentHash? thumbnailHash,
-            string title,
-            SwarmContentHash videoHash)
+            SwarmContentHash manifestHash,
+            Channel ownerChannel)
         {
-            SetDescription(description);
             SetEncryptionKey(encryptionKey, encryptionType);
-            Length = length;
+            ManifestHash = manifestHash ?? throw new ArgumentNullException(nameof(manifestHash));
             OwnerChannel = ownerChannel ?? throw new ArgumentNullException(nameof(ownerChannel));
-            ThumbnailHash = thumbnailHash;
-            SetTitle(title);
             OwnerChannel.AddVideo(this);
-            VideoHash = videoHash ?? throw new ArgumentNullException(nameof(videoHash));
         }
         protected Video() { }
 
@@ -38,25 +30,12 @@ namespace Etherna.EthernaIndex.Domain.Models
         }
 
         // Properties.
-        public virtual string Description { get; protected set; } = default!;
         public virtual string? EncryptionKey { get; protected set; }
         public virtual EncryptionType EncryptionType { get; protected set; }
-        public virtual TimeSpan Length { get; protected set; }
+        public virtual SwarmContentHash ManifestHash { get; protected set; } = default!;
         public virtual Channel OwnerChannel { get; protected set; } = default!;
-        public virtual SwarmContentHash? ThumbnailHash { get; set; }
-        public virtual string Title { get; protected set; } = default!;
-        public virtual SwarmContentHash VideoHash { get; protected set; } = default!;
 
         // Methods.
-        [PropertyAlterer(nameof(Description))]
-        public virtual void SetDescription(string? description)
-        {
-            description ??= "";
-            description = description.Trim();
-
-            Description = description;
-        }
-
         [PropertyAlterer(nameof(EncryptionKey))]
         [PropertyAlterer(nameof(EncryptionType))]
         public virtual void SetEncryptionKey(string? encryptionKey, EncryptionType encryptionType)
@@ -77,15 +56,6 @@ namespace Etherna.EthernaIndex.Domain.Models
 
             EncryptionKey = encryptionKey;
             EncryptionType = encryptionType;
-        }
-
-        [PropertyAlterer(nameof(Title))]
-        public virtual void SetTitle(string title)
-        {
-            if (string.IsNullOrWhiteSpace(title))
-                throw new ArgumentException("Value can't be empty string", nameof(title));
-            
-            Title = title.Trim();
         }
     }
 }
