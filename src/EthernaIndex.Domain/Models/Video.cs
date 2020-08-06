@@ -12,20 +12,20 @@ namespace Etherna.EthernaIndex.Domain.Models
             string description,
             string? encryptionKey,
             EncryptionType encryptionType,
-            SwarmContentHash hash,
             TimeSpan length,
             Channel ownerChannel,
             SwarmContentHash? thumbnailHash,
-            string title)
+            string title,
+            SwarmContentHash videoHash)
         {
             SetDescription(description);
             SetEncryptionKey(encryptionKey, encryptionType);
-            Hash = hash ?? throw new ArgumentNullException(nameof(hash));
             Length = length;
             OwnerChannel = ownerChannel ?? throw new ArgumentNullException(nameof(ownerChannel));
-            ThumbHash = thumbnailHash;
+            ThumbnailHash = thumbnailHash;
             SetTitle(title);
             OwnerChannel.AddVideo(this);
+            VideoHash = videoHash ?? throw new ArgumentNullException(nameof(videoHash));
         }
         protected Video() { }
 
@@ -41,11 +41,11 @@ namespace Etherna.EthernaIndex.Domain.Models
         public virtual string Description { get; protected set; } = default!;
         public virtual string? EncryptionKey { get; protected set; }
         public virtual EncryptionType EncryptionType { get; protected set; }
-        public virtual SwarmContentHash Hash { get; protected set; } = default!;
         public virtual TimeSpan Length { get; protected set; }
         public virtual Channel OwnerChannel { get; protected set; } = default!;
-        public virtual SwarmContentHash? ThumbHash { get; set; }
+        public virtual SwarmContentHash? ThumbnailHash { get; set; }
         public virtual string Title { get; protected set; } = default!;
+        public virtual SwarmContentHash VideoHash { get; protected set; } = default!;
 
         // Methods.
         [PropertyAlterer(nameof(Description))]

@@ -38,11 +38,11 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
                 videoInput.Description,
                 videoInput.EncryptionKey,
                 videoInput.EncryptionType,
-                videoHash,
                 TimeSpan.FromSeconds(videoInput.LengthInSeconds),
                 channel,
                 thumbnailHash,
-                videoInput.Title);
+                videoInput.Title,
+                videoHash);
 
             await indexContext.Videos.CreateAsync(video);
 
@@ -52,7 +52,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         public async Task<ActionResult> DeleteAsync(string hash)
         {
             var video = await indexContext.Videos.QueryElementsAsync(elements =>
-                elements.FirstAsync(v => v.Hash.Hash == hash));
+                elements.FirstAsync(v => v.VideoHash.Hash == hash));
 
             await indexContext.Videos.DeleteAsync(video);
 
@@ -60,7 +60,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         }
 
         public async Task<VideoDto> FindByHashAsync(string hash) =>
-            new VideoDto(await indexContext.Videos.FindOneAsync(v => v.Hash.Hash == hash));
+            new VideoDto(await indexContext.Videos.FindOneAsync(v => v.VideoHash.Hash == hash));
 
         public async Task<IEnumerable<VideoDto>> GetLastUploadedVideosAsync(int page, int take) =>
             (await indexContext.Videos.QueryElementsAsync(elements =>
@@ -70,10 +70,10 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
 
         public async Task<VideoDto> UpdateAsync(string videoHash, VideoUpdateInput videoInput)
         {
-            var video = await indexContext.Videos.FindOneAsync(v => v.Hash.Hash == videoHash);
+            var video = await indexContext.Videos.FindOneAsync(v => v.VideoHash.Hash == videoHash);
 
             video.SetDescription(videoInput.Description);
-            video.ThumbHash = videoInput.ThumbnailHash is null ?
+            video.ThumbnailHash = videoInput.ThumbnailHash is null ?
                 null :
                 new SwarmContentHash(
                     videoInput.ThumbnailHash,
