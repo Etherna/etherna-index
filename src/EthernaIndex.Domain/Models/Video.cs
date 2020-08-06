@@ -15,7 +15,7 @@ namespace Etherna.EthernaIndex.Domain.Models
             Channel ownerChannel)
         {
             SetEncryptionKey(encryptionKey, encryptionType);
-            ManifestHash = manifestHash ?? throw new ArgumentNullException(nameof(manifestHash));
+            SetManifestHash(manifestHash);
             OwnerChannel = ownerChannel ?? throw new ArgumentNullException(nameof(ownerChannel));
             OwnerChannel.AddVideo(this);
         }
@@ -56,6 +56,12 @@ namespace Etherna.EthernaIndex.Domain.Models
 
             EncryptionKey = encryptionKey;
             EncryptionType = encryptionType;
+        }
+
+        [PropertyAlterer(nameof(ManifestHash))]
+        public void SetManifestHash(SwarmContentHash manifestHash)
+        {
+            ManifestHash = manifestHash ?? throw new ArgumentNullException(nameof(manifestHash));
         }
     }
 }

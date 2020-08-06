@@ -12,5 +12,6 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         Task<ActionResult> DeleteAsync(string hash);
         Task<VideoDto> FindByHashAsync(string hash);
         Task<IEnumerable<VideoDto>> GetLastUploadedVideosAsync(int page, int take);
+        Task<VideoDto> UpdateAsync(string oldHash, string newHash);
     }
 }
