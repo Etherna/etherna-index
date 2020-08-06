@@ -17,11 +17,11 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
             EncryptionKey = video.EncryptionKey;
             EncryptionType = video.EncryptionType;
             LengthInSeconds = (int)video.Length.TotalSeconds;
-            ThumbnailHash = video.ThumbnailHash;
-            ThumbnailHashIsRaw = video.ThumbnailHashIsRaw;
+            ThumbnailHash = video.ThumbnailHash?.Hash;
+            ThumbnailHashIsRaw = video.ThumbnailHash?.IsRaw ?? false;
             Title = video.Title;
-            VideoHash = video.VideoHash;
-            VideoHashIsRaw = video.VideoHashIsRaw;
+            VideoHash = video.VideoHash.Hash;
+            VideoHashIsRaw = video.VideoHash.IsRaw;
         }
 
         // Properties.

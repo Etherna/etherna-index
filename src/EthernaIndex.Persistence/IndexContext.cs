@@ -45,7 +45,7 @@ namespace Etherna.EthernaIndex.Persistence
             {
                 IndexBuilders = new[]
                 {
-                    (Builders<Video>.IndexKeys.Ascending(c => c.VideoHash), new CreateIndexOptions<Video> { Unique = true })
+                    (Builders<Video>.IndexKeys.Ascending(c => c.VideoHash.Hash), new CreateIndexOptions<Video> { Unique = true })
                 }
             });
 

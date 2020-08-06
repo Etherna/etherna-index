@@ -2,6 +2,7 @@
 using Etherna.EthernaIndex.Areas.Api.InputModels;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
+using Etherna.EthernaIndex.Domain.Models.Swarm;
 using Etherna.MongODM.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
@@ -28,17 +29,20 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         public async Task<VideoDto> CreateAsync(string channelAddress, VideoCreateInput videoInput)
         {
             var channel = await indexContext.Channels.FindOneAsync(c => c.Address == channelAddress);
+            var thumbnailHash = videoInput.ThumbnailHash is null ?
+                null :
+                new SwarmContentHash(videoInput.ThumbnailHash, videoInput.ThumbnailHashIsRaw);
+            var videoHash = new SwarmContentHash(videoInput.VideoHash, videoInput.VideoHashIsRaw);
+
             var video = new Video(
                 videoInput.Description,
                 videoInput.EncryptionKey,
                 videoInput.EncryptionType,
                 TimeSpan.FromSeconds(videoInput.LengthInSeconds),
                 channel,
-                videoInput.ThumbnailHash,
-                videoInput.ThumbnailHashIsRaw,
+                thumbnailHash,
                 videoInput.Title,
-                videoInput.VideoHash,
-                videoInput.VideoHashIsRaw);
+                videoHash);
 
             await indexContext.Videos.CreateAsync(video);
 
@@ -48,7 +52,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         public async Task<ActionResult> DeleteAsync(string hash)
         {
             var video = await indexContext.Videos.QueryElementsAsync(elements =>
-                elements.FirstAsync(v => v.VideoHash == hash));
+                elements.FirstAsync(v => v.VideoHash.Hash == hash));
 
             await indexContext.Videos.DeleteAsync(video);
 
@@ -56,7 +60,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         }
 
         public async Task<VideoDto> FindByHashAsync(string hash) =>
-            new VideoDto(await indexContext.Videos.FindOneAsync(v => v.VideoHash == hash));
+            new VideoDto(await indexContext.Videos.FindOneAsync(v => v.VideoHash.Hash == hash));
 
         public async Task<IEnumerable<VideoDto>> GetLastUploadedVideosAsync(int page, int take) =>
             (await indexContext.Videos.QueryElementsAsync(elements =>
@@ -66,10 +70,14 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
 
         public async Task<VideoDto> UpdateAsync(string videoHash, VideoUpdateInput videoInput)
         {
-            var video = await indexContext.Videos.FindOneAsync(v => v.VideoHash == videoHash);
+            var video = await indexContext.Videos.FindOneAsync(v => v.VideoHash.Hash == videoHash);
 
             video.SetDescription(videoInput.Description);
-            video.ThumbnailHash = videoInput.ThumbnailHash;
+            video.ThumbnailHash = videoInput.ThumbnailHash is null ?
+                null :
+                new SwarmContentHash(
+                    videoInput.ThumbnailHash,
+                    videoInput.ThumbnailHashIsRaw);
             video.SetTitle(videoInput.Title);
 
             await indexContext.SaveChangesAsync();

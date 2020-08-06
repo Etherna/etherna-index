@@ -1,4 +1,5 @@
-﻿using Etherna.MongODM.Attributes;
+﻿using Etherna.EthernaIndex.Domain.Models.Swarm;
+using Etherna.MongODM.Attributes;
 using System;
 using System.Text.RegularExpressions;
 
@@ -13,22 +14,18 @@ namespace Etherna.EthernaIndex.Domain.Models
             EncryptionType encryptionType,
             TimeSpan length,
             Channel ownerChannel,
-            string thumbnailHash,
-            bool thumbnailHashIsRaw,
+            SwarmContentHash? thumbnailHash,
             string title,
-            string videoHash,
-            bool videoHashIsRaw)
+            SwarmContentHash videoHash)
         {
             SetDescription(description);
             SetEncryptionKey(encryptionKey, encryptionType);
             Length = length;
             OwnerChannel = ownerChannel ?? throw new ArgumentNullException(nameof(ownerChannel));
             ThumbnailHash = thumbnailHash;
-            ThumbnailHashIsRaw = thumbnailHashIsRaw;
             SetTitle(title);
-            VideoHash = videoHash ?? throw new ArgumentNullException(nameof(videoHash));
-            VideoHashIsRaw = videoHashIsRaw;
             OwnerChannel.AddVideo(this);
+            VideoHash = videoHash ?? throw new ArgumentNullException(nameof(videoHash));
         }
         protected Video() { }
 
@@ -46,11 +43,9 @@ namespace Etherna.EthernaIndex.Domain.Models
         public virtual EncryptionType EncryptionType { get; protected set; }
         public virtual TimeSpan Length { get; protected set; }
         public virtual Channel OwnerChannel { get; protected set; } = default!;
-        public virtual string? ThumbnailHash { get; set; }
-        public virtual bool ThumbnailHashIsRaw { get; protected set; }
+        public virtual SwarmContentHash? ThumbnailHash { get; set; }
         public virtual string Title { get; protected set; } = default!;
-        public virtual string VideoHash { get; protected set; } = default!;
-        public virtual bool VideoHashIsRaw { get; protected set; }
+        public virtual SwarmContentHash VideoHash { get; protected set; } = default!;
 
         // Methods.
         [PropertyAlterer(nameof(Description))]
