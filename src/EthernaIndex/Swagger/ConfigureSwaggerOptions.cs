@@ -36,7 +36,7 @@ namespace Etherna.EthernaIndex.Swagger
         {
             var info = new OpenApiInfo()
             {
-                Title = "Etherna SSO API",
+                Title = "Etherna Index API",
                 Version = description.ApiVersion.ToString(),
             };
 
