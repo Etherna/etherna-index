@@ -9,8 +9,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{A364AFA3-183
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{A97F8160-ADCD-4B37-8EB7-E8782BF88315}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "application", "application", "{22945E0A-560D-4BB7-A3A5-F15A06A2E916}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "domain", "domain", "{7A662891-200D-4111-80FB-7717F2576208}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "infrastructure", "infrastructure", "{552815A3-3072-492B-B3D4-B5E115B8038C}"
@@ -23,9 +21,18 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EthernaIndex.Domain.Tests",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EthernaIndex.Services", "src\EthernaIndex.Services\EthernaIndex.Services.csproj", "{EC4BAD2D-55EA-495F-BEA9-5CC9379ED3D3}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EthernaIndex.ApiApplication", "src\EthernaIndex.ApiApplication\EthernaIndex.ApiApplication.csproj", "{6954D25F-BC52-497A-B1C4-C3CB2DE0F821}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{532935A2-7A67-4F11-8072-3468B837697E}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		.gitignore = .gitignore
+		GitVersion.yml = GitVersion.yml
+		nuget.config = nuget.config
+	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EthernaIndex.ApiApplication.Tests", "test\EthernaIndex.ApiApplication.Tests\EthernaIndex.ApiApplication.Tests.csproj", "{6618459C-CDC9-4F30-8152-CA9511C4A821}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{D2E7C23E-16DA-4E7B-94BB-3425A0F98651}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\build-test-deploy_master.yml = .github\workflows\build-test-deploy_master.yml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -53,29 +60,19 @@ Global
 		{EC4BAD2D-55EA-495F-BEA9-5CC9379ED3D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EC4BAD2D-55EA-495F-BEA9-5CC9379ED3D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EC4BAD2D-55EA-495F-BEA9-5CC9379ED3D3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6954D25F-BC52-497A-B1C4-C3CB2DE0F821}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6954D25F-BC52-497A-B1C4-C3CB2DE0F821}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6954D25F-BC52-497A-B1C4-C3CB2DE0F821}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6954D25F-BC52-497A-B1C4-C3CB2DE0F821}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6618459C-CDC9-4F30-8152-CA9511C4A821}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6618459C-CDC9-4F30-8152-CA9511C4A821}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6618459C-CDC9-4F30-8152-CA9511C4A821}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6618459C-CDC9-4F30-8152-CA9511C4A821}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{5266ABD6-26D7-421D-9705-F2205EBE087B} = {A364AFA3-1837-4199-9B1E-AC2C0C7BDAF4}
-		{22945E0A-560D-4BB7-A3A5-F15A06A2E916} = {A364AFA3-1837-4199-9B1E-AC2C0C7BDAF4}
 		{7A662891-200D-4111-80FB-7717F2576208} = {A364AFA3-1837-4199-9B1E-AC2C0C7BDAF4}
 		{552815A3-3072-492B-B3D4-B5E115B8038C} = {A364AFA3-1837-4199-9B1E-AC2C0C7BDAF4}
 		{EA8B21DD-6D0A-450E-B3E1-C7E4C2579146} = {7A662891-200D-4111-80FB-7717F2576208}
 		{71C7A7AC-39C1-40D3-B8FF-A90D71194CFA} = {552815A3-3072-492B-B3D4-B5E115B8038C}
 		{1D499F04-D6A0-4049-9C81-A9346BDC4112} = {A97F8160-ADCD-4B37-8EB7-E8782BF88315}
 		{EC4BAD2D-55EA-495F-BEA9-5CC9379ED3D3} = {7A662891-200D-4111-80FB-7717F2576208}
-		{6954D25F-BC52-497A-B1C4-C3CB2DE0F821} = {22945E0A-560D-4BB7-A3A5-F15A06A2E916}
-		{6618459C-CDC9-4F30-8152-CA9511C4A821} = {A97F8160-ADCD-4B37-8EB7-E8782BF88315}
+		{D2E7C23E-16DA-4E7B-94BB-3425A0F98651} = {532935A2-7A67-4F11-8072-3468B837697E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {465D7329-3E56-44B5-A500-E557EA259014}

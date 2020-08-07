@@ -1,20 +1,22 @@
-﻿using Digicando.DomainHelper.Attributes;
+﻿using Etherna.EthernaIndex.Domain.Models.Swarm;
+using Etherna.MongODM.Attributes;
 using System;
+using System.Text.RegularExpressions;
 
 namespace Etherna.EthernaIndex.Domain.Models
 {
     public class Video : EntityModelBase<string>
     {
         // Constructors and dispose.
-        public Video(string description, TimeSpan length, Channel ownerChannel, string thumbnailHash, string title, string videoHash)
+        public Video(
+            string? encryptionKey,
+            EncryptionType encryptionType,
+            SwarmContentHash manifestHash,
+            Channel ownerChannel)
         {
-            SetDescription(description);
-            Length = length;
+            SetEncryptionKey(encryptionKey, encryptionType);
+            SetManifestHash(manifestHash);
             OwnerChannel = ownerChannel ?? throw new ArgumentNullException(nameof(ownerChannel));
-            SetThumbnailHash(thumbnailHash);
-            SetTitle(title);
-            VideoHash = videoHash ?? throw new ArgumentNullException(nameof(videoHash));
-
             OwnerChannel.AddVideo(this);
         }
         protected Video() { }
@@ -28,35 +30,38 @@ namespace Etherna.EthernaIndex.Domain.Models
         }
 
         // Properties.
-        public virtual string Description { get; protected set; }
-        public virtual Channel OwnerChannel { get; protected set; }
-        public virtual TimeSpan Length { get; protected set; }
-        public virtual string Title { get; protected set; }
-        public virtual string ThumbnailHash { get; protected set; }
-        public virtual string VideoHash { get; protected set; }
+        public virtual string? EncryptionKey { get; protected set; }
+        public virtual EncryptionType EncryptionType { get; protected set; }
+        public virtual SwarmContentHash ManifestHash { get; protected set; } = default!;
+        public virtual Channel OwnerChannel { get; protected set; } = default!;
 
         // Methods.
-        [PropertyAlterer(nameof(Description))]
-        public virtual void SetDescription(string description)
+        [PropertyAlterer(nameof(EncryptionKey))]
+        [PropertyAlterer(nameof(EncryptionType))]
+        public virtual void SetEncryptionKey(string? encryptionKey, EncryptionType encryptionType)
         {
-            description ??= "";
-            description = description.Trim();
+            switch (encryptionType)
+            {
+                case EncryptionType.AES256:
+                    if (!Regex.IsMatch(encryptionKey, "^[A-Fa-f0-9]{64}$"))
+                        throw new ArgumentException($"Encryption key is not a valid {encryptionType} key");
+                    break;
+                case EncryptionType.Plain:
+                    if (!string.IsNullOrEmpty(encryptionKey))
+                        throw new ArgumentException($"Encryption key must be empty with unencrypted content");
+                    break;
+                default:
+                    throw new InvalidOperationException();
+            }
 
-            Description = description;
+            EncryptionKey = encryptionKey;
+            EncryptionType = encryptionType;
         }
 
-        [PropertyAlterer(nameof(ThumbnailHash))]
-        public virtual void SetThumbnailHash(string hash) =>
-            ThumbnailHash = hash;
-
-        [PropertyAlterer(nameof(Title))]
-        public virtual void SetTitle(string title)
+        [PropertyAlterer(nameof(ManifestHash))]
+        public void SetManifestHash(SwarmContentHash manifestHash)
         {
-            title = title.Trim();
-            if (string.IsNullOrEmpty(title))
-                throw new ArgumentException("Value can't be empty string", nameof(title));
-            
-            Title = title;
+            ManifestHash = manifestHash ?? throw new ArgumentNullException(nameof(manifestHash));
         }
     }
 }

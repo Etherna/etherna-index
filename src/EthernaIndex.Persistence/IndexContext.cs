@@ -1,14 +1,11 @@
-﻿using Digicando.DomainEvents;
-using Digicando.MongODM;
-using Digicando.MongODM.ProxyModels;
-using Digicando.MongODM.Repositories;
-using Digicando.MongODM.Serialization;
-using Digicando.MongODM.Serialization.Modifiers;
-using Digicando.MongODM.Utility;
+﻿using Etherna.DomainEvents;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
-using Etherna.EthernaIndex.Persistence.Repositories;
-using Microsoft.Extensions.Options;
+using Etherna.MongODM;
+using Etherna.MongODM.Repositories;
+using Etherna.MongODM.Serialization;
+using Etherna.MongODM.Utility;
+using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,59 +18,52 @@ namespace Etherna.EthernaIndex.Persistence
     public class IndexContext : DbContext, IIndexContext
     {
         // Consts.
-        private const string SerializersNamespace = "Etherna.EthernaIndex.Persistence.ClassMaps";
+        private const string SerializersNamespace = "Etherna.EthernaIndex.Persistence.ModelMaps";
 
         // Constructor.
         public IndexContext(
-            IDBCache dbCache,
-            IDBMaintainer dbMaintainer,
-            IDocumentSchemaRegister documentSchemaRegister,
+            IDbDependencies dbDependencies,
             IEventDispatcher eventDispatcher,
-            IProxyGenerator proxyGenerator,
-            IOptionsMonitor<DbContextOptions> options,
-            ISerializerModifierAccessor serializerModifierAccessor)
-            : base(dbCache,
-                  dbMaintainer,
-                  documentSchemaRegister,
-                  options.Get(nameof(IndexContext)),
-                  proxyGenerator,
-                  serializerModifierAccessor)
+            DbContextOptions<IndexContext> options)
+            : base(dbDependencies, options)
         {
-            Channels = new ChannelRepository(this);
-            Videos = new VideoRepository(this);
-
-            ModelCollectionRepositoryMap = new Dictionary<Type, ICollectionRepository>
-            {
-                [typeof(Channel)] = Channels,
-                [typeof(Video)] = Videos,
-            };
-            ModelGridFSRepositoryMap = new Dictionary<Type, IGridFSRepository>();
             EventDispatcher = eventDispatcher;
         }
 
         // Properties.
         //repositories
-        public ICollectionRepository<Channel, string> Channels { get; }
-        public ICollectionRepository<Video, string> Videos { get; }
-
-        public override IReadOnlyDictionary<Type, ICollectionRepository> ModelCollectionRepositoryMap { get; }
-        public override IReadOnlyDictionary<Type, IGridFSRepository> ModelGridFSRepositoryMap { get; }
+        public ICollectionRepository<Channel, string> Channels { get; } = new CollectionRepository<Channel, string>(
+            new CollectionRepositoryOptions<Channel>("channels")
+            {
+                IndexBuilders = new[]
+                {
+                    (Builders<Channel>.IndexKeys.Ascending(c => c.Address), new CreateIndexOptions<Channel> { Unique = true })
+                }
+            });
+        public ICollectionRepository<Video, string> Videos { get; } = new CollectionRepository<Video, string>(
+            new CollectionRepositoryOptions<Video>("videos")
+            {
+                IndexBuilders = new[]
+                {
+                    (Builders<Video>.IndexKeys.Ascending(c => c.ManifestHash.Hash), new CreateIndexOptions<Video> { Unique = true })
+                }
+            });
 
         //other properties
         public IEventDispatcher EventDispatcher { get; }
 
         // Protected properties.
-        protected override IEnumerable<IModelSerializerCollector> SerializerCollectors =>
+        protected override IEnumerable<IModelMapsCollector> ModelMapsCollectors =>
             from t in typeof(IndexContext).GetTypeInfo().Assembly.GetTypes()
             where t.IsClass && t.Namespace == SerializersNamespace
-            where t.GetInterfaces().Contains(typeof(IModelSerializerCollector))
-            select Activator.CreateInstance(t) as IModelSerializerCollector;
+            where t.GetInterfaces().Contains(typeof(IModelMapsCollector))
+            select Activator.CreateInstance(t) as IModelMapsCollector;
 
         // Methods.
         public override Task SaveChangesAsync(CancellationToken cancellationToken = default)
         {
             // Dispatch events.
-            foreach (var model in ChangedModelsList.Select(m => m as EntityModelBase))
+            foreach (var model in ChangedModelsList.Select(m => (EntityModelBase)m))
             {
                 EventDispatcher.DispatchAsync(model.Events);
                 model.ClearEvents();

@@ -1,18 +1,30 @@
-using Etherna.EthernaIndex.ApiApplication;
+using Etherna.EthernaIndex.Domain;
+using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.Persistence;
 using Etherna.EthernaIndex.Services;
+using Etherna.EthernaIndex.Services.Settings;
+using Etherna.EthernaIndex.Swagger;
+using Etherna.EthernaIndex.SystemStore;
+using Etherna.MongODM;
+using Etherna.MongODM.HF.Tasks;
 using Hangfire;
 using Hangfire.Mongo;
+using Hangfire.Mongo.Migration.Strategies;
+using Hangfire.Mongo.Migration.Strategies.Backup;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.OpenApi.Models;
+using Microsoft.Extensions.Options;
+using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
 using System.IO;
+using System.Net;
 using System.Reflection;
+using System.Text.Json.Serialization;
+using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex
 {
@@ -28,60 +40,128 @@ namespace Etherna.EthernaIndex
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddCors();
-            services.AddControllers();
+            // Configure Asp.Net Core framework services.
+            services.AddDataProtection()
+                .PersistKeysToDbContext(new DbContextOptions { ConnectionString = Configuration["ConnectionStrings:SystemDb"] });
 
-            // Add Hangfire services.
-            services.AddHangfire(config =>
+            services.AddCors();
+            services.AddRazorPages();
+            services.AddControllers()
+                .AddJsonOptions(options =>
+                    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+            services.AddApiVersioning(options =>
             {
-                config.UseMongoStorage(
-                    Configuration["HANGFIRE_CONNECTIONSTRING"],
+                options.ReportApiVersions = true;
+            });
+            services.AddVersionedApiExplorer(options =>
+            {
+                // add the versioned api explorer, which also adds IApiVersionDescriptionProvider service
+                // note: the specified format code will format the version as "'v'major[.minor][-status]"
+                options.GroupNameFormat = "'v'VVV";
+
+                // note: this option is only necessary when versioning by url segment. the SubstitutionFormat
+                // can also be used to control the format of the API version in route templates
+                options.SubstituteApiVersionInUrl = true;
+            });
+            services.AddAuthentication(options =>
+                {
+                    options.DefaultScheme = "Cookies";
+                    options.DefaultChallengeScheme = "oidc";
+                })
+                .AddCookie("Cookies")
+                .AddOpenIdConnect("oidc", options => //client config
+                {
+                    options.Authority = Configuration["SsoServer:BaseUrl"];
+
+                    // Response 401 for unauthorized call on api.
+                    options.Events.OnRedirectToIdentityProvider = context =>
+                    {
+                        if (context.Request.Path.StartsWithSegments("/api", StringComparison.InvariantCulture))
+                        {
+                            context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                            context.HandleResponse();
+                        }
+                        return Task.CompletedTask;
+                    };
+
+                    options.ClientId = "ethernaIndexClientId";
+                    options.ClientSecret = Configuration["SsoServer:ClientSecret"];
+                    options.ResponseType = "code";
+
+                    options.SaveTokens = true;
+
+                    options.Scope.Clear();
+                    options.Scope.Add("openid");
+                    options.Scope.Add("ether_accounts");
+                });
+
+            // Configure Hangfire services.
+            services.AddHangfire(options =>
+            {
+                options.UseMongoStorage(
+                    Configuration["ConnectionStrings:HangfireDb"],
                     new MongoStorageOptions
                     {
-                        MigrationOptions = new MongoMigrationOptions
+                        MigrationOptions = new MongoMigrationOptions //don't remove, could throw exception
                         {
-                            Strategy = MongoMigrationStrategy.Migrate,
-                            BackupStrategy = MongoBackupStrategy.Collections
+                            MigrationStrategy = new MigrateMongoMigrationStrategy(),
+                            BackupStrategy = new CollectionMongoBackupStrategy()
                         }
                     });
             });
 
-            // Add application services.
-            var assemblyVersion = typeof(Startup)
-                .GetTypeInfo()
-                .Assembly
-                .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
-                .InformationalVersion;
-            var documentVersion = assemblyVersion.Split('+')[0];
-
-            Configuration["MONGODB_DOCUMENTVERSION"] = documentVersion;
-            
-            services.AddPersistence(Configuration);
-            services.AddApiV1Application();
-            services.AddDomainServices();
-
-            // Set Swagger generation services.
-            services.AddSwaggerGen(config =>
+            // Configure Swagger services.
+            services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
+            services.AddSwaggerGen(options =>
             {
-                config.SwaggerDoc("v0.1", new OpenApiInfo
-                {
-                    Title = "Etherna Index API",
-                    Version = "0.1"
-                });
-                config.CustomSchemaIds(sid => sid.Name);
+                //add a custom operation filter which sets default values
+                options.OperationFilter<SwaggerDefaultValues>();
 
-                var xmlFile = $"{typeof(ApiApplication.ServiceCollectionExtensions).Assembly.GetName().Name}.xml";
+                //integrate xml comments
+                var xmlFile = typeof(Startup).GetTypeInfo().Assembly.GetName().Name + ".xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-                config.IncludeXmlComments(xmlPath);
+                options.IncludeXmlComments(xmlPath);
             });
+
+            // Configure setting.
+            var appSettings = new ApplicationSettings
+            {
+                AssemblyVersion = GetType()
+                    .GetTypeInfo()
+                    .Assembly
+                    .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+                    ?.InformationalVersion!
+            };
+            services.Configure<ApplicationSettings>(options =>
+            {
+                options.AssemblyVersion = appSettings.AssemblyVersion;
+            });
+            services.Configure<SsoServerSettings>(Configuration.GetSection("SsoServer"));
+
+            // Configure persistence.
+            services.UseMongODM<HangfireTaskRunner, ModelBase>()
+                .AddDbContext<IIndexContext, IndexContext>(options =>
+                {
+                    options.ApplicationVersion = appSettings.SimpleAssemblyVersion;
+                    options.ConnectionString = Configuration["ConnectionStrings:IndexDb"];
+                });
+
+            // Configure domain services.
+            services.AddDomainServices();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IApiVersionDescriptionProvider apiProvider)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+            }
+            else
+            {
+                app.UseExceptionHandler("/Error");
+                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+                app.UseHsts();
             }
 
             app.UseCors(builder =>
@@ -94,8 +174,7 @@ namespace Etherna.EthernaIndex
                 }
                 else
                 {
-                    builder.WithOrigins("http://*.etherna.io",
-                                        "https://*.etherna.io")
+                    builder.WithOrigins("https://*.etherna.io")
                            .SetIsOriginAllowedToAllowWildcardSubdomains()
                            .AllowAnyHeader()
                            .AllowAnyMethod();
@@ -103,8 +182,12 @@ namespace Etherna.EthernaIndex
             });
 
             app.UseHttpsRedirection();
+            app.UseStaticFiles();
 
             app.UseRouting();
+
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             // Add Hangfire.
             app.UseHangfireDashboard(
@@ -118,27 +201,28 @@ namespace Etherna.EthernaIndex
                 {
                     Queues = new[]
                     {
-                        Digicando.MongODM.Tasks.Queues.DB_MAINTENANCE,
+                        MongODM.Tasks.Queues.DB_MAINTENANCE,
                         "default"
                     },
                     WorkerCount = System.Environment.ProcessorCount * 2
                 });
 
-            // Setup Swagger and SwaggerUI.
+            // Add Swagger and SwaggerUI.
             app.UseSwagger();
-            app.UseSwaggerUI(config =>
+            app.UseSwaggerUI(options =>
             {
-                config.SwaggerEndpoint("/swagger/v0.1/swagger.json", "Etherna Index API");
+                // build a swagger endpoint for each discovered API version
+                foreach (var description in apiProvider.ApiVersionDescriptions)
+                {
+                    options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json", description.GroupName.ToUpperInvariant());
+                }
             });
 
+            // Add pages and controllers.
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-
-                endpoints.MapGet("/", async context =>
-                {
-                    await context.Response.WriteAsync("<h1>Etherna Index</h1><br/><a href=\"/swagger\">Swagger</a");
-                });
+                endpoints.MapRazorPages();
             });
         }
     }
