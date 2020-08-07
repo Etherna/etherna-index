@@ -1,5 +1,6 @@
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
+using Etherna.EthernaIndex.Hangfire;
 using Etherna.EthernaIndex.Persistence;
 using Etherna.EthernaIndex.Services;
 using Etherna.EthernaIndex.Services.Settings;
@@ -194,7 +195,7 @@ namespace Etherna.EthernaIndex
                 "/admin/hangfire",
                 new DashboardOptions
                 {
-                    AppPath = "/admin"
+                    Authorization = new[] { new AdminAuthFilter() }
                 });
             if (!env.IsStaging()) //don't init server in staging
                 app.UseHangfireServer(new BackgroundJobServerOptions
