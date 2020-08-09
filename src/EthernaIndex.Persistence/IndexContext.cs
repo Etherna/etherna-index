@@ -32,12 +32,12 @@ namespace Etherna.EthernaIndex.Persistence
 
         // Properties.
         //repositories
-        public ICollectionRepository<Channel, string> Channels { get; } = new CollectionRepository<Channel, string>(
-            new CollectionRepositoryOptions<Channel>("channels")
+        public ICollectionRepository<User, string> Users { get; } = new CollectionRepository<User, string>(
+            new CollectionRepositoryOptions<User>("users")
             {
                 IndexBuilders = new[]
                 {
-                    (Builders<Channel>.IndexKeys.Ascending(c => c.Address), new CreateIndexOptions<Channel> { Unique = true })
+                    (Builders<User>.IndexKeys.Ascending(c => c.Address), new CreateIndexOptions<User> { Unique = true })
                 }
             });
         public ICollectionRepository<Video, string> Videos { get; } = new CollectionRepository<Video, string>(

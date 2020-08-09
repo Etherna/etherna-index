@@ -7,7 +7,7 @@ namespace Etherna.EthernaIndex.Domain
 {
     public interface IIndexContext : IDbContext
     {
-        ICollectionRepository<Channel, string> Channels { get; }
+        ICollectionRepository<User, string> Users { get; }
         ICollectionRepository<Video, string> Videos { get; }
 
         IEventDispatcher EventDispatcher { get; }

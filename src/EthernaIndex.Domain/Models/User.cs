@@ -1,24 +1,26 @@
-﻿using Etherna.MongODM.Attributes;
+﻿using Etherna.EthernaIndex.Domain.Models.Swarm;
+using Etherna.MongODM.Attributes;
 using Nethereum.Util;
 using System;
 using System.Collections.Generic;
 
 namespace Etherna.EthernaIndex.Domain.Models
 {
-    public class Channel : EntityModelBase<string>
+    public class User : EntityModelBase<string>
     {
         // Fields.
         private List<Video> _videos = new List<Video>();
 
         // Constructors.
-        public Channel(string address)
+        public User(string address)
         {
             SetAddress(address);
         }
-        protected Channel() { }
+        protected User() { }
 
         // Properties.
         public virtual string Address { get; protected set; } = default!;
+        public virtual SwarmContentHash IdentityManifest { get; set; } = default!;
         public virtual IEnumerable<Video> Videos
         {
             get => _videos;

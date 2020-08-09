@@ -11,18 +11,20 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
             if (video is null)
                 throw new ArgumentNullException(nameof(video));
 
-            ChannelAddress = video.OwnerChannel.Address;
             CreationDateTime = video.CreationDateTime;
             EncryptionKey = video.EncryptionKey;
             EncryptionType = video.EncryptionType;
             ManifestHash = video.ManifestHash.Hash;
+            OwnerAddress = video.Owner.Address;
+            OwnerIdentityManifest = video.Owner.IdentityManifest?.Hash;
         }
 
         // Properties.
-        public string ChannelAddress { get; }
         public DateTime CreationDateTime { get; }
         public string? EncryptionKey { get; }
         public EncryptionType EncryptionType { get; }
         public string ManifestHash { get; }
+        public string OwnerAddress { get; }
+        public string? OwnerIdentityManifest { get; }
     }
 }
