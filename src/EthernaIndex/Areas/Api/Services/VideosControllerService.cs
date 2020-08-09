@@ -35,14 +35,14 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         public async Task<VideoDto> CreateAsync(VideoCreateInput videoInput)
         {
             var address = httpContextAccessor.HttpContext.User.GetEtherAddress();
-            var channel = await indexContext.Channels.FindOneAsync(c => c.Address == address);
+            var user = await indexContext.Users.FindOneAsync(c => c.Address == address);
             var manifestHash = new SwarmContentHash(videoInput.ManifestHash);
 
             var video = new Video(
                 videoInput.EncryptionKey,
                 videoInput.EncryptionType,
                 manifestHash,
-                channel);
+                user);
 
             await indexContext.Videos.CreateAsync(video);
 
@@ -57,7 +57,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
                 elements.FirstAsync(v => v.ManifestHash.Hash == hash));
 
             // Verify authz.
-            if (!video.OwnerChannel.Address.IsTheSameAddress(address))
+            if (!video.Owner.Address.IsTheSameAddress(address))
                 throw new UnauthorizedAccessException("User is not owner of the video");
 
             // Action.
@@ -80,7 +80,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             var video = await indexContext.Videos.FindOneAsync(v => v.ManifestHash.Hash == oldHash);
 
             // Verify authz.
-            if (!video.OwnerChannel.Address.IsTheSameAddress(address))
+            if (!video.Owner.Address.IsTheSameAddress(address))
                 throw new UnauthorizedAccessException("User is not owner of the video");
 
             // Action.

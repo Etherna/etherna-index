@@ -19,7 +19,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
 
                     // Set members with custom serializers.
                     cm.SetMemberSerializer(v => v.EncryptionKey!, new HexToBinaryDataSerializer());
-                    cm.SetMemberSerializer(v => v.OwnerChannel, ChannelMap.InformationSerializer(dbContext));
+                    cm.SetMemberSerializer(v => v.Owner, UserMap.InformationSerializer(dbContext));
                 });
         }
 

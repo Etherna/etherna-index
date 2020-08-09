@@ -1,9 +1,6 @@
 ﻿using Etherna.EthernaIndex.Areas.Api.DtoModels;
 using Etherna.EthernaIndex.Domain;
-using Etherna.EthernaIndex.Domain.Models;
-using Etherna.EthernaIndex.Extensions;
 using Etherna.MongODM.Extensions;
-using Microsoft.AspNetCore.Http;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 using Nethereum.Util;
@@ -17,35 +14,17 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
     internal class ChannelsControllerService : IChannelsControllerService
     {
         // Fields.
-        private readonly IHttpContextAccessor httpContextAccessor;
         private readonly IIndexContext indexContext;
 
         // Constructors.
         public ChannelsControllerService(
-            IHttpContextAccessor httpContextAccessor,
             IIndexContext indexContext)
         {
-            this.httpContextAccessor = httpContextAccessor;
             this.indexContext = indexContext;
         }
 
         // Methods.
-        public async Task<ChannelDto> CreateAsync()
-        {
-            var address = httpContextAccessor.HttpContext.User.GetEtherAddress();
-            var channel = await indexContext.Channels.QueryElementsAsync(elements =>
-                elements.FirstOrDefaultAsync(c => c.Address == address));
-
-            if (channel is null)
-            {
-                channel = new Channel(address);
-                await indexContext.Channels.CreateAsync(channel);
-            }
-
-            return new ChannelDto(channel);
-        }
-
-        public async Task<ChannelDto> FindByAddressAsync(string address)
+        public async Task<UserDto> FindByAddressAsync(string address)
         {
             if (address is null)
                 throw new ArgumentNullException(nameof(address));
@@ -54,19 +33,20 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
 
             address = address.ConvertToEthereumChecksumAddress();
 
-            return new ChannelDto(await indexContext.Channels.FindOneAsync(c => c.Address == address));
+            return new UserDto(await indexContext.Users.FindOneAsync(c => c.Address == address));
         }
 
-        public async Task<IEnumerable<ChannelDto>> GetChannelsAsync(int page, int take) =>
-            (await indexContext.Channels.QueryElementsAsync(elements =>
-                elements.PaginateDescending(c => c.CreationDateTime, page, take)
+        public async Task<IEnumerable<UserDto>> GetChannelsAsync(int page, int take) =>
+            (await indexContext.Users.QueryElementsAsync(elements =>
+                elements.Where(u => u.Videos.Any())
+                        .PaginateDescending(u => u.CreationDateTime, page, take)
                         .ToListAsync()))
-            .Select(c => new ChannelDto(c));
+            .Select(c => new UserDto(c));
 
         public async Task<IEnumerable<VideoDto>> GetVideosAsync(string address, int page, int take)
         {
-            var channel = await indexContext.Channels.FindOneAsync(c => c.Address == address);
-            return channel.Videos.PaginateDescending(v => v.CreationDateTime, page, take)
+            var user = await indexContext.Users.FindOneAsync(c => c.Address == address);
+            return user.Videos.PaginateDescending(v => v.CreationDateTime, page, take)
                                  .Select(v => new VideoDto(v));
         }
     }

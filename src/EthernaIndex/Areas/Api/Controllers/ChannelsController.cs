@@ -1,7 +1,6 @@
 ﻿using Etherna.EthernaIndex.Areas.Api.DtoModels;
 using Etherna.EthernaIndex.Areas.Api.Services;
 using Etherna.EthernaIndex.Attributes;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -37,7 +36,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public Task<IEnumerable<ChannelDto>> GetChannelsAsync(
+        public Task<IEnumerable<UserDto>> GetChannelsAsync(
             [Range(0, int.MaxValue)] int page,
             [Range(1, 100)] int take = 25) =>
             controllerService.GetChannelsAsync(page, take);
@@ -51,7 +50,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public Task<ChannelDto> FindByAddressAsync(
+        public Task<UserDto> FindByAddressAsync(
             string address) =>
             controllerService.FindByAddressAsync(address);
 
@@ -73,19 +72,5 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
             [Range(0, int.MaxValue)] int page,
             [Range(1, 100)] int take = 25) =>
             controllerService.GetVideosAsync(address, page, take);
-
-        // Post.
-
-        /// <summary>
-        /// Create a new channel with current address.
-        /// </summary>
-        /// <response code="200">The new created channel</response>
-        [HttpPost]
-        [Authorize]
-        [SimpleExceptionFilter]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public Task<ChannelDto> CreateAsync() =>
-            controllerService.CreateAsync();
     }
 }

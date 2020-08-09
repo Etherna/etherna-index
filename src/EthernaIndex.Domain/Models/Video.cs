@@ -12,19 +12,19 @@ namespace Etherna.EthernaIndex.Domain.Models
             string? encryptionKey,
             EncryptionType encryptionType,
             SwarmContentHash manifestHash,
-            Channel ownerChannel)
+            User owner)
         {
             SetEncryptionKey(encryptionKey, encryptionType);
             SetManifestHash(manifestHash);
-            OwnerChannel = ownerChannel ?? throw new ArgumentNullException(nameof(ownerChannel));
-            OwnerChannel.AddVideo(this);
+            Owner = owner ?? throw new ArgumentNullException(nameof(owner));
+            Owner.AddVideo(this);
         }
         protected Video() { }
 
         public override void DisposeForDelete()
         {
             //owner channel
-            OwnerChannel.RemoveVideo(this);
+            Owner.RemoveVideo(this);
 
             base.DisposeForDelete();
         }
@@ -33,7 +33,7 @@ namespace Etherna.EthernaIndex.Domain.Models
         public virtual string? EncryptionKey { get; protected set; }
         public virtual EncryptionType EncryptionType { get; protected set; }
         public virtual SwarmContentHash ManifestHash { get; protected set; } = default!;
-        public virtual Channel OwnerChannel { get; protected set; } = default!;
+        public virtual User Owner { get; protected set; } = default!;
 
         // Methods.
         [PropertyAlterer(nameof(EncryptionKey))]
