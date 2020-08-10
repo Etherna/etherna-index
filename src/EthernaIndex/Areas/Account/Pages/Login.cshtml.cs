@@ -24,8 +24,10 @@ namespace Etherna.EthernaIndex.Areas.Account.Pages
         }
 
         // Methods.
-        public async Task<IActionResult> OnGetAsync()
+        public async Task<IActionResult> OnGetAsync(string? returnUrl = null)
         {
+            returnUrl ??= Url.Content("~/");
+
             var address = User.GetEtherAddress();
             var prevAddresses = User.GetEtherPrevAddresses();
 
@@ -49,7 +51,7 @@ namespace Etherna.EthernaIndex.Areas.Account.Pages
                 throw new NotImplementedException();
             }
 
-            return RedirectToPage("/Index");
+            return Redirect(returnUrl);
         }
     }
 }
