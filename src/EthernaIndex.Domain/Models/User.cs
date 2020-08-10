@@ -20,7 +20,7 @@ namespace Etherna.EthernaIndex.Domain.Models
 
         // Properties.
         public virtual string Address { get; protected set; } = default!;
-        public virtual SwarmContentHash IdentityManifest { get; set; } = default!;
+        public virtual SwarmContentHash? IdentityManifest { get; set; }
         public virtual IEnumerable<Video> Videos
         {
             get => _videos;

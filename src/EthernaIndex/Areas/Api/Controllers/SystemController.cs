@@ -43,6 +43,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         [HttpPost("migratedb")]
         [Authorize]
         [SimpleExceptionFilter]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public Task<IActionResult> MigrateDatabase() =>
             controllerService.MigrateDatabaseAsync(User.GetEtherAddress());
     }
