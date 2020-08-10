@@ -37,7 +37,8 @@ namespace Etherna.EthernaIndex.Persistence
             {
                 IndexBuilders = new[]
                 {
-                    (Builders<User>.IndexKeys.Ascending(c => c.Address), new CreateIndexOptions<User> { Unique = true })
+                    (Builders<User>.IndexKeys.Ascending(u => u.Address), new CreateIndexOptions<User> { Unique = true }),
+                    (Builders<User>.IndexKeys.Ascending(u => u.IdentityManifest!.Hash), new CreateIndexOptions<User>{ Sparse = true, Unique = true })
                 }
             });
         public ICollectionRepository<Video, string> Videos { get; } = new CollectionRepository<Video, string>(

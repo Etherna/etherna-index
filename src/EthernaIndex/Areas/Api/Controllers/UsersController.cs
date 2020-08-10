@@ -1,6 +1,7 @@
 ﻿using Etherna.EthernaIndex.Areas.Api.DtoModels;
 using Etherna.EthernaIndex.Areas.Api.Services;
 using Etherna.EthernaIndex.Attributes;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -13,13 +14,13 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
     [ApiController]
     [ApiVersion("0.2")]
     [Route("api/v{api-version:apiVersion}/[controller]")]
-    public class ChannelsController : ControllerBase
+    public class UsersController : ControllerBase
     {
         // Fields.
-        private readonly IChannelsControllerService controllerService;
+        private readonly IUsersControllerService controllerService;
 
         // Constructors.
-        public ChannelsController(IChannelsControllerService controllerService)
+        public UsersController(IUsersControllerService controllerService)
         {
             this.controllerService = controllerService;
         }
@@ -27,8 +28,9 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         // Get.
 
         /// <summary>
-        /// Get a complete list of channels.
+        /// Get a complete list of users.
         /// </summary>
+        /// <param name="onlyWithVideo">Filter only users with published videos</param>
         /// <param name="page">Current page of results</param>
         /// <param name="take">Number of items to retrieve. Max 100</param>
         /// <response code="200">Current page on list</response>
@@ -36,15 +38,16 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public Task<IEnumerable<UserDto>> GetChannelsAsync(
+        public Task<IEnumerable<UserDto>> GetUsersAsync(
+            bool onlyWithVideo,
             [Range(0, int.MaxValue)] int page,
             [Range(1, 100)] int take = 25) =>
-            controllerService.GetChannelsAsync(page, take);
+            controllerService.GetUsersAsync(onlyWithVideo, page, take);
 
         /// <summary>
-        /// Get channel info by address.
+        /// Get user info by address.
         /// </summary>
-        /// <param name="address">The channel address</param>
+        /// <param name="address">The user ether address</param>
         [HttpGet("{address}")]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -55,13 +58,13 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
             controllerService.FindByAddressAsync(address);
 
         /// <summary>
-        /// Get list of videos uploaded by a channel.
+        /// Get list of videos uploaded by an user.
         /// </summary>
-        /// <param name="address">Address of the channel</param>
+        /// <param name="address">Address of user</param>
         /// <param name="page">Current page of results</param>
         /// <param name="take">Number of items to retrieve. Max 100</param>
-        /// <response code="200">List of channel's videos</response>
-        /// <response code="404">Channel not found</response>
+        /// <response code="200">List of user's videos</response>
+        /// <response code="404">User not found</response>
         [HttpGet("{address}/videos")]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -72,5 +75,28 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
             [Range(0, int.MaxValue)] int page,
             [Range(1, 100)] int take = 25) =>
             controllerService.GetVideosAsync(address, page, take);
+
+        [HttpGet("current")]
+        [Authorize]
+        [SimpleExceptionFilter]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public Task<UserPrivateDto> GetCurrentUserAsync() =>
+            controllerService.GetCurrentUserAsync();
+
+        // Put.
+
+        /// <summary>
+        /// Update current user identity manifest.
+        /// </summary>
+        /// <param name="manifestHash">The new identity manifest hash. Null for remove</param>
+        [HttpPut("current")]
+        [Authorize]
+        [SimpleExceptionFilter]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public Task UpdateCurrentUserIdentityManifestAsync(
+            string? manifestHash) =>
+            controllerService.UpdateCurrentUserIdentityManifestAsync(manifestHash);
     }
 }

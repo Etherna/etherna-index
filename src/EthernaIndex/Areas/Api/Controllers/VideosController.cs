@@ -59,16 +59,15 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         // Post.
 
         /// <summary>
-        /// Create a new video with current channel.
+        /// Create a new video with current user.
         /// </summary>
         /// <param name="videoInput">Info of new video</param>
-        /// <response code="404">Channel not found</response>
         [HttpPost]
         [Authorize]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public Task<VideoDto> CreateAsync(
             [Required] VideoCreateInput videoInput) =>
             controllerService.CreateAsync(videoInput);
@@ -85,6 +84,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public Task<VideoDto> UpdateAsync(
             string oldHash,

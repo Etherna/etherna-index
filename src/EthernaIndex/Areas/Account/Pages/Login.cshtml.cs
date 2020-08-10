@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using MongoDB.Driver.Linq;
+using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Areas.Account.Pages
@@ -25,15 +27,26 @@ namespace Etherna.EthernaIndex.Areas.Account.Pages
         public async Task<IActionResult> OnGetAsync()
         {
             var address = User.GetEtherAddress();
+            var prevAddresses = User.GetEtherPrevAddresses();
 
-            // Create user if it doesn't exist.
+            // Verify if user exists.
             var user = await indexContext.Users.QueryElementsAsync(elements =>
-                elements.FirstOrDefaultAsync(c => c.Address == address));
+                elements.Where(u => u.Address == address ||
+                                    prevAddresses.Contains(u.Address))
+                        .FirstOrDefaultAsync());
 
+            // Create if it doesn't exist.
             if (user is null)
             {
                 user = new User(address);
                 await indexContext.Users.CreateAsync(user);
+            }
+
+            // Check if user have changed address.
+            if (address != user.Address)
+            {
+                //migrate
+                throw new NotImplementedException();
             }
 
             return RedirectToPage("/Index");
