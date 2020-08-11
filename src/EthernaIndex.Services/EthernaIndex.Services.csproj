@@ -18,8 +18,4 @@
     <ProjectReference Include="..\EthernaIndex.Domain\EthernaIndex.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="EventHandlers\" />
-  </ItemGroup>
-
 </Project>

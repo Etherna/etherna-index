@@ -1,9 +1,11 @@
-﻿using Etherna.MongODM;
+﻿using Etherna.EthernaIndex.SystemStore;
+using Etherna.MongODM;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 
-namespace Etherna.EthernaIndex.SystemStore
+namespace Etherna.EthernaIndex.Extensions
 {
     public static class DataProtectionBuilderExtensions
     {
@@ -18,7 +20,7 @@ namespace Etherna.EthernaIndex.SystemStore
             DbContextOptions dbContextOptions)
         {
             if (builder is null)
-                throw new System.ArgumentNullException(nameof(builder));
+                throw new ArgumentNullException(nameof(builder));
 
             builder.Services.Configure<KeyManagementOptions>(options =>
             {

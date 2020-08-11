@@ -1,6 +1,7 @@
 ﻿using Etherna.DomainEvents;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
+using Etherna.EthernaIndex.Persistence.Repositories;
 using Etherna.MongODM;
 using Etherna.MongODM.Repositories;
 using Etherna.MongODM.Serialization;
@@ -32,7 +33,7 @@ namespace Etherna.EthernaIndex.Persistence
 
         // Properties.
         //repositories
-        public ICollectionRepository<User, string> Users { get; } = new CollectionRepository<User, string>(
+        public ICollectionRepository<User, string> Users { get; } = new DomainCollectionRepository<User, string>(
             new CollectionRepositoryOptions<User>("users")
             {
                 IndexBuilders = new[]
@@ -41,7 +42,7 @@ namespace Etherna.EthernaIndex.Persistence
                     (Builders<User>.IndexKeys.Ascending(u => u.IdentityManifest!.Hash), new CreateIndexOptions<User>{ Sparse = true, Unique = true })
                 }
             });
-        public ICollectionRepository<Video, string> Videos { get; } = new CollectionRepository<Video, string>(
+        public ICollectionRepository<Video, string> Videos { get; } = new DomainCollectionRepository<Video, string>(
             new CollectionRepositoryOptions<Video>("videos")
             {
                 IndexBuilders = new[]
