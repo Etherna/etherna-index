@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Persistence
 {
-    public class IndexContext : DbContext, IIndexContext
+    public class IndexContext : DbContext, IEventDispatcherDbContext, IIndexContext
     {
         // Consts.
         private const string SerializersNamespace = "Etherna.EthernaIndex.Persistence.ModelMaps";
