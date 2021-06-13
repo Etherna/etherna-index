@@ -58,6 +58,17 @@ namespace Etherna.EthernaIndex.Persistence
                     (Builders<Video>.IndexKeys.Ascending(c => c.ManifestHash.Hash), new CreateIndexOptions<Video> { Unique = true })
                 }
             });
+        public ICollectionRepository<VideoVote, string> Votes { get; } = new DomainCollectionRepository<VideoVote, string>(
+            new CollectionRepositoryOptions<VideoVote>("votes")
+            {
+                IndexBuilders = new[]
+                {
+                    (Builders<VideoVote>.IndexKeys.Ascending(v => v.Owner.Address)
+                                                  .Ascending(v => v.Video.ManifestHash.Hash), new CreateIndexOptions<VideoVote>{ Unique = true }),
+                    (Builders<VideoVote>.IndexKeys.Ascending(v => v.Video.ManifestHash.Hash), new CreateIndexOptions<VideoVote>()),
+                    (Builders<VideoVote>.IndexKeys.Ascending(v => v.Value), new CreateIndexOptions<VideoVote>()),
+                }
+            });
 
         //other properties
         public IEventDispatcher EventDispatcher { get; }

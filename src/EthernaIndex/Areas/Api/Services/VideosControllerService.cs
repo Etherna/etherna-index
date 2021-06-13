@@ -109,5 +109,37 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
 
             return new VideoDto(video);
         }
+
+        public async Task VoteVideAsync(string hash, VoteValue value)
+        {
+            // Get data.
+            var address = httpContextAccessor.HttpContext.User.GetEtherAddress();
+            var user = await indexContext.Users.FindOneAsync(u => u.Address == address);
+            var video = await indexContext.Videos.FindOneAsync(v => v.ManifestHash.Hash == hash);
+
+            // Remove prev votes of user on this content.
+            var prevVotes = await indexContext.Votes.QueryElementsAsync(elements =>
+                elements.Where(v => v.Owner.Address == address && v.Video.ManifestHash.Hash == hash)
+                        .ToListAsync());
+            foreach (var prevVote in prevVotes)
+                await indexContext.Votes.DeleteAsync(prevVote);
+
+            // Create new vote.
+            var vote = new VideoVote(user, video, value);
+            await indexContext.Votes.CreateAsync(vote);
+
+            // Update counters on video.
+            var totDownvotes = await indexContext.Votes.QueryElementsAsync(elements =>
+                elements.Where(v => v.Video.ManifestHash.Hash == hash && v.Value == VoteValue.Down)
+                        .LongCountAsync());
+            var totUpvotes = await indexContext.Votes.QueryElementsAsync(elements =>
+                elements.Where(v => v.Video.ManifestHash.Hash == hash && v.Value == VoteValue.Up)
+                        .LongCountAsync());
+
+            video.TotDownvotes = totDownvotes;
+            video.TotUpvotes = totUpvotes;
+
+            await indexContext.SaveChangesAsync();
+        }
     }
 }

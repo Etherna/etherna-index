@@ -2,6 +2,7 @@
 using Etherna.EthernaIndex.Areas.Api.InputModels;
 using Etherna.EthernaIndex.Areas.Api.Services;
 using Etherna.EthernaIndex.Attributes;
+using Etherna.EthernaIndex.Domain.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -105,6 +106,22 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
             [Required] string hash,
             [Required][FromBody] string text) =>
             service.CreateCommentAsync(hash, text);
+
+        /// <summary>
+        /// Vote a video content with current user.
+        /// </summary>
+        /// <param name="hash">Video hash</param>
+        /// <param name="value">Vote value</param>
+        [HttpPost("{hash}/votes")]
+        [Authorize]
+        [SimpleExceptionFilter]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public Task VoteVideAsync(
+            [Required] string hash,
+            [Required] VoteValue value) =>
+            service.VoteVideAsync(hash, value);
 
         // Put.
 
