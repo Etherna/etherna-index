@@ -34,6 +34,8 @@ namespace Etherna.EthernaIndex.Domain.Models
         public virtual EncryptionType EncryptionType { get; protected set; }
         public virtual SwarmContentHash ManifestHash { get; protected set; } = default!;
         public virtual User Owner { get; protected set; } = default!;
+        public virtual long TotDownvotes { get; set; }
+        public virtual long TotUpvotes { get; set; }
 
         // Methods.
         [PropertyAlterer(nameof(EncryptionKey))]
