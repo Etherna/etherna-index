@@ -49,6 +49,19 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             return new VideoDto(video);
         }
 
+        public async Task<CommentDto> CreateCommentAsync(string hash, string text)
+        {
+            var address = httpContextAccessor.HttpContext.User.GetEtherAddress();
+            var user = await indexContext.Users.FindOneAsync(u => u.Address == address);
+            var video = await indexContext.Videos.FindOneAsync(v => v.ManifestHash.Hash == hash);
+
+            var comment = new Comment(user, text, video);
+
+            await indexContext.Comments.CreateAsync(comment);
+
+            return new CommentDto(comment);
+        }
+
         public async Task DeleteAsync(string hash)
         {
             // Get data.
@@ -72,6 +85,13 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
                 elements.PaginateDescending(v => v.CreationDateTime, page, take)
                         .ToListAsync()))
                 .Select(v => new VideoDto(v));
+
+        public async Task<IEnumerable<CommentDto>> GetVideoCommentsAsync(string hash, int page, int take) =>
+            (await indexContext.Comments.QueryElementsAsync(elements =>
+                elements.Where(c => c.Video.ManifestHash.Hash == hash)
+                        .PaginateDescending(c => c.CreationDateTime, page, take)
+                        .ToListAsync()))
+                .Select(c => new CommentDto(c));
 
         public async Task<VideoDto> UpdateAsync(string oldHash, string newHash)
         {
