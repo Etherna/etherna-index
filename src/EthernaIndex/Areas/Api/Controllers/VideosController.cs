@@ -18,12 +18,12 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
     public class VideosController : ControllerBase
     {
         // Fields.
-        private readonly IVideosControllerService controllerService;
+        private readonly IVideosControllerService service;
 
         // Constructors.
         public VideosController(IVideosControllerService controllerService)
         {
-            this.controllerService = controllerService;
+            this.service = controllerService;
         }
 
         // Get.
@@ -41,7 +41,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         public Task<IEnumerable<VideoDto>> GetLastUploadedVideosAsync(
             [Range(0, int.MaxValue)] int page,
             [Range(1, 100)] int take = 25) =>
-            controllerService.GetLastUploadedVideosAsync(page, take);
+            service.GetLastUploadedVideosAsync(page, take);
 
         /// <summary>
         /// Get video info by hash.
@@ -53,8 +53,26 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public Task<VideoDto> FindByHashAsync(
-            string hash) =>
-            controllerService.FindByHashAsync(hash);
+            [Required] string hash) =>
+            service.FindByHashAsync(hash);
+
+        /// <summary>
+        /// Get paginated video comments by hash
+        /// </summary>
+        /// <param name="hash">Video hash</param>
+        /// <param name="page">Current page of results</param>
+        /// <param name="take">Number of items to retrieve. Max 100</param>
+        /// <response code="200">Current page on list</response>
+        [HttpGet("{hash}/comments")]
+        [SimpleExceptionFilter]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public Task<IEnumerable<CommentDto>> GetVideoCommentsAsync(
+            [Required] string hash,
+            [Range(0, int.MaxValue)] int page,
+            [Range(1, 100)] int take = 25) =>
+            service.GetVideoCommentsAsync(hash, page, take);
 
         // Post.
 
@@ -70,7 +88,23 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public Task<VideoDto> CreateAsync(
             [Required] VideoCreateInput videoInput) =>
-            controllerService.CreateAsync(videoInput);
+            service.CreateAsync(videoInput);
+
+        /// <summary>
+        /// Create a new comment on a video with current user.
+        /// </summary>
+        /// <param name="hash">Video hash</param>
+        /// <param name="text">Comment text</param>
+        [HttpPost("{hash}/comments")]
+        [Authorize]
+        [SimpleExceptionFilter]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public Task<CommentDto> CreateCommentAsync(
+            [Required] string hash,
+            [Required][FromBody] string text) =>
+            service.CreateCommentAsync(hash, text);
 
         // Put.
 
@@ -87,9 +121,9 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public Task<VideoDto> UpdateAsync(
-            string oldHash,
+            [Required] string oldHash,
             [Required] string newHash) =>
-            controllerService.UpdateAsync(oldHash, newHash);
+            service.UpdateAsync(oldHash, newHash);
 
         // Delete.
 
@@ -106,6 +140,6 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public Task DeleteAsync(
             [Required] string hash) =>
-            controllerService.DeleteAsync(hash);
+            service.DeleteAsync(hash);
     }
 }

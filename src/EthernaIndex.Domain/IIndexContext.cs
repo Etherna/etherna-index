@@ -7,6 +7,7 @@ namespace Etherna.EthernaIndex.Domain
 {
     public interface IIndexContext : IDbContext
     {
+        ICollectionRepository<Comment, string> Comments { get; }
         ICollectionRepository<User, string> Users { get; }
         ICollectionRepository<Video, string> Videos { get; }
 

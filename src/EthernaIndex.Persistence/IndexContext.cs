@@ -33,6 +33,14 @@ namespace Etherna.EthernaIndex.Persistence
 
         // Properties.
         //repositories
+        public ICollectionRepository<Comment, string> Comments { get; } = new DomainCollectionRepository<Comment, string>(
+            new CollectionRepositoryOptions<Comment>("comments")
+            {
+                IndexBuilders = new[]
+                {
+                    (Builders<Comment>.IndexKeys.Ascending(c => c.Video.ManifestHash.Hash), new CreateIndexOptions<Comment>())
+                }
+            });
         public ICollectionRepository<User, string> Users { get; } = new DomainCollectionRepository<User, string>(
             new CollectionRepositoryOptions<User>("users")
             {
