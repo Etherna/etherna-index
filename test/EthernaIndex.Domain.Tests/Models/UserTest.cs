@@ -18,7 +18,7 @@ namespace Etherna.EthernaIndex.Domain.Models
         public UserTest()
         {
             user = new User(UserAddress);
-            video = new Video(null, EncryptionType.Plain, VideoManifestHash, user);
+            video = new Video(null, EncryptionType.Plain, null, VideoManifestHash, user);
         }
 
         // Tests.

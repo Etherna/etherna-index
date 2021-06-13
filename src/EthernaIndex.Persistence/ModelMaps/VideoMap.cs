@@ -39,6 +39,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                 })
                 .RegisterType<Video>(cm =>
                 {
+                    cm.MapMember(v => v.FairDrivePath);
                     cm.MapMember(v => v.ManifestHash);
                 })
                 .RegisterProxyType<Video>();

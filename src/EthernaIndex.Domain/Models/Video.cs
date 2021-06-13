@@ -11,11 +11,13 @@ namespace Etherna.EthernaIndex.Domain.Models
         public Video(
             string? encryptionKey,
             EncryptionType encryptionType,
+            string? fairDrivePath,
             SwarmContentHash manifestHash,
             User owner)
         {
             SetEncryptionKey(encryptionKey, encryptionType);
             SetManifestHash(manifestHash);
+            FairDrivePath = fairDrivePath;
             Owner = owner ?? throw new ArgumentNullException(nameof(owner));
             Owner.AddVideo(this);
         }
@@ -32,6 +34,7 @@ namespace Etherna.EthernaIndex.Domain.Models
         // Properties.
         public virtual string? EncryptionKey { get; protected set; }
         public virtual EncryptionType EncryptionType { get; protected set; }
+        public virtual string? FairDrivePath { get; protected set; }
         public virtual SwarmContentHash ManifestHash { get; protected set; } = default!;
         public virtual User Owner { get; protected set; } = default!;
         public virtual long TotDownvotes { get; set; }

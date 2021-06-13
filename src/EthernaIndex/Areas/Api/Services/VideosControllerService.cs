@@ -41,6 +41,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             var video = new Video(
                 videoInput.EncryptionKey,
                 videoInput.EncryptionType,
+                videoInput.FairDrivePath,
                 manifestHash,
                 user);
 
@@ -51,15 +52,14 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
 
         public async Task<CommentDto> CreateCommentAsync(string hash, string text)
         {
-            var address = httpContextAccessor.HttpContext.User.GetEtherAddress();
-            var user = await indexContext.Users.FindOneAsync(u => u.Address == address);
             var video = await indexContext.Videos.FindOneAsync(v => v.ManifestHash.Hash == hash);
+            return await CreateCommentHelperAsync(text, video);
+        }
 
-            var comment = new Comment(user, text, video);
-
-            await indexContext.Comments.CreateAsync(comment);
-
-            return new CommentDto(comment);
+        public async Task<CommentDto> CreateCommentByFairDrivePathAsync(string path, string text)
+        {
+            var video = await indexContext.Videos.FindOneAsync(v => v.FairDrivePath == path);
+            return await CreateCommentHelperAsync(text, video);
         }
 
         public async Task DeleteAsync(string hash)
@@ -80,6 +80,9 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         public async Task<VideoDto> FindByHashAsync(string hash) =>
             new VideoDto(await indexContext.Videos.FindOneAsync(v => v.ManifestHash.Hash == hash));
 
+        public async Task<VideoDto> FindByFairDrivePathAsync(string path) =>
+            new VideoDto(await indexContext.Videos.FindOneAsync(v => v.FairDrivePath == path));
+
         public async Task<IEnumerable<VideoDto>> GetLastUploadedVideosAsync(int page, int take) =>
             (await indexContext.Videos.QueryElementsAsync(elements =>
                 elements.PaginateDescending(v => v.CreationDateTime, page, take)
@@ -89,6 +92,13 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         public async Task<IEnumerable<CommentDto>> GetVideoCommentsAsync(string hash, int page, int take) =>
             (await indexContext.Comments.QueryElementsAsync(elements =>
                 elements.Where(c => c.Video.ManifestHash.Hash == hash)
+                        .PaginateDescending(c => c.CreationDateTime, page, take)
+                        .ToListAsync()))
+                .Select(c => new CommentDto(c));
+
+        public async Task<IEnumerable<CommentDto>> GetVideoCommentsByFairDrivePathAsync(string path, int page, int take) =>
+            (await indexContext.Comments.QueryElementsAsync(elements =>
+                elements.Where(c => c.Video.FairDrivePath == path)
                         .PaginateDescending(c => c.CreationDateTime, page, take)
                         .ToListAsync()))
                 .Select(c => new CommentDto(c));
@@ -112,14 +122,38 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
 
         public async Task VoteVideAsync(string hash, VoteValue value)
         {
+            var video = await indexContext.Videos.FindOneAsync(v => v.ManifestHash.Hash == hash);
+            await VoteVideoHelperAsync(value, video);
+        }
+
+        public async Task VoteVideByFairDrivePathAsync(string path, VoteValue value)
+        {
+            var video = await indexContext.Videos.FindOneAsync(v => v.FairDrivePath == path);
+            await VoteVideoHelperAsync(value, video);
+        }
+
+        // Helpers.
+        private async Task<CommentDto> CreateCommentHelperAsync(string text, Video video)
+        {
+            var address = httpContextAccessor.HttpContext.User.GetEtherAddress();
+            var user = await indexContext.Users.FindOneAsync(u => u.Address == address);
+
+            var comment = new Comment(user, text, video);
+
+            await indexContext.Comments.CreateAsync(comment);
+
+            return new CommentDto(comment);
+        }
+
+        private async Task VoteVideoHelperAsync(VoteValue value, Video video)
+        {
             // Get data.
             var address = httpContextAccessor.HttpContext.User.GetEtherAddress();
             var user = await indexContext.Users.FindOneAsync(u => u.Address == address);
-            var video = await indexContext.Videos.FindOneAsync(v => v.ManifestHash.Hash == hash);
 
             // Remove prev votes of user on this content.
             var prevVotes = await indexContext.Votes.QueryElementsAsync(elements =>
-                elements.Where(v => v.Owner.Address == address && v.Video.ManifestHash.Hash == hash)
+                elements.Where(v => v.Owner.Address == address && v.Video.ManifestHash.Hash == video.ManifestHash.Hash)
                         .ToListAsync());
             foreach (var prevVote in prevVotes)
                 await indexContext.Votes.DeleteAsync(prevVote);
@@ -130,10 +164,10 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
 
             // Update counters on video.
             var totDownvotes = await indexContext.Votes.QueryElementsAsync(elements =>
-                elements.Where(v => v.Video.ManifestHash.Hash == hash && v.Value == VoteValue.Down)
+                elements.Where(v => v.Video.ManifestHash.Hash == video.ManifestHash.Hash && v.Value == VoteValue.Down)
                         .LongCountAsync());
             var totUpvotes = await indexContext.Votes.QueryElementsAsync(elements =>
-                elements.Where(v => v.Video.ManifestHash.Hash == hash && v.Value == VoteValue.Up)
+                elements.Where(v => v.Video.ManifestHash.Hash == video.ManifestHash.Hash && v.Value == VoteValue.Up)
                         .LongCountAsync());
 
             video.TotDownvotes = totDownvotes;

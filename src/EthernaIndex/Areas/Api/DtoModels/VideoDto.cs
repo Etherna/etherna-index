@@ -14,6 +14,7 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
             CreationDateTime = video.CreationDateTime;
             EncryptionKey = video.EncryptionKey;
             EncryptionType = video.EncryptionType;
+            FairDrivePath = video.FairDrivePath;
             ManifestHash = video.ManifestHash.Hash;
             OwnerAddress = video.Owner.Address;
             OwnerIdentityManifest = video.Owner.IdentityManifest?.Hash;
@@ -25,6 +26,7 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
         public DateTime CreationDateTime { get; }
         public string? EncryptionKey { get; }
         public EncryptionType EncryptionType { get; }
+        public string? FairDrivePath { get; }
         public string ManifestHash { get; }
         public string OwnerAddress { get; }
         public string? OwnerIdentityManifest { get; }

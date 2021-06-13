@@ -75,6 +75,37 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
             [Range(1, 100)] int take = 25) =>
             service.GetVideoCommentsAsync(hash, page, take);
 
+        /// <summary>
+        /// Get video info by fairdrive path.
+        /// </summary>
+        /// <param name="path">The video path on FairDrive</param>
+        [HttpGet("fdrive/{path}")]
+        [SimpleExceptionFilter]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public Task<VideoDto> FindByFairDrivePathAsync(
+            [Required] string path) =>
+            service.FindByFairDrivePathAsync(Uri.UnescapeDataString(path));
+
+        /// <summary>
+        /// Get paginated video comments by fairdrive path
+        /// </summary>
+        /// <param name="path">The video path on FairDrive</param>
+        /// <param name="page">Current page of results</param>
+        /// <param name="take">Number of items to retrieve. Max 100</param>
+        /// <response code="200">Current page on list</response>
+        [HttpGet("fdrive/{path}/comments")]
+        [SimpleExceptionFilter]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public Task<IEnumerable<CommentDto>> GetVideoCommentsByFairDrivePathAsync(
+            [Required] string path,
+            [Range(0, int.MaxValue)] int page,
+            [Range(1, 100)] int take = 25) =>
+            service.GetVideoCommentsByFairDrivePathAsync(Uri.UnescapeDataString(path), page, take);
+
         // Post.
 
         /// <summary>
@@ -122,6 +153,38 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
             [Required] string hash,
             [Required] VoteValue value) =>
             service.VoteVideAsync(hash, value);
+
+        /// <summary>
+        /// Create a new comment on a video with current user.
+        /// </summary>
+        /// <param name="path">The video path on FairDrive</param>
+        /// <param name="text">Comment text</param>
+        [HttpPost("fdrive/{path}/comments")]
+        [Authorize]
+        [SimpleExceptionFilter]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public Task<CommentDto> CreateCommentByFairDrivePathAsync(
+            [Required] string path,
+            [Required][FromBody] string text) =>
+            service.CreateCommentByFairDrivePathAsync(Uri.UnescapeDataString(path), text);
+
+        /// <summary>
+        /// Vote a video content with current user.
+        /// </summary>
+        /// <param name="path">The video path on FairDrive</param>
+        /// <param name="value">Vote value</param>
+        [HttpPost("fdrive/{path}/votes")]
+        [Authorize]
+        [SimpleExceptionFilter]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public Task VoteVideByFairDrivePathAsync(
+            [Required] string path,
+            [Required] VoteValue value) =>
+            service.VoteVideByFairDrivePathAsync(Uri.UnescapeDataString(path), value);
 
         // Put.
 
