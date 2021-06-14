@@ -25,8 +25,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 		.gitignore = .gitignore
+		EthernaIndex.sln.licenseheader = EthernaIndex.sln.licenseheader
 		GitVersion.yml = GitVersion.yml
+		LICENSE = LICENSE
 		nuget.config = nuget.config
+		README.md = README.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{D2E7C23E-16DA-4E7B-94BB-3425A0F98651}"
