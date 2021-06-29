@@ -110,8 +110,6 @@ namespace Etherna.EthernaIndex
 
                     options.SaveTokens = true;
 
-                    options.Scope.Clear();
-                    options.Scope.Add("openid");
                     options.Scope.Add("ether_accounts");
                 });
 
