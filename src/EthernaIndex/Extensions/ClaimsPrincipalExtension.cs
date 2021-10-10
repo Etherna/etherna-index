@@ -37,7 +37,7 @@ namespace Etherna.EthernaIndex.Extensions
                 throw new ArgumentNullException(nameof(user));
 
             var claim = user.Claims.First(claim => claim.Type == DefaultClaimTypes.EtherPreviousAddress);
-            return JsonSerializer.Deserialize<string[]>(claim.Value);
+            return JsonSerializer.Deserialize<string[]>(claim.Value) ?? Array.Empty<string>();
         }
     }
 }
