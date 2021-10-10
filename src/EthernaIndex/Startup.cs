@@ -113,6 +113,9 @@ namespace Etherna.EthernaIndex
                     options.Scope.Add("ether_accounts");
                 });
 
+            // Configure token management.
+            services.AddAccessTokenManagement();
+
             // Configure Hangfire services.
             services.AddHangfire(options =>
             {
