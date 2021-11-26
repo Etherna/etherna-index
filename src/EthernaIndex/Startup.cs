@@ -104,8 +104,8 @@ namespace Etherna.EthernaIndex
                         return Task.CompletedTask;
                     };
 
-                    options.ClientId = "ethernaIndexClientId";
-                    options.ClientSecret = Configuration["SsoServer:ClientSecret"];
+                    options.ClientId = Configuration["SsoServer:Clients:Webapp:ClientId"];
+                    options.ClientSecret = Configuration["SsoServer:Clients:Webapp:Secret"];
                     options.ResponseType = "code";
 
                     options.SaveTokens = true;
