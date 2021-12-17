@@ -33,8 +33,8 @@ namespace Etherna.EthernaIndex.Domain.Models
         protected VideoVote() { }
 
         // Properties.
-        public User Owner { get; protected set; } = default!;
-        public VoteValue Value { get; protected set; }
-        public Video Video { get; protected set; } = default!;
+        public virtual User Owner { get; protected set; } = default!;
+        public virtual VoteValue Value { get; protected set; }
+        public virtual Video Video { get; protected set; } = default!;
     }
 }
