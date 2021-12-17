@@ -48,7 +48,7 @@ namespace Etherna.EthernaIndex.SystemStore
         // Methods.
         public IReadOnlyCollection<XElement> GetAllElements()
         {
-            return collection.AsQueryable().ToList().Select(bsonDoc =>
+            var elements = collection.AsQueryable().ToList().Select(bsonDoc =>
             {
                 //remove unnecessary document id added by mongodb
                 bsonDoc.Remove("_id");
@@ -56,7 +56,13 @@ namespace Etherna.EthernaIndex.SystemStore
                 var jsonStr = bsonDoc.ToJson();
                 var xDocument = JsonConvert.DeserializeXNode(jsonStr)!;
                 return xDocument.Root;
-            }).ToList();
+            });
+
+#pragma warning disable CS8620 // Argument cannot be used for parameter due to differences in the nullability of reference types.
+            return elements != null 
+             ? elements.Where(i => i is not null).ToList<XElement>()
+            : new List<XElement>();
+#pragma warning restore CS8620 // Argument cannot be used for parameter due to differences in the nullability of reference types.
         }
 
         public void StoreElement(XElement element, string friendlyName)

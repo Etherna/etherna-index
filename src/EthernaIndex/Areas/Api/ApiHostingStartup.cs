@@ -40,7 +40,7 @@ namespace Etherna.EthernaIndex.Areas.Api
                                             select t)
                 {
                     var serviceInterfaceType = serviceType.GetInterface($"I{serviceType.Name}");
-                    services.AddScoped(serviceInterfaceType, serviceType);
+                    services.AddScoped(serviceInterfaceType!, serviceType);
                 }
             });
         }

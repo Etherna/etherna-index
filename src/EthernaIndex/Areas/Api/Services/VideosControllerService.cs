@@ -48,7 +48,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         // Methods.
         public async Task<VideoDto> CreateAsync(VideoCreateInput videoInput)
         {
-            var address = httpContextAccessor.HttpContext.User.GetEtherAddress();
+            var address = httpContextAccessor.HttpContext!.User.GetEtherAddress();
             var user = await indexContext.Users.FindOneAsync(c => c.Address == address);
             var manifestHash = new SwarmContentHash(videoInput.ManifestHash);
 
@@ -65,7 +65,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
 
         public async Task<CommentDto> CreateCommentAsync(string hash, string text)
         {
-            var address = httpContextAccessor.HttpContext.User.GetEtherAddress();
+            var address = httpContextAccessor.HttpContext!.User.GetEtherAddress();
             var user = await indexContext.Users.FindOneAsync(u => u.Address == address);
             var video = await indexContext.Videos.FindOneAsync(v => v.ManifestHash.Hash == hash);
 
@@ -79,7 +79,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         public async Task DeleteAsync(string hash)
         {
             // Get data.
-            var address = httpContextAccessor.HttpContext.User.GetEtherAddress();
+            var address = httpContextAccessor.HttpContext!.User.GetEtherAddress();
             var video = await indexContext.Videos.QueryElementsAsync(elements =>
                 elements.FirstAsync(v => v.ManifestHash.Hash == hash));
 
@@ -110,7 +110,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         public async Task<VideoDto> UpdateAsync(string oldHash, string newHash)
         {
             // Get data.
-            var address = httpContextAccessor.HttpContext.User.GetEtherAddress();
+            var address = httpContextAccessor.HttpContext!.User.GetEtherAddress();
             var video = await indexContext.Videos.FindOneAsync(v => v.ManifestHash.Hash == oldHash);
 
             // Verify authz.
@@ -127,7 +127,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         public async Task VoteVideAsync(string hash, VoteValue value)
         {
             // Get data.
-            var address = httpContextAccessor.HttpContext.User.GetEtherAddress();
+            var address = httpContextAccessor.HttpContext!.User.GetEtherAddress();
             var user = await indexContext.Users.FindOneAsync(u => u.Address == address);
             var video = await indexContext.Videos.FindOneAsync(v => v.ManifestHash.Hash == hash);
 

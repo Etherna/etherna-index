@@ -58,7 +58,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
 
         public async Task<UserPrivateDto> GetCurrentUserAsync()
         {
-            var address = httpContextAccessor.HttpContext.User.GetEtherAddress();
+            var address = httpContextAccessor.HttpContext!.User.GetEtherAddress();
             var prevAddresses = httpContextAccessor.HttpContext.User.GetEtherPrevAddresses();
 
             var manifest = await indexContext.Users.QueryElementsAsync(elements =>
@@ -87,7 +87,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
 
         public async Task UpdateCurrentUserIdentityManifestAsync(string? hash)
         {
-            var address = httpContextAccessor.HttpContext.User.GetEtherAddress();
+            var address = httpContextAccessor.HttpContext!.User.GetEtherAddress();
             var prevAddresses = httpContextAccessor.HttpContext.User.GetEtherPrevAddresses();
 
             var user = await indexContext.Users.QueryElementsAsync(elements =>
