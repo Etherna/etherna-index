@@ -20,7 +20,7 @@ namespace Etherna.EthernaIndex.Domain.Models.Swarm
     public abstract class SwarmHashBase : ModelBase
     {
         // Constructors.
-        public SwarmHashBase(
+        protected SwarmHashBase(
             string hash)
         {
             if (hash is null)

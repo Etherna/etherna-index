@@ -22,7 +22,7 @@ namespace Etherna.EthernaIndex.Domain.Models
     {
         // Consts.
         private const string UserAddress = "0xFb6916095cA1Df60bb79ce92cE3EA74c37C5d359";
-        private readonly SwarmContentHash VideoManifestHash = new SwarmContentHash("33f1ea45b3404d1691911729a5dd618216bbd2031c9bf1459d4f4542fb13e067");
+        private readonly SwarmContentHash VideoManifestHash = new("33f1ea45b3404d1691911729a5dd618216bbd2031c9bf1459d4f4542fb13e067");
 
         // Fields.
         private readonly User user;
@@ -51,7 +51,6 @@ namespace Etherna.EthernaIndex.Domain.Models
         public void InvalidAddress()
         {
             // Assert.
-            Assert.Throws<ArgumentNullException>(() => new User(null));
             Assert.Throws<ArgumentException>(() => new User("ImNotAnAddress"));
         }
 

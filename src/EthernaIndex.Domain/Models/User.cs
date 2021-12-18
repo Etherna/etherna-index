@@ -23,7 +23,7 @@ namespace Etherna.EthernaIndex.Domain.Models
     public class User : EntityModelBase<string>
     {
         // Fields.
-        private List<Video> _videos = new List<Video>();
+        private List<Video> _videos = new();
 
         // Constructors.
         public User(string address)

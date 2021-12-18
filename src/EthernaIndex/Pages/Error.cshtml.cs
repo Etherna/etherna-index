@@ -12,6 +12,7 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
+using Etherna.EthernaIndex.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
@@ -22,22 +23,25 @@ namespace Etherna.EthernaIndex.Pages
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public class ErrorModel : PageModel
     {
-        public string? RequestId { get; set; }
+        // Fields.
+        private readonly ILogger<ErrorModel> logger;
 
-        public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
-
-        private readonly ILogger<ErrorModel> _logger;
-
+        // Constructor.
         public ErrorModel(ILogger<ErrorModel> logger)
         {
-            _logger = logger;
+            this.logger = logger;
         }
 
+        // Properties.
+        public string? RequestId { get; set; }
+        public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
+
+        // Methods.
         public void OnGet()
         {
             RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier;
 
-            _logger.LogError($"Request {RequestId} throwed error");
+            logger.RequestThrowedError(RequestId);
         }
     }
 }

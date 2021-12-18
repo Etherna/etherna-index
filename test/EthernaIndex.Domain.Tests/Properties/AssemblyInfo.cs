@@ -12,16 +12,6 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-using Hangfire.Dashboard;
+using System;
 
-namespace Etherna.EthernaIndex.Hangfire
-{
-    public class AdminAuthFilter : IDashboardAuthorizationFilter
-    {
-        public bool Authorize(DashboardContext context)
-        {
-            var httpContext = context.GetHttpContext();
-            return httpContext.User.Identity?.IsAuthenticated ?? false;
-        }
-    }
-}
+[assembly: CLSCompliant(false)]
