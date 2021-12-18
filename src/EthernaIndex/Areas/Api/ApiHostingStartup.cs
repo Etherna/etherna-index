@@ -14,6 +14,7 @@
 
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Linq;
 using System.Reflection;
 
@@ -40,7 +41,9 @@ namespace Etherna.EthernaIndex.Areas.Api
                                             select t)
                 {
                     var serviceInterfaceType = serviceType.GetInterface($"I{serviceType.Name}");
-                    services.AddScoped(serviceInterfaceType!, serviceType);
+                    if (serviceInterfaceType is null)
+                        throw new InvalidOperationException();
+                    services.AddScoped(serviceInterfaceType, serviceType);
                 }
             });
         }

@@ -22,7 +22,7 @@ namespace Etherna.EthernaIndex.Domain.Models
     public abstract class EntityModelBase : ModelBase, IEntityModel
     {
         private DateTime _creationDateTime;
-        private readonly List<IDomainEvent> _events = new List<IDomainEvent>();
+        private readonly List<IDomainEvent> _events = new();
 
         // Constructors and dispose.
         protected EntityModelBase()

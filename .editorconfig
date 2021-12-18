@@ -1,10 +1,20 @@
 # Remove the line below if you want to inherit .editorconfig settings from higher directories
 root = true
 
-# C# files
-[*.cs]
+#### Define style ####
+
+# All files
+[*]
+indent_style = space
+
+# C# Project, JS and CSS files
+[*.{csproj,js,ts,css,scss}]
+indent_size = 2
 
 #### Suppress warnings ####
+
+# C# files
+[*.cs]
 
 # CA1034: Nested types should not be visible
 dotnet_diagnostic.CA1034.severity = none    # Asp.Net Core Pages uses nested models

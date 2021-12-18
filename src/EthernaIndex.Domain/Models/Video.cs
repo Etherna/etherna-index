@@ -59,6 +59,8 @@ namespace Etherna.EthernaIndex.Domain.Models
             switch (encryptionType)
             {
                 case EncryptionType.AES256:
+                    if (string.IsNullOrEmpty(encryptionKey))
+                        throw new ArgumentException($"Encryption key can't be empty with encrypted content");
                     if (!Regex.IsMatch(encryptionKey, "^[A-Fa-f0-9]{64}$"))
                         throw new ArgumentException($"Encryption key is not a valid {encryptionType} key");
                     break;

@@ -27,14 +27,11 @@ namespace Etherna.EthernaIndex.SystemStore
 {
     public class XmlRepository : IXmlRepository
     {
-        // Consts.
-        public const string CollectionName = "dataProtectionKeys";
-
         // Fields.
         private readonly IMongoCollection<BsonDocument> collection;
 
         // Constructors.
-        public XmlRepository(DbContextOptions options)
+        public XmlRepository(DbContextOptions options, string name)
         {
             if (options is null)
                 throw new ArgumentNullException(nameof(options));
@@ -42,27 +39,23 @@ namespace Etherna.EthernaIndex.SystemStore
             // Initialize MongoDB driver.
             var client = new MongoClient(options.ConnectionString);
             var database = client.GetDatabase(options.DbName);
-            collection = database.GetCollection<BsonDocument>(CollectionName);
+            collection = database.GetCollection<BsonDocument>(name);
         }
 
         // Methods.
         public IReadOnlyCollection<XElement> GetAllElements()
         {
-            var elements = collection.AsQueryable().ToList().Select(bsonDoc =>
+            return collection.AsQueryable().ToList().Select(bsonDoc =>
             {
                 //remove unnecessary document id added by mongodb
                 bsonDoc.Remove("_id");
 
                 var jsonStr = bsonDoc.ToJson();
                 var xDocument = JsonConvert.DeserializeXNode(jsonStr)!;
+                if (xDocument.Root is null)
+                    throw new InvalidOperationException();
                 return xDocument.Root;
-            });
-
-#pragma warning disable CS8620 // Argument cannot be used for parameter due to differences in the nullability of reference types.
-            return elements != null 
-             ? elements.Where(i => i is not null).ToList<XElement>()
-            : new List<XElement>();
-#pragma warning restore CS8620 // Argument cannot be used for parameter due to differences in the nullability of reference types.
+            }).ToList();
         }
 
         public void StoreElement(XElement element, string friendlyName)
