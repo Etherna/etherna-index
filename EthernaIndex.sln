@@ -25,6 +25,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 		.gitignore = .gitignore
+		Dockerfile = Dockerfile
 		EthernaIndex.sln.licenseheader = EthernaIndex.sln.licenseheader
 		GitVersion.yml = GitVersion.yml
 		LICENSE = LICENSE
@@ -34,7 +35,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{D2E7C23E-16DA-4E7B-94BB-3425A0F98651}"
 	ProjectSection(SolutionItems) = preProject
-		.github\workflows\build-test-deploy_master.yml = .github\workflows\build-test-deploy_master.yml
+		.github\workflows\stable-release.yml = .github\workflows\stable-release.yml
+		.github\workflows\unstable-release.yml = .github\workflows\unstable-release.yml
 	EndProjectSection
 EndProject
 Global
