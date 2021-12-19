@@ -12,7 +12,7 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-using Etherna.EthernaIndex.Consts;
+using Etherna.EthernaIndex.Configs;
 using System;
 using System.Linq;
 using System.Security.Claims;
