@@ -12,6 +12,7 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
+using Etherna.EthernaIndex.Configs;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.Extensions;
@@ -27,6 +28,7 @@ using Hangfire.Mongo;
 using Hangfire.Mongo.Migration.Strategies;
 using Hangfire.Mongo.Migration.Strategies.Backup;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -37,9 +39,11 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Reflection;
+using System.Security.Claims;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
@@ -117,8 +121,17 @@ namespace Etherna.EthernaIndex
                     options.SaveTokens = true;
 
                     options.Scope.Add("ether_accounts");
+                    options.Scope.Add("role");
                 });
-
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy(DefaultClaimTypes.RequireAdministratorClaimPolicy,
+                    policy =>
+                    {
+                        policy.RequireAuthenticatedUser();
+                        policy.RequireClaim(ClaimTypes.Role, DefaultClaimTypes.AdministratorRoleName);
+                    });
+            });
             // Configure token management.
             services.AddAccessTokenManagement();
 
