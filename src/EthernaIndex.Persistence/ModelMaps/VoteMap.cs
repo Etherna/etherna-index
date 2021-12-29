@@ -13,9 +13,9 @@
 //   limitations under the License.
 
 using Etherna.EthernaIndex.Domain.Models;
-using Etherna.MongODM;
-using Etherna.MongODM.Extensions;
-using Etherna.MongODM.Serialization;
+using Etherna.MongODM.Core;
+using Etherna.MongODM.Core.Extensions;
+using Etherna.MongODM.Core.Serialization;
 
 namespace Etherna.EthernaIndex.Persistence.ModelMaps
 {
@@ -23,14 +23,14 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
     {
         public void Register(IDbContext dbContext)
         {
-            dbContext.DocumentSchemaRegister.RegisterModelSchema<VideoVote>("0.2.0",
-                cm =>
+            dbContext.SchemaRegistry.AddModelMapsSchema<VideoVote>("624955bf-8c09-427f-93da-fc6ddb9668a6",
+                mm =>
                 {
-                    cm.AutoMap();
+                    mm.AutoMap();
 
                     // Set members with custom serializers.
-                    cm.SetMemberSerializer(v => v.Owner, UserMap.InformationSerializer(dbContext));
-                    cm.SetMemberSerializer(v => v.Video, VideoMap.InformationSerializer(dbContext));
+                    mm.SetMemberSerializer(v => v.Owner, UserMap.InformationSerializer(dbContext));
+                    mm.SetMemberSerializer(v => v.Video, VideoMap.InformationSerializer(dbContext));
                 });
         }
     }

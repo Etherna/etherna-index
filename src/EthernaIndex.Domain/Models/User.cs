@@ -13,7 +13,7 @@
 //   limitations under the License.
 
 using Etherna.EthernaIndex.Domain.Models.Swarm;
-using Etherna.MongODM.Attributes;
+using Etherna.MongODM.Core.Attributes;
 using Nethereum.Util;
 using System;
 using System.Collections.Generic;

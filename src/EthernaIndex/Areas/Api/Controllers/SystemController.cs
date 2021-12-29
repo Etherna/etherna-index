@@ -15,8 +15,6 @@
 using Etherna.EthernaIndex.Areas.Api.DtoModels;
 using Etherna.EthernaIndex.Areas.Api.Services;
 using Etherna.EthernaIndex.Attributes;
-using Etherna.EthernaIndex.Extensions;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
@@ -47,18 +45,5 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         public Task<SettingsDto> GetSettingsAsync() =>
             controllerService.GetSettingsAsync();
-
-        // Post.
-
-        /// <summary>
-        /// Migrate index db.
-        /// </summary>
-        /// <returns></returns>
-        [HttpPost("migratedb")]
-        [Authorize]
-        [SimpleExceptionFilter]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public Task<IActionResult> MigrateDatabase() =>
-            controllerService.MigrateDatabaseAsync(User.GetEtherAddress());
     }
 }

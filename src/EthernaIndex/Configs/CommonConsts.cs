@@ -12,16 +12,15 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-using Hangfire.Dashboard;
-
-namespace Etherna.EthernaIndex.Hangfire
+namespace Etherna.EthernaIndex.Configs
 {
-    public class AdminAuthFilter : IDashboardAuthorizationFilter
+    public static class CommonConsts
     {
-        public bool Authorize(DashboardContext context)
-        {
-            var httpContext = context.GetHttpContext();
-            return httpContext.User.Identity?.IsAuthenticated ?? false;
-        }
+        public const string DatabaseAdminPath = "/admin/db";
+        public const string HangfireAdminPath = "/admin/hangfire";
+
+        public const string RequireAdministratorClaimPolicy = "RequireAdministratorClaimPolicy";
+
+        public const string AdministratorRoleName = "ADMINISTRATOR";
     }
 }

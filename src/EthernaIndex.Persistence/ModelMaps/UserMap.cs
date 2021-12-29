@@ -13,12 +13,12 @@
 //   limitations under the License.
 
 using Etherna.EthernaIndex.Domain.Models;
-using Etherna.MongODM;
-using Etherna.MongODM.Extensions;
-using Etherna.MongODM.Serialization;
-using Etherna.MongODM.Serialization.Serializers;
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Serializers;
+using Etherna.MongoDB.Bson;
+using Etherna.MongoDB.Bson.Serialization.Serializers;
+using Etherna.MongODM.Core;
+using Etherna.MongODM.Core.Extensions;
+using Etherna.MongODM.Core.Serialization;
+using Etherna.MongODM.Core.Serialization.Serializers;
 
 namespace Etherna.EthernaIndex.Persistence.ModelMaps
 {
@@ -26,7 +26,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
     {
         public void Register(IDbContext dbContext)
         {
-            dbContext.DocumentSchemaRegister.RegisterModelSchema<User>("0.1.0",
+            dbContext.SchemaRegistry.AddModelMapsSchema<User>("a547abdc-420c-41f9-b496-e6cf704a3844",
                 cm =>
                 {
                     cm.AutoMap();
@@ -44,19 +44,21 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
         public static ReferenceSerializer<User, string> InformationSerializer(
             IDbContext dbContext,
             bool useCascadeDelete = false) =>
-            new ReferenceSerializer<User, string>(dbContext, useCascadeDelete)
-                .RegisterType<ModelBase>()
-                .RegisterType<EntityModelBase>(cm => { })
-                .RegisterType<EntityModelBase<string>>(cm =>
+            new(dbContext, config =>
+            {
+                config.UseCascadeDelete = useCascadeDelete;
+                config.AddModelMapsSchema<ModelBase>("f2b68f90-0851-40fc-a9af-556458f85662");
+                config.AddModelMapsSchema<EntityModelBase>("1401ce64-0eb9-4f64-b9b2-cd570934268b", mm => { });
+                config.AddModelMapsSchema<EntityModelBase<string>>("3fabed81-1e86-4183-86dc-b875f9a940ac", mm =>
                 {
-                    cm.MapIdMember(m => m.Id);
-                    cm.IdMemberMap.SetSerializer(new StringSerializer(BsonType.ObjectId));
-                })
-                .RegisterType<User>(cm =>
+                    mm.MapIdMember(m => m.Id);
+                    mm.IdMemberMap.SetSerializer(new StringSerializer(BsonType.ObjectId));
+                });
+                config.AddModelMapsSchema<User>("caa0968f-4493-485b-b8d0-bc40942e8684", mm =>
                 {
-                    cm.MapMember(u => u.Address);
-                    cm.MapMember(u => u.IdentityManifest);
-                })
-                .RegisterProxyType<User>();
+                    mm.MapMember(u => u.Address);
+                    mm.MapMember(u => u.IdentityManifest);
+                });
+            });
     }
 }

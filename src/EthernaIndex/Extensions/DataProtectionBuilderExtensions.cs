@@ -13,7 +13,7 @@
 //   limitations under the License.
 
 using Etherna.EthernaIndex.SystemStore;
-using Etherna.MongODM;
+using Etherna.MongODM.Core.Options;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.Extensions.DependencyInjection;

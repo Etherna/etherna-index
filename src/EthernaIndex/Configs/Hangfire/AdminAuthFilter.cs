@@ -12,19 +12,16 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Hangfire.Dashboard;
 
-namespace Etherna.EthernaIndex.Configs
+namespace Etherna.EthernaIndex.Configs.Hangfire
 {
-    public static class DefaultClaimTypes
+    public class AdminAuthFilter : IDashboardAuthorizationFilter
     {
-        public const string EtherAddress = "ether_address";
-        public const string EtherPreviousAddress = "ether_prev_addresses";
-        public const string RequireAdministratorClaimPolicy = "RequireAdministratorClaimPolicy";
-
-        public const string AdministratorRoleName = "ADMINISTRATOR";
+        public bool Authorize(DashboardContext context)
+        {
+            var httpContext = context.GetHttpContext();
+            return httpContext.User.Identity?.IsAuthenticated ?? false;
+        }
     }
 }

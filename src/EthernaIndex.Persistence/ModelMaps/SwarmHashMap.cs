@@ -13,8 +13,8 @@
 //   limitations under the License.
 
 using Etherna.EthernaIndex.Domain.Models.Swarm;
-using Etherna.MongODM;
-using Etherna.MongODM.Serialization;
+using Etherna.MongODM.Core;
+using Etherna.MongODM.Core.Serialization;
 
 namespace Etherna.EthernaIndex.Persistence.ModelMaps
 {
@@ -22,9 +22,9 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
     {
         public void Register(IDbContext dbContext)
         {
-            dbContext.DocumentSchemaRegister.RegisterModelSchema<SwarmHashBase>("0.2.0");
-            dbContext.DocumentSchemaRegister.RegisterModelSchema<SwarmContentHash>("0.2.0");
-            dbContext.DocumentSchemaRegister.RegisterModelSchema<SwarmSocHash>("0.2.0");
+            dbContext.SchemaRegistry.AddModelMapsSchema<SwarmHashBase>("813cf8b6-df89-4a5d-8c2d-a9a9e08b6922");
+            dbContext.SchemaRegistry.AddModelMapsSchema<SwarmContentHash>("27edd50c-dd67-44d8-84ea-1eedcfe481e8");
+            dbContext.SchemaRegistry.AddModelMapsSchema<SwarmSocHash>("2feca50a-3009-4fe1-a9d3-b9549de29d1d");
         }
     }
 }

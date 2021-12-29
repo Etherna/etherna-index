@@ -41,9 +41,9 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
                 configuration["Swarm:GatewayUrl"],
                 "0.2"));
 
-        public async Task<IActionResult> MigrateDatabaseAsync(string currentUserAddress)
+        public async Task<IActionResult> MigrateDatabaseAsync()
         {
-            await indexContext.DbMigrationManager.StartDbContextMigrationAsync(currentUserAddress);
+            await indexContext.DbMigrationManager.StartDbContextMigrationAsync();
             return new OkResult();
         }
     }
