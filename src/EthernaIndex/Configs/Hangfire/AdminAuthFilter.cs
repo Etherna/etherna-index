@@ -28,7 +28,7 @@ namespace Etherna.EthernaIndex.Configs.Hangfire
                 return false;
             var authorizationService = httpContext.RequestServices.GetService<IAuthorizationService>()!;
 
-            var authTask = authorizationService.AuthorizeAsync(httpContext.User, DefaultClaimTypes.RequireAdministratorClaimPolicy);
+            var authTask = authorizationService.AuthorizeAsync(httpContext.User, CommonConsts.RequireAdministratorClaimPolicy);
             authTask.Wait();
             var result = authTask.Result;
 
