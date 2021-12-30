@@ -12,23 +12,25 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
+using Etherna.DomainEvents;
 using Etherna.EthernaIndex.Configs;
+using Etherna.EthernaIndex.Configs.Hangfire;
 using Etherna.EthernaIndex.Domain;
-using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.Extensions;
-using Etherna.EthernaIndex.Hangfire;
 using Etherna.EthernaIndex.Persistence;
 using Etherna.EthernaIndex.Services;
 using Etherna.EthernaIndex.Services.Settings;
+using Etherna.EthernaIndex.Services.Tasks;
 using Etherna.EthernaIndex.Swagger;
 using Etherna.MongODM;
-using Etherna.MongODM.HF.Tasks;
+using Etherna.MongODM.AspNetCore.UI;
+using Etherna.MongODM.Core.Options;
+using Etherna.SSL.Exceptions;
 using Hangfire;
 using Hangfire.Mongo;
 using Hangfire.Mongo.Migration.Strategies;
 using Hangfire.Mongo.Migration.Strategies.Backup;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -39,7 +41,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Reflection;
@@ -98,6 +99,12 @@ namespace Etherna.EthernaIndex
                 .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
                 {
                     options.Cookie.Name = Configuration["Application:CompactName"];
+                    options.AccessDeniedPath = "/AccessDenied";
+
+                    if (Environment.IsProduction())
+                    {
+                        options.Cookie.Domain = ".etherna.io";
+                    }
                 })
                 .AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, options => //client config
                 {
@@ -125,30 +132,15 @@ namespace Etherna.EthernaIndex
                 });
             services.AddAuthorization(options =>
             {
-                options.AddPolicy(DefaultClaimTypes.RequireAdministratorClaimPolicy,
+                options.AddPolicy(CommonConsts.RequireAdministratorClaimPolicy,
                     policy =>
                     {
                         policy.RequireAuthenticatedUser();
-                        policy.RequireClaim(ClaimTypes.Role, DefaultClaimTypes.AdministratorRoleName);
+                        policy.RequireClaim(ClaimTypes.Role, CommonConsts.AdministratorRoleName);
                     });
             });
             // Configure token management.
             services.AddAccessTokenManagement();
-
-            // Configure Hangfire services.
-            services.AddHangfire(options =>
-            {
-                options.UseMongoStorage(
-                    Configuration["ConnectionStrings:HangfireDb"],
-                    new MongoStorageOptions
-                    {
-                        MigrationOptions = new MongoMigrationOptions //don't remove, could throw exception
-                        {
-                            MigrationStrategy = new MigrateMongoMigrationStrategy(),
-                            BackupStrategy = new CollectionMongoBackupStrategy()
-                        }
-                    });
-            });
 
             // Configure Hangfire server.
             if (!Environment.IsStaging()) //don't start server in staging
@@ -158,7 +150,7 @@ namespace Etherna.EthernaIndex
                 {
                     options.Queues = new[]
                     {
-                        MongODM.Tasks.Queues.DB_MAINTENANCE,
+                        Queues.DB_MAINTENANCE,
                         "default"
                     };
                     options.WorkerCount = System.Environment.ProcessorCount * 2;
@@ -179,27 +171,47 @@ namespace Etherna.EthernaIndex
             });
 
             // Configure setting.
-            var appSettings = new ApplicationSettings
+            var assemblyVersion = new AssemblyVersion(GetType().GetTypeInfo().Assembly);
+            services.Configure<ApplicationSettings>(Configuration.GetSection("Application") ?? throw new ServiceConfigurationException());
+            services.PostConfigure<ApplicationSettings>(options =>
             {
-                AssemblyVersion = GetType()
-                    .GetTypeInfo()
-                    .Assembly
-                    .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
-                    ?.InformationalVersion!
-            };
-            services.Configure<ApplicationSettings>(options =>
-            {
-                options.AssemblyVersion = appSettings.AssemblyVersion;
+                options.AssemblyVersion = assemblyVersion.Version;
             });
             services.Configure<SsoServerSettings>(Configuration.GetSection("SsoServer"));
 
             // Configure persistence.
-            services.UseMongODM<HangfireTaskRunner, ModelBase>()
-                .AddDbContext<IIndexContext, IndexContext>(options =>
+            services.AddMongODMWithHangfire(configureHangfireOptions: options =>
+            {
+                options.ConnectionString = Configuration["ConnectionStrings:HangfireDb"] ?? throw new ServiceConfigurationException();
+                options.StorageOptions = new MongoStorageOptions
                 {
-                    options.ApplicationVersion = appSettings.SimpleAssemblyVersion;
-                    options.ConnectionString = Configuration["ConnectionStrings:IndexDb"];
+                    MigrationOptions = new MongoMigrationOptions //don't remove, could throw exception
+                    {
+                        MigrationStrategy = new MigrateMongoMigrationStrategy(),
+                        BackupStrategy = new CollectionMongoBackupStrategy()
+                    }
+                };
+            }, configureMongODMOptions: options =>
+            {
+                options.DbMaintenanceQueueName = Queues.DB_MAINTENANCE;
+            })
+                .AddDbContext<IIndexContext, IndexContext>(
+                sp =>
+                {
+                    var eventDispatcher = sp.GetRequiredService<IEventDispatcher>();
+                    return new IndexContext(eventDispatcher);
+                },
+                options =>
+                {
+                    options.ConnectionString = Configuration["ConnectionStrings:IndexDb"] ?? throw new ServiceConfigurationException();
+                    options.DocumentSemVer.CurrentVersion = assemblyVersion.SimpleVersion;
                 });
+
+            services.AddMongODMAdminDashboard(new MongODM.AspNetCore.UI.DashboardOptions
+            {
+                AuthFilters = new[] { new Configs.MongODM.AdminAuthFilter() },
+                BasePath = CommonConsts.DatabaseAdminPath
+            });
 
             // Configure domain services.
             services.AddDomainServices();
@@ -246,10 +258,13 @@ namespace Etherna.EthernaIndex
             app.UseAuthentication();
             app.UseAuthorization();
 
+            // Seed db if required.
+            app.UseDbContextsSeeding();
+
             // Add Hangfire.
             app.UseHangfireDashboard(
-                "/admin/hangfire",
-                new DashboardOptions
+                CommonConsts.HangfireAdminPath,
+                new Hangfire.DashboardOptions
                 {
                     Authorization = new[] { new AdminAuthFilter() }
                 });

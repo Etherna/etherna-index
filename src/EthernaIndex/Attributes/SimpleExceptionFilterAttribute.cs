@@ -12,7 +12,7 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-using Etherna.MongODM.Exceptions;
+using Etherna.MongODM.Core.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using System;
@@ -32,10 +32,10 @@ namespace Etherna.EthernaIndex.Attributes
                 case ArgumentException _:
                 case FormatException _:
                 case InvalidOperationException _:
-                case InvalidEntityTypeException _:
+                case MongodmInvalidEntityTypeException _:
                     context.Result = new BadRequestObjectResult(context.Exception.Message);
                     break;
-                case EntityNotFoundException _:
+                case MongodmEntityNotFoundException _:
                 case KeyNotFoundException _:
                     context.Result = new NotFoundObjectResult(context.Exception.Message);
                     break;

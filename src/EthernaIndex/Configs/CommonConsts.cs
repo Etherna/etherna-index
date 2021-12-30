@@ -12,17 +12,13 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
 namespace Etherna.EthernaIndex.Configs
 {
-    public static class DefaultClaimTypes
+    public static class CommonConsts
     {
-        public const string EtherAddress = "ether_address";
-        public const string EtherPreviousAddress = "ether_prev_addresses";
+        public const string DatabaseAdminPath = "/admin/db";
+        public const string HangfireAdminPath = "/admin/hangfire";
+
         public const string RequireAdministratorClaimPolicy = "RequireAdministratorClaimPolicy";
 
         public const string AdministratorRoleName = "ADMINISTRATOR";

@@ -13,11 +13,11 @@
 //   limitations under the License.
 
 using Etherna.EthernaIndex.Domain.Models;
-using Etherna.MongODM;
-using Etherna.MongODM.Serialization;
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization.IdGenerators;
-using MongoDB.Bson.Serialization.Serializers;
+using Etherna.MongoDB.Bson;
+using Etherna.MongoDB.Bson.Serialization.IdGenerators;
+using Etherna.MongoDB.Bson.Serialization.Serializers;
+using Etherna.MongODM.Core;
+using Etherna.MongODM.Core.Serialization;
 
 namespace Etherna.EthernaIndex.Persistence.ModelMaps
 {
@@ -26,15 +26,15 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
         public void Register(IDbContext dbContext)
         {
             // register class maps.
-            dbContext.DocumentSchemaRegister.RegisterModelSchema<ModelBase>("0.1.0");
+            dbContext.SchemaRegistry.AddModelMapsSchema<ModelBase>("87302867-8134-4aea-a249-7d8d2239c8d2");
 
-            dbContext.DocumentSchemaRegister.RegisterModelSchema<EntityModelBase<string>>("0.1.0",
-                cm =>
+            dbContext.SchemaRegistry.AddModelMapsSchema<EntityModelBase<string>>("e710ad96-4b24-47fe-a214-a312d226d70b",
+                mm =>
                 {
-                    cm.AutoMap();
+                    mm.AutoMap();
 
                     // Set Id representation.
-                    cm.IdMemberMap.SetSerializer(new StringSerializer(BsonType.ObjectId))
+                    mm.IdMemberMap.SetSerializer(new StringSerializer(BsonType.ObjectId))
                                   .SetIdGenerator(new StringObjectIdGenerator());
                 });
         }

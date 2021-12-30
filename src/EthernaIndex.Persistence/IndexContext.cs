@@ -16,11 +16,10 @@ using Etherna.DomainEvents;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.Persistence.Repositories;
-using Etherna.MongODM;
-using Etherna.MongODM.Repositories;
-using Etherna.MongODM.Serialization;
-using Etherna.MongODM.Utility;
-using MongoDB.Driver;
+using Etherna.MongoDB.Driver;
+using Etherna.MongODM.Core;
+using Etherna.MongODM.Core.Repositories;
+using Etherna.MongODM.Core.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,10 +36,7 @@ namespace Etherna.EthernaIndex.Persistence
 
         // Constructor.
         public IndexContext(
-            IDbDependencies dbDependencies,
-            IEventDispatcher eventDispatcher,
-            DbContextOptions<IndexContext> options)
-            : base(dbDependencies, options)
+            IEventDispatcher eventDispatcher)
         {
             EventDispatcher = eventDispatcher;
         }

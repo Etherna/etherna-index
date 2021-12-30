@@ -12,13 +12,13 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
+using Etherna.Authentication.Extensions;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
-using Etherna.EthernaIndex.Extensions;
+using Etherna.MongoDB.Driver.Linq;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using MongoDB.Driver.Linq;
 using System;
 using System.Linq;
 using System.Threading.Tasks;

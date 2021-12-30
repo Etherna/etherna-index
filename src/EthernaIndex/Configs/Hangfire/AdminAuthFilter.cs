@@ -17,7 +17,7 @@ using Hangfire.Dashboard;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Etherna.EthernaIndex.Hangfire
+namespace Etherna.EthernaIndex.Configs.Hangfire
 {
     public class AdminAuthFilter : IDashboardAuthorizationFilter
     {
@@ -28,7 +28,7 @@ namespace Etherna.EthernaIndex.Hangfire
                 return false;
             var authorizationService = httpContext.RequestServices.GetService<IAuthorizationService>()!;
 
-            var authTask = authorizationService.AuthorizeAsync(httpContext.User, DefaultClaimTypes.RequireAdministratorClaimPolicy);
+            var authTask = authorizationService.AuthorizeAsync(httpContext.User, CommonConsts.RequireAdministratorClaimPolicy);
             authTask.Wait();
             var result = authTask.Result;
 

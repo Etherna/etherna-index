@@ -12,16 +12,16 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
+using Etherna.Authentication.Extensions;
 using Etherna.EthernaIndex.Areas.Api.DtoModels;
 using Etherna.EthernaIndex.Areas.Api.InputModels;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.Domain.Models.Swarm;
-using Etherna.EthernaIndex.Extensions;
-using Etherna.MongODM.Extensions;
+using Etherna.MongoDB.Driver;
+using Etherna.MongoDB.Driver.Linq;
+using Etherna.MongODM.Core.Extensions;
 using Microsoft.AspNetCore.Http;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using Nethereum.Util;
 using System;
 using System.Collections.Generic;
