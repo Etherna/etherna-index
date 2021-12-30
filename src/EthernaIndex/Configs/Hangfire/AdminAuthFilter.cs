@@ -12,7 +12,10 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
+using Etherna.EthernaIndex.Configs;
 using Hangfire.Dashboard;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Etherna.EthernaIndex.Configs.Hangfire
 {
@@ -21,7 +24,15 @@ namespace Etherna.EthernaIndex.Configs.Hangfire
         public bool Authorize(DashboardContext context)
         {
             var httpContext = context.GetHttpContext();
-            return httpContext.User.Identity?.IsAuthenticated ?? false;
+            if (httpContext.User is null)
+                return false;
+            var authorizationService = httpContext.RequestServices.GetService<IAuthorizationService>()!;
+
+            var authTask = authorizationService.AuthorizeAsync(httpContext.User, DefaultClaimTypes.RequireAdministratorClaimPolicy);
+            authTask.Wait();
+            var result = authTask.Result;
+
+            return result.Succeeded;
         }
     }
 }
