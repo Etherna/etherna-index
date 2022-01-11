@@ -18,9 +18,11 @@ using Etherna.EthernaIndex.Areas.Api.InputModels;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.Domain.Models.Swarm;
+using Etherna.EthernaIndex.Services.Video;
 using Etherna.MongoDB.Driver;
 using Etherna.MongoDB.Driver.Linq;
 using Etherna.MongODM.Core.Extensions;
+using Hangfire;
 using Microsoft.AspNetCore.Http;
 using Nethereum.Util;
 using System;
@@ -35,14 +37,17 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         // Fields.
         private readonly IHttpContextAccessor httpContextAccessor;
         private readonly IIndexContext indexContext;
+        private readonly IVideoService videoService;
 
         // Constructors.
         public VideosControllerService(
             IHttpContextAccessor httpContextAccessor,
-            IIndexContext indexContext)
+            IIndexContext indexContext, 
+            IVideoService videoService)
         {
             this.httpContextAccessor = httpContextAccessor;
             this.indexContext = indexContext;
+            this.videoService = videoService;
         }
 
         // Methods.
@@ -50,6 +55,9 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         {
             var address = httpContextAccessor.HttpContext!.User.GetEtherAddress();
             var user = await indexContext.Users.FindOneAsync(c => c.Address == address);
+
+            var jobId = BackgroundJob.Enqueue(() => videoService.ValidateMetadataAsync(videoInput.ManifestHash));
+
             var manifestHash = new SwarmContentHash(videoInput.ManifestHash);
 
             var video = new Video(

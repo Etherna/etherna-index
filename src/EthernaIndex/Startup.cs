@@ -20,12 +20,15 @@ using Etherna.EthernaIndex.Extensions;
 using Etherna.EthernaIndex.Persistence;
 using Etherna.EthernaIndex.Services;
 using Etherna.EthernaIndex.Services.Settings;
+using Etherna.EthernaIndex.Services.Swarm;
 using Etherna.EthernaIndex.Services.Tasks;
+using Etherna.EthernaIndex.Services.Video;
 using Etherna.EthernaIndex.Swagger;
 using Etherna.MongODM;
 using Etherna.MongODM.AspNetCore.UI;
 using Etherna.MongODM.Core.Options;
 using Etherna.SSL.Exceptions;
+using EthernaIndex.Swarm;
 using Hangfire;
 using Hangfire.Mongo;
 using Hangfire.Mongo.Migration.Strategies;
@@ -215,6 +218,15 @@ namespace Etherna.EthernaIndex
 
             // Configure domain services.
             services.AddDomainServices();
+
+            // Configure Swarm service.
+            services.AddTransient<ISwarmService, SwarmService>();
+
+            // Configure Video serice.
+            services.AddTransient<IVideoService, VideoService>();
+
+            // AppSettings configurations.
+            services.Configure<SwarmSettings>(Configuration.GetSection("Swarm"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
