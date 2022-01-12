@@ -18,7 +18,7 @@ using Etherna.EthernaIndex.Areas.Api.InputModels;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.Domain.Models.Swarm;
-using Etherna.EthernaIndex.Services.Video;
+using Etherna.EthernaIndex.Services.Interfaces;
 using Etherna.MongoDB.Driver;
 using Etherna.MongoDB.Driver.Linq;
 using Etherna.MongODM.Core.Extensions;
@@ -37,17 +37,17 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         // Fields.
         private readonly IHttpContextAccessor httpContextAccessor;
         private readonly IIndexContext indexContext;
-        private readonly IVideoService videoService;
+        private readonly IMetadataVideoValidator metadataVideoValidator;
 
         // Constructors.
         public VideosControllerService(
             IHttpContextAccessor httpContextAccessor,
-            IIndexContext indexContext, 
-            IVideoService videoService)
+            IIndexContext indexContext,
+            IMetadataVideoValidator metadataVideoValidator)
         {
             this.httpContextAccessor = httpContextAccessor;
             this.indexContext = indexContext;
-            this.videoService = videoService;
+            this.metadataVideoValidator = metadataVideoValidator;
         }
 
         // Methods.
@@ -56,7 +56,9 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             var address = httpContextAccessor.HttpContext!.User.GetEtherAddress();
             var user = await indexContext.Users.FindOneAsync(c => c.Address == address);
 
-            var jobId = BackgroundJob.Enqueue(() => videoService.ValidateMetadataAsync(videoInput.ManifestHash));
+            //TODO save MetadataVideos HERE
+
+            var jobId = BackgroundJob.Enqueue(() => metadataVideoValidator.CheckManifestAsync(videoInput.ManifestHash));
 
             var manifestHash = new SwarmContentHash(videoInput.ManifestHash);
 

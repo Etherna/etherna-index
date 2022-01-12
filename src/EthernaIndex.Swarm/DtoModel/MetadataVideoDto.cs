@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Etherna.EthernaIndex.Domain.DtoModel
+namespace EthernaIndex.Swarm.DtoModel
 {
     public class MetadataVideoDto
     {

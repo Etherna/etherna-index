@@ -1,4 +1,4 @@
-﻿namespace Etherna.EthernaIndex.Domain.DtoModel
+﻿namespace EthernaIndex.Swarm.DtoModel
 {
     public enum MetadataVideoValidationResult
     {

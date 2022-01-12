@@ -15,7 +15,6 @@
 using Etherna.DomainEvents;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
-using Etherna.EthernaIndex.Domain.Models.Meta;
 using Etherna.EthernaIndex.Persistence.Repositories;
 using Etherna.MongoDB.Driver;
 using Etherna.MongODM.Core;
@@ -52,10 +51,13 @@ namespace Etherna.EthernaIndex.Persistence
                     (Builders<Comment>.IndexKeys.Ascending(c => c.Video.ManifestHash.Hash), new CreateIndexOptions<Comment>())
                 }
             });
-        public ICollectionRepository<MetadataVideo, string> MetadataVideos { get; } = new DomainCollectionRepository<MetadataVideo, string>(
-            new CollectionRepositoryOptions<MetadataVideo>("metadataVideos")
+        public ICollectionRepository<ValidationResult, string> ValidationResults { get; } = new DomainCollectionRepository<ValidationResult, string>(
+            new CollectionRepositoryOptions<ValidationResult>("validationResults")
             {
-                
+                IndexBuilders = new[]
+                {
+                    (Builders<ValidationResult>.IndexKeys.Ascending(c => c.ManifestHash), new CreateIndexOptions<ValidationResult>())
+                }
             });
         public ICollectionRepository<User, string> Users { get; } = new DomainCollectionRepository<User, string>(
             new CollectionRepositoryOptions<User>("users")

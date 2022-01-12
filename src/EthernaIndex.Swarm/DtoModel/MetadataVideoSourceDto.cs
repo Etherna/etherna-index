@@ -1,11 +1,7 @@
-﻿namespace Etherna.EthernaIndex.Domain.Models.Meta
+﻿namespace EthernaIndex.Swarm.DtoModel
 {
-    public class MetadataVideoSource
+    public class MetadataVideoSourceDto
     {
-        // Constructors.
-        protected MetadataVideoSource() { }
-
-        // Properties.
         public string Quality { get; set; } = default!;
         public string Reference { get; set; } = default!;
         public int? Size { get; set; }

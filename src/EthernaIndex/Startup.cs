@@ -19,10 +19,10 @@ using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Extensions;
 using Etherna.EthernaIndex.Persistence;
 using Etherna.EthernaIndex.Services;
+using Etherna.EthernaIndex.Services.Interfaces;
+using Etherna.EthernaIndex.Services.ModelValidators;
 using Etherna.EthernaIndex.Services.Settings;
-using Etherna.EthernaIndex.Services.Swarm;
 using Etherna.EthernaIndex.Services.Tasks;
-using Etherna.EthernaIndex.Services.Video;
 using Etherna.EthernaIndex.Swagger;
 using Etherna.MongODM;
 using Etherna.MongODM.AspNetCore.UI;
@@ -223,7 +223,7 @@ namespace Etherna.EthernaIndex
             services.AddTransient<ISwarmService, SwarmService>();
 
             // Configure Video serice.
-            services.AddTransient<IVideoService, VideoService>();
+            services.AddTransient<IMetadataVideoValidator, MetadataVideoValidator>();
 
             // AppSettings configurations.
             services.Configure<SwarmSettings>(Configuration.GetSection("Swarm"));

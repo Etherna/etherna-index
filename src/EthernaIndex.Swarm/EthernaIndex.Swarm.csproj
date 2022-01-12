@@ -6,10 +6,7 @@
 
   <ItemGroup>
     <PackageReference Include="Bee.Net" Version="0.1.0-alpha.39" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\EthernaIndex.Services\EthernaIndex.Services.csproj" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="5.0.0" />
   </ItemGroup>
 
 </Project>

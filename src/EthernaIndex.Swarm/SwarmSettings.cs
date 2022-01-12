@@ -1,4 +1,4 @@
-﻿namespace Etherna.EthernaIndex.Services.Settings
+﻿namespace EthernaIndex.Swarm
 {
     public class SwarmSettings
     {

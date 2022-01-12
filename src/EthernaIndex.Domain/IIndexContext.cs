@@ -14,7 +14,6 @@
 
 using Etherna.DomainEvents;
 using Etherna.EthernaIndex.Domain.Models;
-using Etherna.EthernaIndex.Domain.Models.Meta;
 using Etherna.MongODM.Core;
 using Etherna.MongODM.Core.Repositories;
 
@@ -26,7 +25,7 @@ namespace Etherna.EthernaIndex.Domain
         ICollectionRepository<User, string> Users { get; }
         ICollectionRepository<Video, string> Videos { get; }
         ICollectionRepository<VideoVote, string> Votes { get; }
-        ICollectionRepository<MetadataVideo, string> MetadataVideos { get; }
+        ICollectionRepository<ValidationResult, string> ValidationResults { get; }
 
         IEventDispatcher EventDispatcher { get; }
     }
