@@ -18,9 +18,9 @@ namespace Etherna.EthernaIndex.Domain.Models.ValidationResults
             ErrorMessage = errorMessage;
             CheckedTime = checkedTime;
         }
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+#pragma warning disable CS8618 //Used only by EthernaIndex.Persistence
         protected ErrorValidationResult() { }
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+#pragma warning restore CS8618 //Used only by EthernaIndex.Persistence
 
 
         // Properties.
