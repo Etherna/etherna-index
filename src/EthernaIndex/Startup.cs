@@ -19,8 +19,6 @@ using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Extensions;
 using Etherna.EthernaIndex.Persistence;
 using Etherna.EthernaIndex.Services;
-using Etherna.EthernaIndex.Services.Interfaces;
-using Etherna.EthernaIndex.Services.ModelValidators;
 using Etherna.EthernaIndex.Services.Settings;
 using Etherna.EthernaIndex.Services.Tasks;
 using Etherna.EthernaIndex.Swagger;
@@ -28,7 +26,6 @@ using Etherna.MongODM;
 using Etherna.MongODM.AspNetCore.UI;
 using Etherna.MongODM.Core.Options;
 using Etherna.SSL.Exceptions;
-using EthernaIndex.Swarm;
 using Hangfire;
 using Hangfire.Mongo;
 using Hangfire.Mongo.Migration.Strategies;
@@ -154,6 +151,7 @@ namespace Etherna.EthernaIndex
                     options.Queues = new[]
                     {
                         Queues.DB_MAINTENANCE,
+                        Queues.METADATA_VIDEO_VALIDATOR,
                         "default"
                     };
                     options.WorkerCount = System.Environment.ProcessorCount * 2;
@@ -217,16 +215,7 @@ namespace Etherna.EthernaIndex
             });
 
             // Configure domain services.
-            services.AddDomainServices();
-
-            // Configure Swarm service.
-            services.AddTransient<ISwarmService, SwarmService>();
-
-            // Configure Video serice.
-            services.AddTransient<IMetadataVideoValidator, MetadataVideoValidator>();
-
-            // AppSettings configurations.
-            services.Configure<SwarmSettings>(Configuration.GetSection("Swarm"));
+            services.AddDomainServices(Configuration);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

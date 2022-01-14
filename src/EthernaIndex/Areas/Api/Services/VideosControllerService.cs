@@ -18,11 +18,14 @@ using Etherna.EthernaIndex.Areas.Api.InputModels;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.Domain.Models.Swarm;
+using Etherna.EthernaIndex.Services.Exceptions;
 using Etherna.EthernaIndex.Services.Interfaces;
+using Etherna.EthernaIndex.Services.Tasks;
 using Etherna.MongoDB.Driver;
 using Etherna.MongoDB.Driver.Linq;
 using Etherna.MongODM.Core.Extensions;
 using Hangfire;
+using Hangfire.States;
 using Microsoft.AspNetCore.Http;
 using Nethereum.Util;
 using System;
@@ -35,19 +38,22 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
     internal class VideosControllerService : IVideosControllerService
     {
         // Fields.
+        private readonly IBackgroundJobClient backgroundJobClient;
         private readonly IHttpContextAccessor httpContextAccessor;
         private readonly IIndexContext indexContext;
-        private readonly IMetadataVideoValidator metadataVideoValidator;
+        private readonly IMetadataVideoValidatorTask metadataVideoValidator;
 
         // Constructors.
         public VideosControllerService(
             IHttpContextAccessor httpContextAccessor,
             IIndexContext indexContext,
-            IMetadataVideoValidator metadataVideoValidator)
+            IMetadataVideoValidatorTask metadataVideoValidator,
+            IBackgroundJobClient backgroundJobClient)
         {
             this.httpContextAccessor = httpContextAccessor;
             this.indexContext = indexContext;
             this.metadataVideoValidator = metadataVideoValidator;
+            this.backgroundJobClient = backgroundJobClient;
         }
 
         // Methods.
@@ -57,9 +63,16 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             var user = await indexContext.Users.FindOneAsync(c => c.Address == address);
             var validationResult = await indexContext.ValidationResults.TryFindOneAsync(c => c.ManifestHash == videoInput.ManifestHash);
 
+            if (validationResult is not null)
+            {
+                throw new DuplicatedManifestHashException(videoInput.ManifestHash);
+            }
+
             await indexContext.ValidationResults.CreateAsync(new ValidationResult(videoInput.ManifestHash));
 
-            var jobId = BackgroundJob.Enqueue(() => metadataVideoValidator.CheckManifestAsync(videoInput.ManifestHash));
+            backgroundJobClient.Create<MetadataVideoValidatorTask>(
+                task => task.RunAsync(videoInput.ManifestHash),
+                new EnqueuedState(Queues.METADATA_VIDEO_VALIDATOR));
 
             var manifestHash = new SwarmContentHash(videoInput.ManifestHash);
 

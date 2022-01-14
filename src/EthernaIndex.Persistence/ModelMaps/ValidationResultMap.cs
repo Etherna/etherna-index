@@ -12,12 +12,21 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
+using Etherna.EthernaIndex.Domain.Models;
+using Etherna.MongODM.Core;
+using Etherna.MongODM.Core.Serialization;
 
-namespace Etherna.EthernaIndex.Services.Tasks
+namespace Etherna.EthernaIndex.Persistence.ModelMaps
 {
-    public static class Queues
+    class ValidationResultMap : IModelMapsCollector
     {
-        public const string DB_MAINTENANCE = "db_maintenance";
-        public const string METADATA_VIDEO_VALIDATOR = "metadata_video_validator";
+        public void Register(IDbContext dbContext)
+        {
+            dbContext.SchemaRegistry.AddModelMapsSchema<ValidationResult>("b5df7782-dee6-48bc-a6c8-c7d8b059b5e2",
+                mm =>
+                {
+                    mm.AutoMap();
+                });
+        }
     }
 }

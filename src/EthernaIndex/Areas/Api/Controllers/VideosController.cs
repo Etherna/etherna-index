@@ -96,7 +96,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// </summary>
         /// <param name="videoInput">Info of new video</param>
         [HttpPost]
-        [Authorize]
+        //[Authorize]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

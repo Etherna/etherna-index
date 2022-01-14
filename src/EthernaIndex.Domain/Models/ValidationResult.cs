@@ -30,7 +30,7 @@ namespace Etherna.EthernaIndex.Domain.Models
         public string ManifestHash { get; init; } = default!;
         public DateTime? LastCheck { get; private set; }
         public bool Checked { get; private set; } = default!;
-        public bool IsValid { get; private set; } = default!;
+        public bool? IsValid { get; private set; } = default!;
         public virtual IEnumerable<ErrorValidationResult> ErrorValidationResults
         {
             get => _errorValidationResults;
@@ -47,7 +47,7 @@ namespace Etherna.EthernaIndex.Domain.Models
             Checked = true;
             LastCheck = DateTime.Now;
             if (validationErrors == null ||
-                validationErrors.Any())
+                !validationErrors.Any())
             {
                 IsValid = true;
                 _errorValidationResults.Clear();
