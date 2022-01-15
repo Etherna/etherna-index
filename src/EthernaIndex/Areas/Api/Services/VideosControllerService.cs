@@ -58,7 +58,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         {
             var address = httpContextAccessor.HttpContext!.User.GetEtherAddress();
             var user = await indexContext.Users.FindOneAsync(c => c.Address == address);
-            var validationResult = await indexContext.ValidationResults.TryFindOneAsync(c => c.ManifestHash == videoInput.ManifestHash);
+            var validationResult = await indexContext.ValidationResults.TryFindOneAsync(c => c.ManifestHash.Hash == videoInput.ManifestHash);
 
             if (validationResult is not null)
             {

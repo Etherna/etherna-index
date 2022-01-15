@@ -1,4 +1,5 @@
-﻿using Etherna.EthernaIndex.Domain.Models.ValidationResults;
+﻿using Etherna.EthernaIndex.Domain.Models.Swarm;
+using Etherna.EthernaIndex.Domain.Models.ValidationResults;
 using Etherna.MongODM.Core.Attributes;
 using System;
 using System.Collections.Generic;
@@ -20,14 +21,14 @@ namespace Etherna.EthernaIndex.Domain.Models
                 throw new ArgumentNullException(nameof(manifestHash));
             }
 
-            ManifestHash = manifestHash;
+            ManifestHash = new SwarmContentHash(manifestHash);
         }
         protected ValidationResult() { }
 
 
 
         // Properties.
-        public string ManifestHash { get; init; } = default!;
+        public SwarmContentHash ManifestHash { get; init; } = default!;
         public DateTime? LastCheck { get; private set; }
         public bool Checked { get; private set; } = default!;
         public bool? IsValid { get; private set; } = default!;

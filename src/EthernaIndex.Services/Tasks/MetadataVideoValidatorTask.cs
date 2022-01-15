@@ -40,7 +40,7 @@ namespace Etherna.EthernaIndex.Services.Tasks
         // Methods.
         public async Task RunAsync(string manifestHash)
         {
-            var validationResult = await indexContext.ValidationResults.FindOneAsync(u => u.ManifestHash == manifestHash);
+            var validationResult = await indexContext.ValidationResults.FindOneAsync(u => u.ManifestHash.Hash == manifestHash);
 
             MetadataVideoDto? metadataDto;
             var validationErrors = new Dictionary<ValidationError, string>();
