@@ -1,4 +1,5 @@
 ﻿using Etherna.BeeNet;
+using Etherna.BeeNet.DtoModel;
 using EthernaIndex.Swarm.DtoModel;
 using Microsoft.Extensions.Options;
 using System;
@@ -18,7 +19,11 @@ namespace EthernaIndex.Swarm
         public SwarmService(IOptions<SwarmSettings> swarmSettings)
         {
             SwarmSettings = swarmSettings.Value;
-            BeeNodeClient = new BeeNodeClient(SwarmSettings.GatewayUrl);
+            if (Enum.TryParse($"v{SwarmSettings.Version.Replace(".", "_")}", out ClientVersions ClientVersion))
+            {
+                ClientVersion = ClientVersions.v1_4_1;
+            }
+            BeeNodeClient = new BeeNodeClient(SwarmSettings.GatewayUrl, version: ClientVersion);
         }
 
         // Methods.

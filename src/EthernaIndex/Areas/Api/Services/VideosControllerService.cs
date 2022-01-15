@@ -41,18 +41,15 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         private readonly IBackgroundJobClient backgroundJobClient;
         private readonly IHttpContextAccessor httpContextAccessor;
         private readonly IIndexContext indexContext;
-        private readonly IMetadataVideoValidatorTask metadataVideoValidator;
 
         // Constructors.
         public VideosControllerService(
             IHttpContextAccessor httpContextAccessor,
             IIndexContext indexContext,
-            IMetadataVideoValidatorTask metadataVideoValidator,
             IBackgroundJobClient backgroundJobClient)
         {
             this.httpContextAccessor = httpContextAccessor;
             this.indexContext = indexContext;
-            this.metadataVideoValidator = metadataVideoValidator;
             this.backgroundJobClient = backgroundJobClient;
         }
 
