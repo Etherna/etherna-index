@@ -68,6 +68,10 @@ namespace Etherna.EthernaIndex.Persistence
                     (Builders<Video>.IndexKeys.Ascending(c => c.ManifestHash.Hash), new CreateIndexOptions<Video> { Unique = true })
                 }
             });
+        public ICollectionRepository<VideoReport, string> VideoReports { get; } = new DomainCollectionRepository<VideoReport, string>(
+            new CollectionRepositoryOptions<VideoReport>("videoReports")
+            {
+            });
         public ICollectionRepository<VideoVote, string> Votes { get; } = new DomainCollectionRepository<VideoVote, string>(
             new CollectionRepositoryOptions<VideoVote>("votes")
             {

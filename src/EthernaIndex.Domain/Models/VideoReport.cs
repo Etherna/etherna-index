@@ -17,23 +17,26 @@ using System;
 
 namespace Etherna.EthernaIndex.Domain.Models
 {
-    public class ReportVideo : EntityModelBase<string>
+    public class VideoReport : EntityModelBase<string>
     {
         // Constructors and dispose.
-        public ReportVideo(
+        public VideoReport(
             Video video,
-            User owner)
+            User owner,
+            string description)
         {
             ReporterOwner = owner ?? throw new ArgumentNullException(nameof(owner));
             Video = video ?? throw new ArgumentNullException(nameof(video));
+            ReportDescription = description ?? throw new ArgumentNullException(nameof(description));
         }
-        protected ReportVideo() { }
+        protected VideoReport() { }
 
 
         // Properties.
         public virtual User? CheckedBy { get; protected set; }
         public virtual bool? ContentApproved { get; protected set; }
-        public virtual string? Description { get; protected set; }
+        public virtual string ReportDescription { get; protected set; } = default!;
+        public virtual string? CheckedDescription { get; protected set; }
         public virtual DateTime? LastCheck { get; protected set; }
         public virtual User ReporterOwner { get; protected set; } = default!;
         public virtual Video Video { get; protected set; } = default!;
@@ -41,7 +44,7 @@ namespace Etherna.EthernaIndex.Domain.Models
         // Methods.
         [PropertyAlterer(nameof(CheckedBy))]
         [PropertyAlterer(nameof(ContentApproved))]
-        [PropertyAlterer(nameof(Description))]
+        [PropertyAlterer(nameof(CheckedDescription))]
         [PropertyAlterer(nameof(LastCheck))]
         public void ApproveContent(
             User checkedBy,
@@ -49,13 +52,13 @@ namespace Etherna.EthernaIndex.Domain.Models
         {
             CheckedBy = checkedBy ?? throw new ArgumentNullException(nameof(checkedBy));
             ContentApproved = true;
-            Description = description;
+            CheckedDescription = description;
             LastCheck = DateTime.UtcNow;
         }
 
         [PropertyAlterer(nameof(CheckedBy))]
         [PropertyAlterer(nameof(ContentApproved))]
-        [PropertyAlterer(nameof(Description))]
+        [PropertyAlterer(nameof(CheckedDescription))]
         [PropertyAlterer(nameof(LastCheck))]
         public void RejectContent(
             User checkedBy,
@@ -63,7 +66,7 @@ namespace Etherna.EthernaIndex.Domain.Models
         {
             CheckedBy = checkedBy ?? throw new ArgumentNullException(nameof(checkedBy));
             ContentApproved = false;
-            Description = description;
+            CheckedDescription = description;
             LastCheck = DateTime.UtcNow;
         }
     }

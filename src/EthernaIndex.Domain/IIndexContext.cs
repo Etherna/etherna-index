@@ -23,6 +23,7 @@ namespace Etherna.EthernaIndex.Domain
     {
         ICollectionRepository<Comment, string> Comments { get; }
         ICollectionRepository<User, string> Users { get; }
+        ICollectionRepository<VideoReport, string> VideoReports { get; }
         ICollectionRepository<Video, string> Videos { get; }
         ICollectionRepository<VideoVote, string> Votes { get; }
 
