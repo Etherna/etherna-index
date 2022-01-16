@@ -122,6 +122,22 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
             service.CreateCommentAsync(hash, text);
 
         /// <summary>
+        /// Report a video content with current user.
+        /// </summary>
+        /// <param name="hash">Video hash</param>
+        /// <param name="description">Report description</param>
+        [HttpPost("{hash}/reports")]
+        //[Authorize]
+        [SimpleExceptionFilter]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public Task ReportVideoAsync(
+            [Required] string hash,
+            [Required] string description) =>
+            service.ReportVideoAsync(hash, description);
+
+        /// <summary>
         /// Vote a video content with current user.
         /// </summary>
         /// <param name="hash">Video hash</param>

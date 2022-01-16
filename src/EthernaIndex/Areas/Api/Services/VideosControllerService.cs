@@ -124,6 +124,26 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             return new VideoDto(video);
         }
 
+        public async Task ReportVideoAsync(string hash, string description)
+        {
+            // Get data.
+            var address = httpContextAccessor.HttpContext!.User.GetEtherAddress();
+            //var user = await indexContext.Users.FindOneAsync(u => u.Address == address);
+            var user = await indexContext.Users.QueryElementsAsync(elements => elements.FirstAsync());
+            var video = await indexContext.Videos.FindOneAsync(v => v.ManifestHash.Hash == hash);
+            var videoReport = await indexContext.VideoReports.TryFindOneAsync(v => v.Video.ManifestHash.Hash == hash);
+
+            if (videoReport is not null)
+            {
+                //TODO what type of Exception?
+                throw new InvalidOperationException($"Duplicated video report {hash}");
+            }
+
+            // Create new report.
+            videoReport = new VideoReport(video, user, description);
+            await indexContext.VideoReports.CreateAsync(videoReport);
+        }
+
         public async Task VoteVideAsync(string hash, VoteValue value)
         {
             // Get data.

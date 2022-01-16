@@ -29,6 +29,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         Task<IEnumerable<VideoDto>> GetLastUploadedVideosAsync(int page, int take);
         Task<IEnumerable<CommentDto>> GetVideoCommentsAsync(string hash, int page, int take);
         Task<VideoDto> UpdateAsync(string oldHash, string newHash);
+        Task ReportVideoAsync(string hash, string description);
         Task VoteVideAsync(string hash, VoteValue value);
     }
 }

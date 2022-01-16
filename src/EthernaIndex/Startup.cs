@@ -73,7 +73,10 @@ namespace Etherna.EthernaIndex
                 .PersistKeysToDbContext(new DbContextOptions { ConnectionString = Configuration["ConnectionStrings:SystemDb"] });
 
             services.AddCors();
-            services.AddRazorPages();
+            services.AddRazorPages(options =>
+            {
+                //options.Conventions.AuthorizeAreaFolder(CommonConsts.AdminArea, "/", CommonConsts.RequireAdministratorClaimPolicy);
+            });
             services.AddControllers()
                 .AddJsonOptions(options =>
                     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
