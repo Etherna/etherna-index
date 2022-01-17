@@ -18,6 +18,7 @@ using Etherna.EthernaIndex.Services.Interfaces;
 using EthernaIndex.Swarm;
 using EthernaIndex.Swarm.DtoModel;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Services.Tasks
@@ -40,7 +41,7 @@ namespace Etherna.EthernaIndex.Services.Tasks
         // Methods.
         public async Task RunAsync(string manifestHash)
         {
-            var validationResult = await indexContext.ValidationResults.FindOneAsync(u => u.ManifestHash.Hash == manifestHash);
+            var validationResult = await indexContext.VideoValidationResults.FindOneAsync(u => u.ManifestHash.Hash == manifestHash);
 
             MetadataVideoDto? metadataDto;
             var validationErrors = new Dictionary<ValidationError, string>();
@@ -69,6 +70,37 @@ namespace Etherna.EthernaIndex.Services.Tasks
                 validationErrors.Add(validationVideoError.Value, validationVideoError.Value.ToString());
             }
 
+            //InizializeManifest
+            if (metadataDto is not null)
+            {
+                SwarmImageRaw? swarmImageRaw = null;
+                if (metadataDto.Thumbnail is not null)
+                {
+                    swarmImageRaw = new SwarmImageRaw(
+                      metadataDto.Thumbnail.AspectRatio,
+                      metadataDto.Thumbnail.Blurhash,
+                      metadataDto.Thumbnail.Sources);
+                }
+                List<VideoSource>? videoSources = null;
+                if (metadataDto.Sources is not null)
+                {
+                    videoSources = new List<VideoSource>();
+                    foreach (var item in metadataDto.Sources)
+                    {
+                        videoSources.Add(new VideoSource(item.Bitrate, item.Quality, item.Reference, item.Size));
+                    }
+                }
+                validationResult.InizializeManifest(
+                    metadataDto.Id,
+                    metadataDto.Title,
+                    metadataDto.Description,
+                    metadataDto.OriginalQuality,
+                    metadataDto.Duration,
+                    swarmImageRaw,
+                    videoSources);
+            }
+
+            //Set result of validation
             validationResult.SetResult(validationErrors);
             await indexContext.SaveChangesAsync();
 
@@ -83,7 +115,11 @@ namespace Etherna.EthernaIndex.Services.Tasks
                 return null;
             }
 
-            //TODO get rules for validation video format
+            if (metadataDto.Sources is null ||
+                !metadataDto.Sources.Any())
+            {
+                return ValidationError.InvalidSourceVideo;
+            }
 
             return null;
         }

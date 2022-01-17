@@ -58,14 +58,14 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         {
             var address = httpContextAccessor.HttpContext!.User.GetEtherAddress();
             var user = await indexContext.Users.FindOneAsync(c => c.Address == address);
-            var validationResult = await indexContext.ValidationResults.TryFindOneAsync(c => c.ManifestHash.Hash == videoInput.ManifestHash);
+            var validationResult = await indexContext.VideoValidationResults.TryFindOneAsync(c => c.ManifestHash.Hash == videoInput.ManifestHash);
 
             if (validationResult is not null)
             {
                 throw new DuplicatedManifestHashException(videoInput.ManifestHash);
             }
 
-            await indexContext.ValidationResults.CreateAsync(new ValidationResult(videoInput.ManifestHash));
+            await indexContext.VideoValidationResults.CreateAsync(new VideoValidationResult(videoInput.ManifestHash, user));
 
             backgroundJobClient.Create<MetadataVideoValidatorTask>(
                 task => task.RunAsync(videoInput.ManifestHash),

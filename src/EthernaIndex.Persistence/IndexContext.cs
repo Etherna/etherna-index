@@ -51,12 +51,12 @@ namespace Etherna.EthernaIndex.Persistence
                     (Builders<Comment>.IndexKeys.Ascending(c => c.Video.ManifestHash.Hash), new CreateIndexOptions<Comment>())
                 }
             });
-        public ICollectionRepository<ValidationResult, string> ValidationResults { get; } = new DomainCollectionRepository<ValidationResult, string>(
-            new CollectionRepositoryOptions<ValidationResult>("validationResults")
+        public ICollectionRepository<VideoValidationResult, string> VideoValidationResults { get; } = new DomainCollectionRepository<VideoValidationResult, string>(
+            new CollectionRepositoryOptions<VideoValidationResult>("videoValidationResult")
             {
                 IndexBuilders = new[]
                 {
-                    (Builders<ValidationResult>.IndexKeys.Ascending(c => c.ManifestHash), new CreateIndexOptions<ValidationResult>())
+                    (Builders<VideoValidationResult>.IndexKeys.Ascending(c => c.ManifestHash), new CreateIndexOptions<VideoValidationResult>())
                 }
             });
         public ICollectionRepository<User, string> Users { get; } = new DomainCollectionRepository<User, string>(

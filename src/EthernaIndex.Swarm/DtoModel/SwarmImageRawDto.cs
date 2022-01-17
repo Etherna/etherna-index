@@ -6,6 +6,6 @@ namespace EthernaIndex.Swarm.DtoModel
     {
         public int AspectRatio { get; set; }
         public string Blurhash { get; set; } = default!;
-        public IEnumerable<string> Sources { get; set; } = default!;
+        public Dictionary<string, string> Sources { get; set; } = default!;
     }
 }

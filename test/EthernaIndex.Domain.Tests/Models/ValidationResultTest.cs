@@ -21,15 +21,25 @@ namespace Etherna.EthernaIndex.Domain.Models
 
     public class ValidationResultTest
     {
+        User owner;
+        VideoValidationResult inizializedVideoValidationResult;
+        string hash = "5d942a1d73fd8f28d71e6b03d2e42f44721db94b734c2edcfe6fcd48b76a74f9";
+
+        public ValidationResultTest()
+        {
+            owner = new User("0x300a31dBAB42863F4b0bEa3E03d0aa89D47DB3f0");
+            inizializedVideoValidationResult = new VideoValidationResult(hash, owner);
+            inizializedVideoValidationResult.InizializeManifest("", "", "", "", 0, null, null);
+        }
+
+
         [Fact]
         public void Create_ValidationResult_WithDefaultValue()
         {
             //Arrange
-            var hash = "testHash";
-
 
             //Act
-            var validationResult = new ValidationResult(hash);
+            var validationResult = new VideoValidationResult(hash, owner);
 
 
             //Assert
@@ -39,85 +49,89 @@ namespace Etherna.EthernaIndex.Domain.Models
         }
 
         [Fact]
+        public void SetResult_ThrowException_WhenNotInizializedManifest()
+        {
+            //Arrange
+
+
+            //Act Assert
+            var validationResult = new VideoValidationResult(hash, owner);
+            Assert.Throws<InvalidOperationException>(() => validationResult.SetResult(new Dictionary<ValidationResults.ValidationError, string>()));
+        }
+
+        [Fact]
         public void SetResult_InsertError_WhenHaveFirstValidationError()
         {
             //Arrange
-            var hash = "testHash";
-            var validationResult = new ValidationResult(hash);
-
 
             //Act
-            validationResult.SetResult(new Dictionary<ValidationResults.ValidationError, string> {
+            inizializedVideoValidationResult.SetResult(new Dictionary<ValidationResults.ValidationError, string> {
                 { ValidationResults.ValidationError.Generic, "Generic Error" },
                 { ValidationResults.ValidationError.InvalidSourceVideo, "Invalid Source Video" }
             });
 
 
             //Assert
-            Assert.False(validationResult.IsValid);
-            Assert.True(validationResult.Checked);
-            Assert.Contains(validationResult.ErrorValidationResults, 
+            Assert.False(inizializedVideoValidationResult.IsValid);
+            Assert.True(inizializedVideoValidationResult.Checked);
+            Assert.Contains(inizializedVideoValidationResult.ErrorValidationResults,
                 i => i.ErrorNumber == ValidationResults.ValidationError.Generic &&
                     i.ErrorMessage.Equals("Generic Error", StringComparison.Ordinal));
-            Assert.Contains(validationResult.ErrorValidationResults,
+            Assert.Contains(inizializedVideoValidationResult.ErrorValidationResults,
                 i => i.ErrorNumber == ValidationResults.ValidationError.InvalidSourceVideo &&
                     i.ErrorMessage.Equals("Invalid Source Video", StringComparison.Ordinal));
-            Assert.NotNull(validationResult.LastCheck);
+            Assert.NotNull(inizializedVideoValidationResult.LastCheck);
         }
 
         [Fact]
         public void SetResult_AppendError_WhenHaveOtherValidationError()
         {
             //Arrange
-            var hash = "testHash";
-            var validationResult = new ValidationResult(hash);
-            validationResult.SetResult(new Dictionary<ValidationResults.ValidationError, string> {
+            inizializedVideoValidationResult.SetResult(new Dictionary<ValidationResults.ValidationError, string> {
                 { ValidationResults.ValidationError.Generic, "Generic Error" },
                 { ValidationResults.ValidationError.InvalidSourceVideo, "Invalid Source Video" }
             });
-            var firstLastCheck = validationResult.LastCheck;
+            var firstLastCheck = inizializedVideoValidationResult.LastCheck;
 
 
             //Act
-            validationResult.SetResult(new Dictionary<ValidationResults.ValidationError, string> {
+            inizializedVideoValidationResult.SetResult(new Dictionary<ValidationResults.ValidationError, string> {
                 { ValidationResults.ValidationError.JsonConvert, "Json Convert" }
             });
 
 
             //Assert
-            Assert.False(validationResult.IsValid);
-            Assert.True(validationResult.Checked);
-            Assert.Contains(validationResult.ErrorValidationResults,
+            Assert.False(inizializedVideoValidationResult.IsValid);
+            Assert.True(inizializedVideoValidationResult.Checked);
+            Assert.Contains(inizializedVideoValidationResult.ErrorValidationResults,
                 i => i.ErrorNumber == ValidationResults.ValidationError.Generic &&
                     i.ErrorMessage.Equals("Generic Error", StringComparison.Ordinal));
-            Assert.Contains(validationResult.ErrorValidationResults,
+            Assert.Contains(inizializedVideoValidationResult.ErrorValidationResults,
                 i => i.ErrorNumber == ValidationResults.ValidationError.InvalidSourceVideo &&
                     i.ErrorMessage.Equals("Invalid Source Video", StringComparison.Ordinal));
-            Assert.Contains(validationResult.ErrorValidationResults,
+            Assert.Contains(inizializedVideoValidationResult.ErrorValidationResults,
                 i => i.ErrorNumber == ValidationResults.ValidationError.JsonConvert &&
                     i.ErrorMessage.Equals("Json Convert", StringComparison.Ordinal));
-            Assert.NotNull(validationResult.LastCheck);
-            Assert.NotEqual(firstLastCheck, validationResult.LastCheck); 
+            Assert.NotNull(inizializedVideoValidationResult.LastCheck);
+            Assert.NotEqual(firstLastCheck, inizializedVideoValidationResult.LastCheck);
         }
 
         [Fact]
         public void SetResult_ClearError_WhenIsValid()
         {
             //Arrange
-            var hash = "testHash";
-            var validationResult = new ValidationResult(hash);
-            validationResult.SetResult(new Dictionary<ValidationResults.ValidationError, string> { { ValidationResults.ValidationError.Generic, "Generic Error" } });
+            inizializedVideoValidationResult.SetResult(new Dictionary<ValidationResults.ValidationError, string> { { ValidationResults.ValidationError.Generic, "Generic Error" } });
 
 
             //Act
-            validationResult.SetResult(new Dictionary<ValidationResults.ValidationError, string>());
+            inizializedVideoValidationResult.SetResult(new Dictionary<ValidationResults.ValidationError, string>());
 
 
             //Assert
-            Assert.True(validationResult.IsValid);
-            Assert.True(validationResult.Checked);
-            Assert.Empty(validationResult.ErrorValidationResults);
-            Assert.NotNull(validationResult.LastCheck);
+            Assert.True(inizializedVideoValidationResult.IsValid);
+            Assert.True(inizializedVideoValidationResult.Checked);
+            Assert.Empty(inizializedVideoValidationResult.ErrorValidationResults);
+            Assert.NotNull(inizializedVideoValidationResult.LastCheck);
         }
     }
 }

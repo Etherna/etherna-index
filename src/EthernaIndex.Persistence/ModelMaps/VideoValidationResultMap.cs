@@ -14,18 +14,22 @@
 
 using Etherna.EthernaIndex.Domain.Models;
 using Etherna.MongODM.Core;
+using Etherna.MongODM.Core.Extensions;
 using Etherna.MongODM.Core.Serialization;
 
 namespace Etherna.EthernaIndex.Persistence.ModelMaps
 {
-    class ValidationResultMap : IModelMapsCollector
+    class VideoValidationResultMap : IModelMapsCollector
     {
         public void Register(IDbContext dbContext)
         {
-            dbContext.SchemaRegistry.AddModelMapsSchema<ValidationResult>("b5df7782-dee6-48bc-a6c8-c7d8b059b5e2",
+            dbContext.SchemaRegistry.AddModelMapsSchema<VideoValidationResult>("bee6efcc-d96e-4c5b-8ea5-58e8dfab00c1",
                 mm =>
                 {
                     mm.AutoMap();
+
+                    // Set members with custom serializers.
+                    mm.SetMemberSerializer(v => v.Owner, UserMap.InformationSerializer(dbContext));
                 });
         }
     }
