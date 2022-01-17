@@ -69,19 +69,35 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
         {
             CurrentPage = p ?? 0;
 
+            //Get all VideoReports paginated by Hash
             var hashVideoReports = await dbContext.VideoReports.QueryElementsAsync(elements =>
-                elements.Where(u => u.LastCheck != null) //Only Report to check
-                        .Select(i => i.Video.ManifestHash.Hash)
-                        .Distinct() //Show one line for distinct hash (in case of multi report for same video)
-                        .OrderBy(i => i)
+                elements.Where(u => u.LastCheck == null) //Only Report to check
+                        .GroupBy(i => i.Video.ManifestHash.Hash)
+                        .OrderBy(i => i.Key)
                         .Skip(CurrentPage * PageSize)
                         .Take(PageSize)
                         .ToCursorAsync());
 
-            while (await hashVideoReports.MoveNextAsync())
+            var hashes = new List<string>();
+            while(await hashVideoReports.MoveNextAsync())
             {
-                var test = hashVideoReports.Current;
-                VideoReports.Add(new VideoReportDto("aaa"));
+                foreach (var item in hashVideoReports.Current)
+                {
+                    hashes.Add(item.Key);
+                }
+            }
+
+            //Get video info
+            var videos = await dbContext.Videos.QueryElementsAsync(elements =>
+                elements.Where(u => hashes.Contains(u.ManifestHash.Hash)) //Only Report to check
+                        .OrderBy(i => i.ManifestHash.Hash)
+                        .ToCursorAsync());
+            while (await videos.MoveNextAsync())
+            {
+                foreach (var item in videos.Current)
+                {
+                    VideoReports.Add(new VideoReportDto(item.ManifestHash.Hash));
+                }
             }
 
             MaxPage = 1;
