@@ -58,7 +58,6 @@ namespace Etherna.EthernaIndex
                 .ConfigureServices(services =>
                 {
                     // Register here for execute before host filter.
-                    services.AddSingleton<IStartupFilter, StatusStartupFilter>();
                 })
                 .UseSerilog()
                 .ConfigureWebHostDefaults(webBuilder =>

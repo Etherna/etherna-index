@@ -1,14 +1,11 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Extensions
 {
     /*
      * Always group similar log delegates by type, always use incremental event ids.
-     * Last event id is: 0
+     * Last event id is: 5
      */
     public static class LoggerExtensions
     {
@@ -19,7 +16,7 @@ namespace Etherna.EthernaIndex.Extensions
         private static readonly Action<ILogger, string, string, Exception> _createdCommentVideo =
             LoggerMessage.Define<string, string>(
                 LogLevel.Information,
-                new EventId(2, nameof(CreatedCommentVideo)),
+                new EventId(1, nameof(CreatedCommentVideo)),
                 "User Id '{Id}' created new comment for video with hash {ManifestHash}");
 
         private static readonly Action<ILogger, string, string, Exception> _createdVideo =
@@ -31,20 +28,21 @@ namespace Etherna.EthernaIndex.Extensions
         private static readonly Action<ILogger, string, Exception> _deletedVideo =
             LoggerMessage.Define<string>(
                 LogLevel.Information,
-                new EventId(2, nameof(DeletedVideo)),
+                new EventId(3, nameof(DeletedVideo)),
                 "Video with hash {ManifestHash} deleted by author");
 
-        private static readonly Action<ILogger, string, string, Exception> _votedVideo =
-            LoggerMessage.Define<string, string>(
-                LogLevel.Information,
-                new EventId(2, nameof(CreatedCommentVideo)),
-                "User Id '{Id}' voted video with hash {ManifestHash}");
 
         private static readonly Action<ILogger, string, string, Exception> _updatedVideo =
             LoggerMessage.Define<string, string>(
                 LogLevel.Information,
-                new EventId(2, nameof(CreatedVideo)),
+                new EventId(5, nameof(CreatedVideo)),
                 "Video hash {OldHash} updated with {NewHash} by author");
+
+        private static readonly Action<ILogger, string, string, Exception> _votedVideo =
+            LoggerMessage.Define<string, string>(
+                LogLevel.Information,
+                new EventId(4, nameof(CreatedCommentVideo)),
+                "User Id '{Id}' voted video with hash {ManifestHash}");
 
         //*** WARNING LOGS ***
 
@@ -65,13 +63,14 @@ namespace Etherna.EthernaIndex.Extensions
         public static void DeletedVideo(this ILogger logger, string manifestHash) =>
             _deletedVideo(logger, manifestHash, null!);
 
-        public static void VotedVideo(this ILogger logger, string id, string manifestHash) =>
-            _votedVideo(logger, id, manifestHash, null!);
+        public static void RequestThrowedError(this ILogger logger, string requestId) =>
+            _requestThrowedError(logger, requestId, null!);
 
         public static void UpdatedVideo(this ILogger logger, string oldHash, string newHash) =>
             _updatedVideo(logger, oldHash, newHash, null!);
 
-        public static void RequestThrowedError(this ILogger logger, string requestId) =>
-            _requestThrowedError(logger, requestId, null!);
+        public static void VotedVideo(this ILogger logger, string id, string manifestHash) =>
+            _votedVideo(logger, id, manifestHash, null!);
+
     }
 }
