@@ -73,8 +73,8 @@ namespace Etherna.EthernaIndex.Domain.Models
             Description = description;
             OriginalQuality = originalQuality;
             Duration = duration;
-            Thumbnail = thumbnail;
-            Sources = sources;
+            //Thumbnail = thumbnail;
+            //Sources = sources;
             IsInizialized = true;
         }
     }

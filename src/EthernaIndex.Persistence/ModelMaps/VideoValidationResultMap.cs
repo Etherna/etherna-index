@@ -23,14 +23,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
     {
         public void Register(IDbContext dbContext)
         {
-            dbContext.SchemaRegistry.AddModelMapsSchema<VideoValidationResult>("bee6efcc-d96e-4c5b-8ea5-58e8dfab00c1",
-                mm =>
-                {
-                    mm.AutoMap();
-
-                    // Set members with custom serializers.
-                    mm.SetMemberSerializer(v => v.Owner, UserMap.InformationSerializer(dbContext));
-                });
+            dbContext.SchemaRegistry.AddModelMapsSchema<VideoValidationResult>("ec578080-ccd2-4d49-8a76-555b10a5dad5");
         }
     }
 }
