@@ -14,9 +14,10 @@
 *@
 
 @page
-@model Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports.IndexModel
+@model Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports.ManageModel
 @{
     ViewData["Title"] = "Video Reports";
+    ViewData["Hash"] = "Video Reports";
 
     var pageSelectorModel = new PageSelectorModel(Model.CurrentPage, Model.MaxPage);
 }
@@ -24,26 +25,9 @@
 <div class="row">
     <div class="col-12 mb-3 text-center mt-1">
         <h2>@ViewData["Title"]</h2>
+        <h3></h3>
     </div>
 </div>
-
-<form method="post"
-      asp-route-p="@Model.CurrentPage">
-
-    <div asp-validation-summary="All" class="text-danger"></div>
-
-    <div class="form-row">
-        <div class="col-12 mb-3">
-            <input asp-for="Input.FindVideo" type="text" placeholder="Manifest hash video" class="form-control" />
-        </div>
-    </div>
-
-    <div class="form-row">
-        <div class="col-12 mb-3">
-            <input type="submit" class="btn btn-primary" value="Find" />
-        </div>
-    </div>
-</form>
 
 <div class="row">
     <div class="col-12">
@@ -51,20 +35,20 @@
             <table class="table table-striped">
                 <thead>
                     <tr>
-                        <th></th>
-                        <th>Hash</th>
+                        <th>Description</th>
+                        <th>Reporter Address</th>
+                        <th>Report Date</th>
                     </tr>
                 </thead>
 
                 <tbody>
                     @foreach (var videoReport in Model.VideoReports)
                     {
-                        <tr>
-                            <td class="align-middle">
-                                <a class="btn btn-primary" asp-page="Manage" asp-route-hash="@videoReport.Id">Manage</a>
-                            </td>
-                            <td class="align-middle">@videoReport.Id</td>
-                        </tr>
+                    <tr>
+                        <td class="align-middle">@videoReport.Description</td>
+                        <td class="align-middle">@videoReport.ReportAddress</td>
+                        <td class="align-middle">@videoReport.ReportDate</td>
+                    </tr>
                     }
                 </tbody>
             </table>
@@ -77,3 +61,12 @@
         <partial name="_PageSelector" model="pageSelectorModel" />
     </div>
 </div>
+
+<form method="post">
+    <div class="form-row">
+        <div class="col-12 mb-3">
+            <input type="submit" class="btn btn-primary" value="Approve Video" />
+            <input type="submit" class="btn btn-primary" value="Reject Video" />
+        </div>
+    </div>
+</form>

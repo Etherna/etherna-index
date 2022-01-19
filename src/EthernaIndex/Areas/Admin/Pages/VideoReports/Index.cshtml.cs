@@ -69,6 +69,12 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
         {
             CurrentPage = p ?? 0;
 
+            //Count all Videos
+            var totalVideo = await dbContext.VideoReports.QueryElementsAsync(elements =>
+                elements.Where(u => u.LastCheck == null) //Only Report to check
+                        .GroupBy(i => i.Video.ManifestHash.Hash)
+                        .CountAsync());
+
             //Get all VideoReports paginated by Hash
             var hashVideoReports = await dbContext.VideoReports.QueryElementsAsync(elements =>
                 elements.Where(u => u.LastCheck == null) //Only Report to check
@@ -79,7 +85,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
                         .ToCursorAsync());
 
             var hashes = new List<string>();
-            while(await hashVideoReports.MoveNextAsync())
+            while (await hashVideoReports.MoveNextAsync())
             {
                 foreach (var item in hashVideoReports.Current)
                 {
@@ -100,7 +106,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
                 }
             }
 
-            MaxPage = 1;
+            MaxPage = ((totalVideo + PageSize - 1) / PageSize) - 1;
         }
 
     }
