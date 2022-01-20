@@ -62,11 +62,12 @@
     </div>
 </div>
 
-<form method="post">
+<form id="client-form" asp-page-handler="ManageVideoReport" Method="post">
     <div class="form-row">
         <div class="col-12 mb-3">
-            <input type="submit" class="btn btn-primary" value="Approve Video" />
-            <input type="submit" class="btn btn-primary" value="Reject Video" />
+            <input type="hidden" asp-for="HashReportVideo" />
+            <input type="submit" class="btn btn-primary" value="Approve Video" name="button" />
+            <input type="submit" class="btn btn-primary" value="Reject Video" name="button" />
         </div>
     </div>
 </form>

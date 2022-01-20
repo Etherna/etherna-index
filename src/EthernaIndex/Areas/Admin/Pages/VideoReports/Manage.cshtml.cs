@@ -1,5 +1,6 @@
 using Etherna.EthernaIndex.Domain;
 using Etherna.MongoDB.Driver.Linq;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System;
 using System.Collections.Generic;
@@ -53,6 +54,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
         public int CurrentPage { get; private set; }
         public string HashReportVideo { get; private set; } = default!;
         public int MaxPage { get; private set; }
+        public DateTime OperationDateTime { get; private set; } = default!;
 #pragma warning disable CA1002 // Do not expose generic lists
         public List<VideoReportDetailDto> VideoReports { get; } = new();
 #pragma warning restore CA1002 // Do not expose generic lists
@@ -62,6 +64,40 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
         {
             HashReportVideo = hash;
             await InitializeAsync(hash);
+        }
+
+        public async Task<IActionResult> OnPostManageVideoReportAsync(
+            string hashReportVideo,
+            string button)
+        {
+            if (!ModelState.IsValid || 
+                string.IsNullOrWhiteSpace(button))
+                return RedirectToPage("Index");
+
+            var videoReports = await dbContext.VideoReports.QueryElementsAsync(elements =>
+                elements.Where(u => u.Video.ManifestHash.Hash == hashReportVideo &&
+                u.Video.ManifestHash.Hash == hashReportVideo &&
+                                    u.LastCheck == null) //Only Report to check
+                        .ToCursorAsync());
+
+            while (await videoReports.MoveNextAsync())
+            {
+                foreach (var item in videoReports.Current)
+                {
+                    if (button.Equals("Approve Video", StringComparison.Ordinal))
+                    {
+                        item.ApproveContent();
+                    }
+                    else if (button.Equals("Reject Video", StringComparison.Ordinal))
+                    {
+                        item.RejectContent();
+                    }
+                }
+            }
+
+            await dbContext.SaveChangesAsync();
+
+            return RedirectToPage("Index");
         }
 
         // Helpers.
@@ -77,7 +113,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
             var hashVideoReports = await dbContext.VideoReports.QueryElementsAsync(elements =>
                 elements.Where(u => u.Video.ManifestHash.Hash == hash &&
                                     u.LastCheck == null) //Only Report to check
-                        //.OrderBy(i => i.CreationDateTime)
+                                                         //.OrderBy(i => i.CreationDateTime)
                         .Skip(CurrentPage * PageSize)
                         .Take(PageSize)
                         .ToCursorAsync());
@@ -88,14 +124,14 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
                 foreach (var item in hashVideoReports.Current)
                 {
                     VideoReports.Add(new VideoReportDetailDto(
-                        item.Id, 
-                        item.ReportDescription, 
+                        item.Id,
+                        item.ReportDescription,
                         item.ReporterOwner.Address,
                         item.CreationDateTime));
                 }
             }
 
-            MaxPage = ((totalVideo + PageSize - 1) / PageSize) - 1;
+            MaxPage = totalVideo == 0 ? 0 : ((totalVideo + PageSize - 1) / PageSize) - 1;
         }
 
     }

@@ -33,41 +33,29 @@ namespace Etherna.EthernaIndex.Domain.Models
 
 
         // Properties.
-        public virtual User? CheckedBy { get; protected set; }
         public virtual bool? ContentApproved { get; protected set; }
         public virtual string ReportDescription { get; protected set; } = default!;
-        public virtual string? CheckedDescription { get; protected set; }
         public virtual DateTime? LastCheck { get; protected set; }
         public virtual User ReporterOwner { get; protected set; } = default!;
         public virtual Video Video { get; protected set; } = default!;
 
         // Methods.
-        [PropertyAlterer(nameof(CheckedBy))]
         [PropertyAlterer(nameof(ContentApproved))]
-        [PropertyAlterer(nameof(CheckedDescription))]
         [PropertyAlterer(nameof(LastCheck))]
-        public void ApproveContent(
-            User checkedBy,
-            string? description)
+        public void ApproveContent()
         {
-            CheckedBy = checkedBy ?? throw new ArgumentNullException(nameof(checkedBy));
             ContentApproved = true;
-            CheckedDescription = description;
             LastCheck = DateTime.UtcNow;
+            Video.ContentApproved = true; //TODO what is the PropertyAlterer
         }
 
-        [PropertyAlterer(nameof(CheckedBy))]
         [PropertyAlterer(nameof(ContentApproved))]
-        [PropertyAlterer(nameof(CheckedDescription))]
         [PropertyAlterer(nameof(LastCheck))]
-        public void RejectContent(
-            User checkedBy,
-            string? description)
+        public void RejectContent()
         {
-            CheckedBy = checkedBy ?? throw new ArgumentNullException(nameof(checkedBy));
             ContentApproved = false;
-            CheckedDescription = description;
             LastCheck = DateTime.UtcNow;
+            Video.ContentApproved = false; //TODO what is the PropertyAlterer
         }
     }
 }

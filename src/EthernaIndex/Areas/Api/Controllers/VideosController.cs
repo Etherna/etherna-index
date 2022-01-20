@@ -127,7 +127,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// <param name="hash">Video hash</param>
         /// <param name="description">Report description</param>
         [HttpPost("{hash}/reports")]
-        //[Authorize]
+        [Authorize]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

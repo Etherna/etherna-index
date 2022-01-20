@@ -106,7 +106,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
                 }
             }
 
-            MaxPage = ((totalVideo + PageSize - 1) / PageSize) - 1;
+            MaxPage = totalVideo == 0 ? 0 : ((totalVideo + PageSize - 1) / PageSize) - 1;
         }
 
     }

@@ -127,21 +127,31 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         public async Task ReportVideoAsync(string hash, string description)
         {
             // Get data.
-            var address = httpContextAccessor.HttpContext!.User.GetEtherAddress();
-            //var user = await indexContext.Users.FindOneAsync(u => u.Address == address);
-            var user = await indexContext.Users.QueryElementsAsync(elements => elements.FirstAsync());
             var video = await indexContext.Videos.FindOneAsync(v => v.ManifestHash.Hash == hash);
-            var videoReport = await indexContext.VideoReports.TryFindOneAsync(v => v.Video.ManifestHash.Hash == hash);
 
-            if (videoReport is not null)
+            if (video.ContentApproved.HasValue)
+            {
+                return;
+            }
+
+            var address = httpContextAccessor.HttpContext!.User.GetEtherAddress();
+            var user = await indexContext.Users.FindOneAsync(u => u.Address == address);
+
+            var videoReport = await indexContext.VideoReports.QueryElementsAsync(elements =>
+                elements.Where(u => u.Video.ManifestHash.Hash == hash &&
+                                    u.ReporterOwner.Address == address)
+                        .CountAsync());
+
+            if (videoReport > 0)
             {
                 //TODO what type of Exception?
                 throw new InvalidOperationException($"Duplicated video report {hash}");
             }
 
             // Create new report.
-            videoReport = new VideoReport(video, user, description);
-            await indexContext.VideoReports.CreateAsync(videoReport);
+            var videoReported = new VideoReport(video, user, description);
+
+            await indexContext.VideoReports.CreateAsync(videoReported);
         }
 
         public async Task VoteVideAsync(string hash, VoteValue value)
