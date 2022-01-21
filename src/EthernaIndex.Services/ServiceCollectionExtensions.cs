@@ -13,6 +13,7 @@
 //   limitations under the License.
 
 using Etherna.DomainEvents;
+using Etherna.EthernaIndex.Services.Domain;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
@@ -48,6 +49,12 @@ namespace Etherna.EthernaIndex.Services
 
                 return dispatcher;
             });
+
+
+            // Services.
+            //domain
+            services.AddScoped<IVideoReportService, VideoReportService>();
+
         }
     }
 }

@@ -1,4 +1,19 @@
+//   Copyright 2021-present Etherna Sagl
+//
+//   Licensed under the Apache License, Version 2.0 (the "License");
+//   you may not use this file except in compliance with the License.
+//   You may obtain a copy of the License at
+//
+//       http://www.apache.org/licenses/LICENSE-2.0
+//
+//   Unless required by applicable law or agreed to in writing, software
+//   distributed under the License is distributed on an "AS IS" BASIS,
+//   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//   See the License for the specific language governing permissions and
+//   limitations under the License.
+
 using Etherna.EthernaIndex.Domain;
+using Etherna.EthernaIndex.Services.Domain;
 using Etherna.MongoDB.Driver.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -39,15 +54,18 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
 
         // Fields.
         private readonly IIndexContext dbContext;
+        private readonly IVideoReportService videoReportService;
 
         // Constructor.
         public ManageModel(
-            IIndexContext dbContext)
+            IIndexContext dbContext,
+            IVideoReportService videoReportService)
         {
             if (dbContext is null)
                 throw new ArgumentNullException(nameof(dbContext));
 
             this.dbContext = dbContext;
+            this.videoReportService = videoReportService;
         }
 
         // Properties.
@@ -74,37 +92,29 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
                 string.IsNullOrWhiteSpace(button))
                 return RedirectToPage("Index");
 
-            var videoReports = await dbContext.VideoReports.QueryElementsAsync(elements =>
-                elements.Where(u => u.Video.ManifestHash.Hash == hashReportVideo &&
-                u.Video.ManifestHash.Hash == hashReportVideo &&
-                                    u.LastCheck == null) //Only Report to check
-                        .ToCursorAsync());
-
-            var isRejectContent = false;
-            while (await videoReports.MoveNextAsync())
+            bool? isApproved;
+            if (button.Equals("Approve Video", StringComparison.Ordinal))
             {
-                foreach (var item in videoReports.Current)
-                {
-                    if (button.Equals("Approve Video", StringComparison.Ordinal))
-                    {
-                        item.ApproveContent();
-                    }
-                    else if (button.Equals("Reject Video", StringComparison.Ordinal))
-                    {
-                        item.RejectContent();
-                        isRejectContent = true;
-                    }
-                }
+                isApproved = true;
             }
-
-            if (isRejectContent)
+            else if (button.Equals("Reject Video", StringComparison.Ordinal))
             {
-                var video = await dbContext.Videos.TryFindOneAsync(u => u.ManifestHash.Hash == hashReportVideo);
-                if (video is not null)
-                    await dbContext.Videos.DeleteAsync(video);
-                //TODO need to remove VideoReport, VideoVote, ManifestMetadata?
+                isApproved = false;
             }
-
+            else
+            {
+                return RedirectToPage("Index");
+            }
+                
+            if (isApproved.Value)
+            {
+                await videoReportService.ApproveVideoAsync(hashReportVideo);
+            }
+            else
+            {
+                await videoReportService.RejectVideoAsync(hashReportVideo);
+            }
+                    
             await dbContext.SaveChangesAsync();
 
             return RedirectToPage("Index");
