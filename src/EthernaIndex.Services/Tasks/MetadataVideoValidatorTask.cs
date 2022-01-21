@@ -102,7 +102,6 @@ namespace Etherna.EthernaIndex.Services.Tasks
 
             //Set result of validation
             validationResult.SetResult(validationErrors);
-            await indexContext.SaveChangesAsync();
 
             // Complete task.
             await indexContext.SaveChangesAsync().ConfigureAwait(false);

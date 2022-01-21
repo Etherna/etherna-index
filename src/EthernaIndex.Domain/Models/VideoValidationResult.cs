@@ -14,9 +14,7 @@
 
 using Etherna.EthernaIndex.Domain.Models.ValidationResults;
 using Etherna.MongODM.Core.Attributes;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Etherna.EthernaIndex.Domain.Models
 {
@@ -73,8 +71,8 @@ namespace Etherna.EthernaIndex.Domain.Models
             Description = description;
             OriginalQuality = originalQuality;
             Duration = duration;
-            //Thumbnail = thumbnail;
-            //Sources = sources;
+            Thumbnail = thumbnail;
+            Sources = sources;
             IsInizialized = true;
         }
     }
