@@ -19,7 +19,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
         {
             [Required]
             [Display(Name = "Video hash")]
-            public string FindVideo { get; set; } = default!;
+            public string ManifestHash { get; set; } = default!;
         }
 
         public class VideoReportDto
@@ -108,6 +108,24 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
 
             MaxPage = totalVideo == 0 ? 0 : ((totalVideo + PageSize - 1) / PageSize) - 1;
         }
+
+        public async Task<IActionResult> OnPostAsync(int? p)
+        {
+            var totalVideo = await dbContext.VideoReports.QueryElementsAsync(elements =>
+                elements.Where(u => u.LastCheck == null && //Only Report to check
+                                    u.Video.ManifestHash.Hash == Input.ManifestHash) 
+                        .CountAsync());
+
+            if (totalVideo == 0)
+            {
+                ModelState.AddModelError(string.Empty, "Can't find report for video hash");
+                await InitializeAsync(p);
+                return Page();
+            }
+
+            return RedirectToPage("Manage", new { hash = Input.ManifestHash });
+        }
+
 
     }
 }

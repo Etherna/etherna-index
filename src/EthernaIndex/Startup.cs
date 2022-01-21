@@ -75,7 +75,7 @@ namespace Etherna.EthernaIndex
             services.AddCors();
             services.AddRazorPages(options =>
             {
-                //options.Conventions.AuthorizeAreaFolder(CommonConsts.AdminArea, "/", CommonConsts.RequireAdministratorClaimPolicy);
+                options.Conventions.AuthorizeAreaFolder(CommonConsts.AdminArea, "/", CommonConsts.RequireAdministratorClaimPolicy);
             });
             services.AddControllers()
                 .AddJsonOptions(options =>

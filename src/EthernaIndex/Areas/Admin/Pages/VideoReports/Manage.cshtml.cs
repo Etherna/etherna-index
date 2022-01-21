@@ -70,7 +70,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
             string hashReportVideo,
             string button)
         {
-            if (!ModelState.IsValid || 
+            if (!ModelState.IsValid ||
                 string.IsNullOrWhiteSpace(button))
                 return RedirectToPage("Index");
 
@@ -80,6 +80,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
                                     u.LastCheck == null) //Only Report to check
                         .ToCursorAsync());
 
+            var isRejectContent = false;
             while (await videoReports.MoveNextAsync())
             {
                 foreach (var item in videoReports.Current)
@@ -91,8 +92,17 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
                     else if (button.Equals("Reject Video", StringComparison.Ordinal))
                     {
                         item.RejectContent();
+                        isRejectContent = true;
                     }
                 }
+            }
+
+            if (isRejectContent)
+            {
+                var video = await dbContext.Videos.TryFindOneAsync(u => u.ManifestHash.Hash == hashReportVideo);
+                if (video is not null)
+                    await dbContext.Videos.DeleteAsync(video);
+                //TODO need to remove VideoReport, VideoVote, ManifestMetadata?
             }
 
             await dbContext.SaveChangesAsync();
