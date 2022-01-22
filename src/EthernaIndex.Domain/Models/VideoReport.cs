@@ -46,7 +46,7 @@ namespace Etherna.EthernaIndex.Domain.Models
         {
             ContentApproved = true;
             LastCheck = DateTime.UtcNow;
-            Video.ContentApproved = true; //TODO what is the PropertyAlterer
+            Video.ContentApproved = true; //TODO what is the field of [PropertyAlterer(nameof(?))]
         }
 
         [PropertyAlterer(nameof(ContentApproved))]
@@ -55,7 +55,7 @@ namespace Etherna.EthernaIndex.Domain.Models
         {
             ContentApproved = false;
             LastCheck = DateTime.UtcNow;
-            Video.ContentApproved = false; //TODO what is the PropertyAlterer
+            Video.ContentApproved = false; //TODO what is the field of [PropertyAlterer(nameof(?))]
         }
     }
 }
