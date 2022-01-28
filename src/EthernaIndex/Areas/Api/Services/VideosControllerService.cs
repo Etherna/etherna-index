@@ -18,10 +18,12 @@ using Etherna.EthernaIndex.Areas.Api.InputModels;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.Domain.Models.Swarm;
+using Etherna.EthernaIndex.Extensions;
 using Etherna.MongoDB.Driver;
 using Etherna.MongoDB.Driver.Linq;
 using Etherna.MongODM.Core.Extensions;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Nethereum.Util;
 using System;
 using System.Collections.Generic;
@@ -35,14 +37,17 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         // Fields.
         private readonly IHttpContextAccessor httpContextAccessor;
         private readonly IIndexContext indexContext;
+        private readonly ILogger<VideosControllerService> logger;
 
         // Constructors.
         public VideosControllerService(
             IHttpContextAccessor httpContextAccessor,
-            IIndexContext indexContext)
+            IIndexContext indexContext,
+            ILogger<VideosControllerService> logger)
         {
             this.httpContextAccessor = httpContextAccessor;
             this.indexContext = indexContext;
+            this.logger = logger;
         }
 
         // Methods.
@@ -60,6 +65,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
 
             await indexContext.Videos.CreateAsync(video);
 
+            logger.CreatedVideo(user.Id, videoInput.ManifestHash);
             return new VideoDto(video);
         }
 
@@ -73,6 +79,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
 
             await indexContext.Comments.CreateAsync(comment);
 
+            logger.CreatedCommentVideo(user.Id, hash);
             return new CommentDto(comment);
         }
 
@@ -89,6 +96,8 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
 
             // Action.
             await indexContext.Videos.DeleteAsync(video);
+
+            logger.DeletedVideo(hash);
         }
 
         public async Task<VideoDto> FindByHashAsync(string hash) =>
@@ -121,6 +130,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             video.SetManifestHash(new SwarmContentHash(newHash));
             await indexContext.SaveChangesAsync();
 
+            logger.UpdatedVideo(oldHash, newHash);
             return new VideoDto(video);
         }
 
@@ -154,6 +164,8 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             video.TotUpvotes = totUpvotes;
 
             await indexContext.SaveChangesAsync();
+
+            logger.VotedVideo(user.Id, hash);
         }
     }
 }
