@@ -19,7 +19,6 @@ using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.Domain.Models.Swarm;
 using Etherna.EthernaIndex.Services.Exceptions;
-using Etherna.EthernaIndex.Services.Interfaces;
 using Etherna.EthernaIndex.Services.Tasks;
 using Etherna.MongoDB.Driver;
 using Etherna.MongoDB.Driver.Linq;
@@ -58,28 +57,26 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         {
             var address = httpContextAccessor.HttpContext!.User.GetEtherAddress();
             var user = await indexContext.Users.FindOneAsync(c => c.Address == address);
-            var validationResult = await indexContext.VideoValidationResults.TryFindOneAsync(c => c.ManifestHash.Hash == videoInput.ManifestHash);
+            var video = await indexContext.Videos.TryFindOneAsync(c => c.ManifestHash.Hash == videoInput.ManifestHash);
 
-            if (validationResult is not null)
+            if (video is not null)
             {
                 throw new DuplicatedManifestHashException(videoInput.ManifestHash);
             }
 
-            await indexContext.VideoValidationResults.CreateAsync(new VideoValidationResult(videoInput.ManifestHash, user));
-
-            backgroundJobClient.Create<MetadataVideoValidatorTask>(
-                task => task.RunAsync(videoInput.ManifestHash),
-                new EnqueuedState(Queues.METADATA_VIDEO_VALIDATOR));
-
             var manifestHash = new SwarmContentHash(videoInput.ManifestHash);
 
-            var video = new Video(
+            video = new Video(
                 videoInput.EncryptionKey,
                 videoInput.EncryptionType,
                 manifestHash,
                 user);
 
             await indexContext.Videos.CreateAsync(video);
+
+            backgroundJobClient.Create<MetadataVideoValidatorTask>(
+                task => task.RunAsync(videoInput.ManifestHash),
+                new EnqueuedState(Queues.METADATA_VIDEO_VALIDATOR));
 
             return new VideoDto(video);
         }

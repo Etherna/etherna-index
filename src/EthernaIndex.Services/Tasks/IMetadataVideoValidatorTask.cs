@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace Etherna.EthernaIndex.Services.Interfaces
+namespace Etherna.EthernaIndex.Services.Tasks
 {
     public interface IMetadataVideoValidatorTask
     {

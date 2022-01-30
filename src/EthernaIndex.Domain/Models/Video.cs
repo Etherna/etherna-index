@@ -12,15 +12,21 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
+using Etherna.EthernaIndex.Domain.Models.Manifest;
 using Etherna.EthernaIndex.Domain.Models.Swarm;
 using Etherna.MongODM.Core.Attributes;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace Etherna.EthernaIndex.Domain.Models
 {
     public class Video : EntityModelBase<string>
     {
+        // Fields.
+        private List<VideoManifest> _videoManifest = new();
+
         // Constructors and dispose.
         public Video(
             string? encryptionKey,
@@ -32,7 +38,9 @@ namespace Etherna.EthernaIndex.Domain.Models
             SetManifestHash(manifestHash);
             Owner = owner ?? throw new ArgumentNullException(nameof(owner));
             Owner.AddVideo(this);
+            _videoManifest.Add(new VideoManifest(ManifestHash.Hash));
         }
+
         protected Video() { }
 
         public override void DisposeForDelete()
@@ -50,8 +58,18 @@ namespace Etherna.EthernaIndex.Domain.Models
         public virtual User Owner { get; protected set; } = default!;
         public virtual long TotDownvotes { get; set; }
         public virtual long TotUpvotes { get; set; }
+        public virtual IEnumerable<VideoManifest> VideoManifest
+        {
+            get => _videoManifest;
+            protected set => _videoManifest = new List<VideoManifest>(value ?? new List<VideoManifest>());
+        }
 
         // Methods.
+        public virtual VideoManifest GetManifest()
+        {
+            return _videoManifest.OrderByDescending(i => i.ValidationTime).First();
+        }
+
         [PropertyAlterer(nameof(EncryptionKey))]
         [PropertyAlterer(nameof(EncryptionType))]
         public virtual void SetEncryptionKey(string? encryptionKey, EncryptionType encryptionType)

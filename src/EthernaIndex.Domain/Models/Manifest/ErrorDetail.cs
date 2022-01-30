@@ -4,28 +4,25 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Etherna.EthernaIndex.Domain.Models.ValidationResults
+namespace Etherna.EthernaIndex.Domain.Models.Manifest
 {
-    public class ErrorValidationResult
+    public class ErrorDetail : ModelBase
     {
         // Constructors.
-        public ErrorValidationResult(
-            ValidationError errorNumber,
-            string errorMessage,
-            DateTime checkedTime)
+        public ErrorDetail(
+            ValidationErrorType errorNumber,
+            string errorMessage)
         {
             ErrorNumber = errorNumber;
             ErrorMessage = errorMessage;
-            CheckedTime = checkedTime;
         }
 #pragma warning disable CS8618 //Used only by EthernaIndex.Persistence
-        protected ErrorValidationResult() { }
+        protected ErrorDetail() { }
 #pragma warning restore CS8618 //Used only by EthernaIndex.Persistence
 
 
         // Properties.
-        public virtual DateTime CheckedTime { get; protected set; }
         public virtual string ErrorMessage { get; protected set; }
-        public virtual ValidationError ErrorNumber { get; protected set; }
+        public virtual ValidationErrorType ErrorNumber { get; protected set; }
     }
 }

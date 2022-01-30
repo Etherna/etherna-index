@@ -15,9 +15,9 @@
 using Etherna.MongODM.Core.Attributes;
 using System.Collections.Generic;
 
-namespace Etherna.EthernaIndex.Domain.Models.ValidationResults
+namespace Etherna.EthernaIndex.Domain.Models.Manifest
 {
-    public class SwarmImageRaw
+    public class SwarmImageRaw : ModelBase
     {
         // Fields.
         private Dictionary<string, string> _sources = new();
@@ -25,20 +25,20 @@ namespace Etherna.EthernaIndex.Domain.Models.ValidationResults
         // Constructors.
         public SwarmImageRaw(
             int aspectRatio,
-            string blurhash,
-            Dictionary<string, string> sources)
+            string blurHash,
+            IReadOnlyDictionary<string, string>? sources)
         {
             AspectRatio = aspectRatio;
-            Blurhash = blurhash;
-            Sources = sources;
+            BlurHash = blurHash;
+            Sources = sources ?? new Dictionary<string, string>();
         }
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         protected SwarmImageRaw() { }
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         public int AspectRatio { get; set; }
-        public string Blurhash { get; set; } = default!;
-#pragma warning disable CA2227 // Collection properties should be read only
-        public virtual IDictionary<string, string> Sources
-#pragma warning restore CA2227 // Collection properties should be read only
+        public string BlurHash { get; set; }
+        public virtual IReadOnlyDictionary<string, string> Sources
         {
             get => _sources;
             protected set => _sources = new Dictionary<string, string>(value ?? new Dictionary<string, string>());
@@ -48,10 +48,7 @@ namespace Etherna.EthernaIndex.Domain.Models.ValidationResults
         [PropertyAlterer(nameof(Sources))]
         public virtual void AddSource(string sourceType, string reference)
         {
-            if (!_sources.TryAdd(reference, reference))
-            {
-                _sources[sourceType] = reference;
-            }
+            _sources[sourceType] = reference;
         }
 
         [PropertyAlterer(nameof(Sources))]

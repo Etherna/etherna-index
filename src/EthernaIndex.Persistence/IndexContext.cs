@@ -51,14 +51,6 @@ namespace Etherna.EthernaIndex.Persistence
                     (Builders<Comment>.IndexKeys.Ascending(c => c.Video.ManifestHash.Hash), new CreateIndexOptions<Comment>())
                 }
             });
-        public ICollectionRepository<VideoValidationResult, string> VideoValidationResults { get; } = new DomainCollectionRepository<VideoValidationResult, string>(
-            new CollectionRepositoryOptions<VideoValidationResult>("videoValidationResult")
-            {
-                IndexBuilders = new[]
-                {
-                    (Builders<VideoValidationResult>.IndexKeys.Ascending(c => c.ManifestHash), new CreateIndexOptions<VideoValidationResult>())
-                }
-            });
         public ICollectionRepository<User, string> Users { get; } = new DomainCollectionRepository<User, string>(
             new CollectionRepositoryOptions<User>("users")
             {
@@ -67,7 +59,7 @@ namespace Etherna.EthernaIndex.Persistence
                     (Builders<User>.IndexKeys.Ascending(u => u.Address), new CreateIndexOptions<User> { Unique = true }),
                     (Builders<User>.IndexKeys.Ascending(u => u.IdentityManifest!.Hash), new CreateIndexOptions<User>{ Sparse = true, Unique = true })
                 }
-            });
+            }); 
         public ICollectionRepository<Video, string> Videos { get; } = new DomainCollectionRepository<Video, string>(
             new CollectionRepositoryOptions<Video>("videos")
             {

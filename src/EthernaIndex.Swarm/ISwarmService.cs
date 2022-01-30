@@ -1,7 +1,7 @@
-﻿using EthernaIndex.Swarm.DtoModel;
+﻿using Etherna.EthernaIndex.Swarm.DtoModel;
 using System.Threading.Tasks;
 
-namespace EthernaIndex.Swarm
+namespace Etherna.EthernaIndex.Swarm
 {
     public interface ISwarmService
     {

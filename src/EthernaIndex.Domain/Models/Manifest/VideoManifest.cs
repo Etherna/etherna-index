@@ -12,26 +12,21 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-using Etherna.EthernaIndex.Domain.Models.ValidationResults;
 using Etherna.MongODM.Core.Attributes;
 using System.Collections.Generic;
 
-namespace Etherna.EthernaIndex.Domain.Models
+namespace Etherna.EthernaIndex.Domain.Models.Manifest
 {
-    public class VideoValidationResult : ValidationResult
+    public class VideoManifest : ManifestBase
     {
         // Fields.
         private List<VideoSource> _sources = new();
 
         // Constructors.
-        public VideoValidationResult(
-            string manifestHash,
-            User owner)
-            : base(manifestHash, owner)
-        {
-        }
+        public VideoManifest(string manifestHash)
+            : base(manifestHash) { }
 
-        protected VideoValidationResult() { }
+        protected VideoManifest() { }
 
         // Properties.
         public string? FeedTopicId { get; protected set; }
@@ -40,16 +35,13 @@ namespace Etherna.EthernaIndex.Domain.Models
         public string? OriginalQuality { get; protected set; }
         public string? Title { get; protected set; }
         public SwarmImageRaw? Thumbnail { get; protected set; }
-#pragma warning disable CA2227 // Collection properties should be read only
         public virtual IEnumerable<VideoSource>? Sources
-#pragma warning restore CA2227 // Collection properties should be read only
         {
             get => _sources;
             protected set => _sources = new List<VideoSource>(value ?? new List<VideoSource>());
         }
 
         // Methods.
-        [PropertyAlterer(nameof(IsInizialized))]
         [PropertyAlterer(nameof(FeedTopicId))]
         [PropertyAlterer(nameof(Description))]
         [PropertyAlterer(nameof(Duration))]
@@ -57,23 +49,22 @@ namespace Etherna.EthernaIndex.Domain.Models
         [PropertyAlterer(nameof(Title))]
         [PropertyAlterer(nameof(Thumbnail))]
         [PropertyAlterer(nameof(Sources))]
-        public virtual void InizializeManifest(
+        public virtual void SuccessfulValidation(
             string feedTopicId,
             string title,
             string description,
             string originalQuality,
             int duration,
-            SwarmImageRaw? thumbnail,
-            IEnumerable<VideoSource>? sources)
+            SwarmImageRaw? thumbnail)
         {
+            base.SuccessfulValidation();
+
             FeedTopicId = feedTopicId;
             Title = title;
             Description = description;
             OriginalQuality = originalQuality;
             Duration = duration;
             Thumbnail = thumbnail;
-            Sources = sources;
-            IsInizialized = true;
         }
     }
 }

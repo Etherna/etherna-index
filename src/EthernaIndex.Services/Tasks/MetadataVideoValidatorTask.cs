@@ -13,10 +13,10 @@
 //   limitations under the License.
 
 using Etherna.EthernaIndex.Domain;
-using Etherna.EthernaIndex.Domain.Models.ValidationResults;
-using Etherna.EthernaIndex.Services.Interfaces;
-using EthernaIndex.Swarm;
-using EthernaIndex.Swarm.DtoModel;
+using Etherna.EthernaIndex.Domain.Models.Manifest;
+using Etherna.EthernaIndex.Swarm;
+using Etherna.EthernaIndex.Swarm.DtoModel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -41,87 +41,120 @@ namespace Etherna.EthernaIndex.Services.Tasks
         // Methods.
         public async Task RunAsync(string manifestHash)
         {
-            var validationResult = await indexContext.VideoValidationResults.FindOneAsync(u => u.ManifestHash.Hash == manifestHash);
+            var video = await indexContext.Videos.FindOneAsync(u => u.ManifestHash.Hash == manifestHash);
 
             MetadataVideoDto? metadataDto;
-            var validationErrors = new Dictionary<ValidationError, string>();
+            var validationErrors = new List<ErrorDetail>();
 
-            //Get Metadata and check JsonConvert
+            //get manifest
+            var videoManifest = video.VideoManifest.FirstOrDefault(i => i.ManifestHash == manifestHash);
+            if (videoManifest is null)
+            {
+                var ex = new InvalidOperationException("Manifest not found");
+                ex.Data.Add("ManifestHash", manifestHash);
+                throw ex;
+            }
+            if (videoManifest.IsValid.HasValue)
+            {
+                var ex = new InvalidOperationException("Manifest already processed");
+                ex.Data.Add("ManifestHash", manifestHash);
+                throw ex;
+            }
+
+            //get manifest metadata
             try
             {
                 metadataDto = await swarmService.GetMetadataVideoAsync(manifestHash);
             }
             catch (MetadataVideoException ex)
             {
-                metadataDto = null;
-                validationErrors.Add(ValidationError.JsonConvert, ex.Message);
+                validationErrors.Add(new ErrorDetail(ValidationErrorType.JsonConvert, ex.Message));
+                videoManifest.FailedValidation(validationErrors);
+                await indexContext.SaveChangesAsync().ConfigureAwait(false);
+                return;
             }
 
-            //Check Title
-            if (metadataDto is not null &&
-                string.IsNullOrWhiteSpace(metadataDto.Title))
-                validationErrors.Add(ValidationError.MissingTitle, ValidationError.MissingTitle.ToString());
+            //check Title
+            if (string.IsNullOrWhiteSpace(metadataDto.Title))
+                validationErrors.Add(new ErrorDetail(ValidationErrorType.MissingTitle, ValidationErrorType.MissingTitle.ToString()));
 
+            //check Video Format
+            var validationVideoSources = CheckVideoSources(metadataDto.Sources);
+            validationErrors.AddRange(validationVideoSources);
 
-            //Check Video Format
-            var validationVideoError = CheckVideoFormat(metadataDto);
-            if (validationVideoError is not null)
+            SwarmImageRaw? swarmImageRaw = null;
+            if (metadataDto.Thumbnail is not null)
             {
-                validationErrors.Add(validationVideoError.Value, validationVideoError.Value.ToString());
+                var validationVideoError = CheckThumbnailSources(metadataDto.Thumbnail.Sources);
+                validationErrors.AddRange(validationVideoError);
+
+                swarmImageRaw = new SwarmImageRaw(
+                    metadataDto.Thumbnail.AspectRatio,
+                    metadataDto.Thumbnail.Blurhash,
+                    metadataDto.Thumbnail.Sources);
             }
 
-            //InizializeManifest
-            if (metadataDto is not null)
+            //set result of validation
+            if (validationErrors.Any())
             {
-                SwarmImageRaw? swarmImageRaw = null;
-                if (metadataDto.Thumbnail is not null)
-                {
-                    swarmImageRaw = new SwarmImageRaw(
-                      metadataDto.Thumbnail.AspectRatio,
-                      metadataDto.Thumbnail.Blurhash,
-                      metadataDto.Thumbnail.Sources);
-                }
-                List<VideoSource>? videoSources = null;
-                if (metadataDto.Sources is not null)
-                {
-                    videoSources = new List<VideoSource>();
-                    foreach (var item in metadataDto.Sources)
-                    {
-                        videoSources.Add(new VideoSource(item.Bitrate, item.Quality, item.Reference, item.Size));
-                    }
-                }
-                validationResult.InizializeManifest(
+                videoManifest.FailedValidation(validationErrors);
+            }
+            else
+            {
+                //inizializeManifest
+                var videoSources = metadataDto.Sources?.Select(i => new VideoSource(i.Bitrate, i.Quality, i.Reference, i.Size)).ToList();
+
+                videoManifest.SuccessfulValidation(
                     metadataDto.Id,
                     metadataDto.Title,
                     metadataDto.Description,
                     metadataDto.OriginalQuality,
                     metadataDto.Duration,
-                    swarmImageRaw,
-                    videoSources);
+                    swarmImageRaw);
             }
-
-            //Set result of validation
-            validationResult.SetResult(validationErrors);
 
             // Complete task.
             await indexContext.SaveChangesAsync().ConfigureAwait(false);
         }
 
-        private ValidationError? CheckVideoFormat(MetadataVideoDto? metadataDto)
+        // Helpers.
+        private IEnumerable<ErrorDetail> CheckThumbnailSources(IReadOnlyDictionary<string, string> sources)
         {
-            if (metadataDto is null)
+            if (sources is null ||
+                !sources.Any())
             {
-                return null;
+                return new ErrorDetail[] { new ErrorDetail(ValidationErrorType.InvalidVideoSource, "Missing sources") };
             }
 
-            if (metadataDto.Sources is null ||
-                !metadataDto.Sources.Any())
+            var errorDetails = new List<ErrorDetail>();
+            foreach (var item in sources)
             {
-                return ValidationError.InvalidSourceVideo;
+                if (string.IsNullOrWhiteSpace(item.Value))
+                    errorDetails.Add(new ErrorDetail(ValidationErrorType.InvalidVideoSource, $"[{item.Key}] empty source"));
             }
 
-            return null;
+            return Array.Empty<ErrorDetail>();
         }
+
+        private IEnumerable<ErrorDetail> CheckVideoSources(IEnumerable<MetadataVideoSourceDto> videoSources)
+        {
+            if (videoSources is null ||
+                !videoSources.Any())
+            {
+                return new ErrorDetail[] { new ErrorDetail(ValidationErrorType.InvalidVideoSource, "Missing sources") };
+            }
+
+            var errorDetails = new List<ErrorDetail>();
+            foreach (var item in videoSources)
+            {
+                if (string.IsNullOrWhiteSpace(item.Reference))
+                    errorDetails.Add(new ErrorDetail(ValidationErrorType.InvalidVideoSource, $"[{item.Quality}] empty reference"));
+            }
+
+            return Array.Empty<ErrorDetail>();
+        }
+
+
 
     }
 }
