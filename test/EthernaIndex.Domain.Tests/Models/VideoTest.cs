@@ -33,8 +33,7 @@ namespace Etherna.EthernaIndex.Domain.Models
         public VideoTest()
         {
             owner = new User(address);
-            var swarmContentHash = new SwarmContentHash(hash);
-            video = new Video(encryptKey, EncryptionType.AES256, swarmContentHash, owner);
+            video = new Video(encryptKey, EncryptionType.AES256, hash, owner);
         }
 
         // Tests.

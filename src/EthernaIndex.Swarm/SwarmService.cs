@@ -19,9 +19,7 @@ namespace Etherna.EthernaIndex.Swarm
         public SwarmService(IOptions<SwarmSettings> swarmSettings)
         {
             if (swarmSettings?.Value is null)
-            {
                 throw new ArgumentNullException(nameof(swarmSettings));
-            }
 
             SwarmSettings = swarmSettings.Value;
             var clientVersion = SwarmSettings.Version switch
@@ -36,9 +34,7 @@ namespace Etherna.EthernaIndex.Swarm
         public async Task<MetadataVideoDto> GetMetadataVideoAsync(string manifestHash)
         {
             if (BeeNodeClient.GatewayClient is null)
-            {
                 throw new InvalidOperationException(nameof(BeeNodeClient.GatewayClient));
-            }
 
             using var stream = await BeeNodeClient.GatewayClient.BytesGetAsync(manifestHash);
             using var reader = new StreamReader(stream);
@@ -46,9 +42,7 @@ namespace Etherna.EthernaIndex.Swarm
             {
                 var metadataVideoDto = JsonSerializer.Deserialize<MetadataVideoDto>(reader.ReadToEnd());
                 if (metadataVideoDto is null)
-                {
                     throw new MetadataVideoException("Empty json");
-                }
 
                 return metadataVideoDto;
             }

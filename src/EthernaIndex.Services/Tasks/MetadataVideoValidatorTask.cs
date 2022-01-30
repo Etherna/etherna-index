@@ -154,7 +154,5 @@ namespace Etherna.EthernaIndex.Services.Tasks
             return Array.Empty<ErrorDetail>();
         }
 
-
-
     }
 }

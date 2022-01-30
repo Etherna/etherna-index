@@ -31,11 +31,11 @@ namespace Etherna.EthernaIndex.Domain.Models
         public Video(
             string? encryptionKey,
             EncryptionType encryptionType,
-            SwarmContentHash manifestHash,
+            string manifestHash,
             User owner)
         {
             SetEncryptionKey(encryptionKey, encryptionType);
-            SetManifestHash(manifestHash);
+            SetManifestHash(new SwarmContentHash(manifestHash ?? throw new ArgumentNullException(nameof(manifestHash))));
             Owner = owner ?? throw new ArgumentNullException(nameof(owner));
             Owner.AddVideo(this);
             _videoManifest.Add(new VideoManifest(ManifestHash.Hash));

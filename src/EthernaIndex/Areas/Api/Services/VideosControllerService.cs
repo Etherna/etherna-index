@@ -64,12 +64,10 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
                 throw new DuplicatedManifestHashException(videoInput.ManifestHash);
             }
 
-            var manifestHash = new SwarmContentHash(videoInput.ManifestHash);
-
             video = new Video(
                 videoInput.EncryptionKey,
                 videoInput.EncryptionType,
-                manifestHash,
+                videoInput.ManifestHash,
                 user);
 
             await indexContext.Videos.CreateAsync(video);
