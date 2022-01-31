@@ -233,21 +233,10 @@ namespace Etherna.EthernaIndex
 
             app.UseCors(builder =>
             {
-                if (Environment.IsDevelopment())
-                {
-                    builder.SetIsOriginAllowed(_ => true)
-                           .AllowAnyHeader()
-                           .AllowAnyMethod()
-                           .AllowCredentials();
-                }
-                else
-                {
-                    builder.WithOrigins("https://*.etherna.io")
-                           .SetIsOriginAllowedToAllowWildcardSubdomains()
-                           .AllowAnyHeader()
-                           .AllowAnyMethod()
-                           .AllowCredentials();
-                }
+                builder.SetIsOriginAllowed(_ => true)
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowCredentials();
             });
 
             app.UseHttpsRedirection();
