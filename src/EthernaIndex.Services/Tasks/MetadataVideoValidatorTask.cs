@@ -135,7 +135,7 @@ namespace Etherna.EthernaIndex.Services.Tasks
                     errorDetails.Add(new ErrorDetail(ValidationErrorType.InvalidVideoSource, $"[{item.Key}] empty source"));
             }
 
-            return Array.Empty<ErrorDetail>();
+            return errorDetails;
         }
 
         private IEnumerable<ErrorDetail> CheckVideoSources(IEnumerable<MetadataVideoSourceDto> videoSources)
@@ -149,11 +149,13 @@ namespace Etherna.EthernaIndex.Services.Tasks
             var errorDetails = new List<ErrorDetail>();
             foreach (var item in videoSources)
             {
-                if (string.IsNullOrWhiteSpace(item.Reference))
+                if (string.IsNullOrWhiteSpace(item.Quality))
+                    errorDetails.Add(new ErrorDetail(ValidationErrorType.InvalidVideoSource, $"empty quality"));
+                else if (string.IsNullOrWhiteSpace(item.Reference))
                     errorDetails.Add(new ErrorDetail(ValidationErrorType.InvalidVideoSource, $"[{item.Quality}] empty reference"));
             }
 
-            return Array.Empty<ErrorDetail>();
+            return errorDetails;
         }
 
     }

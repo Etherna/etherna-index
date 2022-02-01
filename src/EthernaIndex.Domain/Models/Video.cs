@@ -113,6 +113,9 @@ namespace Etherna.EthernaIndex.Domain.Models
             }
 
             _videoManifest.Add(videoManifest);
+            if (videoManifest.IsValid.HasValue &&
+                videoManifest.IsValid.Value)
+                SetManifestHash(new SwarmContentHash(videoManifest.ManifestHash));
         }
 
         [PropertyAlterer(nameof(ManifestHash))]
