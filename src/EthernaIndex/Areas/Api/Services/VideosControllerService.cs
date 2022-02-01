@@ -64,6 +64,9 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
                 throw new DuplicatedManifestHashException(videoInput.ManifestHash);
             }
 
+            var videoManifest = new VideoManifest(videoInput.ManifestHash);
+            await indexContext.VideoManifest.CreateAsync(videoManifest);
+
             video = new Video(
                 videoInput.EncryptionKey,
                 videoInput.EncryptionType,
@@ -73,7 +76,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             await indexContext.Videos.CreateAsync(video);
 
             backgroundJobClient.Create<MetadataVideoValidatorTask>(
-                task => task.RunAsync(videoInput.ManifestHash),
+                task => task.RunAsync(video.Id, videoInput.ManifestHash),
                 new EnqueuedState(Queues.METADATA_VIDEO_VALIDATOR));
 
             return new VideoDto(video);

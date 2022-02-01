@@ -12,13 +12,14 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
+using Etherna.EthernaIndex.Domain.Models.Manifest;
 using Etherna.MongODM.Core.Attributes;
 using System;
 using System.Collections.Generic;
 
-namespace Etherna.EthernaIndex.Domain.Models.Manifest
+namespace Etherna.EthernaIndex.Domain.Models
 {
-    public abstract class ManifestBase : ModelBase
+    public abstract class ManifestBase : EntityModelBase<string>
     {
         // Fields.
         private List<ErrorDetail> _errorValidationResults = new();

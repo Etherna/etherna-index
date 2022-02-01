@@ -39,15 +39,15 @@ namespace Etherna.EthernaIndex.Services.Tasks
         }
 
         // Methods.
-        public async Task RunAsync(string manifestHash)
+        public async Task RunAsync(string videoId, string manifestHash)
         {
-            var video = await indexContext.Videos.FindOneAsync(u => u.ManifestHash.Hash == manifestHash);
+            var video = await indexContext.Videos.FindOneAsync(u => u.Id == videoId);
 
             MetadataVideoDto? metadataDto;
             var validationErrors = new List<ErrorDetail>();
 
-            //get manifest
-            var videoManifest = video.VideoManifest.FirstOrDefault(i => i.ManifestHash == manifestHash);
+            // Get manifest.
+            var videoManifest = await indexContext.VideoManifest.FindOneAsync(u => u.Id == manifestHash);
             if (videoManifest is null)
             {
                 var ex = new InvalidOperationException("Manifest not found");
@@ -61,7 +61,7 @@ namespace Etherna.EthernaIndex.Services.Tasks
                 throw ex;
             }
 
-            //get manifest metadata
+            // Get metadata.
             try
             {
                 metadataDto = await swarmService.GetMetadataVideoAsync(manifestHash);
@@ -74,11 +74,11 @@ namespace Etherna.EthernaIndex.Services.Tasks
                 return;
             }
 
-            //check Title
+            // Check Title.
             if (string.IsNullOrWhiteSpace(metadataDto.Title))
                 validationErrors.Add(new ErrorDetail(ValidationErrorType.MissingTitle, ValidationErrorType.MissingTitle.ToString()));
 
-            //check Video Format
+            // Check Video Format.
             var validationVideoSources = CheckVideoSources(metadataDto.Sources);
             validationErrors.AddRange(validationVideoSources);
 
@@ -94,23 +94,25 @@ namespace Etherna.EthernaIndex.Services.Tasks
                     metadataDto.Thumbnail.Sources);
             }
 
-            //set result of validation
+            // Set result of validation.
             if (validationErrors.Any())
             {
                 videoManifest.FailedValidation(validationErrors);
             }
             else
             {
-                //inizializeManifest
                 var videoSources = metadataDto.Sources?.Select(i => new VideoSource(i.Bitrate, i.Quality, i.Reference, i.Size)).ToList();
 
                 videoManifest.SuccessfulValidation(
-                    metadataDto.Id,
-                    metadataDto.Title,
                     metadataDto.Description,
-                    metadataDto.OriginalQuality,
                     metadataDto.Duration,
-                    swarmImageRaw);
+                    metadataDto.Id,
+                    metadataDto.OriginalQuality,
+                    metadataDto.Title,
+                    swarmImageRaw,
+                    videoSources);
+
+                video.AddManifest(videoManifest);
             }
 
             // Complete task.

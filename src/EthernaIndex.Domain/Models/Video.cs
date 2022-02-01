@@ -38,7 +38,6 @@ namespace Etherna.EthernaIndex.Domain.Models
             SetManifestHash(new SwarmContentHash(manifestHash ?? throw new ArgumentNullException(nameof(manifestHash))));
             Owner = owner ?? throw new ArgumentNullException(nameof(owner));
             Owner.AddVideo(this);
-            _videoManifest.Add(new VideoManifest(ManifestHash.Hash));
         }
 
         protected Video() { }
@@ -67,6 +66,13 @@ namespace Etherna.EthernaIndex.Domain.Models
         // Methods.
         public virtual VideoManifest GetManifest()
         {
+            var validManifest = _videoManifest.Where(i => i.IsValid.HasValue && i.IsValid.Value)
+                                .OrderByDescending(i => i.ValidationTime)
+                                .FirstOrDefault();
+
+            if (validManifest is not null)
+                return validManifest;
+
             return _videoManifest.OrderByDescending(i => i.ValidationTime).First();
         }
 
@@ -92,6 +98,21 @@ namespace Etherna.EthernaIndex.Domain.Models
 
             EncryptionKey = encryptionKey;
             EncryptionType = encryptionType;
+        }
+
+        [PropertyAlterer(nameof(VideoManifest))]
+        public void AddManifest(VideoManifest videoManifest)
+        {
+            if (videoManifest is null)
+                throw new ArgumentNullException(nameof(videoManifest));
+            if (_videoManifest.Any(i => i.ManifestHash == videoManifest.ManifestHash))
+            {
+                var ex = new InvalidOperationException("AddManifest duplicate");
+                ex.Data.Add("ManifestHash", videoManifest.ManifestHash);
+                throw ex;
+            }
+
+            _videoManifest.Add(videoManifest);
         }
 
         [PropertyAlterer(nameof(ManifestHash))]

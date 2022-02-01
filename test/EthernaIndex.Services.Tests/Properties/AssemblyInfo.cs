@@ -12,17 +12,6 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-using Etherna.EthernaIndex.Domain.Models.Manifest;
-using Etherna.MongODM.Core;
-using Etherna.MongODM.Core.Serialization;
+using System;
 
-namespace Etherna.EthernaIndex.Persistence.ModelMaps
-{
-    class VideoValidationResultMap : IModelMapsCollector
-    {
-        public void Register(IDbContext dbContext)
-        {
-            dbContext.SchemaRegistry.AddModelMapsSchema<VideoManifest>("ec578080-ccd2-4d49-8a76-555b10a5dad5");
-        }
-    }
-}
+[assembly: CLSCompliant(false)]

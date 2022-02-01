@@ -30,9 +30,7 @@ namespace Etherna.EthernaIndex.Services
         public static void AddDomainServices(this IServiceCollection services, IConfiguration configuration)
         {
             if (configuration is null)
-            {
                 throw new ArgumentNullException(nameof(configuration));
-            }
 
             var currentType = typeof(ServiceCollectionExtensions).GetTypeInfo();
             var eventHandlersNamespace = $"{currentType.Namespace}.{EventHandlersSubNamespace}";
@@ -57,12 +55,12 @@ namespace Etherna.EthernaIndex.Services
                 return dispatcher;
             });
 
-            // Register services.
-            // Configure Swarm service.
+            // Infrastructure.
+            //domain
             services.AddScoped<ISwarmService, SwarmService>();
             services.Configure<SwarmSettings>(configuration.GetSection("Swarm"));
 
-            // Configure Video serice.
+            // Tasks.
             services.AddTransient<IMetadataVideoValidatorTask, MetadataVideoValidatorTask>();
         }
     }

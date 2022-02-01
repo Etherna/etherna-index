@@ -35,7 +35,6 @@
   <ItemGroup>
     <ProjectReference Include="..\EthernaIndex.Persistence\EthernaIndex.Persistence.csproj" />
     <ProjectReference Include="..\EthernaIndex.Services\EthernaIndex.Services.csproj" />
-    <ProjectReference Include="..\EthernaIndex.Swarm\EthernaIndex.Swarm.csproj" />
   </ItemGroup>
 
 </Project>

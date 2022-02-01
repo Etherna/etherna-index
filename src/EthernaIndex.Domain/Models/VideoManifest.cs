@@ -12,10 +12,11 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
+using Etherna.EthernaIndex.Domain.Models.Manifest;
 using Etherna.MongODM.Core.Attributes;
 using System.Collections.Generic;
 
-namespace Etherna.EthernaIndex.Domain.Models.Manifest
+namespace Etherna.EthernaIndex.Domain.Models
 {
     public class VideoManifest : ManifestBase
     {
@@ -33,37 +34,38 @@ namespace Etherna.EthernaIndex.Domain.Models.Manifest
         public string? Description { get; protected set; }
         public int? Duration { get; protected set; }
         public string? OriginalQuality { get; protected set; }
-        public string? Title { get; protected set; }
-        public SwarmImageRaw? Thumbnail { get; protected set; }
         public virtual IEnumerable<VideoSource>? Sources
         {
             get => _sources;
             protected set => _sources = new List<VideoSource>(value ?? new List<VideoSource>());
         }
+        public string? Title { get; protected set; }
+        public SwarmImageRaw? Thumbnail { get; protected set; }
 
         // Methods.
-        [PropertyAlterer(nameof(FeedTopicId))]
         [PropertyAlterer(nameof(Description))]
         [PropertyAlterer(nameof(Duration))]
+        [PropertyAlterer(nameof(FeedTopicId))]
         [PropertyAlterer(nameof(OriginalQuality))]
+        [PropertyAlterer(nameof(Sources))]
         [PropertyAlterer(nameof(Title))]
         [PropertyAlterer(nameof(Thumbnail))]
-        [PropertyAlterer(nameof(Sources))]
         public virtual void SuccessfulValidation(
-            string feedTopicId,
-            string title,
             string description,
-            string originalQuality,
             int duration,
-            SwarmImageRaw? thumbnail)
+            string feedTopicId,
+            string originalQuality,
+            string title,
+            SwarmImageRaw? thumbnail,
+            IEnumerable<VideoSource>? videoSources)
         {
             base.SuccessfulValidation();
-
-            FeedTopicId = feedTopicId;
-            Title = title;
             Description = description;
-            OriginalQuality = originalQuality;
             Duration = duration;
+            FeedTopicId = feedTopicId;
+            OriginalQuality = originalQuality;
+            Sources = videoSources;
+            Title = title;
             Thumbnail = thumbnail;
         }
     }

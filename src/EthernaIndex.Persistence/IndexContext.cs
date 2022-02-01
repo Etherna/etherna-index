@@ -68,6 +68,14 @@ namespace Etherna.EthernaIndex.Persistence
                     (Builders<Video>.IndexKeys.Ascending(c => c.ManifestHash.Hash), new CreateIndexOptions<Video> { Unique = true })
                 }
             });
+        public ICollectionRepository<VideoManifest, string> VideoManifest { get; } = new DomainCollectionRepository<VideoManifest, string>(
+            new CollectionRepositoryOptions<VideoManifest>("videoManifest")
+            {
+                IndexBuilders = new[]
+                {
+                    (Builders<VideoManifest>.IndexKeys.Ascending(c => c.ManifestHash), new CreateIndexOptions<VideoManifest> { Unique = true })
+                }
+            });
         public ICollectionRepository<VideoVote, string> Votes { get; } = new DomainCollectionRepository<VideoVote, string>(
             new CollectionRepositoryOptions<VideoVote>("votes")
             {
@@ -82,6 +90,8 @@ namespace Etherna.EthernaIndex.Persistence
 
         //other properties
         public IEventDispatcher EventDispatcher { get; }
+
+        
 
         // Protected properties.
         protected override IEnumerable<IModelMapsCollector> ModelMapsCollectors =>

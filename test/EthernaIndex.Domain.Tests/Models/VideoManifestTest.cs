@@ -12,25 +12,15 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-using Xunit;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace EthernaIndex.Services.Tests.Task
+namespace Etherna.EthernaIndex.Domain.Models
 {
-    public class MetadataVideoValidatorTaskTest
+    class VideoManifestTest
     {
-        // Fields.
-
-        // Constructors.
-        public MetadataVideoValidatorTaskTest()
-        {
-            
-        }
-
-        // Tests.
-        [Fact]
-        public void Test1()
-        {
-
-        }
     }
 }

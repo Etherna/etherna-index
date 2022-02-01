@@ -13,7 +13,6 @@
 //   limitations under the License.
 
 using Etherna.EthernaIndex.Domain.Models.Manifest;
-using Etherna.EthernaIndex.Domain.Models.Swarm;
 using System;
 using System.Collections.Generic;
 using Xunit;
@@ -54,6 +53,7 @@ namespace Etherna.EthernaIndex.Domain.Models
             Assert.NotNull(video.Owner);
             Assert.Equal(address, video.Owner.Address);
             Assert.NotNull(video.GetManifest());
+            Assert.Equal(hash, video.GetManifest().ManifestHash);
         }
 
         [Fact]
@@ -103,16 +103,16 @@ namespace Etherna.EthernaIndex.Domain.Models
 
             //Act
             manifest.SuccessfulValidation(
-                "FeddTopicTest",
-                "TitleTest",
                 "DescTest",
-                "OriginalTest",
                 1,
+                "FeddTopicTest",
+                "OriginalTest",
+                "TitleTest",
                 new SwarmImageRaw(
                     1,
                     "BlurTst",
-                    new Dictionary<string, string> { { "1080", "Test1" }, { "720", "Test2" } })
-                );
+                    new Dictionary<string, string> { { "1080", "Test1" }, { "720", "Test2" } }),
+                null);
 
 
             //Assert
@@ -131,18 +131,20 @@ namespace Etherna.EthernaIndex.Domain.Models
             var desc = "DescTest";
             var original = "OriginalTest";
             var duration = 1;
+            var videoSources = new List<VideoSource> { new VideoSource(1, "10801", "reff1", 4), new VideoSource(null, "321", "reff2", null) };
             var blur = "BlurTst";
             var aspectRatio = 1;
             var source = new Dictionary<string, string> { { "1080", "Test1" }, { "720", "Test2" } };
 
             //Act
             manifest.SuccessfulValidation(
-                feed,
-                title,
                 desc,
+                duration,
+                feed,
                 original,
-                duration, 
-                new SwarmImageRaw(aspectRatio, blur, source));
+                title,
+                new SwarmImageRaw(aspectRatio, blur, source),
+                videoSources);
 
 
             //Assert
@@ -151,6 +153,16 @@ namespace Etherna.EthernaIndex.Domain.Models
             Assert.Equal(desc, manifest.Description);
             Assert.Equal(duration, manifest.Duration);
             Assert.Equal(original, manifest.OriginalQuality);
+            Assert.Contains(manifest.Sources,
+               i => i.Bitrate == 1 &&
+                   i.Quality == "10801" &&
+                   i.Reference == "reff1" &&
+                   i.Size == 4);
+            Assert.Contains(manifest.Sources,
+               i => i.Bitrate == null &&
+                   i.Quality == "321" &&
+                   i.Reference == "reff2" &&
+                   i.Size == null);
             Assert.NotNull(manifest.Thumbnail);
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
             Assert.Equal(blur, manifest.Thumbnail.BlurHash);
@@ -175,23 +187,20 @@ namespace Etherna.EthernaIndex.Domain.Models
             var desc = "DescTest";
             var original = "OriginalTest";
             var duration = 1;
+            var videoSources = new List<VideoSource> { new VideoSource(1, "10801", "reff1", 4), new VideoSource(null, "321", "reff2", null) };
 
             //Act
             manifest.SuccessfulValidation(
-                feed,
-                title,
                 desc,
-                original,
                 duration,
-                null);
+                feed,
+                original,
+                title,
+                null,
+                videoSources);
 
 
             //Assert
-            Assert.Equal(feed, manifest.FeedTopicId);
-            Assert.Equal(title, manifest.Title);
-            Assert.Equal(desc, manifest.Description);
-            Assert.Equal(duration, manifest.Duration);
-            Assert.Equal(original, manifest.OriginalQuality);
             Assert.Null(manifest.Thumbnail);
         }
     }
