@@ -46,7 +46,7 @@ namespace EthernaIndex.Services.Tests.Tasks
         public MetadataVideoValidatorTaskTest()
         {
             var owner = new User(address);
-            video = new Video(encryptKey, EncryptionType.AES256, manifestHash, owner);
+            video = new Video(encryptKey, EncryptionType.AES256, new VideoManifest(manifestHash), owner);
             videoManifest = new VideoManifest(manifestHash);
 
             swarmService = new Mock<ISwarmService>();
@@ -328,7 +328,7 @@ namespace EthernaIndex.Services.Tests.Tasks
         }
 
         [Fact]
-        public async Task ValidateManifest_NotInsertManifestInVideo_WhenNotValid()
+        public async Task ValidateManifest_InsertManifestInVideo_EvenIsNotValid()
         {
             //Arrange
             var metadataVideoDto = new MetadataVideoDto
@@ -354,7 +354,7 @@ namespace EthernaIndex.Services.Tests.Tasks
             // Assert.
             Assert.False(videoManifest.IsValid);
             Assert.NotNull(videoManifest.ValidationTime);
-            Assert.DoesNotContain(video.VideoManifest,
+            Assert.Contains(video.VideoManifest,
                 i => i.ManifestHash == manifestHash);
             Assert.Equal(manifestHash, video.ManifestHash.Hash);
         }
@@ -415,12 +415,14 @@ namespace EthernaIndex.Services.Tests.Tasks
             Assert.NotNull(secondVideoManifest.ValidationTime);
             Assert.Equal(2, video.VideoManifest.Count());
             Assert.Contains(video.VideoManifest,
+                i => i.ManifestHash == manifestHash);
+            Assert.Contains(video.VideoManifest,
                 i => i.ManifestHash == secondManifestHash);
             Assert.Equal(secondManifestHash, video.ManifestHash.Hash);
         }
 
         [Fact]
-        public async Task ValidateManifest_NotAppendManifestInVideo_WhenNotValidAndHaveAnotherValidManifest()
+        public async Task ValidateManifest_AppendManifestInVideo_EvenNotValidAndHaveAnotherValidManifest()
         {
             // Arrange.
             var firstMetadataVideoDto = new MetadataVideoDto
@@ -472,9 +474,11 @@ namespace EthernaIndex.Services.Tests.Tasks
             //Assert
             Assert.False(secondVideoManifest.IsValid);
             Assert.NotNull(secondVideoManifest.ValidationTime);
-            Assert.Single(video.VideoManifest);
+            Assert.Equal(2, video.VideoManifest.Count());
             Assert.Contains(video.VideoManifest,
                 i => i.ManifestHash == manifestHash);
+            Assert.Contains(video.VideoManifest,
+                i => i.ManifestHash == secondManifestHash);
             Assert.Equal(manifestHash, video.ManifestHash.Hash);
         }
 

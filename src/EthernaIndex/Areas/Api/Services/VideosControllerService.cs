@@ -64,17 +64,20 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
                 throw new DuplicatedManifestHashException(videoInput.ManifestHash);
             }
 
+            // Create videoManifest.
             var videoManifest = new VideoManifest(videoInput.ManifestHash);
             await indexContext.VideoManifest.CreateAsync(videoManifest);
 
+            // Create Video.
             video = new Video(
                 videoInput.EncryptionKey,
                 videoInput.EncryptionType,
-                videoInput.ManifestHash,
+                videoManifest,
                 user);
 
             await indexContext.Videos.CreateAsync(video);
 
+            // Create Validation Manifest Task.
             backgroundJobClient.Create<MetadataVideoValidatorTask>(
                 task => task.RunAsync(video.Id, videoInput.ManifestHash),
                 new EnqueuedState(Queues.METADATA_VIDEO_VALIDATOR));
@@ -136,9 +139,15 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             if (!video.Owner.Address.IsTheSameAddress(address))
                 throw new UnauthorizedAccessException("User is not owner of the video");
 
-            // Action.
-            video.SetManifestHash(new SwarmContentHash(newHash));
+            // Create videoManifest.
+            var videoManifest = new VideoManifest(newHash);
+            await indexContext.VideoManifest.CreateAsync(videoManifest);
             await indexContext.SaveChangesAsync();
+
+            // Create Validation Manifest Task.
+            backgroundJobClient.Create<MetadataVideoValidatorTask>(
+                task => task.RunAsync(video.Id, newHash),
+                new EnqueuedState(Queues.METADATA_VIDEO_VALIDATOR));
 
             return new VideoDto(video);
         }

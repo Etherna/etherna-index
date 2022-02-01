@@ -31,13 +31,18 @@ namespace Etherna.EthernaIndex.Domain.Models
         public Video(
             string? encryptionKey,
             EncryptionType encryptionType,
-            string manifestHash,
+            VideoManifest videoManifest,
             User owner)
         {
+            if (videoManifest is null)
+                throw new ArgumentNullException(nameof(videoManifest));
+
             SetEncryptionKey(encryptionKey, encryptionType);
-            SetManifestHash(new SwarmContentHash(manifestHash ?? throw new ArgumentNullException(nameof(manifestHash))));
             Owner = owner ?? throw new ArgumentNullException(nameof(owner));
             Owner.AddVideo(this);
+            ManifestHash = new SwarmContentHash(videoManifest.ManifestHash);
+
+            _videoManifest.Add(new VideoManifest(videoManifest.ManifestHash));
         }
 
         protected Video() { }
@@ -68,12 +73,14 @@ namespace Etherna.EthernaIndex.Domain.Models
         {
             var validManifest = _videoManifest.Where(i => i.IsValid.HasValue && i.IsValid.Value)
                                 .OrderByDescending(i => i.ValidationTime)
-                                .FirstOrDefault();
+                                .FirstOrDefault(); //last valid manifest
 
-            if (validManifest is not null)
-                return validManifest;
+            if (validManifest is null)
+                validManifest = _videoManifest.Where(i => !i.ValidationTime.HasValue).First(); //manifest with validation in progress
+            if (validManifest is null)
+                validManifest = _videoManifest.OrderByDescending(i => i.ValidationTime).First(); //last invalid manifest
 
-            return _videoManifest.OrderByDescending(i => i.ValidationTime).First();
+            return validManifest;
         }
 
         [PropertyAlterer(nameof(EncryptionKey))]
@@ -100,28 +107,31 @@ namespace Etherna.EthernaIndex.Domain.Models
             EncryptionType = encryptionType;
         }
 
-        [PropertyAlterer(nameof(VideoManifest))]
-        public void AddManifest(VideoManifest videoManifest)
+        [PropertyAlterer(nameof(ManifestHash))]
+        public void UpdateManifest(VideoManifest videoManifest)
         {
             if (videoManifest is null)
                 throw new ArgumentNullException(nameof(videoManifest));
-            if (_videoManifest.Any(i => i.ManifestHash == videoManifest.ManifestHash))
+
+            var manifestHash = new SwarmContentHash(videoManifest.ManifestHash); // also used to validate the format
+
+            var isDuplicate = VideoManifest.Any(i => i.ManifestHash == videoManifest.ManifestHash);
+            if (isDuplicate &&
+                VideoManifest.Count() != 1) // exclude the first manifest create by constrcutor
             {
-                var ex = new InvalidOperationException("AddManifest duplicate");
+                var ex = new InvalidOperationException("Duplicate manifest hash");
                 ex.Data.Add("ManifestHash", videoManifest.ManifestHash);
                 throw ex;
             }
 
-            _videoManifest.Add(videoManifest);
+            if (!isDuplicate)
+                _videoManifest.Add(new VideoManifest(videoManifest.ManifestHash)); //prevent duplicate of first manifest
+
             if (videoManifest.IsValid.HasValue &&
                 videoManifest.IsValid.Value)
-                SetManifestHash(new SwarmContentHash(videoManifest.ManifestHash));
-        }
-
-        [PropertyAlterer(nameof(ManifestHash))]
-        public void SetManifestHash(SwarmContentHash manifestHash)
-        {
-            ManifestHash = manifestHash ?? throw new ArgumentNullException(nameof(manifestHash));
+            {
+                ManifestHash = manifestHash;
+            }
         }
     }
 }

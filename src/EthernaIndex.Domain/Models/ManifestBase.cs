@@ -45,7 +45,7 @@ namespace Etherna.EthernaIndex.Domain.Models
         }
         public virtual bool? IsValid { get; private set; }
         public virtual string ManifestHash { get; private set; }
-        public DateTime? ValidationTime { get; private set; }
+        public virtual DateTime? ValidationTime { get; private set; }
 
         // Methods.
         [PropertyAlterer(nameof(ErrorValidationResults))]

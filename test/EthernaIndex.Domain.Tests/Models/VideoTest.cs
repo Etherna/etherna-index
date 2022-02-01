@@ -15,6 +15,7 @@
 using Etherna.EthernaIndex.Domain.Models.Manifest;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Xunit;
 
 namespace Etherna.EthernaIndex.Domain.Models
@@ -24,7 +25,8 @@ namespace Etherna.EthernaIndex.Domain.Models
         // Fields.
         readonly string address = "0x300a31dBAB42863F4b0bEa3E03d0aa89D47DB3f0";
         readonly string encryptKey = "1d111a1d73fd8f28d71e6b03d2e42f44721db94b734c2edcfe6fcd48b76a74f1";
-        readonly string hash = "5d942a1d73fd8f28d71e6b03d2e42f44721db94b734c2edcfe6fcd48b76a74f9";
+        readonly string manifestHash = "5d942a1d73fd8f28d71e6b03d2e42f44721db94b734c2edcfe6fcd48b76a74f9";
+        readonly string secondManifestHash = "2b678a1d73fd8f28d71e6b03d2e42f44721db94b734c2edcfe6fcd48b76a74f9";
         readonly User owner;
         readonly Video video;
 
@@ -32,7 +34,7 @@ namespace Etherna.EthernaIndex.Domain.Models
         public VideoTest()
         {
             owner = new User(address);
-            video = new Video(encryptKey, EncryptionType.AES256, hash, owner);
+            video = new Video(encryptKey, EncryptionType.AES256, new VideoManifest(manifestHash), owner);
         }
 
         // Tests.
@@ -44,164 +46,50 @@ namespace Etherna.EthernaIndex.Domain.Models
             //Act
 
             //Assert
-            Assert.Equal(hash, video.ManifestHash.Hash);
+            Assert.Equal(manifestHash, video.ManifestHash.Hash);
             Assert.Equal(encryptKey, video.EncryptionKey);
             Assert.Equal(0, video.TotDownvotes);
             Assert.Equal(0, video.TotDownvotes);
             Assert.Equal(EncryptionType.AES256, video.EncryptionType);
-            Assert.Equal(hash, video.ManifestHash.Hash);
+            Assert.Equal(manifestHash, video.ManifestHash.Hash);
             Assert.NotNull(video.Owner);
             Assert.Equal(address, video.Owner.Address);
-            Assert.NotNull(video.GetManifest());
-            Assert.Equal(hash, video.GetManifest().ManifestHash);
-        }
-
-        [Fact]
-        public void Create_Manifest_WithDefaultValue()
-        {
-            //Arrange
-
-            //Act
             var manifest = video.GetManifest();
-
-
-            //Assert
-            Assert.Equal(hash, manifest.ManifestHash);
+            Assert.NotNull(manifest);
+            Assert.Equal(manifestHash, manifest.ManifestHash);
             Assert.Null(manifest.IsValid);
             Assert.Null(manifest.ValidationTime);
         }
 
         [Fact]
-        public void FailedValidation_SetValidationFields()
+        public void UpdateVideo_AddOnlyManifestToValidate()
         {
             //Arrange
-            var manifest = video.GetManifest();
 
             //Act
-            manifest.FailedValidation(new List<ErrorDetail> {
-                { new ErrorDetail(ValidationErrorType.Generic, "Generic Error") },
-                { new ErrorDetail(ValidationErrorType.InvalidVideoSource, "Invalid Source Video") }
-            });
-
+            video.UpdateManifest(new VideoManifest(secondManifestHash));
 
             //Assert
-            Assert.False(manifest.IsValid);
-            Assert.Contains(manifest.ErrorValidationResults,
-                i => i.ErrorNumber == ValidationErrorType.Generic &&
-                    i.ErrorMessage.Equals("Generic Error", StringComparison.Ordinal));
-            Assert.Contains(manifest.ErrorValidationResults,
-                i => i.ErrorNumber == ValidationErrorType.InvalidVideoSource &&
-                    i.ErrorMessage.Equals("Invalid Source Video", StringComparison.Ordinal));
-            Assert.NotNull(manifest.ValidationTime);
-        }
-
-        [Fact]
-        public void SuccessfulValidation_SetValidationFields()
-        {
-            //Arrange
+            Assert.Equal(manifestHash, video.ManifestHash.Hash);
+            Assert.Equal(encryptKey, video.EncryptionKey);
+            Assert.Equal(0, video.TotDownvotes);
+            Assert.Equal(0, video.TotDownvotes);
+            Assert.Equal(EncryptionType.AES256, video.EncryptionType);
+            Assert.Equal(manifestHash, video.ManifestHash.Hash);
+            Assert.NotNull(video.Owner);
+            Assert.Equal(address, video.Owner.Address);
+            Assert.Equal(2, video.VideoManifest.Count());
+            Assert.Contains(video.VideoManifest,
+                i => i.ManifestHash == manifestHash);
+            Assert.Contains(video.VideoManifest,
+                i => i.ManifestHash == secondManifestHash);
             var manifest = video.GetManifest();
-
-            //Act
-            manifest.SuccessfulValidation(
-                "DescTest",
-                1,
-                "FeddTopicTest",
-                "OriginalTest",
-                "TitleTest",
-                new SwarmImageRaw(
-                    1,
-                    "BlurTst",
-                    new Dictionary<string, string> { { "1080", "Test1" }, { "720", "Test2" } }),
-                null);
-
-
-            //Assert
-            Assert.True(manifest.IsValid);
-            Assert.Empty(manifest.ErrorValidationResults);
-            Assert.NotNull(manifest.ValidationTime);
+            Assert.NotNull(manifest);
+            Assert.Equal(manifestHash, manifest.ManifestHash);
+            Assert.Null(manifest.IsValid);
+            Assert.Null(manifest.ValidationTime);
         }
 
-        [Fact]
-        public void SuccessfulValidation_SetMetadataFields()
-        {
-            //Arrange
-            var manifest = video.GetManifest();
-            var feed = "FeedTest";
-            var title = "FeddTopicTest";
-            var desc = "DescTest";
-            var original = "OriginalTest";
-            var duration = 1;
-            var videoSources = new List<VideoSource> { new VideoSource(1, "10801", "reff1", 4), new VideoSource(null, "321", "reff2", null) };
-            var blur = "BlurTst";
-            var aspectRatio = 1;
-            var source = new Dictionary<string, string> { { "1080", "Test1" }, { "720", "Test2" } };
 
-            //Act
-            manifest.SuccessfulValidation(
-                desc,
-                duration,
-                feed,
-                original,
-                title,
-                new SwarmImageRaw(aspectRatio, blur, source),
-                videoSources);
-
-
-            //Assert
-            Assert.Equal(feed, manifest.FeedTopicId);
-            Assert.Equal(title, manifest.Title);
-            Assert.Equal(desc, manifest.Description);
-            Assert.Equal(duration, manifest.Duration);
-            Assert.Equal(original, manifest.OriginalQuality);
-            Assert.Contains(manifest.Sources,
-               i => i.Bitrate == 1 &&
-                   i.Quality == "10801" &&
-                   i.Reference == "reff1" &&
-                   i.Size == 4);
-            Assert.Contains(manifest.Sources,
-               i => i.Bitrate == null &&
-                   i.Quality == "321" &&
-                   i.Reference == "reff2" &&
-                   i.Size == null);
-            Assert.NotNull(manifest.Thumbnail);
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
-            Assert.Equal(blur, manifest.Thumbnail.BlurHash);
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
-            Assert.Equal(aspectRatio, manifest.Thumbnail.AspectRatio);
-            Assert.NotNull(manifest.Thumbnail.Sources);
-            Assert.Contains(manifest.Thumbnail.Sources,
-                i => i.Key == "1080" &&
-                    i.Value == "Test1");
-            Assert.Contains(manifest.Thumbnail.Sources,
-                i => i.Key == "720" &&
-                    i.Value == "Test2");
-        }
-
-        [Fact]
-        public void SuccessfulValidation_SetNullSwarmImageRaw()
-        {
-            //Arrange
-            var manifest = video.GetManifest();
-            var feed = "FeedTest";
-            var title = "FeddTopicTest";
-            var desc = "DescTest";
-            var original = "OriginalTest";
-            var duration = 1;
-            var videoSources = new List<VideoSource> { new VideoSource(1, "10801", "reff1", 4), new VideoSource(null, "321", "reff2", null) };
-
-            //Act
-            manifest.SuccessfulValidation(
-                desc,
-                duration,
-                feed,
-                original,
-                title,
-                null,
-                videoSources);
-
-
-            //Assert
-            Assert.Null(manifest.Thumbnail);
-        }
     }
 }

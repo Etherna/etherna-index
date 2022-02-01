@@ -32,7 +32,7 @@ namespace Etherna.EthernaIndex.Domain.Models
         public UserTest()
         {
             user = new User(UserAddress);
-            video = new Video(null, EncryptionType.Plain, videoManifestHash, user);
+            video = new Video(null, EncryptionType.Plain, new VideoManifest(videoManifestHash), user);
         }
 
         // Tests.
