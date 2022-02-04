@@ -47,7 +47,7 @@ namespace Etherna.EthernaIndex.Services.Tasks
             var validationErrors = new List<ErrorDetail>();
 
             // Get manifest.
-            var videoManifest = await indexContext.VideoManifest.FindOneAsync(u => u.ManifestHash == manifestHash);
+            var videoManifest = await indexContext.VideoManifests.FindOneAsync(u => u.ManifestHash.Hash == manifestHash);
             if (videoManifest is null)
             {
                 var ex = new InvalidOperationException("Manifest not found");
@@ -70,6 +70,7 @@ namespace Etherna.EthernaIndex.Services.Tasks
             {
                 validationErrors.Add(new ErrorDetail(ValidationErrorType.JsonConvert, ex.Message));
                 videoManifest.FailedValidation(validationErrors);
+                video.AddManifest(videoManifest);
                 await indexContext.SaveChangesAsync().ConfigureAwait(false);
                 return;
             }
@@ -79,6 +80,7 @@ namespace Etherna.EthernaIndex.Services.Tasks
             {
                 validationErrors.Add(new ErrorDetail(ValidationErrorType.Generic, ex.Message));
                 videoManifest.FailedValidation(validationErrors);
+                video.AddManifest(videoManifest);
                 await indexContext.SaveChangesAsync().ConfigureAwait(false);
                 return;
             }
@@ -121,7 +123,7 @@ namespace Etherna.EthernaIndex.Services.Tasks
                     swarmImageRaw,
                     videoSources);
             }
-            video.UpdateManifest(videoManifest);
+            video.AddManifest(videoManifest);
 
             // Complete task.
             await indexContext.SaveChangesAsync().ConfigureAwait(false);

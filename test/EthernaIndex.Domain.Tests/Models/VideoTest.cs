@@ -34,7 +34,7 @@ namespace Etherna.EthernaIndex.Domain.Models
         public VideoTest()
         {
             owner = new User(address);
-            video = new Video(encryptKey, EncryptionType.AES256, new VideoManifest(manifestHash), owner);
+            video = new Video(encryptKey, EncryptionType.AES256, owner);
         }
 
         // Tests.
@@ -46,50 +46,80 @@ namespace Etherna.EthernaIndex.Domain.Models
             //Act
 
             //Assert
-            Assert.Equal(manifestHash, video.ManifestHash.Hash);
             Assert.Equal(encryptKey, video.EncryptionKey);
             Assert.Equal(0, video.TotDownvotes);
             Assert.Equal(0, video.TotDownvotes);
             Assert.Equal(EncryptionType.AES256, video.EncryptionType);
-            Assert.Equal(manifestHash, video.ManifestHash.Hash);
             Assert.NotNull(video.Owner);
             Assert.Equal(address, video.Owner.Address);
-            var manifest = video.GetManifest();
-            Assert.NotNull(manifest);
-            Assert.Equal(manifestHash, manifest.ManifestHash);
-            Assert.Null(manifest.IsValid);
-            Assert.Null(manifest.ValidationTime);
+            Assert.Empty(video.VideoManifest);
         }
 
         [Fact]
-        public void UpdateVideo_AddOnlyManifestToValidate()
+        public void AddVideo_ExceptionWhenNotValidated()
         {
             //Arrange
+            var videoManifest = new VideoManifest(secondManifestHash);
 
             //Act
-            video.UpdateManifest(new VideoManifest(secondManifestHash));
-
-            //Assert
-            Assert.Equal(manifestHash, video.ManifestHash.Hash);
-            Assert.Equal(encryptKey, video.EncryptionKey);
-            Assert.Equal(0, video.TotDownvotes);
-            Assert.Equal(0, video.TotDownvotes);
-            Assert.Equal(EncryptionType.AES256, video.EncryptionType);
-            Assert.Equal(manifestHash, video.ManifestHash.Hash);
-            Assert.NotNull(video.Owner);
-            Assert.Equal(address, video.Owner.Address);
-            Assert.Equal(2, video.VideoManifest.Count());
-            Assert.Contains(video.VideoManifest,
-                i => i.ManifestHash == manifestHash);
-            Assert.Contains(video.VideoManifest,
-                i => i.ManifestHash == secondManifestHash);
-            var manifest = video.GetManifest();
-            Assert.NotNull(manifest);
-            Assert.Equal(manifestHash, manifest.ManifestHash);
-            Assert.Null(manifest.IsValid);
-            Assert.Null(manifest.ValidationTime);
+            Assert.Throws<InvalidOperationException>(() => video.AddManifest(videoManifest));
         }
 
+        [Fact]
+        public void AddVideo_ExeptionWhenDuplicated()
+        {
+            var videoManifest = CreateManifest(secondManifestHash, true);
+            var duplicatedVideoManifest = CreateManifest(secondManifestHash, true);
+            video.AddManifest(videoManifest);
 
+            //Act
+            Assert.Throws<InvalidOperationException>(() => video.AddManifest(duplicatedVideoManifest));
+        }
+
+        [Fact]
+        public void AddVideo_WhenIsValidated()
+        {
+            //Arrange
+            var videoManifestValid = CreateManifest(manifestHash, true);
+            var videoManifestNotValid = CreateManifest(secondManifestHash, false);
+
+            //Act
+            video.AddManifest(videoManifestValid);
+            video.AddManifest(videoManifestNotValid);
+
+            //Assert
+            Assert.Equal(2, video.VideoManifest.Count());
+            Assert.Contains(video.VideoManifest,
+                i => i.ManifestHash.Hash == manifestHash);
+            Assert.Contains(video.VideoManifest,
+                i => i.ManifestHash.Hash == secondManifestHash);
+        }
+
+        
+
+        private VideoManifest CreateManifest(string hash, bool valid)
+        {
+            var videoManifest = new VideoManifest(hash);
+            var feed = "FeedTest";
+            var title = "FeddTopicTest";
+            var desc = "DescTest";
+            var original = "OriginalTest";
+            var duration = 1;
+            var videoSources = new List<VideoSource> { new VideoSource(1, "10801", "reff1", 4), new VideoSource(null, "321", "reff2", null) };
+
+            if (valid)
+                videoManifest.SuccessfulValidation(
+                    desc,
+                    duration,
+                    feed,
+                    original,
+                    title,
+                    null,
+                    videoSources);
+            else
+                videoManifest.FailedValidation(new List<ErrorDetail> { new ErrorDetail(ValidationErrorType.Generic, "test") });
+
+            return videoManifest;
+        }
     }
 }

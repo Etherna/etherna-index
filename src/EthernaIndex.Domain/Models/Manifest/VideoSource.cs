@@ -29,14 +29,14 @@ namespace Etherna.EthernaIndex.Domain.Models.Manifest
             Size = size;
         }
 
-        protected VideoSource()
-        {
-        }
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        protected VideoSource() { }
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         // Properties.
-        public int? Bitrate { get; set; }
-        public string Quality { get; set; } = default!;
-        public string Reference { get; set; } = default!;
-        public int? Size { get; set; }
+        public virtual int? Bitrate { get; set; }
+        public virtual string Quality { get; set; }
+        public virtual string Reference { get; set; }
+        public virtual int? Size { get; set; }
     }
 }

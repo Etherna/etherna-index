@@ -36,8 +36,8 @@ namespace Etherna.EthernaIndex.Domain.Models.Manifest
         protected SwarmImageRaw() { }
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
-        public int AspectRatio { get; set; }
-        public string BlurHash { get; set; }
+        public virtual int AspectRatio { get; set; }
+        public virtual string BlurHash { get; set; }
         public virtual IReadOnlyDictionary<string, string> Sources
         {
             get => _sources;

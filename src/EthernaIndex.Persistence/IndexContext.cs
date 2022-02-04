@@ -48,7 +48,7 @@ namespace Etherna.EthernaIndex.Persistence
             {
                 IndexBuilders = new[]
                 {
-                    (Builders<Comment>.IndexKeys.Ascending(c => c.Video.ManifestHash.Hash), new CreateIndexOptions<Comment>())
+                    (Builders<Comment>.IndexKeys.Ascending(c => c.Video.Id), new CreateIndexOptions<Comment>())
                 }
             });
         public ICollectionRepository<User, string> Users { get; } = new DomainCollectionRepository<User, string>(
@@ -65,15 +65,15 @@ namespace Etherna.EthernaIndex.Persistence
             {
                 IndexBuilders = new[]
                 {
-                    (Builders<Video>.IndexKeys.Ascending(c => c.ManifestHash.Hash), new CreateIndexOptions<Video> { Unique = true })
+                    (Builders<Video>.IndexKeys.Ascending(c => c.Id), new CreateIndexOptions<Video> { Unique = true })
                 }
             });
-        public ICollectionRepository<VideoManifest, string> VideoManifest { get; } = new DomainCollectionRepository<VideoManifest, string>(
-            new CollectionRepositoryOptions<VideoManifest>("videoManifest")
+        public ICollectionRepository<VideoManifest, string> VideoManifests { get; } = new DomainCollectionRepository<VideoManifest, string>(
+            new CollectionRepositoryOptions<VideoManifest>("videoManifests")
             {
                 IndexBuilders = new[]
                 {
-                    (Builders<VideoManifest>.IndexKeys.Ascending(c => c.ManifestHash), new CreateIndexOptions<VideoManifest> { Unique = true })
+                    (Builders<VideoManifest>.IndexKeys.Ascending(c => c.ManifestHash.Hash), new CreateIndexOptions<VideoManifest> { Unique = true })
                 }
             });
         public ICollectionRepository<VideoVote, string> Votes { get; } = new DomainCollectionRepository<VideoVote, string>(
@@ -82,8 +82,8 @@ namespace Etherna.EthernaIndex.Persistence
                 IndexBuilders = new[]
                 {
                     (Builders<VideoVote>.IndexKeys.Ascending(v => v.Owner.Address)
-                                                  .Ascending(v => v.Video.ManifestHash.Hash), new CreateIndexOptions<VideoVote>{ Unique = true }),
-                    (Builders<VideoVote>.IndexKeys.Ascending(v => v.Video.ManifestHash.Hash), new CreateIndexOptions<VideoVote>()),
+                                                  .Ascending(v => v.Video.Id), new CreateIndexOptions<VideoVote>{ Unique = true }),
+                    (Builders<VideoVote>.IndexKeys.Ascending(v => v.Video.Id), new CreateIndexOptions<VideoVote>()),
                     (Builders<VideoVote>.IndexKeys.Ascending(v => v.Value), new CreateIndexOptions<VideoVote>()),
                 }
             });

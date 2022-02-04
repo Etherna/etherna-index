@@ -44,6 +44,12 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                     mm.MapIdMember(m => m.Id);
                     mm.IdMemberMap.SetSerializer(new StringSerializer(BsonType.ObjectId));
                 });
+                config.AddModelMapsSchema<ManifestBase>("fa2c6046-6b74-41bc-bba6-a3c98b501ec6", mm => 
+                { 
+                    //mm.MapIdMember(m => m.ManifestHash.Hash);
+                    mm.MapMember(m => m.IsValid);
+                    mm.MapMember(m => m.ValidationTime);
+                });
                 config.AddModelMapsSchema<VideoManifest>("f7966611-14aa-4f18-92f4-8697b4927fb6", mm => { });
             });
     }

@@ -30,17 +30,17 @@ namespace Etherna.EthernaIndex.Domain.Models
         protected VideoManifest() { }
 
         // Properties.
-        public string? FeedTopicId { get; protected set; }
-        public string? Description { get; protected set; }
-        public int? Duration { get; protected set; }
-        public string? OriginalQuality { get; protected set; }
+        public virtual string? FeedTopicId { get; protected set; }
+        public virtual string? Description { get; protected set; }
+        public virtual int? Duration { get; protected set; }
+        public virtual string? OriginalQuality { get; protected set; }
         public virtual IEnumerable<VideoSource>? Sources
         {
             get => _sources;
             protected set => _sources = new List<VideoSource>(value ?? new List<VideoSource>());
         }
         public string? Title { get; protected set; }
-        public SwarmImageRaw? Thumbnail { get; protected set; }
+        public virtual SwarmImageRaw? Thumbnail { get; protected set; }
 
         // Methods.
         [PropertyAlterer(nameof(Description))]

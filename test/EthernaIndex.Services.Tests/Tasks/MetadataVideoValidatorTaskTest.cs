@@ -46,14 +46,14 @@ namespace EthernaIndex.Services.Tests.Tasks
         public MetadataVideoValidatorTaskTest()
         {
             var owner = new User(address);
-            video = new Video(encryptKey, EncryptionType.AES256, new VideoManifest(manifestHash), owner);
+            video = new Video(encryptKey, EncryptionType.AES256, owner);
             videoManifest = new VideoManifest(manifestHash);
 
             swarmService = new Mock<ISwarmService>();
 
             // Mock Db Data.
             indexContext = new Mock<IIndexContext>();
-            indexContext.Setup(_ => _.VideoManifest.FindOneAsync(It.IsAny<Expression<Func<VideoManifest, bool>>>(), It.IsAny<CancellationToken>()))
+            indexContext.Setup(_ => _.VideoManifests.FindOneAsync(It.IsAny<Expression<Func<VideoManifest, bool>>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(videoManifest);
             indexContext.Setup(_ => _.Videos.FindOneAsync(It.IsAny<Expression<Func<Video, bool>>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(video);
@@ -112,7 +112,9 @@ namespace EthernaIndex.Services.Tests.Tasks
                     i.Quality == "360" &&
                     i.Reference == "Ref360" &&
                     i.Size == null);
-            Assert.Equal(manifestHash, video.ManifestHash.Hash);
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+            Assert.Equal(manifestHash, video.GetManifest().ManifestHash.Hash);
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
         }
 
         [Fact]
@@ -145,7 +147,9 @@ namespace EthernaIndex.Services.Tests.Tasks
             Assert.Contains(videoManifest.ErrorValidationResults,
                 i => i.ErrorMessage == "MissingTitle" &&
                     i.ErrorNumber == ValidationErrorType.MissingTitle);
-            Assert.Equal(manifestHash, video.ManifestHash.Hash);
+            Assert.Contains(video.VideoManifest,
+                i => i.ManifestHash.Hash == manifestHash);
+            Assert.Null(video.GetManifest());
         }
 
         [Fact]
@@ -165,7 +169,9 @@ namespace EthernaIndex.Services.Tests.Tasks
             Assert.Contains(videoManifest.ErrorValidationResults,
                 i => i.ErrorMessage == "Unable to cast json" &&
                     i.ErrorNumber == ValidationErrorType.JsonConvert);
-            Assert.Equal(manifestHash, video.ManifestHash.Hash);
+            Assert.Contains(video.VideoManifest,
+                i => i.ManifestHash.Hash == manifestHash);
+            Assert.Null(video.GetManifest());
         }
 
         [Fact]
@@ -194,7 +200,9 @@ namespace EthernaIndex.Services.Tests.Tasks
             Assert.Contains(videoManifest.ErrorValidationResults,
                 i => i.ErrorMessage == "Missing sources" &&
                     i.ErrorNumber == ValidationErrorType.InvalidVideoSource);
-            Assert.Equal(manifestHash, video.ManifestHash.Hash);
+            Assert.Contains(video.VideoManifest,
+                i => i.ManifestHash.Hash == manifestHash);
+            Assert.Null(video.GetManifest());
         }
 
         [Fact]
@@ -223,7 +231,9 @@ namespace EthernaIndex.Services.Tests.Tasks
             Assert.Contains(videoManifest.ErrorValidationResults,
                 i => i.ErrorMessage == "Missing sources" &&
                     i.ErrorNumber == ValidationErrorType.InvalidVideoSource);
-            Assert.Equal(manifestHash, video.ManifestHash.Hash);
+            Assert.Contains(video.VideoManifest,
+                i => i.ManifestHash.Hash == manifestHash);
+            Assert.Null(video.GetManifest());
         }
 
         [Fact]
@@ -257,7 +267,9 @@ namespace EthernaIndex.Services.Tests.Tasks
             Assert.Contains(videoManifest.ErrorValidationResults,
                 i => i.ErrorMessage == "[720] empty reference" &&
                     i.ErrorNumber == ValidationErrorType.InvalidVideoSource);
-            Assert.Equal(manifestHash, video.ManifestHash.Hash);
+            Assert.Contains(video.VideoManifest,
+                i => i.ManifestHash.Hash == manifestHash);
+            Assert.Null(video.GetManifest());
         }
 
         [Fact]
@@ -291,7 +303,9 @@ namespace EthernaIndex.Services.Tests.Tasks
             Assert.Contains(videoManifest.ErrorValidationResults,
                 i => i.ErrorMessage == "empty quality" &&
                     i.ErrorNumber == ValidationErrorType.InvalidVideoSource);
-            Assert.Equal(manifestHash, video.ManifestHash.Hash);
+            Assert.Contains(video.VideoManifest,
+                i => i.ManifestHash.Hash == manifestHash);
+            Assert.Null(video.GetManifest());
         }
 
         [Fact]
@@ -323,8 +337,10 @@ namespace EthernaIndex.Services.Tests.Tasks
             Assert.True(videoManifest.IsValid);
             Assert.NotNull(videoManifest.ValidationTime);
             Assert.Contains(video.VideoManifest,
-                i => i.ManifestHash == manifestHash);
-            Assert.Equal(manifestHash, video.ManifestHash.Hash);
+                i => i.ManifestHash.Hash == manifestHash);
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+            Assert.Equal(manifestHash, video.GetManifest().ManifestHash.Hash);
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
         }
 
         [Fact]
@@ -355,8 +371,8 @@ namespace EthernaIndex.Services.Tests.Tasks
             Assert.False(videoManifest.IsValid);
             Assert.NotNull(videoManifest.ValidationTime);
             Assert.Contains(video.VideoManifest,
-                i => i.ManifestHash == manifestHash);
-            Assert.Equal(manifestHash, video.ManifestHash.Hash);
+                i => i.ManifestHash.Hash == manifestHash);
+            Assert.Null(video.GetManifest());
         }
 
         [Fact]
@@ -397,7 +413,7 @@ namespace EthernaIndex.Services.Tests.Tasks
             };
             var secondVideoManifest = new VideoManifest(secondManifestHash);
             var secondIndexContext = new Mock<IIndexContext>();
-            secondIndexContext.Setup(_ => _.VideoManifest.FindOneAsync(It.IsAny<Expression<Func<VideoManifest, bool>>>(), It.IsAny<CancellationToken>()))
+            secondIndexContext.Setup(_ => _.VideoManifests.FindOneAsync(It.IsAny<Expression<Func<VideoManifest, bool>>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(secondVideoManifest);
             secondIndexContext.Setup(_ => _.Videos.FindOneAsync(It.IsAny<Expression<Func<Video, bool>>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(video);
@@ -415,10 +431,12 @@ namespace EthernaIndex.Services.Tests.Tasks
             Assert.NotNull(secondVideoManifest.ValidationTime);
             Assert.Equal(2, video.VideoManifest.Count());
             Assert.Contains(video.VideoManifest,
-                i => i.ManifestHash == manifestHash);
+                i => i.ManifestHash.Hash == manifestHash);
             Assert.Contains(video.VideoManifest,
-                i => i.ManifestHash == secondManifestHash);
-            Assert.Equal(secondManifestHash, video.ManifestHash.Hash);
+                i => i.ManifestHash.Hash == secondManifestHash);
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+            Assert.Equal(secondManifestHash, video.GetManifest().ManifestHash.Hash);
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
         }
 
         [Fact]
@@ -458,7 +476,7 @@ namespace EthernaIndex.Services.Tests.Tasks
             };
             var secondVideoManifest = new VideoManifest(secondManifestHash);
             var secondIndexContext = new Mock<IIndexContext>();
-            secondIndexContext.Setup(_ => _.VideoManifest.FindOneAsync(It.IsAny<Expression<Func<VideoManifest, bool>>>(), It.IsAny<CancellationToken>()))
+            secondIndexContext.Setup(_ => _.VideoManifests.FindOneAsync(It.IsAny<Expression<Func<VideoManifest, bool>>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(secondVideoManifest);
             secondIndexContext.Setup(_ => _.Videos.FindOneAsync(It.IsAny<Expression<Func<Video, bool>>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(video);
@@ -476,10 +494,12 @@ namespace EthernaIndex.Services.Tests.Tasks
             Assert.NotNull(secondVideoManifest.ValidationTime);
             Assert.Equal(2, video.VideoManifest.Count());
             Assert.Contains(video.VideoManifest,
-                i => i.ManifestHash == manifestHash);
+                i => i.ManifestHash.Hash == manifestHash);
             Assert.Contains(video.VideoManifest,
-                i => i.ManifestHash == secondManifestHash);
-            Assert.Equal(manifestHash, video.ManifestHash.Hash);
+                i => i.ManifestHash.Hash == secondManifestHash);
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+            Assert.Equal(manifestHash, video.GetManifest().ManifestHash.Hash);
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
         }
 
 

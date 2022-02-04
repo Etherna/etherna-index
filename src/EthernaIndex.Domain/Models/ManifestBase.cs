@@ -13,6 +13,7 @@
 //   limitations under the License.
 
 using Etherna.EthernaIndex.Domain.Models.Manifest;
+using Etherna.EthernaIndex.Domain.Models.Swarm;
 using Etherna.MongODM.Core.Attributes;
 using System;
 using System.Collections.Generic;
@@ -27,15 +28,10 @@ namespace Etherna.EthernaIndex.Domain.Models
         // Constructors.
         protected ManifestBase(string manifestHash)
         {
-            if (manifestHash is null)
-                throw new ArgumentNullException(nameof(manifestHash));
-
-            ManifestHash = manifestHash;
+            ManifestHash = new SwarmContentHash(manifestHash);
         }
 
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         protected ManifestBase() { }
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         // Properties.
         public virtual IEnumerable<ErrorDetail> ErrorValidationResults
@@ -44,7 +40,7 @@ namespace Etherna.EthernaIndex.Domain.Models
             protected set => _errorValidationResults = new List<ErrorDetail>(value ?? Array.Empty<ErrorDetail>());
         }
         public virtual bool? IsValid { get; private set; }
-        public virtual string ManifestHash { get; private set; }
+        public virtual SwarmContentHash ManifestHash { get; protected set; } = default!;
         public virtual DateTime? ValidationTime { get; private set; }
 
         // Methods.

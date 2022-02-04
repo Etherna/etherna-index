@@ -25,30 +25,20 @@ namespace Etherna.EthernaIndex.Domain.Models
     public class VideoManifestTest
     {
         // Fields.
-        readonly string address = "0x300a31dBAB42863F4b0bEa3E03d0aa89D47DB3f0";
-        readonly string encryptKey = "1d111a1d73fd8f28d71e6b03d2e42f44721db94b734c2edcfe6fcd48b76a74f1";
         readonly string hash = "5d942a1d73fd8f28d71e6b03d2e42f44721db94b734c2edcfe6fcd48b76a74f9";
-        readonly User owner;
-        readonly Video video;
+        readonly VideoManifest manifest;
 
         // Constructors.
         public VideoManifestTest()
         {
-            owner = new User(address);
-            video = new Video(encryptKey, EncryptionType.AES256, new VideoManifest(hash), owner);
+            manifest = new VideoManifest(hash);
         }
 
         [Fact]
         public void Create_Manifest_WithDefaultValue()
         {
-            //Arrange
-
-            //Act
-            var manifest = video.GetManifest();
-
-
             //Assert
-            Assert.Equal(hash, manifest.ManifestHash);
+            Assert.Equal(hash, manifest.ManifestHash.Hash);
             Assert.Null(manifest.IsValid);
             Assert.Null(manifest.ValidationTime);
         }
@@ -56,9 +46,6 @@ namespace Etherna.EthernaIndex.Domain.Models
         [Fact]
         public void FailedValidation_SetValidationFields()
         {
-            //Arrange
-            var manifest = video.GetManifest();
-
             //Act
             manifest.FailedValidation(new List<ErrorDetail> {
                 { new ErrorDetail(ValidationErrorType.Generic, "Generic Error") },
@@ -80,9 +67,6 @@ namespace Etherna.EthernaIndex.Domain.Models
         [Fact]
         public void SuccessfulValidation_SetValidationFields()
         {
-            //Arrange
-            var manifest = video.GetManifest();
-
             //Act
             manifest.SuccessfulValidation(
                 "DescTest",
@@ -107,7 +91,6 @@ namespace Etherna.EthernaIndex.Domain.Models
         public void SuccessfulValidation_SetMetadataFields()
         {
             //Arrange
-            var manifest = video.GetManifest();
             var feed = "FeedTest";
             var title = "FeddTopicTest";
             var desc = "DescTest";
@@ -163,7 +146,6 @@ namespace Etherna.EthernaIndex.Domain.Models
         public void SuccessfulValidation_SetNullSwarmImageRaw()
         {
             //Arrange
-            var manifest = video.GetManifest();
             var feed = "FeedTest";
             var title = "FeddTopicTest";
             var desc = "DescTest";

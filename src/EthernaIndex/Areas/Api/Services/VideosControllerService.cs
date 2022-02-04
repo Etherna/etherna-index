@@ -43,13 +43,13 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
 
         // Constructors.
         public VideosControllerService(
+            IBackgroundJobClient backgroundJobClient,
             IHttpContextAccessor httpContextAccessor,
-            IIndexContext indexContext,
-            IBackgroundJobClient backgroundJobClient)
+            IIndexContext indexContext)
         {
+            this.backgroundJobClient = backgroundJobClient;
             this.httpContextAccessor = httpContextAccessor;
             this.indexContext = indexContext;
-            this.backgroundJobClient = backgroundJobClient;
         }
 
         // Methods.
@@ -57,22 +57,21 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         {
             var address = httpContextAccessor.HttpContext!.User.GetEtherAddress();
             var user = await indexContext.Users.FindOneAsync(c => c.Address == address);
-            var video = await indexContext.Videos.TryFindOneAsync(c => c.ManifestHash.Hash == videoInput.ManifestHash);
+            var videoManifest = await indexContext.VideoManifests.TryFindOneAsync(c => c.ManifestHash.Hash == videoInput.ManifestHash);
 
-            if (video is not null)
+            if (videoManifest is not null)
             {
                 throw new DuplicatedManifestHashException(videoInput.ManifestHash);
             }
 
             // Create videoManifest.
-            var videoManifest = new VideoManifest(videoInput.ManifestHash);
-            await indexContext.VideoManifest.CreateAsync(videoManifest);
+            videoManifest = new VideoManifest(videoInput.ManifestHash);
+            await indexContext.VideoManifests.CreateAsync(videoManifest);
 
             // Create Video.
-            video = new Video(
+            var video = new Video(
                 videoInput.EncryptionKey,
                 videoInput.EncryptionType,
-                videoManifest,
                 user);
 
             await indexContext.Videos.CreateAsync(video);
@@ -85,11 +84,11 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             return new VideoDto(video);
         }
 
-        public async Task<CommentDto> CreateCommentAsync(string hash, string text)
+        public async Task<CommentDto> CreateCommentAsync(string id, string text)
         {
             var address = httpContextAccessor.HttpContext!.User.GetEtherAddress();
             var user = await indexContext.Users.FindOneAsync(u => u.Address == address);
-            var video = await indexContext.Videos.FindOneAsync(v => v.ManifestHash.Hash == hash);
+            var video = await indexContext.Videos.FindOneAsync(v => v.Id == id);
 
             var comment = new Comment(user, text, video);
 
@@ -98,12 +97,12 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             return new CommentDto(comment);
         }
 
-        public async Task DeleteAsync(string hash)
+        public async Task DeleteAsync(string id)
         {
             // Get data.
             var address = httpContextAccessor.HttpContext!.User.GetEtherAddress();
             var video = await indexContext.Videos.QueryElementsAsync(elements =>
-                elements.FirstAsync(v => v.ManifestHash.Hash == hash));
+                elements.FirstAsync(v => v.Id == id));
 
             // Verify authz.
             if (!video.Owner.Address.IsTheSameAddress(address))
@@ -114,7 +113,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         }
 
         public async Task<VideoDto> FindByHashAsync(string hash) =>
-            new VideoDto(await indexContext.Videos.FindOneAsync(v => v.ManifestHash.Hash == hash));
+            new VideoDto(await indexContext.Videos.FindOneAsync(v => v.VideoManifest.Any(i=> i.ManifestHash.Hash == hash && i.IsValid == true)));
 
         public async Task<IEnumerable<VideoDto>> GetLastUploadedVideosAsync(int page, int take) =>
             (await indexContext.Videos.QueryElementsAsync(elements =>
@@ -122,18 +121,18 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
                         .ToListAsync()))
                 .Select(v => new VideoDto(v));
 
-        public async Task<IEnumerable<CommentDto>> GetVideoCommentsAsync(string hash, int page, int take) =>
+        public async Task<IEnumerable<CommentDto>> GetVideoCommentsAsync(string id, int page, int take) =>
             (await indexContext.Comments.QueryElementsAsync(elements =>
-                elements.Where(c => c.Video.ManifestHash.Hash == hash)
+                elements.Where(c => c.Video.Id == id)
                         .PaginateDescending(c => c.CreationDateTime, page, take)
                         .ToListAsync()))
                 .Select(c => new CommentDto(c));
 
-        public async Task<VideoDto> UpdateAsync(string oldHash, string newHash)
+        public async Task<VideoDto> UpdateAsync(string id, string newHash)
         {
             // Get data.
             var address = httpContextAccessor.HttpContext!.User.GetEtherAddress();
-            var video = await indexContext.Videos.FindOneAsync(v => v.ManifestHash.Hash == oldHash);
+            var video = await indexContext.Videos.FindOneAsync(v => v.Id == id);
 
             // Verify authz.
             if (!video.Owner.Address.IsTheSameAddress(address))
@@ -141,7 +140,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
 
             // Create videoManifest.
             var videoManifest = new VideoManifest(newHash);
-            await indexContext.VideoManifest.CreateAsync(videoManifest);
+            await indexContext.VideoManifests.CreateAsync(videoManifest);
             await indexContext.SaveChangesAsync();
 
             // Create Validation Manifest Task.
@@ -152,16 +151,16 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             return new VideoDto(video);
         }
 
-        public async Task VoteVideAsync(string hash, VoteValue value)
+        public async Task VoteVideAsync(string id, VoteValue value)
         {
             // Get data.
             var address = httpContextAccessor.HttpContext!.User.GetEtherAddress();
             var user = await indexContext.Users.FindOneAsync(u => u.Address == address);
-            var video = await indexContext.Videos.FindOneAsync(v => v.ManifestHash.Hash == hash);
+            var video = await indexContext.Videos.FindOneAsync(v => v.Id == id);
 
             // Remove prev votes of user on this content.
             var prevVotes = await indexContext.Votes.QueryElementsAsync(elements =>
-                elements.Where(v => v.Owner.Address == address && v.Video.ManifestHash.Hash == hash)
+                elements.Where(v => v.Owner.Address == address && v.Video.Id == id)
                         .ToListAsync());
             foreach (var prevVote in prevVotes)
                 await indexContext.Votes.DeleteAsync(prevVote);
@@ -172,10 +171,10 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
 
             // Update counters on video.
             var totDownvotes = await indexContext.Votes.QueryElementsAsync(elements =>
-                elements.Where(v => v.Video.ManifestHash.Hash == hash && v.Value == VoteValue.Down)
+                elements.Where(v => v.Video.Id == id && v.Value == VoteValue.Down)
                         .LongCountAsync());
             var totUpvotes = await indexContext.Votes.QueryElementsAsync(elements =>
-                elements.Where(v => v.Video.ManifestHash.Hash == hash && v.Value == VoteValue.Up)
+                elements.Where(v => v.Video.Id == id && v.Value == VoteValue.Up)
                         .LongCountAsync());
 
             video.TotDownvotes = totDownvotes;
