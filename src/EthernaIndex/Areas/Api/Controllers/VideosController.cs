@@ -72,22 +72,22 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
             service.FindByHashAsync(hash);
 
         /// <summary>
-        /// Get paginated video comments by hash
+        /// Get paginated video comments by id
         /// </summary>
-        /// <param name="hash">Video hash</param>
+        /// <param name="id">Video id</param>
         /// <param name="page">Current page of results</param>
         /// <param name="take">Number of items to retrieve. Max 100</param>
         /// <response code="200">Current page on list</response>
-        [HttpGet("{hash}/comments")]
+        [HttpGet("{id}/comments")]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public Task<IEnumerable<CommentDto>> GetVideoCommentsAsync(
-            [Required] string hash,
+            [Required] string id,
             [Range(0, int.MaxValue)] int page,
             [Range(1, 100)] int take = 25) =>
-            service.GetVideoCommentsAsync(hash, page, take);
+            service.GetVideoCommentsAsync(id, page, take);
 
         // Post.
 
@@ -108,7 +108,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// <summary>
         /// Create a new comment on a video with current user.
         /// </summary>
-        /// <param name="hash">Video hash</param>
+        /// <param name="id">Video id</param>
         /// <param name="text">Comment text</param>
         [HttpPost("{hash}/comments")]
         [Authorize]
@@ -117,34 +117,34 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public Task<CommentDto> CreateCommentAsync(
-            [Required] string hash,
+            [Required] string id,
             [Required][FromBody] string text) =>
-            service.CreateCommentAsync(hash, text);
+            service.CreateCommentAsync(id, text);
 
         /// <summary>
         /// Vote a video content with current user.
         /// </summary>
-        /// <param name="hash">Video hash</param>
+        /// <param name="id">Video id</param>
         /// <param name="value">Vote value</param>
-        [HttpPost("{hash}/votes")]
+        [HttpPost("{id}/votes")]
         [Authorize]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public Task VoteVideAsync(
-            [Required] string hash,
+            [Required] string id,
             [Required] VoteValue value) =>
-            service.VoteVideAsync(hash, value);
+            service.VoteVideAsync(id, value);
 
         // Put.
 
         /// <summary>
         /// Update video manifest.
         /// </summary>
-        /// <param name="oldHash">The old video manifest hash</param>
+        /// <param name="id">The video id</param>
         /// <param name="newHash">The new video manifest hash</param>
-        [HttpPut("{oldHash}")]
+        [HttpPut("{id}")]
         [Authorize]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -152,17 +152,17 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public Task<VideoDto> UpdateAsync(
-            [Required] string oldHash,
+            [Required] string id,
             [Required] string newHash) =>
-            service.UpdateAsync(oldHash, newHash);
+            service.UpdateAsync(id, newHash);
 
         // Delete.
 
         /// <summary>
         /// Delete a video from index.
         /// </summary>
-        /// <param name="hash">Hash of the video</param>
-        [HttpDelete("{hash}")]
+        /// <param name="id">Id of the video</param>
+        [HttpDelete("{id}")]
         [Authorize]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -170,7 +170,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public Task DeleteAsync(
-            [Required] string hash) =>
-            service.DeleteAsync(hash);
+            [Required] string id) =>
+            service.DeleteAsync(id);
     }
 }
