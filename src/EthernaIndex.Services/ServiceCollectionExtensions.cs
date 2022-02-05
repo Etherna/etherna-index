@@ -13,6 +13,7 @@
 //   limitations under the License.
 
 using Etherna.DomainEvents;
+using Etherna.EthernaIndex.Services.Domain;
 using Etherna.EthernaIndex.Services.Tasks;
 using Etherna.EthernaIndex.Swarm;
 using Microsoft.Extensions.Configuration;
@@ -55,19 +56,15 @@ namespace Etherna.EthernaIndex.Services
                 return dispatcher;
             });
 
+            // Services.
+            services.AddScoped<IVideoReportService, VideoReportService>();
+
             // Infrastructure.
-            //domain
             services.AddScoped<ISwarmService, SwarmService>();
             services.Configure<SwarmSettings>(configuration.GetSection("Swarm"));
 
             // Tasks.
             services.AddTransient<IMetadataVideoValidatorTask, MetadataVideoValidatorTask>();
-
-
-            // Services.
-            //domain
-            services.AddScoped<IVideoReportService, VideoReportService>();
-
         }
     }
 }

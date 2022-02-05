@@ -151,10 +151,10 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             return new VideoDto(video);
         }
 
-        public async Task ReportVideoAsync(string hash, string description)
+        public async Task ReportVideoAsync(string id, string description)
         {
             // Get data.
-            var video = await indexContext.Videos.FindOneAsync(v => v.ManifestHash.Hash == hash);
+            var video = await indexContext.Videos.FindOneAsync(v => v.Id == id);
 
             if (video.ContentApproved.HasValue)
             {
@@ -165,14 +165,14 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             var user = await indexContext.Users.FindOneAsync(u => u.Address == address);
 
             var videoReport = await indexContext.VideoReports.QueryElementsAsync(elements =>
-                elements.Where(u => u.Video.ManifestHash.Hash == hash &&
+                elements.Where(u => u.Video.Id == id &&
                                     u.ReporterOwner.Address == address)
                         .CountAsync());
 
             if (videoReport > 0)
             {
                 //TODO what type of Exception?
-                throw new InvalidOperationException($"Duplicated video report {hash}");
+                throw new InvalidOperationException($"Duplicated video report {id}");
             }
 
             // Create new report.
@@ -181,7 +181,6 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             await indexContext.VideoReports.CreateAsync(videoReported);
         }
 
-        public async Task VoteVideAsync(string hash, VoteValue value)
         public async Task VoteVideAsync(string id, VoteValue value)
         {
             // Get data.

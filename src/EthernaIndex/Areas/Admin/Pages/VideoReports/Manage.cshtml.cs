@@ -125,13 +125,13 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
         {
             //Count all VideoReports
             var totalVideo = await dbContext.VideoReports.QueryElementsAsync(elements =>
-                elements.Where(u => u.Video.ManifestHash.Hash == hash &&
+                elements.Where(u => u.Video.Id == hash &&
                                     u.LastCheck == null) //Only Report to check
                         .CountAsync());
 
             //Get all VideoReports paginated
             var hashVideoReports = await dbContext.VideoReports.QueryElementsAsync(elements =>
-                elements.Where(u => u.Video.ManifestHash.Hash == hash &&
+                elements.Where(u => u.Video.Id == hash &&
                                     u.LastCheck == null) //Only Report to check
                                                          //.OrderBy(i => i.CreationDateTime)
                         .Skip(CurrentPage * PageSize)

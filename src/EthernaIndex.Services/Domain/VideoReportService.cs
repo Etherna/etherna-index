@@ -40,10 +40,10 @@ namespace Etherna.EthernaIndex.Services.Domain
             await ModerateVideoAsync(hashReportVideo, false);
         }
 
-        private async Task ModerateVideoAsync(string hashReportVideo, bool isApproved)
+        private async Task ModerateVideoAsync(string videoId, bool isApproved)
         {
             var videoReports = await dbContext.VideoReports.QueryElementsAsync(elements =>
-                elements.Where(u => u.Video.ManifestHash.Hash == hashReportVideo &&
+                elements.Where(u => u.Video.Id == videoId &&
                                     u.LastCheck == null) //Only Report to check
                         .ToCursorAsync());
 
@@ -64,7 +64,7 @@ namespace Etherna.EthernaIndex.Services.Domain
 
             if (!isApproved)
             {
-                var video = await dbContext.Videos.TryFindOneAsync(u => u.ManifestHash.Hash == hashReportVideo);
+                var video = await dbContext.Videos.TryFindOneAsync(u => u.Id == videoId);
                 if (video is not null)
                     await dbContext.Videos.DeleteAsync(video);
                 //TODO need to remove VideoReport, VideoVote, ManifestMetadata?

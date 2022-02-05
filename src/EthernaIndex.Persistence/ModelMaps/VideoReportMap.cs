@@ -18,7 +18,7 @@ using Etherna.MongODM.Core.Serialization;
 
 namespace Etherna.EthernaIndex.Persistence.ModelMaps
 {
-    class ReportVideoMap : IModelMapsCollector
+    class VideoReportMap : IModelMapsCollector
     {
         public void Register(IDbContext dbContext)
         {
@@ -28,8 +28,8 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                     cm.AutoMap();
 
                     // Set members with custom serializers.
-                    cm.SetMemberSerializer(c => c.Video, VideoMap.InformationSerializer(dbContext, true));
-                    cm.SetMemberSerializer(c => c.ReporterOwner, UserMap.InformationSerializer(dbContext, true));
+                    cm.SetMemberSerializer(c => c.Video, VideoMap.InformationSerializer(dbContext));
+                    cm.SetMemberSerializer(c => c.ReporterOwner, UserMap.InformationSerializer(dbContext));
                 });
         }
     }

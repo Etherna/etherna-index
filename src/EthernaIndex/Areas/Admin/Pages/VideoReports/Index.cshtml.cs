@@ -72,13 +72,13 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
             //Count all Videos
             var totalVideo = await dbContext.VideoReports.QueryElementsAsync(elements =>
                 elements.Where(u => u.LastCheck == null) //Only Report to check
-                        .GroupBy(i => i.Video.ManifestHash.Hash)
+                        .GroupBy(i => i.Video.Id)
                         .CountAsync());
 
             //Get all VideoReports paginated by Hash
             var hashVideoReports = await dbContext.VideoReports.QueryElementsAsync(elements =>
                 elements.Where(u => u.LastCheck == null) //Only Report to check
-                        .GroupBy(i => i.Video.ManifestHash.Hash)
+                        .GroupBy(i => i.Video.Id)
                         .OrderBy(i => i.Key)
                         .Skip(CurrentPage * PageSize)
                         .Take(PageSize)
@@ -95,14 +95,14 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
 
             //Get video info
             var videos = await dbContext.Videos.QueryElementsAsync(elements =>
-                elements.Where(u => hashes.Contains(u.ManifestHash.Hash)) //Only Report to check
-                        .OrderBy(i => i.ManifestHash.Hash)
+                elements.Where(u => hashes.Contains(u.Id)) //Only Report to check
+                        .OrderBy(i => i.Id)
                         .ToCursorAsync());
             while (await videos.MoveNextAsync())
             {
                 foreach (var item in videos.Current)
                 {
-                    VideoReports.Add(new VideoReportDto(item.ManifestHash.Hash));
+                    VideoReports.Add(new VideoReportDto(item.Id));
                 }
             }
 
@@ -113,7 +113,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
         {
             var totalVideo = await dbContext.VideoReports.QueryElementsAsync(elements =>
                 elements.Where(u => u.LastCheck == null && //Only Report to check
-                                    u.Video.ManifestHash.Hash == Input.ManifestHash) 
+                                    u.Video.Id == Input.ManifestHash) 
                         .CountAsync());
 
             if (totalVideo == 0)
