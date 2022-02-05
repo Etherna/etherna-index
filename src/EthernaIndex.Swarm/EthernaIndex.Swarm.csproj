@@ -2,10 +2,10 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
-    <RootNamespace>Etherna.EthernaIndex.Services</RootNamespace>
+    <RootNamespace>Etherna.EthernaIndex.Swarm</RootNamespace>
 
     <Authors>Etherna Sagl</Authors>
-    
+
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <Nullable>enable</Nullable>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
@@ -13,8 +13,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\EthernaIndex.Domain\EthernaIndex.Domain.csproj" />
-    <ProjectReference Include="..\EthernaIndex.Swarm\EthernaIndex.Swarm.csproj" />
+    <PackageReference Include="Bee.Net" Version="0.1.0-alpha.39" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="5.0.0" />
   </ItemGroup>
 
 </Project>

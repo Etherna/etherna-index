@@ -12,27 +12,30 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-using Etherna.EthernaIndex.Domain.Models.Swarm;
 using Etherna.MongODM.Core.Attributes;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace Etherna.EthernaIndex.Domain.Models
 {
     public class Video : EntityModelBase<string>
     {
+        // Fields.
+        private List<VideoManifest> _videoManifest = new();
+
         // Constructors and dispose.
         public Video(
             string? encryptionKey,
             EncryptionType encryptionType,
-            SwarmContentHash manifestHash,
             User owner)
         {
             SetEncryptionKey(encryptionKey, encryptionType);
-            SetManifestHash(manifestHash);
             Owner = owner ?? throw new ArgumentNullException(nameof(owner));
             Owner.AddVideo(this);
         }
+
         protected Video() { }
 
         public override void DisposeForDelete()
@@ -47,12 +50,44 @@ namespace Etherna.EthernaIndex.Domain.Models
         public virtual bool? ContentApproved { get; set; }
         public virtual string? EncryptionKey { get; protected set; }
         public virtual EncryptionType EncryptionType { get; protected set; }
-        public virtual SwarmContentHash ManifestHash { get; protected set; } = default!;
         public virtual User Owner { get; protected set; } = default!;
         public virtual long TotDownvotes { get; set; }
         public virtual long TotUpvotes { get; set; }
+        public virtual IEnumerable<VideoManifest> VideoManifest
+        {
+            get => _videoManifest;
+            protected set => _videoManifest = new List<VideoManifest>(value ?? new List<VideoManifest>());
+        }
 
         // Methods.
+        public virtual VideoManifest? GetManifest() => _videoManifest
+                                .Where(i => i.IsValid == true)
+                                .OrderByDescending(i => i.CreationDateTime)
+                                .FirstOrDefault();
+
+        [PropertyAlterer(nameof(VideoManifest))]
+        public virtual void AddManifest(VideoManifest videoManifest)
+        {
+            if (videoManifest is null)
+                throw new ArgumentNullException(nameof(videoManifest));
+
+            if (videoManifest.ValidationTime is null)
+            {
+                var ex = new InvalidOperationException("Manifest not validated");
+                ex.Data.Add("ManifestHash", videoManifest.ManifestHash.Hash);
+                throw ex;
+            }
+
+            if (_videoManifest.Any(i => i.ManifestHash.Hash == videoManifest.ManifestHash.Hash))
+            {
+                var ex = new InvalidOperationException("AddManifest duplicate");
+                ex.Data.Add("ManifestHash", videoManifest.ManifestHash.Hash);
+                throw ex;
+            }
+
+            _videoManifest.Add(videoManifest);
+        }
+
         [PropertyAlterer(nameof(EncryptionKey))]
         [PropertyAlterer(nameof(EncryptionType))]
         public virtual void SetEncryptionKey(string? encryptionKey, EncryptionType encryptionType)
@@ -77,10 +112,5 @@ namespace Etherna.EthernaIndex.Domain.Models
             EncryptionType = encryptionType;
         }
 
-        [PropertyAlterer(nameof(ManifestHash))]
-        public void SetManifestHash(SwarmContentHash manifestHash)
-        {
-            ManifestHash = manifestHash ?? throw new ArgumentNullException(nameof(manifestHash));
-        }
     }
 }

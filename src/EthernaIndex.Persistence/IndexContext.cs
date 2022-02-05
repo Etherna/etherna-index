@@ -48,7 +48,7 @@ namespace Etherna.EthernaIndex.Persistence
             {
                 IndexBuilders = new[]
                 {
-                    (Builders<Comment>.IndexKeys.Ascending(c => c.Video.ManifestHash.Hash), new CreateIndexOptions<Comment>())
+                    (Builders<Comment>.IndexKeys.Ascending(c => c.Video.Id), new CreateIndexOptions<Comment>())
                 }
             });
         public ICollectionRepository<User, string> Users { get; } = new DomainCollectionRepository<User, string>(
@@ -59,13 +59,21 @@ namespace Etherna.EthernaIndex.Persistence
                     (Builders<User>.IndexKeys.Ascending(u => u.Address), new CreateIndexOptions<User> { Unique = true }),
                     (Builders<User>.IndexKeys.Ascending(u => u.IdentityManifest!.Hash), new CreateIndexOptions<User>{ Sparse = true, Unique = true })
                 }
-            });
+            }); 
         public ICollectionRepository<Video, string> Videos { get; } = new DomainCollectionRepository<Video, string>(
             new CollectionRepositoryOptions<Video>("videos")
             {
                 IndexBuilders = new[]
                 {
-                    (Builders<Video>.IndexKeys.Ascending(c => c.ManifestHash.Hash), new CreateIndexOptions<Video> { Unique = true })
+                    (Builders<Video>.IndexKeys.Ascending(c => c.Id), new CreateIndexOptions<Video> { Unique = true })
+                }
+            });
+        public ICollectionRepository<VideoManifest, string> VideoManifests { get; } = new DomainCollectionRepository<VideoManifest, string>(
+            new CollectionRepositoryOptions<VideoManifest>("videoManifests")
+            {
+                IndexBuilders = new[]
+                {
+                    (Builders<VideoManifest>.IndexKeys.Ascending(c => c.ManifestHash.Hash), new CreateIndexOptions<VideoManifest> { Unique = true })
                 }
             });
         public ICollectionRepository<VideoReport, string> VideoReports { get; } = new DomainCollectionRepository<VideoReport, string>(
@@ -78,14 +86,16 @@ namespace Etherna.EthernaIndex.Persistence
                 IndexBuilders = new[]
                 {
                     (Builders<VideoVote>.IndexKeys.Ascending(v => v.Owner.Address)
-                                                  .Ascending(v => v.Video.ManifestHash.Hash), new CreateIndexOptions<VideoVote>{ Unique = true }),
-                    (Builders<VideoVote>.IndexKeys.Ascending(v => v.Video.ManifestHash.Hash), new CreateIndexOptions<VideoVote>()),
+                                                  .Ascending(v => v.Video.Id), new CreateIndexOptions<VideoVote>{ Unique = true }),
+                    (Builders<VideoVote>.IndexKeys.Ascending(v => v.Video.Id), new CreateIndexOptions<VideoVote>()),
                     (Builders<VideoVote>.IndexKeys.Ascending(v => v.Value), new CreateIndexOptions<VideoVote>()),
                 }
             });
 
         //other properties
         public IEventDispatcher EventDispatcher { get; }
+
+        
 
         // Protected properties.
         protected override IEnumerable<IModelMapsCollector> ModelMapsCollectors =>

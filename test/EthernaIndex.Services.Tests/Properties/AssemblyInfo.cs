@@ -12,12 +12,6 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
+using System;
 
-namespace Etherna.EthernaIndex.Services.Tasks
-{
-    public static class Queues
-    {
-        public const string DB_MAINTENANCE = "db_maintenance";
-        public const string METADATA_VIDEO_VALIDATOR = "metadata_video_validator";
-    }
-}
+[assembly: CLSCompliant(false)]

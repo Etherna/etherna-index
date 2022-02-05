@@ -12,13 +12,114 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
+using Etherna.EthernaIndex.Domain.Models.Manifest;
 using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
+using Xunit;
 
 namespace Etherna.EthernaIndex.Domain.Models
 {
     public class VideoTest
     {
+        // Fields.
+        readonly string address = "0x300a31dBAB42863F4b0bEa3E03d0aa89D47DB3f0";
+        readonly string encryptKey = "1d111a1d73fd8f28d71e6b03d2e42f44721db94b734c2edcfe6fcd48b76a74f1";
+        readonly string manifestHash = "5d942a1d73fd8f28d71e6b03d2e42f44721db94b734c2edcfe6fcd48b76a74f9";
+        readonly string secondManifestHash = "2b678a1d73fd8f28d71e6b03d2e42f44721db94b734c2edcfe6fcd48b76a74f9";
+        readonly User owner;
+        readonly Video video;
+
+        // Constructors.
+        public VideoTest()
+        {
+            owner = new User(address);
+            video = new Video(encryptKey, EncryptionType.AES256, owner);
+        }
+
+        // Tests.
+        [Fact]
+        public void Create_Video()
+        {
+            //Arrange
+
+            //Act
+
+            //Assert
+            Assert.Equal(encryptKey, video.EncryptionKey);
+            Assert.Equal(0, video.TotDownvotes);
+            Assert.Equal(0, video.TotDownvotes);
+            Assert.Equal(EncryptionType.AES256, video.EncryptionType);
+            Assert.NotNull(video.Owner);
+            Assert.Equal(address, video.Owner.Address);
+            Assert.Empty(video.VideoManifest);
+        }
+
+        [Fact]
+        public void AddVideo_ExceptionWhenNotValidated()
+        {
+            //Arrange
+            var videoManifest = new VideoManifest(secondManifestHash);
+
+            //Act
+            Assert.Throws<InvalidOperationException>(() => video.AddManifest(videoManifest));
+        }
+
+        [Fact]
+        public void AddVideo_ExeptionWhenDuplicated()
+        {
+            var videoManifest = CreateManifest(secondManifestHash, true);
+            var duplicatedVideoManifest = CreateManifest(secondManifestHash, true);
+            video.AddManifest(videoManifest);
+
+            //Act
+            Assert.Throws<InvalidOperationException>(() => video.AddManifest(duplicatedVideoManifest));
+        }
+
+        [Fact]
+        public void AddVideo_WhenIsValidated()
+        {
+            //Arrange
+            var videoManifestValid = CreateManifest(manifestHash, true);
+            var videoManifestNotValid = CreateManifest(secondManifestHash, false);
+
+            //Act
+            video.AddManifest(videoManifestValid);
+            video.AddManifest(videoManifestNotValid);
+
+            //Assert
+            Assert.Equal(2, video.VideoManifest.Count());
+            Assert.Contains(video.VideoManifest,
+                i => i.ManifestHash.Hash == manifestHash);
+            Assert.Contains(video.VideoManifest,
+                i => i.ManifestHash.Hash == secondManifestHash);
+        }
+
+        
+
+        private VideoManifest CreateManifest(string hash, bool valid)
+        {
+            var videoManifest = new VideoManifest(hash);
+            var feed = "FeedTest";
+            var title = "FeddTopicTest";
+            var desc = "DescTest";
+            var original = "OriginalTest";
+            var duration = 1;
+            var videoSources = new List<VideoSource> { new VideoSource(1, "10801", "reff1", 4), new VideoSource(null, "321", "reff2", null) };
+
+            if (valid)
+                videoManifest.SuccessfulValidation(
+                    desc,
+                    duration,
+                    feed,
+                    original,
+                    title,
+                    null,
+                    videoSources);
+            else
+                videoManifest.FailedValidation(new List<ErrorDetail> { new ErrorDetail(ValidationErrorType.Generic, "test") });
+
+            return videoManifest;
+        }
     }
 }

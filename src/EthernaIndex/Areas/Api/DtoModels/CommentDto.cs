@@ -28,13 +28,13 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
             OwnerAddress = comment.Owner.Address;
             OwnerIdentityManifest = comment.Owner.IdentityManifest?.Hash;
             Text = comment.Text;
-            VideoManifestHash = comment.Video.ManifestHash.Hash;
+            VideoId = comment.Video.Id;
         }
 
         public DateTime CreationDateTime { get; }
         public string OwnerAddress { get; }
         public string? OwnerIdentityManifest { get; }
         public string Text { get; }
-        public string VideoManifestHash { get; }
+        public string VideoId { get; }
     }
 }

@@ -154,6 +154,7 @@ namespace Etherna.EthernaIndex
                     options.Queues = new[]
                     {
                         Queues.DB_MAINTENANCE,
+                        Queues.METADATA_VIDEO_VALIDATOR,
                         "default"
                     };
                     options.WorkerCount = System.Environment.ProcessorCount * 2;
@@ -217,7 +218,7 @@ namespace Etherna.EthernaIndex
             });
 
             // Configure domain services.
-            services.AddDomainServices();
+            services.AddDomainServices(Configuration);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
