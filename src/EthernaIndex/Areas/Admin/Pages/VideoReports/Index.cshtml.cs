@@ -1,9 +1,7 @@
 using Etherna.EthernaIndex.Domain;
-using Etherna.EthernaIndex.Domain.Models;
 using Etherna.MongoDB.Driver.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Nethereum.Util;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -18,21 +16,25 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
         public class InputModel
         {
             [Required]
-            [Display(Name = "Video hash")]
-            public string ManifestHash { get; set; } = default!;
+            [Display(Name = "Video Id")]
+            public string VideoId { get; set; } = default!;
         }
 
         public class VideoReportDto
         {
-            public VideoReportDto(string id)
+            public VideoReportDto(
+                string id,
+                string title)
             {
                 if (id is null)
                     throw new ArgumentNullException(nameof(id));
 
                 Id = id;
+                Title = title; 
             }
 
             public string Id { get; }
+            public string Title { get; }
         }
 
         // Consts.
@@ -69,14 +71,14 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
         {
             CurrentPage = p ?? 0;
 
-            //Count all Videos
+            // Count all Videos.
             var totalVideo = await dbContext.VideoReports.QueryElementsAsync(elements =>
                 elements.Where(u => u.LastCheck == null) //Only Report to check
                         .GroupBy(i => i.Video.Id)
                         .CountAsync());
 
-            //Get all VideoReports paginated by Hash
-            var hashVideoReports = await dbContext.VideoReports.QueryElementsAsync(elements =>
+            // Get all VideoReports group by Id.
+            var videoIdsResult = await dbContext.VideoReports.QueryElementsAsync(elements =>
                 elements.Where(u => u.LastCheck == null) //Only Report to check
                         .GroupBy(i => i.Video.Id)
                         .OrderBy(i => i.Key)
@@ -84,25 +86,26 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
                         .Take(PageSize)
                         .ToCursorAsync());
 
-            var hashes = new List<string>();
-            while (await hashVideoReports.MoveNextAsync())
+            var videoIds = new List<string>();
+            while (await videoIdsResult.MoveNextAsync())
             {
-                foreach (var item in hashVideoReports.Current)
+                foreach (var item in videoIdsResult.Current)
                 {
-                    hashes.Add(item.Key);
+                    videoIds.Add(item.Key);
                 }
             }
 
             //Get video info
             var videos = await dbContext.Videos.QueryElementsAsync(elements =>
-                elements.Where(u => hashes.Contains(u.Id)) //Only Report to check
+                elements.Where(u => videoIds.Contains(u.Id))
                         .OrderBy(i => i.Id)
                         .ToCursorAsync());
             while (await videos.MoveNextAsync())
             {
                 foreach (var item in videos.Current)
                 {
-                    VideoReports.Add(new VideoReportDto(item.Id));
+                    var title = item.GetManifest()?.Title ?? ""; //Massive query for get all title?!?!
+                    VideoReports.Add(new VideoReportDto(item.Id, title));
                 }
             }
 
@@ -113,7 +116,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
         {
             var totalVideo = await dbContext.VideoReports.QueryElementsAsync(elements =>
                 elements.Where(u => u.LastCheck == null && //Only Report to check
-                                    u.Video.Id == Input.ManifestHash) 
+                                    u.Video.Id == Input.VideoId) 
                         .CountAsync());
 
             if (totalVideo == 0)
@@ -123,7 +126,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
                 return Page();
             }
 
-            return RedirectToPage("Manage", new { hash = Input.ManifestHash });
+            return RedirectToPage("Manage", new { videoId = Input.VideoId });
         }
 
 

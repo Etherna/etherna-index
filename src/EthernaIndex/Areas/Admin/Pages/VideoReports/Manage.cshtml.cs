@@ -85,7 +85,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
         }
 
         public async Task<IActionResult> OnPostManageVideoReportAsync(
-            string hashReportVideo,
+            string videoId,
             string button)
         {
             if (!ModelState.IsValid ||
@@ -108,11 +108,11 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
                 
             if (isApproved.Value)
             {
-                await videoReportService.ApproveVideoAsync(hashReportVideo);
+                await videoReportService.ApproveVideoAsync(videoId);
             }
             else
             {
-                await videoReportService.RejectVideoAsync(hashReportVideo);
+                await videoReportService.RejectVideoAsync(videoId);
             }
                     
             await dbContext.SaveChangesAsync();
