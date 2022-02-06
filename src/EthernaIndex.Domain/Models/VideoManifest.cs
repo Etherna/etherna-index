@@ -35,7 +35,6 @@ namespace Etherna.EthernaIndex.Domain.Models
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         // Properties.
-        public virtual bool? ContentApproved { get; set; }
         public virtual string? FeedTopicId { get; protected set; }
         public virtual string? Description { get; protected set; }
         public virtual int? Duration { get; protected set; }

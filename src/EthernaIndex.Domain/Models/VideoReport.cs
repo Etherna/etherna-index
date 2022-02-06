@@ -42,20 +42,26 @@ namespace Etherna.EthernaIndex.Domain.Models
         // Methods.
         [PropertyAlterer(nameof(ContentApproved))]
         [PropertyAlterer(nameof(LastCheck))]
-        public void ApproveContent()
+        public void ApproveContent(bool onlyManifest)
         {
             ContentApproved = true;
             LastCheck = DateTime.UtcNow;
             VideoManifest.ContentApproved = true; //TODO what is the field of [PropertyAlterer(nameof(?))]
+            if (onlyManifest &&
+                VideoManifest.Video is not null)
+                VideoManifest.Video.ContentApproved = true;//TODO what is the field of [PropertyAlterer(nameof(?))]
         }
 
         [PropertyAlterer(nameof(ContentApproved))]
         [PropertyAlterer(nameof(LastCheck))]
-        public void RejectContent()
+        public void RejectContent(bool onlyManifest)
         {
             ContentApproved = false;
             LastCheck = DateTime.UtcNow;
             VideoManifest.ContentApproved = false; //TODO what is the field of [PropertyAlterer(nameof(?))]
+            if (onlyManifest &&
+                VideoManifest.Video is not null)
+                VideoManifest.Video.ContentApproved = false;//TODO what is the field of [PropertyAlterer(nameof(?))]
         }
     }
 }

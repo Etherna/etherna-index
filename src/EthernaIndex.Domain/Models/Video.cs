@@ -47,6 +47,7 @@ namespace Etherna.EthernaIndex.Domain.Models
         }
 
         // Properties.
+        public virtual bool? ContentApproved { get; set; }
         public virtual string? EncryptionKey { get; protected set; }
         public virtual EncryptionType EncryptionType { get; protected set; }
         public virtual User Owner { get; protected set; } = default!;

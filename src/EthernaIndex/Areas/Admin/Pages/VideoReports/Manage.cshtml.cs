@@ -101,7 +101,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
         }
 
         public async Task<IActionResult> OnPostManageVideoReportAsync(
-            string videoId,
+            string manifestHash,
             string button)
         {
             if (!ModelState.IsValid ||
@@ -109,13 +109,26 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
                 return RedirectToPage("Index");
 
             bool? isApproved;
+            bool? onlyManifest;
             if (button.Equals("Approve Video", StringComparison.Ordinal))
             {
                 isApproved = true;
+                onlyManifest = false;
             }
             else if (button.Equals("Reject Video", StringComparison.Ordinal))
             {
                 isApproved = false;
+                onlyManifest = true;
+            }
+            else if (button.Equals("Approve Manifest", StringComparison.Ordinal))
+            {
+                isApproved = true;
+                onlyManifest = true;
+            }
+            else if (button.Equals("Reject Manifest", StringComparison.Ordinal))
+            {
+                isApproved = false;
+                onlyManifest = false;
             }
             else
             {
@@ -124,11 +137,11 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
                 
             if (isApproved.Value)
             {
-                await videoReportService.ApproveVideoAsync(videoId);
+                await videoReportService.ApproveAsync(manifestHash, onlyManifest.Value);
             }
             else
             {
-                await videoReportService.RejectVideoAsync(videoId);
+                await videoReportService.RejectAsync(manifestHash, onlyManifest.Value);
             }
                     
             await dbContext.SaveChangesAsync();

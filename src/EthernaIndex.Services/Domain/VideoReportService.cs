@@ -31,48 +31,48 @@ namespace Etherna.EthernaIndex.Services.Domain
         }
 
 
-        public async Task ApproveVideoAsync(string hashReportVideo)
+        public async Task ApproveAsync(string hashReportVideo, bool onlyManifest)
         {
-            await ModerateVideoAsync(hashReportVideo, true);
+            await ManageReportAsync(hashReportVideo, true, onlyManifest);
         }
 
-        public async Task RejectVideoAsync(string hashReportVideo)
+        public async Task RejectAsync(string hashReportVideo, bool onlyManifest)
         {
-            await ModerateVideoAsync(hashReportVideo, false);
+            await ManageReportAsync(hashReportVideo, false, onlyManifest);
         }
 
         // Helpers.
-        private void ApproveContent(VideoReport videoReport)
+        private void ApproveContent(VideoReport videoReport, bool onlyManifest)
         {
             if (videoReport is null)
                 return;
 
-            videoReport.ApproveContent();
+            videoReport.ApproveContent(onlyManifest);
         }
 
-        private async Task ModerateVideoAsync(string videoId, bool isApproved)
+        private async Task ManageReportAsync(string hashReportVideo, bool isApproved, bool onlyManifest)
         {
             var videoReports = await dbContext.VideoReports.QueryElementsAsync(elements =>
-                elements.Where(u => u.VideoManifest.ManifestHash.Hash == videoId &&
+                elements.Where(u => u.VideoManifest.ManifestHash.Hash == hashReportVideo &&
                                     u.LastCheck == null) //Only Report to check
                         .ToCursorAsync());
 
             while (await videoReports.MoveNextAsync())
                 foreach (var item in videoReports.Current)
                     if (isApproved)
-                        ApproveContent(item);
+                        ApproveContent(item, onlyManifest);
                     else
-                        await RejectContentAsync(item, videoId);
+                        await RejectContentAsync(item, onlyManifest);
         }
 
-        private async Task RejectContentAsync(VideoReport videoReport, string videoId)
+        private async Task RejectContentAsync(VideoReport videoReport, bool onlyManifest)
         {
             if (videoReport is null)
                 return;
 
-            videoReport.RejectContent();
+            videoReport.RejectContent(onlyManifest);
 
-            var video = await dbContext.Videos.TryFindOneAsync(u => u.Id == videoId);
+            var video = await dbContext.VideoReports.TryFindOneAsync(u => u.Id == videoReport.Id);
             if (video is not null)
                 await dbContext.Videos.DeleteAsync(video);
             //TODO need to remove VideoReport, VideoVote, ManifestMetadata?

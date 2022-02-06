@@ -18,7 +18,7 @@ namespace Etherna.EthernaIndex.Services.Domain
 {
     public interface IVideoReportService
     {
-        Task ApproveVideoAsync(string hashReportVideo);
-        Task RejectVideoAsync(string hashReportVideo);
+        Task ApproveAsync(string hashReportVideo, bool onlyManifest);
+        Task RejectAsync(string hashReportVideo, bool onlyManifest);
     }
 }

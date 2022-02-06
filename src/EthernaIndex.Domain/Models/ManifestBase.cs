@@ -34,6 +34,7 @@ namespace Etherna.EthernaIndex.Domain.Models
         protected ManifestBase() { }
 
         // Properties.
+        public virtual bool? ContentApproved { get; set; }
         public virtual IEnumerable<ErrorDetail> ErrorValidationResults
         {
             get => _errorValidationResults;

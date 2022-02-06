@@ -156,11 +156,10 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             var video = await indexContext.Videos.FindOneAsync(v => v.Id == videoId);
             var currentManifest = video.GetManifest();
 
-            if (currentManifest is null ||
+            if (video.ContentApproved == true ||
+                currentManifest is null ||
                 currentManifest.ContentApproved == true)
-            {
                 return;
-            }
 
             var address = httpContextAccessor.HttpContext!.User.GetEtherAddress();
             var user = await indexContext.Users.FindOneAsync(u => u.Address == address);
