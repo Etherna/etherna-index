@@ -16,6 +16,7 @@ using Etherna.EthernaIndex.Domain.Models;
 using Etherna.MongoDB.Bson;
 using Etherna.MongoDB.Bson.Serialization.Serializers;
 using Etherna.MongODM.Core;
+using Etherna.MongODM.Core.Extensions;
 using Etherna.MongODM.Core.Serialization;
 using Etherna.MongODM.Core.Serialization.Serializers;
 
@@ -25,7 +26,14 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
     {
         public void Register(IDbContext dbContext)
         {
-            dbContext.SchemaRegistry.AddModelMapsSchema<VideoManifest>("ec578080-ccd2-4d49-8a76-555b10a5dad5");
+            dbContext.SchemaRegistry.AddModelMapsSchema<VideoManifest>("ec578080-ccd2-4d49-8a76-555b10a5dad5",
+                cm =>
+                {
+                    cm.AutoMap();
+
+                    // Set members with custom serializers.
+                    cm.SetMemberSerializer(v => v.Video, VideoMap.InformationSerializer(dbContext));
+                });
         }
 
         /// <summary>

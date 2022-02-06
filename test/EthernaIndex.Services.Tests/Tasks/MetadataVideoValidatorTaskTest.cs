@@ -47,7 +47,7 @@ namespace EthernaIndex.Services.Tests.Tasks
         {
             var owner = new User(address);
             video = new Video(encryptKey, EncryptionType.AES256, owner);
-            videoManifest = new VideoManifest(manifestHash);
+            videoManifest = new VideoManifest(manifestHash, video);
 
             swarmService = new Mock<ISwarmService>();
 
@@ -411,7 +411,7 @@ namespace EthernaIndex.Services.Tests.Tasks
                 },
                 Title = "Titletest2"
             };
-            var secondVideoManifest = new VideoManifest(secondManifestHash);
+            var secondVideoManifest = new VideoManifest(secondManifestHash, video);
             var secondIndexContext = new Mock<IIndexContext>();
             secondIndexContext.Setup(_ => _.VideoManifests.FindOneAsync(It.IsAny<Expression<Func<VideoManifest, bool>>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(secondVideoManifest);
@@ -474,7 +474,7 @@ namespace EthernaIndex.Services.Tests.Tasks
                     new MetadataVideoSourceDto { Bitrate = 2, Quality = "10802", Reference = "Ref10802", Size = 98 },
                 }
             };
-            var secondVideoManifest = new VideoManifest(secondManifestHash);
+            var secondVideoManifest = new VideoManifest(secondManifestHash, video);
             var secondIndexContext = new Mock<IIndexContext>();
             secondIndexContext.Setup(_ => _.VideoManifests.FindOneAsync(It.IsAny<Expression<Func<VideoManifest, bool>>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(secondVideoManifest);
