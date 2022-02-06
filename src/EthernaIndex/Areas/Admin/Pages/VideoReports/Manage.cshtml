@@ -16,8 +16,7 @@
 @page
 @model Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports.ManageModel
 @{
-    ViewData["Title"] = "Video Reports";
-    ViewData["Hash"] = "Video Reports";
+    ViewData["Title"] = Model.VideoTitle;
 
     var pageSelectorModel = new PageSelectorModel(Model.CurrentPage, Model.MaxPage);
 }
@@ -25,7 +24,6 @@
 <div class="row">
     <div class="col-12 mb-3 text-center mt-1">
         <h2>@ViewData["Title"]</h2>
-        <h3></h3>
     </div>
 </div>
 
@@ -65,7 +63,7 @@
 <form id="client-form" asp-page-handler="ManageVideoReport" Method="post">
     <div class="form-row">
         <div class="col-12 mb-3">
-            <input type="hidden" asp-for="HashReportVideo" />
+            <input type="hidden" asp-for="VideoId" />
             <input type="submit" class="btn btn-primary" value="Approve Video" name="button" />
             <input type="submit" class="btn btn-primary" value="Reject Video" name="button" />
         </div>

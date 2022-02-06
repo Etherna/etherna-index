@@ -13,6 +13,7 @@
 //   limitations under the License.
 
 using Etherna.EthernaIndex.Domain;
+using Etherna.EthernaIndex.Domain.Models;
 using Etherna.MongoDB.Driver.Linq;
 using System.Threading.Tasks;
 
@@ -40,6 +41,15 @@ namespace Etherna.EthernaIndex.Services.Domain
             await ModerateVideoAsync(hashReportVideo, false);
         }
 
+        // Helpers.
+        private void ApproveContent(VideoReport videoReport)
+        {
+            if (videoReport is null)
+                return;
+
+            videoReport.ApproveContent();
+        }
+
         private async Task ModerateVideoAsync(string videoId, bool isApproved)
         {
             var videoReports = await dbContext.VideoReports.QueryElementsAsync(elements =>
@@ -48,27 +58,24 @@ namespace Etherna.EthernaIndex.Services.Domain
                         .ToCursorAsync());
 
             while (await videoReports.MoveNextAsync())
-            {
                 foreach (var item in videoReports.Current)
-                {
                     if (isApproved)
-                    {
-                        item.ApproveContent();
-                    }
+                        ApproveContent(item);
                     else
-                    {
-                        item.RejectContent();
-                    }
-                }
-            }
+                        await RejectContentAsync(item, videoId);
+        }
 
-            if (!isApproved)
-            {
-                var video = await dbContext.Videos.TryFindOneAsync(u => u.Id == videoId);
-                if (video is not null)
-                    await dbContext.Videos.DeleteAsync(video);
-                //TODO need to remove VideoReport, VideoVote, ManifestMetadata?
-            }
+        private async Task RejectContentAsync(VideoReport videoReport, string videoId)
+        {
+            if (videoReport is null)
+                return;
+
+            videoReport.RejectContent();
+
+            var video = await dbContext.Videos.TryFindOneAsync(u => u.Id == videoId);
+            if (video is not null)
+                await dbContext.Videos.DeleteAsync(video);
+            //TODO need to remove VideoReport, VideoVote, ManifestMetadata?
         }
     }
 }

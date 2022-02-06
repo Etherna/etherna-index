@@ -70,18 +70,19 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
 
         // Properties.
         public int CurrentPage { get; private set; }
-        public string HashReportVideo { get; private set; } = default!;
         public int MaxPage { get; private set; }
         public DateTime OperationDateTime { get; private set; } = default!;
+        public string VideoId { get; private set; } = default!;
 #pragma warning disable CA1002 // Do not expose generic lists
         public List<VideoReportDetailDto> VideoReports { get; } = new();
 #pragma warning restore CA1002 // Do not expose generic lists
+        public string VideoTitle { get; private set; } = default!;
 
         // Methods.
-        public async Task OnGetAsync(string hash)
+        public async Task OnGetAsync(string videoId)
         {
-            HashReportVideo = hash;
-            await InitializeAsync(hash);
+            VideoId = videoId;
+            await InitializeAsync();
         }
 
         public async Task<IActionResult> OnPostManageVideoReportAsync(
@@ -121,17 +122,21 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
         }
 
         // Helpers.
-        private async Task InitializeAsync(string hash)
+        private async Task InitializeAsync()
         {
-            //Count all VideoReports
+            // Video info
+            var video = await dbContext.Videos.FindOneAsync(i => i.Id == VideoId);
+            VideoTitle = video.GetManifest()?.Title ?? video.Id;
+
+            // Count all VideoReports.
             var totalVideo = await dbContext.VideoReports.QueryElementsAsync(elements =>
-                elements.Where(u => u.Video.Id == hash &&
+                elements.Where(u => u.Video.Id == VideoId &&
                                     u.LastCheck == null) //Only Report to check
                         .CountAsync());
 
-            //Get all VideoReports paginated
+            // Get all VideoReports paginated.
             var hashVideoReports = await dbContext.VideoReports.QueryElementsAsync(elements =>
-                elements.Where(u => u.Video.Id == hash &&
+                elements.Where(u => u.Video.Id == VideoId &&
                                     u.LastCheck == null) //Only Report to check
                                                          //.OrderBy(i => i.CreationDateTime)
                         .Skip(CurrentPage * PageSize)
