@@ -23,13 +23,12 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
     public interface IVideosControllerService
     {
         Task<VideoDto> CreateAsync(VideoCreateInput videoInput);
-        Task<CommentDto> CreateCommentAsync(string hash, string text);
-        Task DeleteAsync(string hash);
+        Task<CommentDto> CreateCommentAsync(string id, string text);
+        Task DeleteAsync(string id);
         Task<VideoDto> FindByHashAsync(string hash);
         Task<IEnumerable<VideoDto>> GetLastUploadedVideosAsync(int page, int take);
-        Task<IEnumerable<CommentDto>> GetVideoCommentsAsync(string hash, int page, int take);
-        Task<VideoDto> UpdateAsync(string oldHash, string newHash);
-        Task ReportVideoAsync(string hash, string description);
-        Task VoteVideAsync(string hash, VoteValue value);
+        Task<IEnumerable<CommentDto>> GetVideoCommentsAsync(string id, int page, int take);
+        Task<VideoDto> UpdateAsync(string id, string newHash);
+        Task VoteVideAsync(string id, VoteValue value);
     }
 }

@@ -59,7 +59,7 @@ namespace Etherna.EthernaIndex.Domain.Models
         public void AddVideo_ExceptionWhenNotValidated()
         {
             //Arrange
-            var videoManifest = new VideoManifest(secondManifestHash);
+            var videoManifest = new VideoManifest(secondManifestHash, video);
 
             //Act
             Assert.Throws<InvalidOperationException>(() => video.AddManifest(videoManifest));
@@ -99,7 +99,7 @@ namespace Etherna.EthernaIndex.Domain.Models
 
         private VideoManifest CreateManifest(string hash, bool valid)
         {
-            var videoManifest = new VideoManifest(hash);
+            var videoManifest = new VideoManifest(hash, video);
             var feed = "FeedTest";
             var title = "FeddTopicTest";
             var desc = "DescTest";

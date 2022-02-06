@@ -64,10 +64,6 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
                 throw new DuplicatedManifestHashException(videoInput.ManifestHash);
             }
 
-            // Create videoManifest.
-            videoManifest = new VideoManifest(videoInput.ManifestHash);
-            await indexContext.VideoManifests.CreateAsync(videoManifest);
-
             // Create Video.
             var video = new Video(
                 videoInput.EncryptionKey,
@@ -75,6 +71,10 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
                 user);
 
             await indexContext.Videos.CreateAsync(video);
+
+            // Create video manifest.
+            videoManifest = new VideoManifest(videoInput.ManifestHash, video);
+            await indexContext.VideoManifests.CreateAsync(videoManifest);
 
             // Create Validation Manifest Task.
             backgroundJobClient.Create<MetadataVideoValidatorTask>(
@@ -139,7 +139,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
                 throw new UnauthorizedAccessException("User is not owner of the video");
 
             // Create videoManifest.
-            var videoManifest = new VideoManifest(newHash);
+            var videoManifest = new VideoManifest(newHash, video);
             await indexContext.VideoManifests.CreateAsync(videoManifest);
             await indexContext.SaveChangesAsync();
 
