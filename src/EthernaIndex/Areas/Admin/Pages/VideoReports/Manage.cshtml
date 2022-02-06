@@ -16,7 +16,7 @@
 @page
 @model Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports.ManageModel
 @{
-    ViewData["Title"] = Model.VideoTitle;
+    ViewData["Title"] = Model.VideoReport.Title;
 
     var pageSelectorModel = new PageSelectorModel(Model.CurrentPage, Model.MaxPage);
 }
@@ -40,7 +40,7 @@
                 </thead>
 
                 <tbody>
-                    @foreach (var videoReport in Model.VideoReports)
+                    @foreach (var videoReport in Model.DetailReports)
                     {
                     <tr>
                         <td class="align-middle">@videoReport.Description</td>
@@ -63,7 +63,7 @@
 <form id="client-form" asp-page-handler="ManageVideoReport" Method="post">
     <div class="form-row">
         <div class="col-12 mb-3">
-            <input type="hidden" asp-for="VideoId" />
+            <input type="hidden" asp-for="VideoReport.ManifestHash" />
             <input type="submit" class="btn btn-primary" value="Approve Video" name="button" />
             <input type="submit" class="btn btn-primary" value="Reject Video" name="button" />
         </div>

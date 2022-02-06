@@ -13,6 +13,7 @@
 //   limitations under the License.
 
 using Etherna.EthernaIndex.Domain.Models;
+using Etherna.EthernaIndex.Domain.Models.Swarm;
 using Etherna.MongoDB.Bson;
 using Etherna.MongoDB.Bson.Serialization.Serializers;
 using Etherna.MongODM.Core;
@@ -54,9 +55,9 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                 });
                 config.AddModelMapsSchema<ManifestBase>("fa2c6046-6b74-41bc-bba6-a3c98b501ec6", mm => 
                 { 
-                    //mm.MapIdMember(m => m.ManifestHash.Hash);
                     mm.MapMember(m => m.IsValid);
                     mm.MapMember(m => m.ValidationTime);
+                    mm.MapMember(m => m.ManifestHash);
                 });
                 config.AddModelMapsSchema<VideoManifest>("f7966611-14aa-4f18-92f4-8697b4927fb6", mm => { });
             });

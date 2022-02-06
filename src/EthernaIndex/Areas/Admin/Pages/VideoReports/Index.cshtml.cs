@@ -16,25 +16,32 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
         public class InputModel
         {
             [Required]
-            [Display(Name = "Video Id")]
-            public string VideoId { get; set; } = default!;
+            [Display(Name = "Manifest Hash")]
+            public string ManifestHash { get; set; } = default!;
         }
 
         public class VideoReportDto
         {
             public VideoReportDto(
-                string id,
-                string title)
+                string manifestHash,
+                string title,
+                string videoId)
             {
-                if (id is null)
-                    throw new ArgumentNullException(nameof(id));
+                if (manifestHash is null)
+                    throw new ArgumentNullException(nameof(manifestHash));
+                if (title is null)
+                    throw new ArgumentNullException(nameof(title));
+                if (videoId is null)
+                    throw new ArgumentNullException(nameof(videoId));
 
-                Id = id;
-                Title = title; 
+                ManifestHash = manifestHash;
+                Title = title;
+                VideoId = videoId;
             }
 
-            public string Id { get; }
+            public string ManifestHash { get; }
             public string Title { get; }
+            public string VideoId { get; }
         }
 
         // Consts.
@@ -71,52 +78,52 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
         {
             CurrentPage = p ?? 0;
 
-            // Count all Videos.
-            var totalVideo = await dbContext.VideoReports.QueryElementsAsync(elements =>
+            // Count all distinct reports.
+            var totalReports = await dbContext.VideoReports.QueryElementsAsync(elements =>
                 elements.Where(u => u.LastCheck == null) //Only Report to check
-                        .GroupBy(i => i.Video.Id)
+                        .GroupBy(i => i.VideoManifest.Id)
                         .CountAsync());
 
-            // Get all VideoReports group by Id.
-            var videoIdsResult = await dbContext.VideoReports.QueryElementsAsync(elements =>
+            // Get all VideoReports group by Hash.
+            var videoReportsResult = await dbContext.VideoReports.QueryElementsAsync(elements =>
                 elements.Where(u => u.LastCheck == null) //Only Report to check
-                        .GroupBy(i => i.Video.Id)
+                        .GroupBy(i => i.VideoManifest.Id)
                         .OrderBy(i => i.Key)
                         .Skip(CurrentPage * PageSize)
                         .Take(PageSize)
                         .ToCursorAsync());
 
-            var videoIds = new List<string>();
-            while (await videoIdsResult.MoveNextAsync())
+            var videoReportsIds = new List<string>();
+            while (await videoReportsResult.MoveNextAsync())
             {
-                foreach (var item in videoIdsResult.Current)
+                foreach (var item in videoReportsResult.Current)
                 {
-                    videoIds.Add(item.Key);
+                    videoReportsIds.Add(item.Key);
                 }
             }
 
-            //Get video info
-            var videos = await dbContext.Videos.QueryElementsAsync(elements =>
-                elements.Where(u => videoIds.Contains(u.Id))
+            //Get manifest info
+            var videoManifests = await dbContext.VideoManifests.QueryElementsAsync(elements =>
+                elements.Where(u => videoReportsIds.Contains(u.Id))
                         .OrderBy(i => i.Id)
                         .ToCursorAsync());
-            while (await videos.MoveNextAsync())
+            while (await videoManifests.MoveNextAsync())
             {
-                foreach (var item in videos.Current)
+                foreach (var itemManifest in videoManifests.Current)
                 {
-                    var title = item.GetManifest()?.Title ?? ""; //Massive query for get all title?!?!
-                    VideoReports.Add(new VideoReportDto(item.Id, title));
+                    var title = itemManifest.Title ?? "";
+                    VideoReports.Add(new VideoReportDto(itemManifest.ManifestHash.Hash, title, itemManifest.Video.Id));
                 }
             }
 
-            MaxPage = totalVideo == 0 ? 0 : ((totalVideo + PageSize - 1) / PageSize) - 1;
+            MaxPage = totalReports == 0 ? 0 : ((totalReports + PageSize - 1) / PageSize) - 1;
         }
 
         public async Task<IActionResult> OnPostAsync(int? p)
         {
             var totalVideo = await dbContext.VideoReports.QueryElementsAsync(elements =>
                 elements.Where(u => u.LastCheck == null && //Only Report to check
-                                    u.Video.Id == Input.VideoId) 
+                                    u.VideoManifest.ManifestHash.Hash == Input.ManifestHash) 
                         .CountAsync());
 
             if (totalVideo == 0)
@@ -126,9 +133,8 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
                 return Page();
             }
 
-            return RedirectToPage("Manage", new { videoId = Input.VideoId });
+            return RedirectToPage("Manage", new { manifestHash = Input.ManifestHash });
         }
-
 
     }
 }

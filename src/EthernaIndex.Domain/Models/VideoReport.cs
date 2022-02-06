@@ -21,12 +21,12 @@ namespace Etherna.EthernaIndex.Domain.Models
     {
         // Constructors and dispose.
         public VideoReport(
-            Video video,
+            VideoManifest videoManifest,
             User owner,
             string description)
         {
             ReporterOwner = owner ?? throw new ArgumentNullException(nameof(owner));
-            Video = video ?? throw new ArgumentNullException(nameof(video));
+            VideoManifest = videoManifest ?? throw new ArgumentNullException(nameof(videoManifest));
             ReportDescription = description ?? throw new ArgumentNullException(nameof(description));
         }
         protected VideoReport() { }
@@ -37,7 +37,7 @@ namespace Etherna.EthernaIndex.Domain.Models
         public virtual string ReportDescription { get; protected set; } = default!;
         public virtual DateTime? LastCheck { get; protected set; }
         public virtual User ReporterOwner { get; protected set; } = default!;
-        public virtual Video Video { get; protected set; } = default!;
+        public virtual VideoManifest VideoManifest { get; protected set; } = default!;
 
         // Methods.
         [PropertyAlterer(nameof(ContentApproved))]
@@ -46,7 +46,7 @@ namespace Etherna.EthernaIndex.Domain.Models
         {
             ContentApproved = true;
             LastCheck = DateTime.UtcNow;
-            Video.ContentApproved = true; //TODO what is the field of [PropertyAlterer(nameof(?))]
+            VideoManifest.ContentApproved = true; //TODO what is the field of [PropertyAlterer(nameof(?))]
         }
 
         [PropertyAlterer(nameof(ContentApproved))]
@@ -55,7 +55,7 @@ namespace Etherna.EthernaIndex.Domain.Models
         {
             ContentApproved = false;
             LastCheck = DateTime.UtcNow;
-            Video.ContentApproved = false; //TODO what is the field of [PropertyAlterer(nameof(?))]
+            VideoManifest.ContentApproved = false; //TODO what is the field of [PropertyAlterer(nameof(?))]
         }
     }
 }

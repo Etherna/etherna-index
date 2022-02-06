@@ -25,6 +25,22 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
 {
     public class ManageModel : PageModel
     {
+        public class VideoReportDto
+        {
+            public VideoReportDto(
+                string manifestHash)
+            {
+                if (manifestHash is null)
+                    throw new ArgumentNullException(nameof(manifestHash));
+
+                ManifestHash = manifestHash;
+            }
+
+            public string ManifestHash { get; private set; }
+            public string ManifestId { get; set; } = default!;
+            public string Title { get; set; } = default!;
+            public string VideoId { get; set; } = default!;
+        }
 
         public class VideoReportDetailDto
         {
@@ -72,16 +88,15 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
         public int CurrentPage { get; private set; }
         public int MaxPage { get; private set; }
         public DateTime OperationDateTime { get; private set; } = default!;
-        public string VideoId { get; private set; } = default!;
+        public VideoReportDto VideoReport { get; private set; } = default!;
 #pragma warning disable CA1002 // Do not expose generic lists
-        public List<VideoReportDetailDto> VideoReports { get; } = new();
+        public List<VideoReportDetailDto> DetailReports { get; } = new();
 #pragma warning restore CA1002 // Do not expose generic lists
-        public string VideoTitle { get; private set; } = default!;
 
         // Methods.
-        public async Task OnGetAsync(string videoId)
+        public async Task OnGetAsync(string manifestHash)
         {
-            VideoId = videoId;
+            VideoReport = new VideoReportDto(manifestHash);
             await InitializeAsync();
         }
 
@@ -125,18 +140,17 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
         private async Task InitializeAsync()
         {
             // Video info
-            var video = await dbContext.Videos.FindOneAsync(i => i.Id == VideoId);
-            VideoTitle = video.GetManifest()?.Title ?? video.Id;
+            var videoManifest = await dbContext.VideoManifests.FindOneAsync(i => i.ManifestHash.Hash == VideoReport.ManifestHash);
 
             // Count all VideoReports.
             var totalVideo = await dbContext.VideoReports.QueryElementsAsync(elements =>
-                elements.Where(u => u.Video.Id == VideoId &&
+                elements.Where(u => u.VideoManifest.ManifestHash.Hash == VideoReport.ManifestHash &&
                                     u.LastCheck == null) //Only Report to check
                         .CountAsync());
 
             // Get all VideoReports paginated.
             var hashVideoReports = await dbContext.VideoReports.QueryElementsAsync(elements =>
-                elements.Where(u => u.Video.Id == VideoId &&
+                elements.Where(u => u.VideoManifest.ManifestHash.Hash == VideoReport.ManifestHash &&
                                     u.LastCheck == null) //Only Report to check
                                                          //.OrderBy(i => i.CreationDateTime)
                         .Skip(CurrentPage * PageSize)
@@ -148,13 +162,17 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
             {
                 foreach (var item in hashVideoReports.Current)
                 {
-                    VideoReports.Add(new VideoReportDetailDto(
+                    DetailReports.Add(new VideoReportDetailDto(
                         item.Id,
                         item.ReportDescription,
                         item.ReporterOwner.Address,
                         item.CreationDateTime));
                 }
             }
+
+            VideoReport.ManifestId = videoManifest.Id;
+            VideoReport.Title = videoManifest.Title ?? "";
+            VideoReport.VideoId = videoManifest.Video.Id;
 
             MaxPage = totalVideo == 0 ? 0 : ((totalVideo + PageSize - 1) / PageSize) - 1;
         }

@@ -17,7 +17,6 @@ using Etherna.EthernaIndex.Areas.Api.DtoModels;
 using Etherna.EthernaIndex.Areas.Api.InputModels;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
-using Etherna.EthernaIndex.Domain.Models.Swarm;
 using Etherna.EthernaIndex.Services.Exceptions;
 using Etherna.EthernaIndex.Services.Tasks;
 using Etherna.MongoDB.Driver;
@@ -151,12 +150,14 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             return new VideoDto(video);
         }
 
-        public async Task ReportVideoAsync(string id, string description)
+        public async Task ReportVideoAsync(string videoId, string description)
         {
             // Get data.
-            var video = await indexContext.Videos.FindOneAsync(v => v.Id == id);
+            var video = await indexContext.Videos.FindOneAsync(v => v.Id == videoId);
+            var currentManifest = video.GetManifest();
 
-            if (video.ContentApproved.HasValue)
+            if (currentManifest is null ||
+                currentManifest.ContentApproved == true)
             {
                 return;
             }
@@ -165,18 +166,21 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             var user = await indexContext.Users.FindOneAsync(u => u.Address == address);
 
             var videoReport = await indexContext.VideoReports.QueryElementsAsync(elements =>
-                elements.Where(u => u.Video.Id == id &&
+                elements.Where(u => u.VideoManifest.Id == currentManifest.Id &&
                                     u.ReporterOwner.Address == address)
                         .CountAsync());
 
             if (videoReport > 0)
             {
                 //TODO what type of Exception?
-                throw new InvalidOperationException($"Duplicated video report {id}");
+                var ex = new InvalidOperationException($"Duplicated video report");
+                ex.Data.Add("VideoId", video.Id);
+                ex.Data.Add("ManifestHash", currentManifest.ManifestHash.Hash);
+                throw ex;
             }
 
             // Create new report.
-            var videoReported = new VideoReport(video, user, description);
+            var videoReported = new VideoReport(currentManifest, user, description);
 
             await indexContext.VideoReports.CreateAsync(videoReported);
         }

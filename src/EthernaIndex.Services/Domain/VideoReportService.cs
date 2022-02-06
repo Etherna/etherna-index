@@ -53,7 +53,7 @@ namespace Etherna.EthernaIndex.Services.Domain
         private async Task ModerateVideoAsync(string videoId, bool isApproved)
         {
             var videoReports = await dbContext.VideoReports.QueryElementsAsync(elements =>
-                elements.Where(u => u.Video.Id == videoId &&
+                elements.Where(u => u.VideoManifest.ManifestHash.Hash == videoId &&
                                     u.LastCheck == null) //Only Report to check
                         .ToCursorAsync());
 
