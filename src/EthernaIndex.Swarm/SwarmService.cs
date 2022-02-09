@@ -1,5 +1,5 @@
 ﻿using Etherna.BeeNet;
-using Etherna.BeeNet.DtoModel;
+using Etherna.BeeNet.Clients.GatewayApi;
 using Etherna.EthernaIndex.Swarm.DtoModel;
 using Microsoft.Extensions.Options;
 using System;
@@ -22,12 +22,15 @@ namespace Etherna.EthernaIndex.Swarm
                 throw new ArgumentNullException(nameof(swarmSettings));
 
             SwarmSettings = swarmSettings.Value;
-            var clientVersion = SwarmSettings.Version switch
+            var gatewayApiVersion = SwarmSettings.GatewayApiVersion switch
             {
-                _ => ClientVersions.v1_4_1,
+                "2.0.0" => GatewayApiVersion.v2_0_0,
+                _ => throw new ArgumentOutOfRangeException(nameof(SwarmService), "Invalid gateway api version") 
             };
 
-            BeeNodeClient = new BeeNodeClient(SwarmSettings.GatewayUrl, version: clientVersion);
+            BeeNodeClient = new BeeNodeClient(
+                SwarmSettings.NodeUrl,
+                gatewayApiVersion: gatewayApiVersion);
         }
 
         // Methods.
@@ -36,11 +39,11 @@ namespace Etherna.EthernaIndex.Swarm
             if (BeeNodeClient.GatewayClient is null)
                 throw new InvalidOperationException(nameof(BeeNodeClient.GatewayClient));
 
-            using var stream = await BeeNodeClient.GatewayClient.BytesGetAsync(manifestHash);
+            using var stream = await BeeNodeClient.GatewayClient.GetDataAsync(manifestHash);
             using var reader = new StreamReader(stream);
             try
             {
-                var metadataVideoDto = JsonSerializer.Deserialize<MetadataVideoDto>(reader.ReadToEnd());
+                var metadataVideoDto = JsonSerializer.Deserialize<MetadataVideoDto>(await reader.ReadToEndAsync());
                 if (metadataVideoDto is null)
                     throw new MetadataVideoException("Empty json");
 

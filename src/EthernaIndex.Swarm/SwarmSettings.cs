@@ -2,7 +2,7 @@
 {
     public class SwarmSettings
     {
-        public string GatewayUrl { get; set; } = default!;
-        public string Version { get; set; } = default!;
+        public string GatewayApiVersion { get; set; } = default!;
+        public string NodeUrl { get; set; } = default!;
     }
 }
