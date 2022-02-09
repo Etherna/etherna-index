@@ -17,7 +17,7 @@ using Etherna.EthernaIndex.Areas.Api.DtoModels;
 using Etherna.EthernaIndex.Areas.Api.InputModels;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
-using Etherna.EthernaIndex.Domain.Models.Swarm;
+using Etherna.EthernaIndex.Extensions;
 using Etherna.EthernaIndex.Services.Exceptions;
 using Etherna.EthernaIndex.Services.Tasks;
 using Etherna.MongoDB.Driver;
@@ -26,6 +26,7 @@ using Etherna.MongODM.Core.Extensions;
 using Hangfire;
 using Hangfire.States;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Nethereum.Util;
 using System;
 using System.Collections.Generic;
@@ -40,16 +41,19 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         private readonly IBackgroundJobClient backgroundJobClient;
         private readonly IHttpContextAccessor httpContextAccessor;
         private readonly IIndexContext indexContext;
+        private readonly ILogger<VideosControllerService> logger;
 
         // Constructors.
         public VideosControllerService(
             IBackgroundJobClient backgroundJobClient,
             IHttpContextAccessor httpContextAccessor,
-            IIndexContext indexContext)
+            IIndexContext indexContext,
+            ILogger<VideosControllerService> logger)
         {
             this.backgroundJobClient = backgroundJobClient;
             this.httpContextAccessor = httpContextAccessor;
             this.indexContext = indexContext;
+            this.logger = logger;
         }
 
         // Methods.
@@ -81,6 +85,8 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
                 task => task.RunAsync(video.Id, videoInput.ManifestHash),
                 new EnqueuedState(Queues.METADATA_VIDEO_VALIDATOR));
 
+            logger.CreatedVideo(user.Id, videoInput.ManifestHash);
+
             return new VideoDto(video);
         }
 
@@ -93,6 +99,8 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             var comment = new Comment(user, text, video);
 
             await indexContext.Comments.CreateAsync(comment);
+
+            logger.CreatedCommentVideo(user.Id, id);
 
             return new CommentDto(comment);
         }
@@ -110,6 +118,8 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
 
             // Action.
             await indexContext.Videos.DeleteAsync(video);
+
+            logger.AuthorDeletedVideo(id);
         }
 
         public async Task<VideoDto> FindByHashAsync(string hash) =>
@@ -148,6 +158,8 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
                 task => task.RunAsync(video.Id, newHash),
                 new EnqueuedState(Queues.METADATA_VIDEO_VALIDATOR));
 
+            logger.UpdatedVideo(id, newHash);
+
             return new VideoDto(video);
         }
 
@@ -181,6 +193,8 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             video.TotUpvotes = totUpvotes;
 
             await indexContext.SaveChangesAsync();
+
+            logger.VotedVideo(user.Id, id);
         }
     }
 }
