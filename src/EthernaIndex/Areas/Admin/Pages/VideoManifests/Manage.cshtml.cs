@@ -14,7 +14,6 @@
 
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
-using Etherna.EthernaIndex.Services.Domain;
 using Etherna.EthernaIndex.Services.Tasks;
 using Etherna.MongoDB.Driver.Linq;
 using Hangfire;
@@ -105,24 +104,20 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
         // Fields.
         private readonly IBackgroundJobClient backgroundJobClient;
         private readonly IIndexContext dbContext;
-        private readonly IVideoReportService videoReportService;
 
         // Constructor.
         public ManageModel(
             IBackgroundJobClient backgroundJobClient,
-            IIndexContext dbContext,
-            IVideoReportService videoReportService)
+            IIndexContext dbContext)
         {
             if (dbContext is null)
                 throw new ArgumentNullException(nameof(dbContext));
 
             this.backgroundJobClient = backgroundJobClient;
             this.dbContext = dbContext;
-            this.videoReportService = videoReportService;
         }
 
         // Properties.
-        public DateTime OperationDateTime { get; private set; } = default!;
         public VideoManifestDto VideoManifest { get; private set; } = default!;
 
         // Methods.
@@ -140,18 +135,36 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
                 return RedirectToPage("Index");
 
             if (button.Equals("Force New Validation", StringComparison.Ordinal))
-            {
-                var videoManifest = await dbContext.VideoManifests.TryFindOneAsync(c => c.ManifestHash.Hash == manifestHash);
-                if (videoManifest is not null)
-                    backgroundJobClient.Create<MetadataVideoValidatorTask>(
-                        task => task.RunAsync(videoManifest.Video.Id, videoManifest.ManifestHash.Hash),
-                        new EnqueuedState(Queues.METADATA_VIDEO_VALIDATOR));
-            }
+                await ForceNewValidationAsync(manifestHash);
+            else if (button.Equals("Force Invalid Status", StringComparison.Ordinal))
+                await ForceStatusAsync(manifestHash, false);
+            else if (button.Equals("Force Valid Status", StringComparison.Ordinal))
+                await ForceStatusAsync(manifestHash, true);
+
+            await dbContext.SaveChangesAsync();
 
             return RedirectToPage("Index");
         }
 
         // Helpers.
+        private async Task ForceNewValidationAsync(string manifestHash)
+        {
+            var videoManifest = await dbContext.VideoManifests.TryFindOneAsync(c => c.ManifestHash.Hash == manifestHash);
+            if (videoManifest is not null)
+                backgroundJobClient.Create<MetadataVideoValidatorTask>(
+                    task => task.RunAsync(videoManifest.Video.Id, videoManifest.ManifestHash.Hash),
+                    new EnqueuedState(Queues.METADATA_VIDEO_VALIDATOR));
+        }
+
+        private async Task ForceStatusAsync(string manifestHash, bool isValid)
+        {
+            var videoManifest = await dbContext.VideoManifests.TryFindOneAsync(c => c.ManifestHash.Hash == manifestHash);
+            if (videoManifest is null)
+                return;
+
+            videoManifest.ForceStatus(isValid);
+        }
+
         private async Task InitializeAsync(string manifestHash)
         {
             // Video info

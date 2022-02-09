@@ -87,7 +87,6 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
         // Properties.
         public int CurrentPage { get; private set; }
         public int MaxPage { get; private set; }
-        public DateTime OperationDateTime { get; private set; } = default!;
         public VideoReportDto VideoReport { get; private set; } = default!;
 #pragma warning disable CA1002 // Do not expose generic lists
         public List<VideoReportDetailDto> DetailReports { get; } = new();

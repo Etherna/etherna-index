@@ -50,9 +50,17 @@ namespace Etherna.EthernaIndex.Domain.Models
         [PropertyAlterer(nameof(ValidationTime))]
         public virtual void FailedValidation(IEnumerable<ErrorDetail> errorDetails)
         {
-            ValidationTime = DateTime.UtcNow;
             IsValid = false;
+            ValidationTime = DateTime.UtcNow;
             _errorValidationResults.AddRange(errorDetails);
+        }
+
+        [PropertyAlterer(nameof(IsValid))]
+        [PropertyAlterer(nameof(ValidationTime))]
+        public virtual void ForceStatus(bool isValid)
+        {
+            IsValid = isValid;
+            ValidationTime = DateTime.UtcNow;
         }
 
         [PropertyAlterer(nameof(ErrorValidationResults))]
@@ -60,8 +68,8 @@ namespace Etherna.EthernaIndex.Domain.Models
         [PropertyAlterer(nameof(ValidationTime))]
         protected virtual void SuccessfulValidation()
         {
-            ValidationTime = DateTime.UtcNow;
             IsValid = true;
+            ValidationTime = DateTime.UtcNow;
             _errorValidationResults.Clear();
         }
 
