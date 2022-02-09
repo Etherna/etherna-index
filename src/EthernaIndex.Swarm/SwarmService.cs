@@ -40,7 +40,7 @@ namespace Etherna.EthernaIndex.Swarm
             using var reader = new StreamReader(stream);
             try
             {
-                var metadataVideoDto = JsonSerializer.Deserialize<MetadataVideoDto>(reader.ReadToEnd());
+                var metadataVideoDto = JsonSerializer.Deserialize<MetadataVideoDto>(await reader.ReadToEndAsync());
                 if (metadataVideoDto is null)
                     throw new MetadataVideoException("Empty json");
 
