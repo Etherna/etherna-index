@@ -15,7 +15,10 @@
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.Services.Domain;
+using Etherna.EthernaIndex.Services.Tasks;
 using Etherna.MongoDB.Driver.Linq;
+using Hangfire;
+using Hangfire.States;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System;
@@ -100,17 +103,20 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
         }
 
         // Fields.
+        private readonly IBackgroundJobClient backgroundJobClient;
         private readonly IIndexContext dbContext;
         private readonly IVideoReportService videoReportService;
 
         // Constructor.
         public ManageModel(
+            IBackgroundJobClient backgroundJobClient,
             IIndexContext dbContext,
             IVideoReportService videoReportService)
         {
             if (dbContext is null)
                 throw new ArgumentNullException(nameof(dbContext));
 
+            this.backgroundJobClient = backgroundJobClient;
             this.dbContext = dbContext;
             this.videoReportService = videoReportService;
         }
@@ -133,43 +139,14 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
                 string.IsNullOrWhiteSpace(button))
                 return RedirectToPage("Index");
 
-            bool? isApproved;
-            bool? onlyManifest;
-            if (button.Equals("Approve Video", StringComparison.Ordinal))
+            if (button.Equals("Force New Validation", StringComparison.Ordinal))
             {
-                isApproved = true;
-                onlyManifest = false;
+                var videoManifest = await dbContext.VideoManifests.TryFindOneAsync(c => c.ManifestHash.Hash == manifestHash);
+                if (videoManifest is not null)
+                    backgroundJobClient.Create<MetadataVideoValidatorTask>(
+                        task => task.RunAsync(videoManifest.Video.Id, videoManifest.ManifestHash.Hash),
+                        new EnqueuedState(Queues.METADATA_VIDEO_VALIDATOR));
             }
-            else if (button.Equals("Reject Video", StringComparison.Ordinal))
-            {
-                isApproved = false;
-                onlyManifest = true;
-            }
-            else if (button.Equals("Approve Manifest", StringComparison.Ordinal))
-            {
-                isApproved = true;
-                onlyManifest = true;
-            }
-            else if (button.Equals("Reject Manifest", StringComparison.Ordinal))
-            {
-                isApproved = false;
-                onlyManifest = false;
-            }
-            else
-            {
-                return RedirectToPage("Index");
-            }
-
-            if (isApproved.Value)
-            {
-                await videoReportService.ApproveAsync(manifestHash, onlyManifest.Value);
-            }
-            else
-            {
-                await videoReportService.RejectAsync(manifestHash, onlyManifest.Value);
-            }
-
-            await dbContext.SaveChangesAsync();
 
             return RedirectToPage("Index");
         }
