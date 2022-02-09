@@ -12,12 +12,21 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
+using Etherna.DomainEvents;
+using Etherna.EthernaIndex.Domain.Models;
+using Etherna.MongODM.Core;
+using Etherna.MongODM.Core.Repositories;
 
-namespace Etherna.EthernaIndex.Services.Tasks
+namespace Etherna.EthernaIndex.Domain
 {
-    public static class Queues
+    public interface IIndexDbContext : IDbContext
     {
-        public const string DB_MAINTENANCE = "db_maintenance";
-        public const string METADATA_VIDEO_VALIDATOR = "metadata_video_validator";
+        ICollectionRepository<Comment, string> Comments { get; }
+        ICollectionRepository<User, string> Users { get; }
+        ICollectionRepository<Video, string> Videos { get; }
+        ICollectionRepository<VideoManifest, string> VideoManifests { get; }
+        ICollectionRepository<VideoVote, string> Votes { get; }
+
+        IEventDispatcher EventDispatcher { get; }
     }
 }

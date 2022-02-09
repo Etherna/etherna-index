@@ -28,7 +28,7 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
             CreationDateTime = video.CreationDateTime;
             EncryptionKey = video.EncryptionKey;
             EncryptionType = video.EncryptionType;
-            ManifestHash = video.ManifestHash.Hash;
+            Id = video.Id;
             OwnerAddress = video.Owner.Address;
             OwnerIdentityManifest = video.Owner.IdentityManifest?.Hash;
             TotDownvotes = video.TotDownvotes;
@@ -36,10 +36,10 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
         }
 
         // Properties.
+        public string Id { get; }
         public DateTime CreationDateTime { get; }
         public string? EncryptionKey { get; }
         public EncryptionType EncryptionType { get; }
-        public string ManifestHash { get; }
         public string OwnerAddress { get; }
         public string? OwnerIdentityManifest { get; }
         public long TotDownvotes { get; }

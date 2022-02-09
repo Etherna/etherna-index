@@ -29,13 +29,13 @@ using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Persistence
 {
-    public class IndexContext : DbContext, IEventDispatcherDbContext, IIndexContext
+    public class IndexDbContext : DbContext, IEventDispatcherDbContext, IIndexDbContext
     {
         // Consts.
         private const string SerializersNamespace = "Etherna.EthernaIndex.Persistence.ModelMaps";
 
         // Constructor.
-        public IndexContext(
+        public IndexDbContext(
             IEventDispatcher eventDispatcher)
         {
             EventDispatcher = eventDispatcher;
@@ -48,7 +48,7 @@ namespace Etherna.EthernaIndex.Persistence
             {
                 IndexBuilders = new[]
                 {
-                    (Builders<Comment>.IndexKeys.Ascending(c => c.Video.ManifestHash.Hash), new CreateIndexOptions<Comment>())
+                    (Builders<Comment>.IndexKeys.Ascending(c => c.Video.Id), new CreateIndexOptions<Comment>())
                 }
             });
         public ICollectionRepository<User, string> Users { get; } = new DomainCollectionRepository<User, string>(
@@ -59,13 +59,14 @@ namespace Etherna.EthernaIndex.Persistence
                     (Builders<User>.IndexKeys.Ascending(u => u.Address), new CreateIndexOptions<User> { Unique = true }),
                     (Builders<User>.IndexKeys.Ascending(u => u.IdentityManifest!.Hash), new CreateIndexOptions<User>{ Sparse = true, Unique = true })
                 }
-            });
-        public ICollectionRepository<Video, string> Videos { get; } = new DomainCollectionRepository<Video, string>(
-            new CollectionRepositoryOptions<Video>("videos")
+            }); 
+        public ICollectionRepository<Video, string> Videos { get; } = new DomainCollectionRepository<Video, string>("videos");
+        public ICollectionRepository<VideoManifest, string> VideoManifests { get; } = new DomainCollectionRepository<VideoManifest, string>(
+            new CollectionRepositoryOptions<VideoManifest>("videoManifests")
             {
                 IndexBuilders = new[]
                 {
-                    (Builders<Video>.IndexKeys.Ascending(c => c.ManifestHash.Hash), new CreateIndexOptions<Video> { Unique = true })
+                    (Builders<VideoManifest>.IndexKeys.Ascending(c => c.ManifestHash.Hash), new CreateIndexOptions<VideoManifest> { Unique = true })
                 }
             });
         public ICollectionRepository<VideoVote, string> Votes { get; } = new DomainCollectionRepository<VideoVote, string>(
@@ -74,8 +75,8 @@ namespace Etherna.EthernaIndex.Persistence
                 IndexBuilders = new[]
                 {
                     (Builders<VideoVote>.IndexKeys.Ascending(v => v.Owner.Address)
-                                                  .Ascending(v => v.Video.ManifestHash.Hash), new CreateIndexOptions<VideoVote>{ Unique = true }),
-                    (Builders<VideoVote>.IndexKeys.Ascending(v => v.Video.ManifestHash.Hash), new CreateIndexOptions<VideoVote>()),
+                                                  .Ascending(v => v.Video.Id), new CreateIndexOptions<VideoVote>{ Unique = true }),
+                    (Builders<VideoVote>.IndexKeys.Ascending(v => v.Video.Id), new CreateIndexOptions<VideoVote>()),
                     (Builders<VideoVote>.IndexKeys.Ascending(v => v.Value), new CreateIndexOptions<VideoVote>()),
                 }
             });
@@ -85,7 +86,7 @@ namespace Etherna.EthernaIndex.Persistence
 
         // Protected properties.
         protected override IEnumerable<IModelMapsCollector> ModelMapsCollectors =>
-            from t in typeof(IndexContext).GetTypeInfo().Assembly.GetTypes()
+            from t in typeof(IndexDbContext).GetTypeInfo().Assembly.GetTypes()
             where t.IsClass && t.Namespace == SerializersNamespace
             where t.GetInterfaces().Contains(typeof(IModelMapsCollector))
             select Activator.CreateInstance(t) as IModelMapsCollector;

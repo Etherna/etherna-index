@@ -24,12 +24,12 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
     {
         // Fields.
         private readonly IConfiguration configuration;
-        private readonly IIndexContext indexContext;
+        private readonly IIndexDbContext indexContext;
 
         // Constructors.
         public SystemControllerService(
             IConfiguration configuration,
-            IIndexContext indexContext)
+            IIndexDbContext indexContext)
         {
             this.configuration = configuration;
             this.indexContext = indexContext;

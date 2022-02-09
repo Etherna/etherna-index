@@ -13,6 +13,9 @@
 //   limitations under the License.
 
 using Etherna.DomainEvents;
+using Etherna.EthernaIndex.Services.Tasks;
+using Etherna.EthernaIndex.Swarm;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
@@ -24,8 +27,11 @@ namespace Etherna.EthernaIndex.Services
     {
         private const string EventHandlersSubNamespace = "EventHandlers";
 
-        public static void AddDomainServices(this IServiceCollection services)
+        public static void AddDomainServices(this IServiceCollection services, IConfiguration configuration)
         {
+            if (configuration is null)
+                throw new ArgumentNullException(nameof(configuration));
+
             var currentType = typeof(ServiceCollectionExtensions).GetTypeInfo();
             var eventHandlersNamespace = $"{currentType.Namespace}.{EventHandlersSubNamespace}";
 
@@ -48,6 +54,14 @@ namespace Etherna.EthernaIndex.Services
 
                 return dispatcher;
             });
+
+            // Infrastructure.
+            //domain
+            services.AddScoped<ISwarmService, SwarmService>();
+            services.Configure<SwarmSettings>(configuration.GetSection("Swarm"));
+
+            // Tasks.
+            services.AddTransient<IMetadataVideoValidatorTask, MetadataVideoValidatorTask>();
         }
     }
 }
