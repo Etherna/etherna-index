@@ -59,6 +59,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                 config.AddModelMapsSchema<ManifestBase>("fa2c6046-6b74-41bc-bba6-a3c98b501ec6", mm => 
                 {
                     mm.MapMember(m => m.IsValid);
+                    mm.MapMember(m => m.ManifestHash);
                 });
                 config.AddModelMapsSchema<VideoManifest>("f7966611-14aa-4f18-92f4-8697b4927fb6", mm => { });
             });
