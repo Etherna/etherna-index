@@ -17,4 +17,3 @@ using System.Runtime.CompilerServices;
 
 [assembly: CLSCompliant(false)]
 [assembly: InternalsVisibleTo("EthernaIndex.Domain.Tests")]
-[assembly: InternalsVisibleTo("EthernaIndex.Domain.Tests")]

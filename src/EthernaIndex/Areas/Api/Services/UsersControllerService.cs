@@ -32,12 +32,12 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
     {
         // Fields.
         private readonly IHttpContextAccessor httpContextAccessor;
-        private readonly IIndexContext indexContext;
+        private readonly IIndexDbContext indexContext;
 
         // Constructors.
         public UsersControllerService(
             IHttpContextAccessor httpContextAccessor,
-            IIndexContext indexContext)
+            IIndexDbContext indexContext)
         {
             this.httpContextAccessor = httpContextAccessor;
             this.indexContext = indexContext;

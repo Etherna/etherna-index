@@ -12,7 +12,7 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-using Etherna.EthernaIndex.Domain.Models.Manifest;
+using Etherna.EthernaIndex.Domain.Models.ManifestAgg;
 using Etherna.EthernaIndex.Domain.Models.Swarm;
 using Etherna.MongODM.Core.Attributes;
 using System;
@@ -30,7 +30,6 @@ namespace Etherna.EthernaIndex.Domain.Models
         {
             ManifestHash = new SwarmContentHash(manifestHash);
         }
-
         protected ManifestBase() { }
 
         // Properties.

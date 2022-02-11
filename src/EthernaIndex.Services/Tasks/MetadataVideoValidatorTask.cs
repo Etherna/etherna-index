@@ -13,7 +13,7 @@
 //   limitations under the License.
 
 using Etherna.EthernaIndex.Domain;
-using Etherna.EthernaIndex.Domain.Models.Manifest;
+using Etherna.EthernaIndex.Domain.Models.ManifestAgg;
 using Etherna.EthernaIndex.Swarm;
 using Etherna.EthernaIndex.Swarm.DtoModel;
 using System;
@@ -26,12 +26,12 @@ namespace Etherna.EthernaIndex.Services.Tasks
     public class MetadataVideoValidatorTask : IMetadataVideoValidatorTask
     {
         // Fields.
-        private readonly IIndexContext indexContext;
+        private readonly IIndexDbContext indexContext;
         private readonly ISwarmService swarmService;
 
         // Constructors.
         public MetadataVideoValidatorTask(
-            IIndexContext indexContext,
+            IIndexDbContext indexContext,
             ISwarmService swarmService)
         {
             this.indexContext = indexContext;
@@ -41,44 +41,29 @@ namespace Etherna.EthernaIndex.Services.Tasks
         // Methods.
         public async Task RunAsync(string videoId, string manifestHash)
         {
-            var video = await indexContext.Videos.FindOneAsync(u => u.Id == videoId);
+            var video = await indexContext.Videos.FindOneAsync(videoId);
 
             MetadataVideoDto? metadataDto;
             var validationErrors = new List<ErrorDetail>();
 
             // Get manifest.
             var videoManifest = await indexContext.VideoManifests.FindOneAsync(u => u.ManifestHash.Hash == manifestHash);
-            if (videoManifest is null)
-            {
-                var ex = new InvalidOperationException("Manifest not found");
-                ex.Data.Add("ManifestHash", manifestHash);
-                throw ex;
-            }
-            if (videoManifest.IsValid.HasValue)
-            {
-                var ex = new InvalidOperationException("Manifest already processed");
-                ex.Data.Add("ManifestHash", manifestHash);
-                throw ex;
-            }
+            if (videoManifest.ValidationTime.HasValue)
+                return;
 
             // Get metadata.
             try
             {
                 metadataDto = await swarmService.GetMetadataVideoAsync(manifestHash);
             }
-            catch (MetadataVideoException ex)
-            {
-                validationErrors.Add(new ErrorDetail(ValidationErrorType.JsonConvert, ex.Message));
-                videoManifest.FailedValidation(validationErrors);
-                video.AddManifest(videoManifest);
-                await indexContext.SaveChangesAsync().ConfigureAwait(false);
-                return;
-            }
 #pragma warning disable CA1031 // Do not catch general exception types
             catch (Exception ex)
 #pragma warning restore CA1031 // Do not catch general exception types
             {
-                validationErrors.Add(new ErrorDetail(ValidationErrorType.Generic, ex.Message));
+                validationErrors.Add(new ErrorDetail(ex switch {
+                    MetadataVideoException _=> ValidationErrorType.JsonConvert,
+                    _ => ValidationErrorType.Generic
+                }, ex.Message));
                 videoManifest.FailedValidation(validationErrors);
                 video.AddManifest(videoManifest);
                 await indexContext.SaveChangesAsync().ConfigureAwait(false);

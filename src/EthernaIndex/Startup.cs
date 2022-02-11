@@ -199,11 +199,11 @@ namespace Etherna.EthernaIndex
             {
                 options.DbMaintenanceQueueName = Queues.DB_MAINTENANCE;
             })
-                .AddDbContext<IIndexContext, IndexContext>(
+                .AddDbContext<IIndexDbContext, IndexDbContext>(
                 sp =>
                 {
                     var eventDispatcher = sp.GetRequiredService<IEventDispatcher>();
-                    return new IndexContext(eventDispatcher);
+                    return new IndexDbContext(eventDispatcher);
                 },
                 options =>
                 {

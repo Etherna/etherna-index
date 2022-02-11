@@ -12,7 +12,7 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-using Etherna.EthernaIndex.Domain.Models.Manifest;
+using Etherna.EthernaIndex.Domain.Models.ManifestAgg;
 using Etherna.MongODM.Core.Attributes;
 using System.Collections.Generic;
 
@@ -44,7 +44,7 @@ namespace Etherna.EthernaIndex.Domain.Models
             get => _sources;
             protected set => _sources = new List<VideoSource>(value ?? new List<VideoSource>());
         }
-        public string? Title { get; protected set; }
+        public virtual string? Title { get; protected set; }
         public virtual SwarmImageRaw? Thumbnail { get; protected set; }
         public virtual Video Video { get; protected set; }
 

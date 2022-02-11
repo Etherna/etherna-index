@@ -47,17 +47,18 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
             {
                 config.UseCascadeDelete = useCascadeDelete;
                 config.AddModelMapsSchema<ModelBase>("23889d7e-fb5e-4245-871f-2d63baed10d1");
-                config.AddModelMapsSchema<EntityModelBase>("c6e9e564-293a-4fc4-a3fc-c4a05827f5e7", mm => { });
+                config.AddModelMapsSchema<EntityModelBase>("c6e9e564-293a-4fc4-a3fc-c4a05827f5e7", mm =>
+                {
+                    mm.MapMember(m => m.CreationDateTime);
+                });
                 config.AddModelMapsSchema<EntityModelBase<string>>("d71a8188-9baa-4454-8fba-9cc547bee291", mm =>
                 {
                     mm.MapIdMember(m => m.Id);
                     mm.IdMemberMap.SetSerializer(new StringSerializer(BsonType.ObjectId));
                 });
                 config.AddModelMapsSchema<ManifestBase>("fa2c6046-6b74-41bc-bba6-a3c98b501ec6", mm => 
-                { 
+                {
                     mm.MapMember(m => m.IsValid);
-                    mm.MapMember(m => m.ValidationTime);
-                    mm.MapMember(m => m.ManifestHash);
                 });
                 config.AddModelMapsSchema<VideoManifest>("f7966611-14aa-4f18-92f4-8697b4927fb6", mm => { });
             });

@@ -12,7 +12,7 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-using Etherna.EthernaIndex.Domain.Models.Manifest;
+using Etherna.EthernaIndex.Domain.Models.ManifestAgg;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -52,7 +52,7 @@ namespace Etherna.EthernaIndex.Domain.Models
             Assert.Equal(EncryptionType.AES256, video.EncryptionType);
             Assert.NotNull(video.Owner);
             Assert.Equal(address, video.Owner.Address);
-            Assert.Empty(video.VideoManifest);
+            Assert.Empty(video.VideoManifests);
         }
 
         [Fact]
@@ -88,10 +88,10 @@ namespace Etherna.EthernaIndex.Domain.Models
             video.AddManifest(videoManifestNotValid);
 
             //Assert
-            Assert.Equal(2, video.VideoManifest.Count());
-            Assert.Contains(video.VideoManifest,
+            Assert.Equal(2, video.VideoManifests.Count());
+            Assert.Contains(video.VideoManifests,
                 i => i.ManifestHash.Hash == manifestHash);
-            Assert.Contains(video.VideoManifest,
+            Assert.Contains(video.VideoManifests,
                 i => i.ManifestHash.Hash == secondManifestHash);
         }
 

@@ -36,10 +36,10 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
         }
 
         // Properties.
+        public string Id { get; }
         public DateTime CreationDateTime { get; }
         public string? EncryptionKey { get; }
         public EncryptionType EncryptionType { get; }
-        public string Id { get; }
         public string OwnerAddress { get; }
         public string? OwnerIdentityManifest { get; }
         public long TotDownvotes { get; }

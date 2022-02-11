@@ -23,7 +23,7 @@ namespace Etherna.EthernaIndex.Domain.Models
     public class Video : EntityModelBase<string>
     {
         // Fields.
-        private List<VideoManifest> _videoManifest = new();
+        private List<VideoManifest> _videoManifests = new();
 
         // Constructors and dispose.
         public Video(
@@ -53,19 +53,19 @@ namespace Etherna.EthernaIndex.Domain.Models
         public virtual User Owner { get; protected set; } = default!;
         public virtual long TotDownvotes { get; set; }
         public virtual long TotUpvotes { get; set; }
-        public virtual IEnumerable<VideoManifest> VideoManifest
+        public virtual IEnumerable<VideoManifest> VideoManifests
         {
-            get => _videoManifest;
-            protected set => _videoManifest = new List<VideoManifest>(value ?? new List<VideoManifest>());
+            get => _videoManifests;
+            protected set => _videoManifests = new List<VideoManifest>(value ?? new List<VideoManifest>());
         }
 
         // Methods.
-        public virtual VideoManifest? GetManifest() => _videoManifest
-                                .Where(i => i.IsValid == true)
-                                .OrderByDescending(i => i.CreationDateTime)
-                                .FirstOrDefault();
+        public virtual VideoManifest? GetLastValidManifest() =>
+            _videoManifests.Where(i => i.IsValid == true)
+                           .OrderByDescending(i => i.CreationDateTime)
+                           .FirstOrDefault();
 
-        [PropertyAlterer(nameof(VideoManifest))]
+        [PropertyAlterer(nameof(VideoManifests))]
         public virtual void AddManifest(VideoManifest videoManifest)
         {
             if (videoManifest is null)
@@ -78,14 +78,14 @@ namespace Etherna.EthernaIndex.Domain.Models
                 throw ex;
             }
 
-            if (_videoManifest.Any(i => i.ManifestHash.Hash == videoManifest.ManifestHash.Hash))
+            if (_videoManifests.Any(i => i.ManifestHash.Hash == videoManifest.ManifestHash.Hash))
             {
                 var ex = new InvalidOperationException("AddManifest duplicate");
                 ex.Data.Add("ManifestHash", videoManifest.ManifestHash.Hash);
                 throw ex;
             }
 
-            _videoManifest.Add(videoManifest);
+            _videoManifests.Add(videoManifest);
         }
 
         [PropertyAlterer(nameof(EncryptionKey))]

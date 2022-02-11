@@ -29,13 +29,13 @@ using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Persistence
 {
-    public class IndexContext : DbContext, IEventDispatcherDbContext, IIndexContext
+    public class IndexDbContext : DbContext, IEventDispatcherDbContext, IIndexDbContext
     {
         // Consts.
         private const string SerializersNamespace = "Etherna.EthernaIndex.Persistence.ModelMaps";
 
         // Constructor.
-        public IndexContext(
+        public IndexDbContext(
             IEventDispatcher eventDispatcher)
         {
             EventDispatcher = eventDispatcher;
@@ -60,14 +60,7 @@ namespace Etherna.EthernaIndex.Persistence
                     (Builders<User>.IndexKeys.Ascending(u => u.IdentityManifest!.Hash), new CreateIndexOptions<User>{ Sparse = true, Unique = true })
                 }
             }); 
-        public ICollectionRepository<Video, string> Videos { get; } = new DomainCollectionRepository<Video, string>(
-            new CollectionRepositoryOptions<Video>("videos")
-            {
-                IndexBuilders = new[]
-                {
-                    (Builders<Video>.IndexKeys.Ascending(c => c.Id), new CreateIndexOptions<Video> { Unique = true })
-                }
-            });
+        public ICollectionRepository<Video, string> Videos { get; } = new DomainCollectionRepository<Video, string>("videos");
         public ICollectionRepository<VideoManifest, string> VideoManifests { get; } = new DomainCollectionRepository<VideoManifest, string>(
             new CollectionRepositoryOptions<VideoManifest>("videoManifests")
             {
@@ -95,11 +88,9 @@ namespace Etherna.EthernaIndex.Persistence
         //other properties
         public IEventDispatcher EventDispatcher { get; }
 
-        
-
         // Protected properties.
         protected override IEnumerable<IModelMapsCollector> ModelMapsCollectors =>
-            from t in typeof(IndexContext).GetTypeInfo().Assembly.GetTypes()
+            from t in typeof(IndexDbContext).GetTypeInfo().Assembly.GetTypes()
             where t.IsClass && t.Namespace == SerializersNamespace
             where t.GetInterfaces().Contains(typeof(IModelMapsCollector))
             select Activator.CreateInstance(t) as IModelMapsCollector;

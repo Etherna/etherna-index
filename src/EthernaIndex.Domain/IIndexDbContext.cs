@@ -19,7 +19,7 @@ using Etherna.MongODM.Core.Repositories;
 
 namespace Etherna.EthernaIndex.Domain
 {
-    public interface IIndexContext : IDbContext
+    public interface IIndexDbContext : IDbContext
     {
         ICollectionRepository<Comment, string> Comments { get; }
         ICollectionRepository<User, string> Users { get; }

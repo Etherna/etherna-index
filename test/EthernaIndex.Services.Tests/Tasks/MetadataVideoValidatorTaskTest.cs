@@ -14,7 +14,7 @@
 
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
-using Etherna.EthernaIndex.Domain.Models.Manifest;
+using Etherna.EthernaIndex.Domain.Models.ManifestAgg;
 using Etherna.EthernaIndex.Services.Tasks;
 using Etherna.EthernaIndex.Swarm;
 using Etherna.EthernaIndex.Swarm.DtoModel;
@@ -39,7 +39,7 @@ namespace EthernaIndex.Services.Tests.Tasks
         readonly string encryptKey = "1d111a1d73fd8f28d71e6b03d2e42f44721db94b734c2edcfe6fcd48b76a74f1";
         readonly Video video;
         readonly VideoManifest videoManifest;
-        readonly Mock<IIndexContext> indexContext;
+        readonly Mock<IIndexDbContext> indexContext;
         readonly Mock<ISwarmService> swarmService;
 
         // Constructors.
@@ -52,10 +52,10 @@ namespace EthernaIndex.Services.Tests.Tasks
             swarmService = new Mock<ISwarmService>();
 
             // Mock Db Data.
-            indexContext = new Mock<IIndexContext>();
+            indexContext = new Mock<IIndexDbContext>();
             indexContext.Setup(_ => _.VideoManifests.FindOneAsync(It.IsAny<Expression<Func<VideoManifest, bool>>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(videoManifest);
-            indexContext.Setup(_ => _.Videos.FindOneAsync(It.IsAny<Expression<Func<Video, bool>>>(), It.IsAny<CancellationToken>()))
+            indexContext.Setup(_ => _.Videos.FindOneAsync(videoId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(video);
 
             // Inizialize.
@@ -113,7 +113,7 @@ namespace EthernaIndex.Services.Tests.Tasks
                     i.Reference == "Ref360" &&
                     i.Size == null);
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
-            Assert.Equal(manifestHash, video.GetManifest().ManifestHash.Hash);
+            Assert.Equal(manifestHash, video.GetLastValidManifest().ManifestHash.Hash);
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
         }
 
@@ -147,9 +147,9 @@ namespace EthernaIndex.Services.Tests.Tasks
             Assert.Contains(videoManifest.ErrorValidationResults,
                 i => i.ErrorMessage == "MissingTitle" &&
                     i.ErrorNumber == ValidationErrorType.MissingTitle);
-            Assert.Contains(video.VideoManifest,
+            Assert.Contains(video.VideoManifests,
                 i => i.ManifestHash.Hash == manifestHash);
-            Assert.Null(video.GetManifest());
+            Assert.Null(video.GetLastValidManifest());
         }
 
         [Fact]
@@ -169,9 +169,9 @@ namespace EthernaIndex.Services.Tests.Tasks
             Assert.Contains(videoManifest.ErrorValidationResults,
                 i => i.ErrorMessage == "Unable to cast json" &&
                     i.ErrorNumber == ValidationErrorType.JsonConvert);
-            Assert.Contains(video.VideoManifest,
+            Assert.Contains(video.VideoManifests,
                 i => i.ManifestHash.Hash == manifestHash);
-            Assert.Null(video.GetManifest());
+            Assert.Null(video.GetLastValidManifest());
         }
 
         [Fact]
@@ -200,9 +200,9 @@ namespace EthernaIndex.Services.Tests.Tasks
             Assert.Contains(videoManifest.ErrorValidationResults,
                 i => i.ErrorMessage == "Missing sources" &&
                     i.ErrorNumber == ValidationErrorType.InvalidVideoSource);
-            Assert.Contains(video.VideoManifest,
+            Assert.Contains(video.VideoManifests,
                 i => i.ManifestHash.Hash == manifestHash);
-            Assert.Null(video.GetManifest());
+            Assert.Null(video.GetLastValidManifest());
         }
 
         [Fact]
@@ -231,9 +231,9 @@ namespace EthernaIndex.Services.Tests.Tasks
             Assert.Contains(videoManifest.ErrorValidationResults,
                 i => i.ErrorMessage == "Missing sources" &&
                     i.ErrorNumber == ValidationErrorType.InvalidVideoSource);
-            Assert.Contains(video.VideoManifest,
+            Assert.Contains(video.VideoManifests,
                 i => i.ManifestHash.Hash == manifestHash);
-            Assert.Null(video.GetManifest());
+            Assert.Null(video.GetLastValidManifest());
         }
 
         [Fact]
@@ -267,9 +267,9 @@ namespace EthernaIndex.Services.Tests.Tasks
             Assert.Contains(videoManifest.ErrorValidationResults,
                 i => i.ErrorMessage == "[720] empty reference" &&
                     i.ErrorNumber == ValidationErrorType.InvalidVideoSource);
-            Assert.Contains(video.VideoManifest,
+            Assert.Contains(video.VideoManifests,
                 i => i.ManifestHash.Hash == manifestHash);
-            Assert.Null(video.GetManifest());
+            Assert.Null(video.GetLastValidManifest());
         }
 
         [Fact]
@@ -303,9 +303,9 @@ namespace EthernaIndex.Services.Tests.Tasks
             Assert.Contains(videoManifest.ErrorValidationResults,
                 i => i.ErrorMessage == "empty quality" &&
                     i.ErrorNumber == ValidationErrorType.InvalidVideoSource);
-            Assert.Contains(video.VideoManifest,
+            Assert.Contains(video.VideoManifests,
                 i => i.ManifestHash.Hash == manifestHash);
-            Assert.Null(video.GetManifest());
+            Assert.Null(video.GetLastValidManifest());
         }
 
         [Fact]
@@ -336,10 +336,10 @@ namespace EthernaIndex.Services.Tests.Tasks
             //Assert
             Assert.True(videoManifest.IsValid);
             Assert.NotNull(videoManifest.ValidationTime);
-            Assert.Contains(video.VideoManifest,
+            Assert.Contains(video.VideoManifests,
                 i => i.ManifestHash.Hash == manifestHash);
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
-            Assert.Equal(manifestHash, video.GetManifest().ManifestHash.Hash);
+            Assert.Equal(manifestHash, video.GetLastValidManifest().ManifestHash.Hash);
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
         }
 
@@ -370,9 +370,9 @@ namespace EthernaIndex.Services.Tests.Tasks
             // Assert.
             Assert.False(videoManifest.IsValid);
             Assert.NotNull(videoManifest.ValidationTime);
-            Assert.Contains(video.VideoManifest,
+            Assert.Contains(video.VideoManifests,
                 i => i.ManifestHash.Hash == manifestHash);
-            Assert.Null(video.GetManifest());
+            Assert.Null(video.GetLastValidManifest());
         }
 
         [Fact]
@@ -412,10 +412,10 @@ namespace EthernaIndex.Services.Tests.Tasks
                 Title = "Titletest2"
             };
             var secondVideoManifest = new VideoManifest(secondManifestHash, video);
-            var secondIndexContext = new Mock<IIndexContext>();
+            var secondIndexContext = new Mock<IIndexDbContext>();
             secondIndexContext.Setup(_ => _.VideoManifests.FindOneAsync(It.IsAny<Expression<Func<VideoManifest, bool>>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(secondVideoManifest);
-            secondIndexContext.Setup(_ => _.Videos.FindOneAsync(It.IsAny<Expression<Func<Video, bool>>>(), It.IsAny<CancellationToken>()))
+            secondIndexContext.Setup(_ => _.Videos.FindOneAsync(videoId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(video);
             var secondSwarmService = new Mock<ISwarmService>();
             secondSwarmService
@@ -429,13 +429,13 @@ namespace EthernaIndex.Services.Tests.Tasks
             //Assert
             Assert.True(secondVideoManifest.IsValid);
             Assert.NotNull(secondVideoManifest.ValidationTime);
-            Assert.Equal(2, video.VideoManifest.Count());
-            Assert.Contains(video.VideoManifest,
+            Assert.Equal(2, video.VideoManifests.Count());
+            Assert.Contains(video.VideoManifests,
                 i => i.ManifestHash.Hash == manifestHash);
-            Assert.Contains(video.VideoManifest,
+            Assert.Contains(video.VideoManifests,
                 i => i.ManifestHash.Hash == secondManifestHash);
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
-            Assert.Equal(secondManifestHash, video.GetManifest().ManifestHash.Hash);
+            Assert.Equal(secondManifestHash, video.GetLastValidManifest().ManifestHash.Hash);
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
         }
 
@@ -475,10 +475,10 @@ namespace EthernaIndex.Services.Tests.Tasks
                 }
             };
             var secondVideoManifest = new VideoManifest(secondManifestHash, video);
-            var secondIndexContext = new Mock<IIndexContext>();
+            var secondIndexContext = new Mock<IIndexDbContext>();
             secondIndexContext.Setup(_ => _.VideoManifests.FindOneAsync(It.IsAny<Expression<Func<VideoManifest, bool>>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(secondVideoManifest);
-            secondIndexContext.Setup(_ => _.Videos.FindOneAsync(It.IsAny<Expression<Func<Video, bool>>>(), It.IsAny<CancellationToken>()))
+            secondIndexContext.Setup(_ => _.Videos.FindOneAsync(videoId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(video);
             var secondSwarmService = new Mock<ISwarmService>();
             secondSwarmService
@@ -492,13 +492,13 @@ namespace EthernaIndex.Services.Tests.Tasks
             //Assert
             Assert.False(secondVideoManifest.IsValid);
             Assert.NotNull(secondVideoManifest.ValidationTime);
-            Assert.Equal(2, video.VideoManifest.Count());
-            Assert.Contains(video.VideoManifest,
+            Assert.Equal(2, video.VideoManifests.Count());
+            Assert.Contains(video.VideoManifests,
                 i => i.ManifestHash.Hash == manifestHash);
-            Assert.Contains(video.VideoManifest,
+            Assert.Contains(video.VideoManifests,
                 i => i.ManifestHash.Hash == secondManifestHash);
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
-            Assert.Equal(manifestHash, video.GetManifest().ManifestHash.Hash);
+            Assert.Equal(manifestHash, video.GetLastValidManifest().ManifestHash.Hash);
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
         }
 

@@ -17,6 +17,7 @@ using Etherna.EthernaIndex.Areas.Api.DtoModels;
 using Etherna.EthernaIndex.Areas.Api.InputModels;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
+using Etherna.EthernaIndex.Extensions;
 using Etherna.EthernaIndex.Services.Exceptions;
 using Etherna.EthernaIndex.Services.Tasks;
 using Etherna.MongoDB.Driver;
@@ -25,6 +26,7 @@ using Etherna.MongODM.Core.Extensions;
 using Hangfire;
 using Hangfire.States;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Nethereum.Util;
 using System;
 using System.Collections.Generic;
@@ -38,17 +40,20 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         // Fields.
         private readonly IBackgroundJobClient backgroundJobClient;
         private readonly IHttpContextAccessor httpContextAccessor;
-        private readonly IIndexContext indexContext;
+        private readonly IIndexDbContext indexContext;
+        private readonly ILogger<VideosControllerService> logger;
 
         // Constructors.
         public VideosControllerService(
             IBackgroundJobClient backgroundJobClient,
             IHttpContextAccessor httpContextAccessor,
-            IIndexContext indexContext)
+            IIndexDbContext indexContext,
+            ILogger<VideosControllerService> logger)
         {
             this.backgroundJobClient = backgroundJobClient;
             this.httpContextAccessor = httpContextAccessor;
             this.indexContext = indexContext;
+            this.logger = logger;
         }
 
         // Methods.
@@ -80,6 +85,8 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
                 task => task.RunAsync(video.Id, videoInput.ManifestHash),
                 new EnqueuedState(Queues.METADATA_VIDEO_VALIDATOR));
 
+            logger.CreatedVideo(user.Id, videoInput.ManifestHash);
+
             return new VideoDto(video);
         }
 
@@ -87,11 +94,13 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         {
             var address = httpContextAccessor.HttpContext!.User.GetEtherAddress();
             var user = await indexContext.Users.FindOneAsync(u => u.Address == address);
-            var video = await indexContext.Videos.FindOneAsync(v => v.Id == id);
+            var video = await indexContext.Videos.FindOneAsync(id);
 
             var comment = new Comment(user, text, video);
 
             await indexContext.Comments.CreateAsync(comment);
+
+            logger.CreatedCommentVideo(user.Id, id);
 
             return new CommentDto(comment);
         }
@@ -100,8 +109,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         {
             // Get data.
             var address = httpContextAccessor.HttpContext!.User.GetEtherAddress();
-            var video = await indexContext.Videos.QueryElementsAsync(elements =>
-                elements.FirstAsync(v => v.Id == id));
+            var video = await indexContext.Videos.FindOneAsync(id);
 
             // Verify authz.
             if (!video.Owner.Address.IsTheSameAddress(address))
@@ -109,10 +117,12 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
 
             // Action.
             await indexContext.Videos.DeleteAsync(video);
+
+            logger.AuthorDeletedVideo(id);
         }
 
         public async Task<VideoDto> FindByHashAsync(string hash) =>
-            new VideoDto(await indexContext.Videos.FindOneAsync(v => v.VideoManifest.Any(i=> i.ManifestHash.Hash == hash && i.IsValid == true)));
+            new VideoDto(await indexContext.Videos.FindOneAsync(v => v.VideoManifests.Any(i=> i.ManifestHash.Hash == hash)));
 
         public async Task<IEnumerable<VideoDto>> GetLastUploadedVideosAsync(int page, int take) =>
             (await indexContext.Videos.QueryElementsAsync(elements =>
@@ -131,7 +141,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         {
             // Get data.
             var address = httpContextAccessor.HttpContext!.User.GetEtherAddress();
-            var video = await indexContext.Videos.FindOneAsync(v => v.Id == id);
+            var video = await indexContext.Videos.FindOneAsync(id);
 
             // Verify authz.
             if (!video.Owner.Address.IsTheSameAddress(address))
@@ -140,12 +150,13 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             // Create videoManifest.
             var videoManifest = new VideoManifest(newHash, video);
             await indexContext.VideoManifests.CreateAsync(videoManifest);
-            await indexContext.SaveChangesAsync();
 
             // Create Validation Manifest Task.
             backgroundJobClient.Create<MetadataVideoValidatorTask>(
                 task => task.RunAsync(video.Id, newHash),
                 new EnqueuedState(Queues.METADATA_VIDEO_VALIDATOR));
+
+            logger.UpdatedVideo(id, newHash);
 
             return new VideoDto(video);
         }
@@ -189,7 +200,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             // Get data.
             var address = httpContextAccessor.HttpContext!.User.GetEtherAddress();
             var user = await indexContext.Users.FindOneAsync(u => u.Address == address);
-            var video = await indexContext.Videos.FindOneAsync(v => v.Id == id);
+            var video = await indexContext.Videos.FindOneAsync(id);
 
             // Remove prev votes of user on this content.
             var prevVotes = await indexContext.Votes.QueryElementsAsync(elements =>
@@ -214,6 +225,8 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             video.TotUpvotes = totUpvotes;
 
             await indexContext.SaveChangesAsync();
+
+            logger.VotedVideo(user.Id, id);
         }
     }
 }

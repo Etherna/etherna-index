@@ -1,4 +1,4 @@
-﻿namespace Etherna.EthernaIndex.Domain.Models.Manifest
+﻿namespace Etherna.EthernaIndex.Domain.Models.ManifestAgg
 {
     public enum ValidationErrorType
     {

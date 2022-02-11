@@ -29,10 +29,10 @@ namespace Etherna.EthernaIndex.Areas.Account.Pages
     public class LoginModel : PageModel
     {
         // Fields.
-        private readonly IIndexContext indexContext;
+        private readonly IIndexDbContext indexContext;
 
         // Constructors.
-        public LoginModel(IIndexContext indexContext)
+        public LoginModel(IIndexDbContext indexContext)
         {
             this.indexContext = indexContext;
         }

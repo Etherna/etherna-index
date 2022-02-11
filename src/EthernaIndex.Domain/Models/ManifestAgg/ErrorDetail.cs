@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Etherna.EthernaIndex.Domain.Models.Manifest
+namespace Etherna.EthernaIndex.Domain.Models.ManifestAgg
 {
     public class ErrorDetail : ModelBase
     {

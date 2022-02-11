@@ -110,7 +110,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// </summary>
         /// <param name="id">Video id</param>
         /// <param name="text">Comment text</param>
-        [HttpPost("{hash}/comments")]
+        [HttpPost("{id}/comments")]
         [Authorize]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]

@@ -15,7 +15,7 @@
 using Etherna.MongODM.Core.Attributes;
 using System.Collections.Generic;
 
-namespace Etherna.EthernaIndex.Domain.Models.Manifest
+namespace Etherna.EthernaIndex.Domain.Models.ManifestAgg
 {
     public class SwarmImageRaw : ModelBase
     {
