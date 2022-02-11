@@ -22,10 +22,10 @@ namespace Etherna.EthernaIndex.Services.Domain
     public class VideoReportService : IVideoReportService
     {
         // Fields.
-        private readonly IIndexContext dbContext;
+        private readonly IIndexDbContext dbContext;
 
         // Constructor.
-        public VideoReportService(IIndexContext dbContext)
+        public VideoReportService(IIndexDbContext dbContext)
         {
             this.dbContext = dbContext;
         }

@@ -48,11 +48,11 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
         private const int PageSize = 20;
 
         // Fields.
-        private readonly IIndexContext dbContext;
+        private readonly IIndexDbContext dbContext;
 
         // Constructor.
         public IndexModel(
-            IIndexContext dbContext)
+            IIndexDbContext dbContext)
         {
             this.dbContext = dbContext;
         }

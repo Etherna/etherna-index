@@ -165,7 +165,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         {
             // Get data.
             var video = await indexContext.Videos.FindOneAsync(v => v.Id == videoId);
-            var currentManifest = video.GetManifest();
+            var currentManifest = video.GetLastValidManifest();
 
             if (video.ContentApproved == true ||
                 currentManifest is null ||

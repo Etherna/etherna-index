@@ -103,12 +103,12 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
 
         // Fields.
         private readonly IBackgroundJobClient backgroundJobClient;
-        private readonly IIndexContext dbContext;
+        private readonly IIndexDbContext dbContext;
 
         // Constructor.
         public ManageModel(
             IBackgroundJobClient backgroundJobClient,
-            IIndexContext dbContext)
+            IIndexDbContext dbContext)
         {
             if (dbContext is null)
                 throw new ArgumentNullException(nameof(dbContext));

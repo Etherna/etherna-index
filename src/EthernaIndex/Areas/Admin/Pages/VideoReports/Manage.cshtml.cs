@@ -69,12 +69,12 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
         private const int PageSize = 20;
 
         // Fields.
-        private readonly IIndexContext dbContext;
+        private readonly IIndexDbContext dbContext;
         private readonly IVideoReportService videoReportService;
 
         // Constructor.
         public ManageModel(
-            IIndexContext dbContext,
+            IIndexDbContext dbContext,
             IVideoReportService videoReportService)
         {
             if (dbContext is null)
