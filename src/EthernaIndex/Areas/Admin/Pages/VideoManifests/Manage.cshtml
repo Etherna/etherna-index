@@ -16,81 +16,127 @@
 @page
 @model Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests.ManageModel
 
-<div class="row">
-    <div class="col-12 mb-3 text-center mt-1">
-        <h2>@Model.VideoManifest.Title</h2>
-    </div>
-</div>
+<form id="client-form" asp-page-handler="VideoManifests" Method="post">
+    <input type="hidden" asp-for="VideoManifest.ManifestHash" />
 
-<div class="row">
-    <div class="col-2 mb-3 text-left mt-1">
-        <strong>Description:</strong>
+    <div class="row">
+        <div class="col-12 mb-3 text-center mt-1">
+            <h2>@Model.VideoManifest.Title</h2>
+        </div>
     </div>
-    <div class="col-10 mb-3 text-left mt-1">
-        @Model.VideoManifest.Description
-    </div>
-</div>
 
-<div class="row">
-    <div class="col-2 mb-3 text-left mt-1">
-        <strong>Creation:</strong>
+    <div class="row">
+        <div class="col-2 mb-3 text-left mt-1">
+            <strong>Description:</strong>
+        </div>
+        <div class="col-10 mb-3 text-left mt-1">
+            @Model.VideoManifest.Description
+        </div>
     </div>
-    <div class="col-10 mb-3 text-left mt-1">
-        @Model.VideoManifest.CreationDateTime
-    </div>
-</div>
 
-<div class="row">
-    <div class="col-2 mb-3 text-left mt-1">
-        <strong>ManifestHash:</strong>
+    <div class="row">
+        <div class="col-2 mb-3 text-left mt-1">
+            <strong>Creation:</strong>
+        </div>
+        <div class="col-10 mb-3 text-left mt-1">
+            @Model.VideoManifest.CreationDateTime
+        </div>
     </div>
-    <div class="col-10 mb-3 text-left mt-1">
-        @Model.VideoManifest.ManifestHash
-    </div>
-</div>
 
-<div class="row">
-    <div class="col-2 mb-3 text-left mt-1">
-        <strong>ValidationTime:</strong>
+    <div class="row">
+        <div class="col-2 mb-3 text-left mt-1">
+            <strong>ManifestHash:</strong>
+        </div>
+        <div class="col-10 mb-3 text-left mt-1">
+            @Model.VideoManifest.ManifestHash
+        </div>
     </div>
-    <div class="col-2 mb-3 text-left mt-1">
-        @Model.VideoManifest.ValidationTime
-    </div>
-    <div class="col-1 mb-3 text-left mt-1">
-        <strong>IsValid:</strong>
-    </div>
-    <div class="col-1 mb-3 text-left mt-1">
-        @Model.VideoManifest.IsValid
-    </div>
-    <div class="col-1 mb-3 text-left mt-1">
-        <strong>ContentApproved:</strong>
-    </div>
-    <div class="col-1 mb-3 text-left mt-1">
-        @Model.VideoManifest.ContentApproved
-    </div>
-</div>
 
-<div class="row">
-    <div class="col-2 mb-3 text-left mt-1">
-        <strong>Errors:</strong>
+    <div class="row">
+        <div class="col-2 mb-3 text-left mt-1">
+            <strong>Validation Time:</strong>
+        </div>
+        <div class="col-2 mb-3 text-left mt-1">
+            @Model.VideoManifest.ValidationTime
+        </div>
+        <div class="col-1 mb-3 text-left mt-1">
+            <strong>IsValid:</strong>
+        </div>
+        <div class="col-1 mb-3 text-left mt-1">
+            @Model.VideoManifest.IsValid
+        </div>
     </div>
-    <div class="col-10 mb-3 text-left mt-1">
-        <ul>
-            @foreach (var errorsDetail in Model.VideoManifest.ErrorsDetails)
-            {
-                <li>@errorsDetail</li>
-            }
-        </ul>
-    </div>
-</div>
 
-<form id="client-form" asp-page-handler="ManageVideoReport" Method="post">
+    <div class="row">
+        <div class="col-2 mb-3 text-left mt-1">
+            <strong>Errors:</strong>
+        </div>
+        <div class="col-10 mb-3 text-left mt-1">
+            <ul>
+                @foreach (var errorsDetail in Model.VideoManifest.ErrorsDetails)
+                {
+                    <li>@errorsDetail</li>
+                }
+            </ul>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-2 mb-3 text-left mt-1">
+            <strong>ContentApproved:</strong>
+        </div>
+        <div class="col-2 mb-3 text-left mt-1">
+            @(Model.VideoManifest.ContentApproved?.ToString() ?? "Not Defined")
+        </div>
+    </div>
+
     <div class="form-row">
         <div class="col-12 mb-3">
-            <input type="hidden" asp-for="VideoManifest.ManifestHash" />
+            <input type="submit" class="btn btn-primary" value="Approve Manifest" name="button" />
+            <input type="submit" class="btn btn-primary" value="Reject Manifest" name="button" />
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12 mb-3 text-center mt-1">
+            <h5>Video Info</h5>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-2 mb-3 text-left mt-1">
+            <strong>ContentApproved:</strong>
+        </div>
+        <div class="col-2 mb-3 text-left mt-1">
+            @(Model.VideoManifest.VideoInfo.VideoContentApproved?.ToString() ?? "Not Defined")
+        </div>
+        <div class="col-2 mb-3 text-left mt-1">
+            <strong>Video Id:</strong>
+        </div>
+        <div class="col-2 mb-3 text-left mt-1">
+            @Model.VideoManifest.VideoInfo.VideoId
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="col-12 mb-3">
+            <input type="submit" class="btn btn-primary" value="Approve Video" name="button" />
+            <input type="submit" class="btn btn-primary" value="Reject Video" name="button" />
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12 mb-3 text-center mt-1">
+            <h5>Validation Actions</h5>
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="col-12 text-center  mb-3">
             <input type="submit" class="btn btn-primary" value="Force New Validation" name="button" />
             <input type="submit" class="btn btn-primary" value="Force Invalid Status" name="button" />
             <input type="submit" class="btn btn-primary" value="Force Valid Status" name="button" />
         </div>
     </div>
+
 </form>

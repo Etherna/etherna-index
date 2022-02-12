@@ -164,7 +164,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
             var hashVideoReports = await dbContext.VideoReports.QueryElementsAsync(elements =>
                 elements.Where(u => u.VideoManifest.ManifestHash.Hash == VideoReport.ManifestHash &&
                                     u.LastCheck == null) //Only Report to check
-                                                         //.OrderBy(i => i.CreationDateTime)
+                        .OrderBy(i => i.CreationDateTime)
                         .Skip(CurrentPage * PageSize)
                         .Take(PageSize)
                         .ToCursorAsync());
