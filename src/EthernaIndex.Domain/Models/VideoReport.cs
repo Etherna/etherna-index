@@ -17,51 +17,26 @@ using System;
 
 namespace Etherna.EthernaIndex.Domain.Models
 {
-    public class VideoReport : EntityModelBase<string>
+    public class VideoReport : ReportBase
     {
-        // Constructors and dispose.
+        // Constructors.
         public VideoReport(
             VideoManifest videoManifest,
             User owner,
             string description)
+            : base(description, owner)
         {
-            ReporterOwner = owner ?? throw new ArgumentNullException(nameof(owner));
             VideoManifest = videoManifest ?? throw new ArgumentNullException(nameof(videoManifest));
-            ReportDescription = description ?? throw new ArgumentNullException(nameof(description));
+            Video = videoManifest.Video;
+            Description = description ?? throw new ArgumentNullException(nameof(description));
         }
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         protected VideoReport() { }
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
 
         // Properties.
-        public virtual bool? ContentApproved { get; protected set; }
-        public virtual string ReportDescription { get; protected set; } = default!;
-        public virtual DateTime? LastCheck { get; protected set; }
-        public virtual User ReporterOwner { get; protected set; } = default!;
-        public virtual VideoManifest VideoManifest { get; protected set; } = default!;
-
-        // Methods.
-        [PropertyAlterer(nameof(ContentApproved))]
-        [PropertyAlterer(nameof(LastCheck))]
-        public void ApproveContent(bool onlyManifest)
-        {
-            ContentApproved = true;
-            LastCheck = DateTime.UtcNow;
-            VideoManifest.ContentApproved = true; //TODO what is the field of [PropertyAlterer(nameof(?))]
-            if (onlyManifest &&
-                VideoManifest.Video is not null)
-                VideoManifest.Video.ContentApproved = true;//TODO what is the field of [PropertyAlterer(nameof(?))]
-        }
-
-        [PropertyAlterer(nameof(ContentApproved))]
-        [PropertyAlterer(nameof(LastCheck))]
-        public void RejectContent(bool onlyManifest)
-        {
-            ContentApproved = false;
-            LastCheck = DateTime.UtcNow;
-            VideoManifest.ContentApproved = false; //TODO what is the field of [PropertyAlterer(nameof(?))]
-            if (onlyManifest &&
-                VideoManifest.Video is not null)
-                VideoManifest.Video.ContentApproved = false;//TODO what is the field of [PropertyAlterer(nameof(?))]
-        }
+        public virtual Video Video { get; protected set; }
+        public virtual VideoManifest VideoManifest { get; protected set; }
     }
 }

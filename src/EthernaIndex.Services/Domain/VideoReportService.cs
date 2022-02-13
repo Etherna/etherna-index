@@ -14,7 +14,7 @@
 
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
-using Etherna.MongoDB.Driver.Linq;
+using System;
 using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Services.Domain
@@ -22,60 +22,46 @@ namespace Etherna.EthernaIndex.Services.Domain
     public class VideoReportService : IVideoReportService
     {
         // Fields.
-        private readonly IIndexDbContext dbContext;
+        private readonly IIndexDbContext indexDbContext;
 
         // Constructor.
-        public VideoReportService(IIndexDbContext dbContext)
+        public VideoReportService(
+            IIndexDbContext indexDbContext)
         {
-            this.dbContext = dbContext;
+            this.indexDbContext = indexDbContext;
         }
 
-
-        public async Task ApproveAsync(string hashReportVideo, bool onlyManifest)
+        // Methods.
+        public async Task SetReviewAsync(string videoId, string hashReportVideo, ContentReviewType contentReview, User user)
         {
-            await ManageReportAsync(hashReportVideo, true, onlyManifest);
-        }
+            if (hashReportVideo is null)
+                throw new ArgumentNullException(nameof(hashReportVideo));
+            if (videoId is null)
+                throw new ArgumentNullException(nameof(videoId));
 
-        public async Task RejectAsync(string hashReportVideo, bool onlyManifest)
-        {
-            await ManageReportAsync(hashReportVideo, false, onlyManifest);
-        }
+            var video = await indexDbContext.Videos.FindOneAsync(i => i.Id == videoId);
+            if (contentReview == ContentReviewType.ApprovedManifest ||
+                contentReview == ContentReviewType.RejectManifest)
+            {
+                if (video.GetLastValidManifest()?.Title == hashReportVideo) //Set review only for last valid hashReportVideo
+                    video.SetReview(contentReview);
+                else
+                    return;
+            }
+            else
+                video.SetReview(contentReview);
 
-        // Helpers.
-        private void ApproveContent(VideoReport videoReport, bool onlyManifest)
-        {
-            if (videoReport is null)
-                return;
-
-            videoReport.ApproveContent(onlyManifest);
-        }
-
-        private async Task ManageReportAsync(string hashReportVideo, bool isApproved, bool onlyManifest)
-        {
-            var videoReports = await dbContext.VideoReports.QueryElementsAsync(elements =>
-                elements.Where(u => u.VideoManifest.ManifestHash.Hash == hashReportVideo &&
-                                    u.LastCheck == null) //Only Report to check
-                        .ToCursorAsync());
-
-            while (await videoReports.MoveNextAsync())
-                foreach (var item in videoReports.Current)
-                    if (isApproved)
-                        ApproveContent(item, onlyManifest);
-                    else
-                        await RejectContentAsync(item, onlyManifest);
-        }
-
-        private async Task RejectContentAsync(VideoReport videoReport, bool onlyManifest)
-        {
-            if (videoReport is null)
-                return;
-
-            videoReport.RejectContent(onlyManifest);
-
-            var video = await dbContext.VideoReports.TryFindOneAsync(u => u.Id == videoReport.Id);
-            if (video is not null)
-                await dbContext.Videos.DeleteAsync(video);
-            //TODO need to remove VideoReport, VideoVote, ManifestMetadata?
+            var review = await indexDbContext.VideoReviews.TryFindOneAsync(i => i.Video.Id == videoId &&
+                                                                            i.ManifestHash == hashReportVideo);
+            if (review is null)
+            {
+                review = new VideoReview(contentReview, "", hashReportVideo, user, video);
+                await indexDbContext.VideoReviews.CreateAsync(review);
+            }
+            else
+            {
+                review.ChangeReview(contentReview, "");
+            }
         }
     }
 }

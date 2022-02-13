@@ -47,7 +47,7 @@ namespace Etherna.EthernaIndex.Domain.Models
         }
 
         // Properties.
-        public virtual bool? ContentApproved { get; set; }
+        public virtual ContentReviewType? ContentReview { get; protected set; }
         public virtual string? EncryptionKey { get; protected set; }
         public virtual EncryptionType EncryptionType { get; protected set; }
         public virtual User Owner { get; protected set; } = default!;
@@ -65,6 +65,7 @@ namespace Etherna.EthernaIndex.Domain.Models
                            .OrderByDescending(i => i.CreationDateTime)
                            .FirstOrDefault();
 
+        [PropertyAlterer(nameof(ContentReview))]
         [PropertyAlterer(nameof(VideoManifests))]
         public virtual void AddManifest(VideoManifest videoManifest)
         {
@@ -84,6 +85,11 @@ namespace Etherna.EthernaIndex.Domain.Models
                 ex.Data.Add("ManifestHash", videoManifest.ManifestHash.Hash);
                 throw ex;
             }
+
+            if (videoManifest.IsValid == true &&
+                (ContentReview == ContentReviewType.ApprovedManifest ||
+                ContentReview == ContentReviewType.RejectManifest))
+                ContentReview = ContentReviewType.WaitingReview;
 
             _videoManifests.Add(videoManifest);
         }
@@ -110,6 +116,12 @@ namespace Etherna.EthernaIndex.Domain.Models
 
             EncryptionKey = encryptionKey;
             EncryptionType = encryptionType;
+        }
+
+        [PropertyAlterer(nameof(ContentReview))]
+        public virtual void SetReview(ContentReviewType review)
+        {
+            ContentReview = review;
         }
 
     }

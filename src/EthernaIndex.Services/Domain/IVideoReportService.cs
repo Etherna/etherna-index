@@ -12,13 +12,13 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
+using Etherna.EthernaIndex.Domain.Models;
 using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Services.Domain
 {
     public interface IVideoReportService
     {
-        Task ApproveAsync(string hashReportVideo, bool onlyManifest);
-        Task RejectAsync(string hashReportVideo, bool onlyManifest);
+        Task SetReviewAsync(string videoId, string hashReportVideo, ContentReviewType contentReview, User user);
     }
 }

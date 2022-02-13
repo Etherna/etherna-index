@@ -1,4 +1,5 @@
 using Etherna.EthernaIndex.Domain;
+using Etherna.EthernaIndex.Domain.Models;
 using Etherna.MongoDB.Driver.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -78,16 +79,14 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
         {
             CurrentPage = p ?? 0;
 
-            // Count all distinct reports.
+            // Count all distinct VideoReports.
             var totalReports = await dbContext.VideoReports.QueryElementsAsync(elements =>
-                elements.Where(u => u.LastCheck == null) //Only Report to check
-                        .GroupBy(i => i.VideoManifest.Id)
+                        FilterAndGroup(elements)
                         .CountAsync());
 
-            // Get all VideoReports group by Hash.
+            // Get all VideoReports group by VideoId.
             var videoReportsResult = await dbContext.VideoReports.QueryElementsAsync(elements =>
-                elements.Where(u => u.LastCheck == null) //Only Report to check
-                        .GroupBy(i => i.VideoManifest.Id)
+                        FilterAndGroup(elements)
                         .OrderBy(i => i.Key)
                         .Skip(CurrentPage * PageSize)
                         .Take(PageSize)
@@ -103,27 +102,33 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
             }
 
             //Get manifest info
-            var videoManifests = await dbContext.VideoManifests.QueryElementsAsync(elements =>
+            var videos = await dbContext.Videos.QueryElementsAsync(elements =>
                 elements.Where(u => videoReportsIds.Contains(u.Id))
                         .OrderBy(i => i.Id)
                         .ToCursorAsync());
-            while (await videoManifests.MoveNextAsync())
+            while (await videos.MoveNextAsync())
             {
-                foreach (var itemManifest in videoManifests.Current)
+                foreach (var item in videos.Current)
                 {
-                    var title = itemManifest.Title ?? "";
-                    VideoReports.Add(new VideoReportDto(itemManifest.ManifestHash.Hash, title, itemManifest.Video.Id));
+                    var manifest = item.GetLastValidManifest();
+                    VideoReports.Add(new VideoReportDto(manifest?.ManifestHash?.Hash ?? "", manifest?.Title ?? "", item.Id));
                 }
             }
 
             MaxPage = totalReports == 0 ? 0 : ((totalReports + PageSize - 1) / PageSize) - 1;
         }
 
+        private static IMongoQueryable<System.Linq.IGrouping<string, VideoReport>> FilterAndGroup(IMongoQueryable<VideoReport> elements)
+        {
+            return elements.Where(u => u.Video.ContentReview == null ||
+                                    u.Video.ContentReview == ContentReviewType.WaitingReview)//Only Report to check
+                            .GroupBy(i => i.Video.Id);
+        }
+
         public async Task<IActionResult> OnPostAsync(int? p)
         {
             var totalVideo = await dbContext.VideoReports.QueryElementsAsync(elements =>
-                elements.Where(u => u.LastCheck == null && //Only Report to check
-                                    u.VideoManifest.ManifestHash.Hash == Input.ManifestHash) 
+                elements.Where(u => u.VideoManifest.ManifestHash.Hash == Input.ManifestHash) 
                         .CountAsync());
 
             if (totalVideo == 0)

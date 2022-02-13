@@ -59,8 +59,15 @@ namespace Etherna.EthernaIndex.Persistence
                     (Builders<User>.IndexKeys.Ascending(u => u.Address), new CreateIndexOptions<User> { Unique = true }),
                     (Builders<User>.IndexKeys.Ascending(u => u.IdentityManifest!.Hash), new CreateIndexOptions<User>{ Sparse = true, Unique = true })
                 }
-            }); 
-        public ICollectionRepository<Video, string> Videos { get; } = new DomainCollectionRepository<Video, string>("videos");
+            });
+        public ICollectionRepository<Video, string> Videos { get; } = new DomainCollectionRepository<Video, string>(
+            new CollectionRepositoryOptions<Video>("videos")
+            {
+                IndexBuilders = new[]
+                {
+                    (Builders<Video>.IndexKeys.Ascending(v => v.ContentReview), new CreateIndexOptions<Video>()),
+                }
+            });
         public ICollectionRepository<VideoManifest, string> VideoManifests { get; } = new DomainCollectionRepository<VideoManifest, string>(
             new CollectionRepositoryOptions<VideoManifest>("videoManifests")
             {
@@ -69,10 +76,8 @@ namespace Etherna.EthernaIndex.Persistence
                     (Builders<VideoManifest>.IndexKeys.Ascending(c => c.ManifestHash.Hash), new CreateIndexOptions<VideoManifest> { Unique = true })
                 }
             });
-        public ICollectionRepository<VideoReport, string> VideoReports { get; } = new DomainCollectionRepository<VideoReport, string>(
-            new CollectionRepositoryOptions<VideoReport>("videoReports")
-            {
-            });
+        public ICollectionRepository<VideoReport, string> VideoReports { get; } = new DomainCollectionRepository<VideoReport, string>("videoReports");
+        public ICollectionRepository<VideoReview, string> VideoReviews { get; } = new DomainCollectionRepository<VideoReview, string>("videoReviews");
         public ICollectionRepository<VideoVote, string> Votes { get; } = new DomainCollectionRepository<VideoVote, string>(
             new CollectionRepositoryOptions<VideoVote>("votes")
             {

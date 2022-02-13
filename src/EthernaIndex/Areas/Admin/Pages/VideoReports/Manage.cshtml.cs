@@ -12,9 +12,12 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
+using Etherna.Authentication.Extensions;
 using Etherna.EthernaIndex.Domain;
+using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.Services.Domain;
 using Etherna.MongoDB.Driver.Linq;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System;
@@ -69,17 +72,20 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
         private const int PageSize = 20;
 
         // Fields.
+        private readonly IHttpContextAccessor httpContextAccessor;
         private readonly IIndexDbContext dbContext;
         private readonly IVideoReportService videoReportService;
 
         // Constructor.
         public ManageModel(
+            IHttpContextAccessor httpContextAccessor,
             IIndexDbContext dbContext,
             IVideoReportService videoReportService)
         {
             if (dbContext is null)
                 throw new ArgumentNullException(nameof(dbContext));
 
+            this.httpContextAccessor = httpContextAccessor;
             this.dbContext = dbContext;
             this.videoReportService = videoReportService;
         }
@@ -100,6 +106,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
         }
 
         public async Task<IActionResult> OnPostManageVideoReportAsync(
+            string videoId,
             string manifestHash,
             string button)
         {
@@ -107,42 +114,25 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
                 string.IsNullOrWhiteSpace(button))
                 return RedirectToPage("Index");
 
-            bool? isApproved;
-            bool? onlyManifest;
+            ContentReviewType contentReviewType;
             if (button.Equals("Approve Video", StringComparison.Ordinal))
-            {
-                isApproved = true;
-                onlyManifest = false;
-            }
+                contentReviewType = ContentReviewType.ApprovedVideo;
             else if (button.Equals("Reject Video", StringComparison.Ordinal))
-            {
-                isApproved = false;
-                onlyManifest = true;
-            }
+                contentReviewType = ContentReviewType.RejectVideo;
             else if (button.Equals("Approve Manifest", StringComparison.Ordinal))
-            {
-                isApproved = true;
-                onlyManifest = true;
-            }
+                contentReviewType = ContentReviewType.ApprovedManifest;
             else if (button.Equals("Reject Manifest", StringComparison.Ordinal))
-            {
-                isApproved = false;
-                onlyManifest = false;
-            }
+                contentReviewType = ContentReviewType.RejectManifest;
+            else if (button.Equals("Waiting Review", StringComparison.Ordinal))
+                contentReviewType = ContentReviewType.WaitingReview;
             else
-            {
                 return RedirectToPage("Index");
-            }
-                
-            if (isApproved.Value)
-            {
-                await videoReportService.ApproveAsync(manifestHash, onlyManifest.Value);
-            }
-            else
-            {
-                await videoReportService.RejectAsync(manifestHash, onlyManifest.Value);
-            }
-                    
+
+            var address = httpContextAccessor.HttpContext!.User.GetEtherAddress();
+            var user = await dbContext.Users.FindOneAsync(c => c.Address == address);
+
+            await videoReportService.SetReviewAsync(videoId, manifestHash, contentReviewType, user);
+
             await dbContext.SaveChangesAsync();
 
             return RedirectToPage("Index");
@@ -156,14 +146,12 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
 
             // Count all VideoReports.
             var totalVideo = await dbContext.VideoReports.QueryElementsAsync(elements =>
-                elements.Where(u => u.VideoManifest.ManifestHash.Hash == VideoReport.ManifestHash &&
-                                    u.LastCheck == null) //Only Report to check
+                elements.Where(u => u.VideoManifest.ManifestHash.Hash == VideoReport.ManifestHash) //Only Report to check
                         .CountAsync());
 
             // Get all VideoReports paginated.
             var hashVideoReports = await dbContext.VideoReports.QueryElementsAsync(elements =>
-                elements.Where(u => u.VideoManifest.ManifestHash.Hash == VideoReport.ManifestHash &&
-                                    u.LastCheck == null) //Only Report to check
+                elements.Where(u => u.VideoManifest.ManifestHash.Hash == VideoReport.ManifestHash) //Only Report to check
                         .OrderBy(i => i.CreationDateTime)
                         .Skip(CurrentPage * PageSize)
                         .Take(PageSize)
@@ -176,7 +164,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
                 {
                     DetailReports.Add(new VideoReportDetailDto(
                         item.Id,
-                        item.ReportDescription,
+                        item.Description,
                         item.ReporterOwner.Address,
                         item.CreationDateTime));
                 }

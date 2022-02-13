@@ -101,8 +101,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
         public async Task<IActionResult> OnPostAsync(int? p)
         {
             var totalVideo = await dbContext.VideoReports.QueryElementsAsync(elements =>
-                elements.Where(u => u.LastCheck == null && //Only Report to check
-                                    u.VideoManifest.ManifestHash.Hash == Input.ManifestHash) 
+                elements.Where(u => u.VideoManifest.ManifestHash.Hash == Input.ManifestHash) 
                         .CountAsync());
 
             if (totalVideo == 0)

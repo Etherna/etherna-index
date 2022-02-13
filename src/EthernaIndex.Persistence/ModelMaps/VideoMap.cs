@@ -56,7 +56,9 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                     mm.MapIdMember(m => m.Id);
                     mm.IdMemberMap.SetSerializer(new StringSerializer(BsonType.ObjectId));
                 });
-                config.AddModelMapsSchema<Video>("d4844740-472d-48b9-b066-67ba9a2acc9b", mm =>{});
+                config.AddModelMapsSchema<Video>("d4844740-472d-48b9-b066-67ba9a2acc9b", mm =>{
+                    mm.MapMember(m => m.ContentReview);
+                });
             });
     }
 }

@@ -122,7 +122,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         }
 
         public async Task<VideoDto> FindByHashAsync(string hash) =>
-            new VideoDto(await indexContext.Videos.FindOneAsync(v => v.VideoManifests.Any(i=> i.ManifestHash.Hash == hash)));
+            new VideoDto(await indexContext.Videos.FindOneAsync(v => v.VideoManifests.Any(i => i.ManifestHash.Hash == hash)));
 
         public async Task<IEnumerable<VideoDto>> GetLastUploadedVideosAsync(int page, int take) =>
             (await indexContext.Videos.QueryElementsAsync(elements =>
@@ -167,32 +167,28 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             var video = await indexContext.Videos.FindOneAsync(v => v.Id == videoId);
             var currentManifest = video.GetLastValidManifest();
 
-            if (video.ContentApproved == true ||
-                currentManifest is null ||
-                currentManifest.ContentApproved == true)
+            if (currentManifest is null)
                 return;
 
             var address = httpContextAccessor.HttpContext!.User.GetEtherAddress();
             var user = await indexContext.Users.FindOneAsync(u => u.Address == address);
 
-            var videoReport = await indexContext.VideoReports.QueryElementsAsync(elements =>
-                elements.Where(u => u.VideoManifest.Id == currentManifest.Id &&
-                                    u.ReporterOwner.Address == address)
-                        .CountAsync());
+            var videoReport = await indexContext.VideoReports
+                                                .TryFindOneAsync(v => v.VideoManifest.Id == currentManifest.Id &&
+                                                                    v.ReporterOwner.Address == address);
 
-            if (videoReport > 0)
+            if (videoReport is null)
             {
-                //TODO what type of Exception?
-                var ex = new InvalidOperationException($"Duplicated video report");
-                ex.Data.Add("VideoId", video.Id);
-                ex.Data.Add("ManifestHash", currentManifest.ManifestHash.Hash);
-                throw ex;
+                // Create new report.
+                var videoReported = new VideoReport(currentManifest, user, description);
+                await indexContext.VideoReports.CreateAsync(videoReported);
             }
-
-            // Create new report.
-            var videoReported = new VideoReport(currentManifest, user, description);
-
-            await indexContext.VideoReports.CreateAsync(videoReported);
+            else
+            {
+                // Edit report.
+                videoReport.ChangeDescription(description);
+                await indexContext.SaveChangesAsync();
+            }
         }
 
         public async Task VoteVideAsync(string id, VoteValue value)

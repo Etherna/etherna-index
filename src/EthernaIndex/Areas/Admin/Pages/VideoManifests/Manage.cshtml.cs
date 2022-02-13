@@ -156,14 +156,14 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
             {
                 public VideoInfoDto(
                     string videoId,
-                    bool? videoContentApproved)
+                    ContentReviewType? contentReview)
                 {
                     VideoId = videoId;
-                    VideoContentApproved = videoContentApproved;
+                    ContentReview = contentReview;
                 }
 
                 public string VideoId { get; set; }
-                public bool? VideoContentApproved { get; set; }
+                public ContentReviewType? ContentReview { get; set; }
             }
         }
 
@@ -241,7 +241,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
                 videoManifest, 
                 new VideoManifestDto.VideoInfoDto(
                     video.Id,
-                    video.ContentApproved));
+                    video.ContentReview));
         }
 
     }
