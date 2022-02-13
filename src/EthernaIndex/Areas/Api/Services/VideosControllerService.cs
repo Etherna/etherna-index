@@ -139,7 +139,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
                         .PaginateDescending(v => v.CreationDateTime, page, take)
                         .ToListAsync());
 
-            // Get manfinest info from video seleted.
+            // Get manfinest info from video selected.
             var manifestIds = videos.Select(i => i.GetLastValidManifest()?.Id)
                                     .Where(i => !string.IsNullOrWhiteSpace(i)); //Check by Id or StringHash?
 
