@@ -75,6 +75,13 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
         }
 
         // Helpers.
+        private static IMongoQueryable<System.Linq.IGrouping<string, VideoReport>> FilterAndGroup(IMongoQueryable<VideoReport> elements)
+        {
+            return elements.Where(u => u.Video.ContentReview == null ||
+                                    u.Video.ContentReview == ContentReviewType.WaitingReview)//Only Report to check
+                            .GroupBy(i => i.Video.Id);
+        }
+
         private async Task InitializeAsync(int? p)
         {
             CurrentPage = p ?? 0;
@@ -101,7 +108,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
                 }
             }
 
-            //Get manifest info
+            // Get video and manifest info.
             var videos = await dbContext.Videos.QueryElementsAsync(elements =>
                 elements.Where(u => videoReportsIds.Contains(u.Id))
                         .OrderBy(i => i.Id)
@@ -116,13 +123,6 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
             }
 
             MaxPage = totalReports == 0 ? 0 : ((totalReports + PageSize - 1) / PageSize) - 1;
-        }
-
-        private static IMongoQueryable<System.Linq.IGrouping<string, VideoReport>> FilterAndGroup(IMongoQueryable<VideoReport> elements)
-        {
-            return elements.Where(u => u.Video.ContentReview == null ||
-                                    u.Video.ContentReview == ContentReviewType.WaitingReview)//Only Report to check
-                            .GroupBy(i => i.Video.Id);
         }
 
         public async Task<IActionResult> OnPostAsync(int? p)
