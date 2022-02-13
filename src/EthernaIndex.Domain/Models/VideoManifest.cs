@@ -57,11 +57,11 @@ namespace Etherna.EthernaIndex.Domain.Models
         [PropertyAlterer(nameof(Title))]
         [PropertyAlterer(nameof(Thumbnail))]
         public virtual void SuccessfulValidation(
-            string description,
-            int duration,
-            string feedTopicId,
-            string originalQuality,
-            string title,
+            string? description,
+            int? duration,
+            string? feedTopicId,
+            string? originalQuality,
+            string? title,
             SwarmImageRaw? thumbnail,
             IEnumerable<VideoSource>? videoSources)
         {

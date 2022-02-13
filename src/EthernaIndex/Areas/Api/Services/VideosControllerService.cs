@@ -14,6 +14,7 @@
 
 using Etherna.Authentication.Extensions;
 using Etherna.EthernaIndex.Areas.Api.DtoModels;
+using Etherna.EthernaIndex.Areas.Api.DtoModels.ManifestAgg;
 using Etherna.EthernaIndex.Areas.Api.InputModels;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
@@ -87,7 +88,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
 
             logger.CreatedVideo(user.Id, videoInput.ManifestHash);
 
-            return new VideoDto(video);
+            return new VideoDto(video, videoManifest);
         }
 
         public async Task<CommentDto> CreateCommentAsync(string id, string text)
@@ -121,14 +122,59 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             logger.AuthorDeletedVideo(id);
         }
 
-        public async Task<VideoDto> FindByHashAsync(string hash) =>
-            new VideoDto(await indexContext.Videos.FindOneAsync(v => v.VideoManifests.Any(i=> i.ManifestHash.Hash == hash)));
+        public async Task<VideoDto> FindByHashAsync(string hash)
+        {
+            var video = await indexContext.Videos.FindOneAsync(v => v.VideoManifests.Any(i => i.ManifestHash.Hash == hash));
 
-        public async Task<IEnumerable<VideoDto>> GetLastUploadedVideosAsync(int page, int take) =>
-            (await indexContext.Videos.QueryElementsAsync(elements =>
-                elements.PaginateDescending(v => v.CreationDateTime, page, take)
-                        .ToListAsync()))
-                .Select(v => new VideoDto(v));
+            var manifest = await indexContext.VideoManifests.TryFindOneAsync(i => video.Id == i.Video.Id);
+
+            return new VideoDto(video, manifest);
+        }
+
+        public async Task<IEnumerable<VideoDto>> GetLastUploadedVideosAsync(int page, int take)
+        {
+            // Get videos with valid manifest.
+            var videos = await indexContext.Videos.QueryElementsAsync(elements =>
+                elements.Where(i => i.VideoManifests.Any(k => k.IsValid == true))
+                        .PaginateDescending(v => v.CreationDateTime, page, take)
+                        .ToListAsync());
+
+            // Get manfinest info from video seleted.
+            var manifestIds = videos.Select(i => i.GetLastValidManifest()?.Id)
+                                    .Where(i => !string.IsNullOrWhiteSpace(i)); //Check by Id or StringHash?
+
+            var manifests = await indexContext.VideoManifests.QueryElementsAsync(elements =>
+                elements.Where(i => manifestIds.Contains(i.Id))
+                        .ToListAsync());
+
+
+            return videos.Select(v => new VideoDto(v, manifests.FirstOrDefault(i => i.Video.Id == v.Id)));
+        }
+
+        public async Task<ManifestStatusDto> GetManifestStatusAsync(string hash)
+        {
+            var manifest = await indexContext.VideoManifests.FindOneAsync(i => i.ManifestHash.Hash == hash);
+
+            return new ManifestStatusDto(
+                manifest.ManifestHash.Hash,
+                manifest.IsValid,
+                manifest.ValidationTime,
+                manifest.ErrorValidationResults
+                        .Select(i => new ErrorDetailDto(i.ErrorMessage, i.ErrorNumber)));
+        }
+
+        public async Task<IEnumerable<ManifestStatusDto>> GetManifestsStatusAsync(string videoId)
+        {
+            var manifest = await indexContext.Videos.FindOneAsync(i => i.Id == videoId);
+
+            return manifest.VideoManifests
+            .Select(i => new ManifestStatusDto(
+                        i.ManifestHash.Hash,
+                        i.IsValid,
+                        i.ValidationTime,
+                        i.ErrorValidationResults
+                        .Select(k => new ErrorDetailDto(k.ErrorMessage, k.ErrorNumber))));
+        }
 
         public async Task<IEnumerable<CommentDto>> GetVideoCommentsAsync(string id, int page, int take) =>
             (await indexContext.Comments.QueryElementsAsync(elements =>
@@ -158,7 +204,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
 
             logger.UpdatedVideo(id, newHash);
 
-            return new VideoDto(video);
+            return new VideoDto(video, videoManifest);
         }
 
         public async Task VoteVideAsync(string id, VoteValue value)

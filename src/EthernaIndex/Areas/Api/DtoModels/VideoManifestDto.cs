@@ -1,38 +1,39 @@
-﻿using System.Collections.Generic;
+﻿using Etherna.EthernaIndex.Swarm.DtoModel;
+using System.Collections.Generic;
 
-namespace Etherna.EthernaIndex.Swarm.DtoModel
+namespace Etherna.EthernaIndex.Areas.Api.DtoModels
 {
-    public class MetadataVideoDto
+    public class VideoManifestDto
     {
         // Constructors.
-        public MetadataVideoDto(
-            string id,
+        public VideoManifestDto(
+            string hash,
+            string? feedTopic,
             string? title,
             string? description,
             string? originalQuality,
-            string? ownerAddress,
             int? duration,
-            SwarmImageRawDto? thumbnail,
-            IEnumerable<MetadataVideoSourceDto>? sources)
+            ImageDto? thumbnail,
+            IEnumerable<SourceDto>? sources)
         {
-            Id = id;
+            Hash = hash;
+            FeedTopic = feedTopic;
             Title = title;
             Description = description;
             OriginalQuality = originalQuality;
-            OwnerAddress = ownerAddress;
             Duration = duration;
             Thumbnail = thumbnail;
             Sources = sources;
         }
 
         // Properties.
-        public string Id { get; set; }
+        public string Hash { get; set; }
+        public string? FeedTopic { get; set; }
         public string? Title { get; set; }
         public string? Description { get; set; }
         public string? OriginalQuality { get; set; }
-        public string? OwnerAddress { get; set; }
         public int? Duration { get; set; }
-        public SwarmImageRawDto? Thumbnail { get; set; }
-        public IEnumerable<MetadataVideoSourceDto>? Sources { get; set; }
+        public ImageDto? Thumbnail { get; set; }
+        public IEnumerable<SourceDto>? Sources { get; set; }
     }
 }

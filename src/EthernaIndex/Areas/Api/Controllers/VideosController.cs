@@ -89,6 +89,32 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
             [Range(1, 100)] int take = 25) =>
             service.GetVideoCommentsAsync(id, page, take);
 
+        /// <summary>
+        /// Get validation info by hash.
+        /// </summary>
+        /// <param name="hash">The video hash</param>
+        [HttpGet("{hash}/validation")]
+        [SimpleExceptionFilter]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public Task<ManifestStatusDto> ValidationStatusByHashAsync(
+            [Required] string hash) =>
+            service.GetManifestStatusAsync(hash);
+
+        /// <summary>
+        /// Get validation info by id.
+        /// </summary>
+        /// <param name="id">The video id</param>
+        [HttpGet("{id}/validations")]
+        [SimpleExceptionFilter]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public Task<IEnumerable<ManifestStatusDto>> ValidationsStatusByIdAsync(
+            [Required] string id) =>
+            service.GetManifestsStatusAsync(id);
+
         // Post.
 
         /// <summary>

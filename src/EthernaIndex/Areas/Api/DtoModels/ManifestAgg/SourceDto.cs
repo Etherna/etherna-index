@@ -1,9 +1,9 @@
 ﻿namespace Etherna.EthernaIndex.Swarm.DtoModel
 {
-    public class MetadataVideoSourceDto
+    public class SourceDto
     {
         // Constructors.
-        public MetadataVideoSourceDto(
+        public SourceDto(
             int? bitrate,
             string quality,
             string reference,
@@ -16,9 +16,9 @@
         }
 
         // Properties.
-        public int? Bitrate { get; set; }
-        public string Quality { get; set; }
-        public string Reference { get; set; }
-        public int? Size { get; set; }
+        public int? Bitrate { get; private set; }
+        public string Quality { get; private set; }
+        public string Reference { get; private set; }
+        public int? Size { get; private set; }
     }
 }

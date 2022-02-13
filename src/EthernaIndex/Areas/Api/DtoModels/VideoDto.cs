@@ -13,14 +13,18 @@
 //   limitations under the License.
 
 using Etherna.EthernaIndex.Domain.Models;
+using Etherna.EthernaIndex.Swarm.DtoModel;
 using System;
+using System.Linq;
 
 namespace Etherna.EthernaIndex.Areas.Api.DtoModels
 {
     public class VideoDto
     {
         // Constructors.
-        public VideoDto(Video video)
+        public VideoDto(
+            Video video,
+            VideoManifest? videoManifest)
         {
             if (video is null)
                 throw new ArgumentNullException(nameof(video));
@@ -29,6 +33,25 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
             EncryptionKey = video.EncryptionKey;
             EncryptionType = video.EncryptionType;
             Id = video.Id;
+            if (videoManifest is not null)
+                MetadataVideo = new VideoManifestDto(
+                    videoManifest.ManifestHash.Hash,
+                    videoManifest.FeedTopicId,
+                    videoManifest.Title,
+                    videoManifest.Description,
+                    videoManifest.OriginalQuality,
+                    videoManifest.Duration,
+                    videoManifest.Thumbnail != null ?
+                    new ImageDto(
+                        videoManifest.Thumbnail.AspectRatio, 
+                        videoManifest.Thumbnail.BlurHash, 
+                        videoManifest.Thumbnail.Sources)
+                    : null,
+                    videoManifest.Sources?.Select(i => new SourceDto(
+                        i.Bitrate, 
+                        i.Quality, 
+                        i.Reference, 
+                        i.Size)));
             OwnerAddress = video.Owner.Address;
             OwnerIdentityManifest = video.Owner.IdentityManifest?.Hash;
             TotDownvotes = video.TotDownvotes;
@@ -40,6 +63,7 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
         public DateTime CreationDateTime { get; }
         public string? EncryptionKey { get; }
         public EncryptionType EncryptionType { get; }
+        public VideoManifestDto? MetadataVideo { get; }
         public string OwnerAddress { get; }
         public string? OwnerIdentityManifest { get; }
         public long TotDownvotes { get; }

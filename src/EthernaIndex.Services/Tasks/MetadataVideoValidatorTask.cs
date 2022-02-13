@@ -133,7 +133,7 @@ namespace Etherna.EthernaIndex.Services.Tasks
             return errorDetails;
         }
 
-        private IEnumerable<ErrorDetail> CheckVideoSources(IEnumerable<MetadataVideoSourceDto> videoSources)
+        private IEnumerable<ErrorDetail> CheckVideoSources(IEnumerable<MetadataVideoSourceDto>? videoSources)
         {
             if (videoSources is null ||
                 !videoSources.Any())
