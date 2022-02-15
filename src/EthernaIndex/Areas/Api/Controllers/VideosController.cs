@@ -120,7 +120,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// <summary>
         /// Create a new video with current user.
         /// </summary>
-        /// <param name="videoInput">Id of new video</param>
+        /// <param name="videoInput">Info of new video</param>
         [HttpPost]
         [Authorize]
         [SimpleExceptionFilter]
