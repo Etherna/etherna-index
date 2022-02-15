@@ -58,7 +58,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         }
 
         // Methods.
-        public async Task<VideoDto> CreateAsync(VideoCreateInput videoInput)
+        public async Task<string> CreateAsync(VideoCreateInput videoInput)
         {
             var address = httpContextAccessor.HttpContext!.User.GetEtherAddress();
             var user = await indexContext.Users.FindOneAsync(c => c.Address == address);
@@ -88,7 +88,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
 
             logger.CreatedVideo(user.Id, videoInput.ManifestHash);
 
-            return new VideoDto(video, videoManifest);
+            return video.Id;
         }
 
         public async Task<CommentDto> CreateCommentAsync(string id, string text)
@@ -122,11 +122,11 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             logger.AuthorDeletedVideo(id);
         }
 
-        public async Task<VideoDto> FindByHashAsync(string hash)
+        public async Task<VideoDto> FindByManifestHashAsync(string hash)
         {
-            var video = await indexContext.Videos.FindOneAsync(v => v.VideoManifests.Any(i => i.ManifestHash.Hash == hash));
+            var manifest = await indexContext.VideoManifests.FindOneAsync(vm => vm.ManifestHash.Hash == hash);
 
-            var manifest = await indexContext.VideoManifests.TryFindOneAsync(i => video.Id == i.Video.Id);
+            var video = await indexContext.Videos.FindOneAsync(v => v.Id == manifest.Video.Id);
 
             return new VideoDto(video, manifest);
         }
@@ -141,7 +141,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
 
             // Get manfinest info from video selected.
             var manifestIds = videos.Select(i => i.GetLastValidManifest()?.Id)
-                                    .Where(i => !string.IsNullOrWhiteSpace(i)); //Check by Id or StringHash?
+                                    .Where(i => !string.IsNullOrWhiteSpace(i));
 
             var manifests = await indexContext.VideoManifests.QueryElementsAsync(elements =>
                 elements.Where(i => manifestIds.Contains(i.Id))
@@ -151,29 +151,19 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             return videos.Select(v => new VideoDto(v, manifests.FirstOrDefault(i => i.Video.Id == v.Id)));
         }
 
-        public async Task<ManifestStatusDto> GetManifestStatusAsync(string hash)
+        public async Task<ManifestStatusDto> ValidationStatusByHashAsync(string hash)
         {
             var manifest = await indexContext.VideoManifests.FindOneAsync(i => i.ManifestHash.Hash == hash);
 
-            return new ManifestStatusDto(
-                manifest.ManifestHash.Hash,
-                manifest.IsValid,
-                manifest.ValidationTime,
-                manifest.ErrorValidationResults
-                        .Select(i => new ErrorDetailDto(i.ErrorMessage, i.ErrorNumber)));
+            return new ManifestStatusDto(manifest);
         }
 
-        public async Task<IEnumerable<ManifestStatusDto>> GetManifestsStatusAsync(string videoId)
+        public async Task<IEnumerable<ManifestStatusDto>> ValidationStatusByIdAsync(string videoId)
         {
             var manifest = await indexContext.Videos.FindOneAsync(i => i.Id == videoId);
 
             return manifest.VideoManifests
-            .Select(i => new ManifestStatusDto(
-                        i.ManifestHash.Hash,
-                        i.IsValid,
-                        i.ValidationTime,
-                        i.ErrorValidationResults
-                        .Select(k => new ErrorDetailDto(k.ErrorMessage, k.ErrorNumber))));
+            .Select(i => new ManifestStatusDto(i));
         }
 
         public async Task<IEnumerable<CommentDto>> GetVideoCommentsAsync(string id, int page, int take) =>
@@ -183,7 +173,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
                         .ToListAsync()))
                 .Select(c => new CommentDto(c));
 
-        public async Task<VideoDto> UpdateAsync(string id, string newHash)
+        public async Task<VideoManifestDto> UpdateAsync(string id, string newHash)
         {
             // Get data.
             var address = httpContextAccessor.HttpContext!.User.GetEtherAddress();
@@ -204,7 +194,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
 
             logger.UpdatedVideo(id, newHash);
 
-            return new VideoDto(video, videoManifest);
+            return new VideoManifestDto(videoManifest);
         }
 
         public async Task VoteVideAsync(string id, VoteValue value)

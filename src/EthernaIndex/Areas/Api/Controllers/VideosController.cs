@@ -59,17 +59,17 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
             service.GetLastUploadedVideosAsync(page, take);
 
         /// <summary>
-        /// Get video info by hash.
+        /// Get video info by manifest hash.
         /// </summary>
         /// <param name="hash">The video hash</param>
-        [HttpGet("{hash}")]
+        [HttpGet("manifest/{hash}")]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public Task<VideoDto> FindByHashAsync(
+        public Task<VideoDto> FindByManifestHashAsync(
             [Required] string hash) =>
-            service.FindByHashAsync(hash);
+            service.FindByManifestHashAsync(hash);
 
         /// <summary>
         /// Get paginated video comments by id
@@ -90,17 +90,17 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
             service.GetVideoCommentsAsync(id, page, take);
 
         /// <summary>
-        /// Get validation info by hash.
+        /// Get validation info by manifest hash.
         /// </summary>
         /// <param name="hash">The video hash</param>
-        [HttpGet("{hash}/validation")]
+        [HttpGet("manifest/{hash}/validation")]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public Task<ManifestStatusDto> ValidationStatusByHashAsync(
             [Required] string hash) =>
-            service.GetManifestStatusAsync(hash);
+            service.ValidationStatusByHashAsync(hash);
 
         /// <summary>
         /// Get validation info by id.
@@ -113,21 +113,21 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public Task<IEnumerable<ManifestStatusDto>> ValidationsStatusByIdAsync(
             [Required] string id) =>
-            service.GetManifestsStatusAsync(id);
+            service.ValidationStatusByIdAsync(id);
 
         // Post.
 
         /// <summary>
         /// Create a new video with current user.
         /// </summary>
-        /// <param name="videoInput">Info of new video</param>
+        /// <param name="videoInput">Id of new video</param>
         [HttpPost]
         [Authorize]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public Task<VideoDto> CreateAsync(
+        public Task<string> CreateAsync(
             [Required] VideoCreateInput videoInput) =>
             service.CreateAsync(videoInput);
 
@@ -177,7 +177,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public Task<VideoDto> UpdateAsync(
+        public Task<VideoManifestDto> UpdateAsync(
             [Required] string id,
             [Required] string newHash) =>
             service.UpdateAsync(id, newHash);

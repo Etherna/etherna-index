@@ -60,8 +60,9 @@ namespace Etherna.EthernaIndex.Services.Tasks
             catch (Exception ex)
 #pragma warning restore CA1031 // Do not catch general exception types
             {
-                validationErrors.Add(new ErrorDetail(ex switch {
-                    MetadataVideoException _=> ValidationErrorType.JsonConvert,
+                validationErrors.Add(new ErrorDetail(ex switch
+                {
+                    MetadataVideoException _ => ValidationErrorType.JsonConvert,
                     _ => ValidationErrorType.Generic
                 }, ex.Message));
                 videoManifest.FailedValidation(validationErrors);
@@ -97,13 +98,12 @@ namespace Etherna.EthernaIndex.Services.Tasks
             }
             else
             {
-                var videoSources = metadataDto.Sources?.Select(i => new VideoSource(i.Bitrate, i.Quality, i.Reference, i.Size)).ToList();
+                var videoSources = metadataDto.Sources?.Select(i => new VideoSource(i.Bitrate, i.Quality, i.Reference, i.Size)).ToList() ?? new List<VideoSource>();
 
                 videoManifest.SuccessfulValidation(
                     metadataDto.Description,
-                    metadataDto.Duration,
-                    metadataDto.Id,
-                    metadataDto.OriginalQuality,
+                    metadataDto.Duration!.Value,
+                    metadataDto.OriginalQuality ?? "",
                     metadataDto.Title,
                     swarmImageRaw,
                     videoSources);

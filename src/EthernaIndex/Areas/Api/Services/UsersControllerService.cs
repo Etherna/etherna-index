@@ -84,9 +84,9 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             var videos = user.Videos.Where(i => i.VideoManifests.Any(k => k.IsValid == true))
                             .PaginateDescending(v => v.CreationDateTime, page, take);
 
-            // Get manfinest info from video seleted.
+            // Get manfinest info from video selected.
             var manifestIds = videos.Select(i => i.GetLastValidManifest()?.Id)
-                                    .Where(i => !string.IsNullOrWhiteSpace(i)); //Check by Id or StringHash?
+                                    .Where(i => !string.IsNullOrWhiteSpace(i));
 
             var manifests = await indexContext.VideoManifests.QueryElementsAsync(elements =>
                 elements.Where(i => manifestIds.Contains(i.Id))

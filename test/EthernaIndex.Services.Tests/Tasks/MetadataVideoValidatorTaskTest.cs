@@ -91,7 +91,6 @@ namespace EthernaIndex.Services.Tests.Tasks
             //Assert
             Assert.True(videoManifest.IsValid);
             Assert.NotNull(videoManifest.ValidationTime);
-            Assert.Equal(metadataVideoDto.Id, videoManifest.FeedTopicId);
             Assert.Equal(metadataVideoDto.Description, videoManifest.Description);
             Assert.Equal(metadataVideoDto.Duration, videoManifest.Duration);
             Assert.Equal(metadataVideoDto.OriginalQuality, videoManifest.OriginalQuality);
