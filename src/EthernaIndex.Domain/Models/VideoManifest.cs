@@ -18,7 +18,7 @@ using System.Collections.Generic;
 
 namespace Etherna.EthernaIndex.Domain.Models
 {
-    public class VideoManifest : ManifestBase
+    public class VideoManifest : ValidatableManifestBase
     {
         // Fields.
         private List<VideoSource> _sources = new();
@@ -35,7 +35,6 @@ namespace Etherna.EthernaIndex.Domain.Models
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         // Properties.
-        public virtual string? FeedTopicId { get; protected set; }
         public virtual string? Description { get; protected set; }
         public virtual int? Duration { get; protected set; }
         public virtual string? OriginalQuality { get; protected set; }
@@ -51,24 +50,21 @@ namespace Etherna.EthernaIndex.Domain.Models
         // Methods.
         [PropertyAlterer(nameof(Description))]
         [PropertyAlterer(nameof(Duration))]
-        [PropertyAlterer(nameof(FeedTopicId))]
         [PropertyAlterer(nameof(OriginalQuality))]
         [PropertyAlterer(nameof(Sources))]
         [PropertyAlterer(nameof(Title))]
         [PropertyAlterer(nameof(Thumbnail))]
         public virtual void SuccessfulValidation(
-            string description,
+            string? description,
             int duration,
-            string feedTopicId,
             string originalQuality,
-            string title,
+            string? title,
             SwarmImageRaw? thumbnail,
-            IEnumerable<VideoSource>? videoSources)
+            IEnumerable<VideoSource> videoSources)
         {
             base.SuccessfulValidation();
             Description = description;
             Duration = duration;
-            FeedTopicId = feedTopicId;
             OriginalQuality = originalQuality;
             Sources = videoSources;
             Title = title;

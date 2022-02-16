@@ -56,7 +56,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                     mm.MapIdMember(m => m.Id);
                     mm.IdMemberMap.SetSerializer(new StringSerializer(BsonType.ObjectId));
                 });
-                config.AddModelMapsSchema<ManifestBase>("fa2c6046-6b74-41bc-bba6-a3c98b501ec6", mm => 
+                config.AddModelMapsSchema<ValidatableManifestBase>("fa2c6046-6b74-41bc-bba6-a3c98b501ec6", mm => 
                 {
                     mm.MapMember(m => m.IsValid);
                     mm.MapMember(m => m.ManifestHash);

@@ -13,22 +13,38 @@
 //   limitations under the License.
 
 using Etherna.EthernaIndex.Domain.Models;
+using Etherna.EthernaIndex.Swarm.DtoModel;
 using System;
+using System.Linq;
 
 namespace Etherna.EthernaIndex.Areas.Api.DtoModels
 {
     public class VideoDto
     {
         // Constructors.
-        public VideoDto(Video video)
+        public VideoDto(
+            Video video,
+            VideoManifest? lastValidManifest)
         {
             if (video is null)
                 throw new ArgumentNullException(nameof(video));
+
+            if (lastValidManifest is not null &&
+                lastValidManifest.Video.Id != video.Id)
+            {
+                var ex = new InvalidOperationException("Video not compatible with current Manifest");
+                ex.Data.Add("VideoId", video.Id);
+                ex.Data.Add("ManifestHash", lastValidManifest.ManifestHash.Hash);
+                ex.Data.Add("Manifest.VideoId", lastValidManifest.Video.Id);
+                throw ex;
+            }
 
             CreationDateTime = video.CreationDateTime;
             EncryptionKey = video.EncryptionKey;
             EncryptionType = video.EncryptionType;
             Id = video.Id;
+            if (lastValidManifest is not null)
+                LastValidManifest = new VideoManifestDto(lastValidManifest);
             OwnerAddress = video.Owner.Address;
             OwnerIdentityManifest = video.Owner.IdentityManifest?.Hash;
             TotDownvotes = video.TotDownvotes;
@@ -40,6 +56,7 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
         public DateTime CreationDateTime { get; }
         public string? EncryptionKey { get; }
         public EncryptionType EncryptionType { get; }
+        public VideoManifestDto? LastValidManifest { get; }
         public string OwnerAddress { get; }
         public string? OwnerIdentityManifest { get; }
         public long TotDownvotes { get; }
