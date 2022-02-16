@@ -22,6 +22,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
@@ -72,21 +73,18 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
         private const int PageSize = 20;
 
         // Fields.
-        private readonly IHttpContextAccessor httpContextAccessor;
-        private readonly IIndexDbContext dbContext;
+        private readonly IIndexDbContext indexDbContext;
         private readonly IVideoReportService videoReportService;
 
         // Constructor.
         public ManageModel(
-            IHttpContextAccessor httpContextAccessor,
-            IIndexDbContext dbContext,
+            IIndexDbContext indexDbContext,
             IVideoReportService videoReportService)
         {
-            if (dbContext is null)
-                throw new ArgumentNullException(nameof(dbContext));
+            if (indexDbContext is null)
+                throw new ArgumentNullException(nameof(indexDbContext));
 
-            this.httpContextAccessor = httpContextAccessor;
-            this.dbContext = dbContext;
+            this.indexDbContext = indexDbContext;
             this.videoReportService = videoReportService;
         }
 
@@ -99,10 +97,10 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
 #pragma warning restore CA1002 // Do not expose generic lists
 
         // Methods.
-        public async Task OnGetAsync(string manifestHash)
+        public async Task OnGetAsync(string manifestHash, int? p)
         {
             VideoReport = new VideoReportDto(manifestHash);
-            await InitializeAsync();
+            await InitializeAsync(p);
         }
 
         public async Task<IActionResult> OnPostManageVideoReportAsync(
@@ -128,53 +126,42 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
             else
                 return RedirectToPage("Index");
 
-            var address = httpContextAccessor.HttpContext!.User.GetEtherAddress();
-            var user = await dbContext.Users.FindOneAsync(c => c.Address == address);
+            var address = HttpContext.User.GetEtherAddress();
+            var user = await indexDbContext.Users.FindOneAsync(c => c.Address == address);
 
             await videoReportService.SetReviewAsync(videoId, manifestHash, contentReviewType, user);
 
-            await dbContext.SaveChangesAsync();
+            await indexDbContext.SaveChangesAsync();
 
             return RedirectToPage("Index");
         }
 
         // Helpers.
-        private async Task InitializeAsync()
+        private async Task InitializeAsync(int? p)
         {
             // Video info
-            var videoManifest = await dbContext.VideoManifests.FindOneAsync(i => i.ManifestHash.Hash == VideoReport.ManifestHash);
+            var videoManifest = await indexDbContext.VideoManifests.FindOneAsync(i => i.ManifestHash.Hash == VideoReport.ManifestHash);
 
-            // Count all VideoReports.
-            var totalVideo = await dbContext.VideoReports.QueryElementsAsync(elements =>
-                elements.Where(u => u.VideoManifest.ManifestHash.Hash == VideoReport.ManifestHash) //Only Report to check
-                        .CountAsync());
+            CurrentPage = p ?? 0;
 
-            // Get all VideoReports paginated.
-            var hashVideoReports = await dbContext.VideoReports.QueryElementsAsync(elements =>
-                elements.Where(u => u.VideoManifest.ManifestHash.Hash == VideoReport.ManifestHash) //Only Report to check
-                        .OrderBy(i => i.CreationDateTime)
-                        .Skip(CurrentPage * PageSize)
-                        .Take(PageSize)
-                        .ToCursorAsync());
+            var paginatedHashVideoReports = await indexDbContext.VideoReports.QueryPaginatedElementsAsync(
+                vm => vm.Where(i => i.VideoManifest.ManifestHash.Hash == VideoReport.ManifestHash),
+                vm => vm.CreationDateTime,
+                CurrentPage,
+                PageSize);
 
-            var hashes = new List<string>();
-            while (await hashVideoReports.MoveNextAsync())
-            {
-                foreach (var item in hashVideoReports.Current)
-                {
-                    DetailReports.Add(new VideoReportDetailDto(
-                        item.Id,
-                        item.Description,
-                        item.ReporterOwner.Address,
-                        item.CreationDateTime));
-                }
-            }
+            MaxPage = paginatedHashVideoReports.MaxPage;
+
+            DetailReports.AddRange(paginatedHashVideoReports.Elements
+                .Select(vr => new VideoReportDetailDto(
+                    vr.Id,
+                    vr.Description,
+                    vr.ReporterOwner.Address,
+                    vr.CreationDateTime)));
 
             VideoReport.ManifestId = videoManifest.Id;
             VideoReport.Title = videoManifest.Title ?? "";
             VideoReport.VideoId = videoManifest.Video.Id;
-
-            MaxPage = totalVideo == 0 ? 0 : ((totalVideo + PageSize - 1) / PageSize) - 1;
         }
 
     }

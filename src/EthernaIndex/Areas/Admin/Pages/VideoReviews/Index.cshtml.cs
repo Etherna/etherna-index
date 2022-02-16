@@ -1,11 +1,13 @@
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
+using Etherna.MongoDB.Driver;
 using Etherna.MongoDB.Driver.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Areas.Admin.Pages.Reviews
@@ -49,13 +51,13 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.Reviews
         private const int PageSize = 20;
 
         // Fields.
-        private readonly IIndexDbContext dbContext;
+        private readonly IIndexDbContext indexDbContext;
 
         // Constructor.
         public IndexModel(
-            IIndexDbContext dbContext)
+            IIndexDbContext indexDbContext)
         {
-            this.dbContext = dbContext;
+            this.indexDbContext = indexDbContext;
         }
 
         // Properties.
@@ -75,58 +77,39 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.Reviews
         }
 
         // Helpers.
-        private static IMongoQueryable<System.Linq.IGrouping<string, VideoReview>> FilterAndGroup(IMongoQueryable<VideoReview> elements)
-        {
-            return elements.GroupBy(i => i.Video.Id);
-        }
-
         private async Task InitializeAsync(int? p)
         {
             CurrentPage = p ?? 0;
 
-            // Count all distinct VideoReports.
-            var totalReviews = await dbContext.VideoReviews.QueryElementsAsync(elements =>
-                        FilterAndGroup(elements)
-                        .CountAsync());
+            // Get all reviews for video.
+            CurrentPage = p ?? 0;
 
-            // Get all VideoReports group by VideoId.
-            var videoReviewsResult = await dbContext.VideoReviews.QueryElementsAsync(elements =>
-                        FilterAndGroup(elements)
-                        .OrderBy(i => i.Key)
-                        .Skip(CurrentPage * PageSize)
-                        .Take(PageSize)
-                        .ToCursorAsync());
+            var paginatedVideoReviews = await indexDbContext.VideoReviews.QueryPaginatedElementsAsync(
+                vr => vr.GroupBy(i => i.Video.Id),
+                vr => vr.Key,
+                CurrentPage,
+                PageSize);
 
-            var videoReviewsIds = new List<string>();
-            while (await videoReviewsResult.MoveNextAsync())
-            {
-                foreach (var item in videoReviewsResult.Current)
-                {
-                    videoReviewsIds.Add(item.Key);
-                }
-            }
+            MaxPage = paginatedVideoReviews.MaxPage;
+
+            var videoReviewsIds = paginatedVideoReviews.Elements.Select(e => e.Key);
 
             // Get video and manifest info.
-            var videos = await dbContext.Videos.QueryElementsAsync(elements =>
+            var videos = await indexDbContext.Videos.QueryElementsAsync(elements =>
                 elements.Where(u => videoReviewsIds.Contains(u.Id))
                         .OrderBy(i => i.Id)
-                        .ToCursorAsync());
-            while (await videos.MoveNextAsync())
+                        .ToListAsync());
+            foreach (var item in videos)
             {
-                foreach (var item in videos.Current)
-                {
-                    var manifest = item.GetLastValidManifest();
-                    VideoReports.Add(new VideoReviewDto(manifest?.ManifestHash?.Hash ?? "", manifest?.Title ?? "", item.Id));
-                }
+                var manifest = item.GetLastValidManifest();
+                VideoReports.Add(new VideoReviewDto(manifest?.ManifestHash?.Hash ?? "", manifest?.Title ?? "", item.Id));
             }
-
-            MaxPage = totalReviews == 0 ? 0 : ((totalReviews + PageSize - 1) / PageSize) - 1;
         }
 
         public async Task<IActionResult> OnPostAsync(int? p)
         {
-            var totalReviews = await dbContext.VideoReviews.QueryElementsAsync(elements =>
-                elements.Where(u => u.Video.Id == Input.VideoId) 
+            var totalReviews = await indexDbContext.VideoReviews.QueryElementsAsync(elements =>
+                elements.Where(u => u.Video.Id == Input.VideoId)
                         .CountAsync());
 
             if (totalReviews == 0)

@@ -22,6 +22,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReviews
@@ -75,21 +76,18 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReviews
         private const int PageSize = 20;
 
         // Fields.
-        private readonly IHttpContextAccessor httpContextAccessor;
-        private readonly IIndexDbContext dbContext;
+        private readonly IIndexDbContext indexDbContext;
         private readonly IVideoReportService videoReportService;
 
         // Constructor.
         public ManageModel(
-            IHttpContextAccessor httpContextAccessor,
-            IIndexDbContext dbContext,
+            IIndexDbContext indexDbContext,
             IVideoReportService videoReportService)
         {
-            if (dbContext is null)
-                throw new ArgumentNullException(nameof(dbContext));
+            if (indexDbContext is null)
+                throw new ArgumentNullException(nameof(indexDbContext));
 
-            this.httpContextAccessor = httpContextAccessor;
-            this.dbContext = dbContext;
+            this.indexDbContext = indexDbContext;
             this.videoReportService = videoReportService;
         }
 
@@ -102,51 +100,41 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReviews
 #pragma warning restore CA1002 // Do not expose generic lists
 
         // Methods.
-        public async Task OnGetAsync(string videoId)
+        public async Task OnGetAsync(string videoId, int? p)
         {
             VideoReview = new VideoReviewDto(videoId);
-            await InitializeAsync();
+            await InitializeAsync(p);
         }
 
         // Helpers.
-        private async Task InitializeAsync()
+        private async Task InitializeAsync(int? p)
         {
-            // Video info
-            var video = await dbContext.Videos.FindOneAsync(i => i.Id == VideoReview.VideoId);
+            // Video info.
+            var video = await indexDbContext.Videos.FindOneAsync(i => i.Id == VideoReview.VideoId);
 
-            // Count all VideoReview.
-            var totalReviews = await dbContext.VideoReviews.QueryElementsAsync(elements =>
-                elements.Where(u => u.Video.Id == VideoReview.VideoId)
-                        .CountAsync());
+            // Get all reviews for video.
+            CurrentPage = p ?? 0;
 
-            // Get all VideoReports paginated.
-            var hashVideoReports = await dbContext.VideoReviews.QueryElementsAsync(elements =>
-                elements.Where(u => u.Video.Id == VideoReview.VideoId) //Only Report to check
-                        .OrderBy(i => i.CreationDateTime)
-                        .Skip(CurrentPage * PageSize)
-                        .Take(PageSize)
-                        .ToCursorAsync());
+            var paginatedVideoManifests = await indexDbContext.VideoReviews.QueryPaginatedElementsAsync(
+                vr => vr.Where(i => i.Video.Id == VideoReview.VideoId),
+                vr => vr.CreationDateTime,
+                CurrentPage,
+                PageSize);
 
-            var hashes = new List<string>();
-            while (await hashVideoReports.MoveNextAsync())
-            {
-                foreach (var item in hashVideoReports.Current)
-                {
-                    DetailReports.Add(new VideoReviewDetailDto(
-                        item.Id,
-                        item.ContentReview,
-                        item.Description,
-                        item.ReviewOwner.Address,
-                        item.CreationDateTime));
-                }
-            }
+            MaxPage = paginatedVideoManifests.MaxPage;
+
+            DetailReports.AddRange(paginatedVideoManifests.Elements
+                .Select(e => new VideoReviewDetailDto(
+                        e.Id,
+                        e.ContentReview,
+                        e.Description,
+                        e.ReviewOwner.Address,
+                        e.CreationDateTime)));
 
             var currentManifest = video.GetLastValidManifest();
             VideoReview.ManifestId = currentManifest?.Id ?? "";
             VideoReview.Title = currentManifest?.Title ?? "";
             VideoReview.VideoId = video.Id;
-
-            MaxPage = totalReviews == 0 ? 0 : ((totalReviews + PageSize - 1) / PageSize) - 1;
         }
 
     }

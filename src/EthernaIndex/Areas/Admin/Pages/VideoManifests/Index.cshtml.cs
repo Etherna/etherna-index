@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
@@ -48,13 +49,13 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
         private const int PageSize = 20;
 
         // Fields.
-        private readonly IIndexDbContext dbContext;
+        private readonly IIndexDbContext indexDbContext;
 
         // Constructor.
         public IndexModel(
-            IIndexDbContext dbContext)
+            IIndexDbContext indexDbContext)
         {
-            this.dbContext = dbContext;
+            this.indexDbContext = indexDbContext;
         }
 
         // Properties.
@@ -78,29 +79,21 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
         {
             CurrentPage = p ?? 0;
 
-            // Count all distinct reports.
-            var totalManifests = await dbContext.VideoManifests.QueryElementsAsync(elements =>
-                elements.CountAsync());
+            var paginatedVideoManifests = await indexDbContext.VideoManifests.QueryPaginatedElementsAsync(
+                vm => vm,
+                vm => vm.Id,
+                CurrentPage,
+                PageSize);
 
-            //Get manifest info
-            var videoManifests = await dbContext.VideoManifests.QueryElementsAsync(elements =>
-                elements.OrderBy(i => i.Id)
-                        .ToCursorAsync());
-            while (await videoManifests.MoveNextAsync())
-            {
-                foreach (var itemManifest in videoManifests.Current)
-                {
-                    var title = itemManifest.Title ?? "";
-                    VideoManifests.Add(new VideoManifestDto(itemManifest.ManifestHash.Hash, title, itemManifest.Video.Id));
-                }
-            }
+            MaxPage = paginatedVideoManifests.MaxPage;
 
-            MaxPage = totalManifests == 0 ? 0 : ((totalManifests + PageSize - 1) / PageSize) - 1;
+            VideoManifests.AddRange(paginatedVideoManifests.Elements.Select( 
+                e => new VideoManifestDto(e.ManifestHash.Hash, e.Title ?? "", e.Video.Id)));
         }
 
         public async Task<IActionResult> OnPostAsync(int? p)
         {
-            var totalVideo = await dbContext.VideoReports.QueryElementsAsync(elements =>
+            var totalVideo = await indexDbContext.VideoReports.QueryElementsAsync(elements =>
                 elements.Where(u => u.VideoManifest.ManifestHash.Hash == Input.ManifestHash) 
                         .CountAsync());
 
