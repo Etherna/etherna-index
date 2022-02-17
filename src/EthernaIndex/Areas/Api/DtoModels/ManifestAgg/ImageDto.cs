@@ -6,7 +6,7 @@ namespace Etherna.EthernaIndex.Swarm.DtoModel
     {
         // Constructors.
         public ImageDto(
-            int aspectRatio,
+            float aspectRatio,
             string blurhash,
             IReadOnlyDictionary<string, string> sources)
         {
@@ -16,7 +16,7 @@ namespace Etherna.EthernaIndex.Swarm.DtoModel
         }
 
         // Properties.
-        public int AspectRatio { get; private set; }
+        public float AspectRatio { get; private set; }
         public string BlurHash { get; private set; }
         public IReadOnlyDictionary<string, string> Sources { get; private set; }
     }
