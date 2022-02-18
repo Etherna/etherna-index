@@ -24,7 +24,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
 
 
             [Display(Name = "Include Reviewed")]
-            public bool IncludeReviewed { get; set; } = default!;
+            public bool IncludeReportReviewed { get; set; } = default!;
         }
 
         public class VideoReportDto
@@ -136,7 +136,8 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
         {
             if (!string.IsNullOrWhiteSpace(Input?.ManifestHash))
                 querable = querable.Where(vr => vr.VideoManifest.ManifestHash.Hash == Input.ManifestHash);
-            if (Input is not null && !Input.IncludeReviewed)
+            if (Input is null || 
+                !Input.IncludeReportReviewed)
                 return querable.Where(vr => vr.VideoManifest.ReviewApproved == null);
 
             return querable;

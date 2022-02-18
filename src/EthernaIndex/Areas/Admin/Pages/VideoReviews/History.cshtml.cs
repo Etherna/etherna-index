@@ -116,7 +116,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReviews
             CurrentPage = p ?? 0;
 
             var paginatedVideoManifests = await indexDbContext.VideoReviews.QueryPaginatedElementsAsync(
-                vr => vr.Where(i => i.Id == VideoReview.VideoId),
+                vr => vr.Where(i => i.VideoId == VideoReview.VideoId),
                 vr => vr.CreationDateTime,
                 CurrentPage,
                 PageSize);
