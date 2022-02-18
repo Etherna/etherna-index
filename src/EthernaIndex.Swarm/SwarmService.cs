@@ -40,7 +40,7 @@ namespace Etherna.EthernaIndex.Swarm
             if (BeeNodeClient.GatewayClient is null)
                 throw new InvalidOperationException(nameof(BeeNodeClient.GatewayClient));
 
-            using var stream = await BeeNodeClient.GatewayClient.GetDataAsync(manifestHash);
+            using var stream = await BeeNodeClient.GatewayClient.GetFileAsync(manifestHash);
             using var reader = new StreamReader(stream);
             try
             {
