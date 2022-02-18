@@ -85,7 +85,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.Reviews
             CurrentPage = p ?? 0;
 
             var paginatedVideoReviews = await indexDbContext.VideoReviews.QueryPaginatedElementsAsync(
-                vr => vr.GroupBy(i => i.Video.Id),
+                vr => vr.GroupBy(i => i.VideoId),
                 vr => vr.Key,
                 CurrentPage,
                 PageSize);
@@ -109,7 +109,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.Reviews
         public async Task<IActionResult> OnPostAsync(int? p)
         {
             var totalReviews = await indexDbContext.VideoReviews.QueryElementsAsync(elements =>
-                elements.Where(u => u.Video.Id == Input.VideoId)
+                elements.Where(u => u.VideoId == Input.VideoId)
                         .CountAsync());
 
             if (totalReviews == 0)

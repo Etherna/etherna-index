@@ -21,6 +21,10 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
             [Required]
             [Display(Name = "Manifest Hash")]
             public string ManifestHash { get; set; } = default!;
+
+
+            [Display(Name = "Include Reviewed")]
+            public bool IncludeReviewed { get; set; } = default!;
         }
 
         public class VideoReportDto
@@ -28,7 +32,8 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
             public VideoReportDto(
                 string manifestHash,
                 string title,
-                string videoId)
+                string videoId,
+                int totalReports)
             {
                 if (manifestHash is null)
                     throw new ArgumentNullException(nameof(manifestHash));
@@ -39,11 +44,13 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
 
                 ManifestHash = manifestHash;
                 Title = title;
+                TotalReports = totalReports;
                 VideoId = videoId;
             }
 
             public string ManifestHash { get; }
             public string Title { get; }
+            public int TotalReports { get; }
             public string VideoId { get; }
         }
 
@@ -81,44 +88,58 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
         {
             CurrentPage = p ?? 0;
 
-            var paginatedVideoManifests = await indexDbContext.VideoManifests.QueryPaginatedElementsAsync(
-                vm => vm.Where(u => u.Video.ContentReview == null ||
-                                    u.Video.ContentReview == ContentReviewType.WaitingReview)//Only Report to check
-                        .GroupBy(i => i.Video.Id),
-                vm => vm.Key,
+            var paginatedVideos = await indexDbContext.VideoReports.QueryPaginatedElementsAsync(
+                vm => VideoReportsWhere(vm)
+                        .GroupBy(i => i.VideoManifest.Id)
+                        .Select(group => new
+                        {
+                            Id = group.Key,
+                            Count = group.Count()
+                        }),
+                vm => vm.Id,
                 CurrentPage,
                 PageSize);
 
-            MaxPage = paginatedVideoManifests.MaxPage;
+            MaxPage = paginatedVideos.MaxPage;
 
-            var videoReportsIds = paginatedVideoManifests.Elements.Select(e => e.Key);
+            var videoManifestIds = paginatedVideos.Elements.Select(e => e.Id);
 
-            // Get video and manifest info.
-            var videos = await indexDbContext.Videos.QueryElementsAsync(elements =>
-               elements.Where(u => videoReportsIds.Contains(u.Id))
+            // Get manifest info.
+            var videoManifests = await indexDbContext.VideoManifests.QueryElementsAsync(elements =>
+               elements.Where(u => videoManifestIds.Contains(u.Id))
                        .OrderBy(i => i.Id)
                        .ToListAsync());
-            foreach (var item in videos)
-            {
-                var manifest = item.GetLastValidManifest();
-                VideoReports.Add(new VideoReportDto(manifest?.ManifestHash?.Hash ?? "", manifest?.Title ?? "", item.Id));
-            }
+            foreach (var videoManifest in videoManifests)
+                VideoReports.Add(
+                    new VideoReportDto(
+                    videoManifest.ManifestHash.Hash,
+                    videoManifest.Title ?? "",
+                    videoManifest.Video.Id,
+                    paginatedVideos.Elements.First(pv => pv.Id == videoManifest.Id).Count));
         }
 
         public async Task<IActionResult> OnPostAsync(int? p)
         {
-            var totalVideo = await indexDbContext.VideoReports.QueryElementsAsync(elements =>
-                elements.Where(u => u.VideoManifest.ManifestHash.Hash == Input.ManifestHash)
-                        .CountAsync());
+            var manifest = await indexDbContext.VideoManifests.TryFindOneAsync(vm => vm.ManifestHash.Hash == Input.ManifestHash);
 
-            if (totalVideo == 0)
+            if (manifest is null)
             {
-                ModelState.AddModelError(string.Empty, "Can't find report for video hash");
+                ModelState.AddModelError(string.Empty, "Can't find any report for hash");
                 await InitializeAsync(p);
                 return Page();
             }
 
-            return RedirectToPage("Manage", new { manifestHash = Input.ManifestHash });
+            return RedirectToPage("Manage", new { manifestHash = manifest.ManifestHash.Hash, videoId = manifest.Video.Id });
+        }
+
+        private IMongoQueryable<VideoReport> VideoReportsWhere(IMongoQueryable<VideoReport> querable)
+        {
+            if (!string.IsNullOrWhiteSpace(Input?.ManifestHash))
+                querable = querable.Where(vr => vr.VideoManifest.ManifestHash.Hash == Input.ManifestHash);
+            if (Input is not null && !Input.IncludeReviewed)
+                return querable.Where(vr => vr.VideoManifest.ReviewApproved == null);
+
+            return querable;
         }
 
     }

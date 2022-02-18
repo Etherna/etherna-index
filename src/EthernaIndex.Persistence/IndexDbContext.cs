@@ -60,14 +60,7 @@ namespace Etherna.EthernaIndex.Persistence
                     (Builders<User>.IndexKeys.Ascending(u => u.IdentityManifest!.Hash), new CreateIndexOptions<User>{ Sparse = true, Unique = true })
                 }
             });
-        public ICollectionRepository<Video, string> Videos { get; } = new DomainCollectionRepository<Video, string>(
-            new CollectionRepositoryOptions<Video>("videos")
-            {
-                IndexBuilders = new[]
-                {
-                    (Builders<Video>.IndexKeys.Ascending(v => v.ContentReview), new CreateIndexOptions<Video>()),
-                }
-            });
+        public ICollectionRepository<Video, string> Videos { get; } = new DomainCollectionRepository<Video, string>("videos");
         public ICollectionRepository<VideoManifest, string> VideoManifests { get; } = new DomainCollectionRepository<VideoManifest, string>(
             new CollectionRepositoryOptions<VideoManifest>("videoManifests")
             {

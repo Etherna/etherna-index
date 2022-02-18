@@ -34,6 +34,7 @@
                 <thead>
                     <tr>
                         <th>Description</th>
+                        <th>Manifest Hash</th>
                         <th>Reporter Address</th>
                         <th>Report Date</th>
                     </tr>
@@ -44,7 +45,8 @@
                     {
                     <tr>
                         <td class="align-middle">@videoReport.Description</td>
-                        <td class="align-middle">@videoReport.ReportAddress</td>
+                        <td class="align-middle">@videoReport.ManifestHash</td>
+                        <td class="align-middle">@videoReport.ReporterAddress</td>
                         <td class="align-middle">@videoReport.ReportDate</td>
                     </tr>
                     }
@@ -65,10 +67,12 @@
         <div class="col-12 mb-3">
             <input type="hidden" asp-for="VideoReport.ManifestHash" name="ManifestHash" />
             <input type="hidden" asp-for="VideoReport.VideoId" name="VideoId" />
-            <input type="submit" class="btn btn-primary" value="Approve Video" name="button" />
             <input type="submit" class="btn btn-primary" value="Approve Manifest" name="button" />
+            @if (Model.VideoReport.HasOtherValidManifest)
+            { 
+                <input type="submit" class="btn btn-primary" asp-vis value="Reject Manifest" name="button" /> 
+            }
             <input type="submit" class="btn btn-primary" value="Reject Video" name="button" />
-            <input type="submit" class="btn btn-primary" value="Reject Manifest" name="button" />
         </div>
     </div>
 </form>

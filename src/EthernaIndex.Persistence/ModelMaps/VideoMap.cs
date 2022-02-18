@@ -43,7 +43,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
         /// <summary>
         /// The full entity serializer without relations
         /// </summary>
-        public static ReferenceSerializer<Video, string> InformationSerializer(
+        public static ReferenceSerializer<Video, string> ReferenceSerializer(
             IDbContext dbContext,
             bool useCascadeDelete = false) =>
             new(dbContext, config =>
@@ -56,9 +56,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                     mm.MapIdMember(m => m.Id);
                     mm.IdMemberMap.SetSerializer(new StringSerializer(BsonType.ObjectId));
                 });
-                config.AddModelMapsSchema<Video>("d4844740-472d-48b9-b066-67ba9a2acc9b", mm =>{
-                    mm.MapMember(m => m.ContentReview);
-                });
+                config.AddModelMapsSchema<Video>("d4844740-472d-48b9-b066-67ba9a2acc9b", mm => { });
             });
     }
 }

@@ -29,7 +29,6 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
 
                     // Set members with custom serializers.
                     cm.SetMemberSerializer(c => c.VideoManifest, VideoManifestMap.InformationSerializer(dbContext));
-                    cm.SetMemberSerializer(c => c.Video, VideoMap.InformationSerializer(dbContext));
                 });
         }
     }

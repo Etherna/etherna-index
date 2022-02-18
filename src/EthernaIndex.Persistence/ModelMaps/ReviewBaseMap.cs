@@ -16,7 +16,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                     cm.AutoMap();
 
                     // Set members with custom serializers.
-                    cm.SetMemberSerializer(c => c.ReviewOwner, UserMap.InformationSerializer(dbContext));
+                    cm.SetMemberSerializer(c => c.ReviewAuthor, UserMap.InformationSerializer(dbContext));
                 });
         }
     }

@@ -50,7 +50,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReviews
         {
             public VideoReviewDetailDto(
                 string id,
-                ContentReviewType contentReview,
+                ContentReviewStatus contentReview,
                 string description,
                 string reviewAddress,
                 DateTime reportDate)
@@ -66,7 +66,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReviews
             }
 
             public string Id { get; }
-            public ContentReviewType ContentReview { get; }
+            public ContentReviewStatus ContentReview { get; }
             public string Description { get; }
             public string ReviewAddress { get; }
             public DateTime ReviewDate { get; }
@@ -116,7 +116,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReviews
             CurrentPage = p ?? 0;
 
             var paginatedVideoManifests = await indexDbContext.VideoReviews.QueryPaginatedElementsAsync(
-                vr => vr.Where(i => i.Video.Id == VideoReview.VideoId),
+                vr => vr.Where(i => i.Id == VideoReview.VideoId),
                 vr => vr.CreationDateTime,
                 CurrentPage,
                 PageSize);
@@ -128,7 +128,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReviews
                         e.Id,
                         e.ContentReview,
                         e.Description,
-                        e.ReviewOwner.Address,
+                        e.ReviewAuthor.Address,
                         e.CreationDateTime)));
 
             var currentManifest = video.GetLastValidManifest();

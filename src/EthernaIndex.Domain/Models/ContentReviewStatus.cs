@@ -1,8 +1,7 @@
 ﻿namespace Etherna.EthernaIndex.Domain.Models
 {
-    public enum ContentReviewType
+    public enum ContentReviewStatus
     {
-        ApprovedVideo,
         ApprovedManifest,
         RejectManifest,
         RejectVideo,

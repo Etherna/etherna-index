@@ -33,7 +33,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                     cm.AutoMap();
 
                     // Set members with custom serializers.
-                    cm.SetMemberSerializer(v => v.Video, VideoMap.InformationSerializer(dbContext));
+                    cm.SetMemberSerializer(v => v.Video, VideoMap.ReferenceSerializer(dbContext));
                 });
         }
 
@@ -60,8 +60,11 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                 {
                     mm.MapMember(m => m.IsValid);
                     mm.MapMember(m => m.ManifestHash);
+                    mm.MapMember(m => m.ReviewApproved);
                 });
-                config.AddModelMapsSchema<VideoManifest>("f7966611-14aa-4f18-92f4-8697b4927fb6", mm => { });
+                config.AddModelMapsSchema<VideoManifest>("f7966611-14aa-4f18-92f4-8697b4927fb6", mm => {
+                    mm.SetMemberSerializer(i => i.Video, VideoMap.ReferenceSerializer(dbContext));
+                });
             });
     }
 }

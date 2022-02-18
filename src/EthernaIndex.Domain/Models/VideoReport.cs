@@ -12,7 +12,6 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-using Etherna.MongODM.Core.Attributes;
 using System;
 
 namespace Etherna.EthernaIndex.Domain.Models
@@ -22,12 +21,11 @@ namespace Etherna.EthernaIndex.Domain.Models
         // Constructors.
         public VideoReport(
             VideoManifest videoManifest,
-            User owner,
+            User reporterAuthor,
             string description)
-            : base(description, owner)
+            : base(description, reporterAuthor)
         {
             VideoManifest = videoManifest ?? throw new ArgumentNullException(nameof(videoManifest));
-            Video = videoManifest.Video;
             Description = description ?? throw new ArgumentNullException(nameof(description));
         }
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
@@ -36,7 +34,6 @@ namespace Etherna.EthernaIndex.Domain.Models
 
 
         // Properties.
-        public virtual Video Video { get; protected set; }
         public virtual VideoManifest VideoManifest { get; protected set; }
     }
 }

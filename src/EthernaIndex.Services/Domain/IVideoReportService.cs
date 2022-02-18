@@ -19,6 +19,11 @@ namespace Etherna.EthernaIndex.Services.Domain
 {
     public interface IVideoReportService
     {
-        Task SetReviewAsync(string videoId, string hashReportVideo, ContentReviewType contentReview, User user);
+        Task SetReviewAsync(
+            string videoId,
+            string hashReportVideo,
+            ContentReviewStatus contentReview,
+            User reviewUser,
+            string description);
     }
 }

@@ -47,7 +47,6 @@ namespace Etherna.EthernaIndex.Domain.Models
         }
 
         // Properties.
-        public virtual ContentReviewType? ContentReview { get; protected set; }
         public virtual string? EncryptionKey { get; protected set; }
         public virtual EncryptionType EncryptionType { get; protected set; }
         public virtual User Owner { get; protected set; } = default!;
@@ -65,7 +64,6 @@ namespace Etherna.EthernaIndex.Domain.Models
                            .OrderByDescending(i => i.CreationDateTime)
                            .FirstOrDefault();
 
-        [PropertyAlterer(nameof(ContentReview))]
         [PropertyAlterer(nameof(VideoManifests))]
         public virtual void AddManifest(VideoManifest videoManifest)
         {
@@ -86,12 +84,23 @@ namespace Etherna.EthernaIndex.Domain.Models
                 throw ex;
             }
 
-            if (videoManifest.IsValid == true &&
-                (ContentReview == ContentReviewType.ApprovedManifest ||
-                ContentReview == ContentReviewType.RejectManifest))
-                ContentReview = ContentReviewType.WaitingReview;
-
             _videoManifests.Add(videoManifest);
+        }
+
+        [PropertyAlterer(nameof(VideoManifests))]
+        public virtual void RemoveManifest(VideoManifest videoManifest)
+        {
+            if (videoManifest is null)
+                throw new ArgumentNullException(nameof(videoManifest));
+
+            if (videoManifest.ReviewApproved == false)
+            {
+                var ex = new InvalidOperationException("only manifest with ReviewApproved false can be removed from video");
+                ex.Data.Add("ManifestHash", videoManifest.ManifestHash.Hash);
+                throw ex;
+            }
+
+            _videoManifests.Remove(videoManifest);
         }
 
         [PropertyAlterer(nameof(EncryptionKey))]
@@ -116,12 +125,6 @@ namespace Etherna.EthernaIndex.Domain.Models
 
             EncryptionKey = encryptionKey;
             EncryptionType = encryptionType;
-        }
-
-        [PropertyAlterer(nameof(ContentReview))]
-        public virtual void SetReview(ContentReviewType review)
-        {
-            ContentReview = review;
         }
 
     }

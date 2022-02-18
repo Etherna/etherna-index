@@ -32,18 +32,23 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
         public class VideoReportDto
         {
             public VideoReportDto(
-                string manifestHash)
+                string manifestHash,
+                string videoId)
             {
                 if (manifestHash is null)
                     throw new ArgumentNullException(nameof(manifestHash));
+                if (videoId is null)
+                    throw new ArgumentNullException(nameof(videoId));
 
                 ManifestHash = manifestHash;
+                VideoId = videoId;
             }
 
+            public bool HasOtherValidManifest { get; set; }
             public string ManifestHash { get; private set; }
             public string ManifestId { get; set; } = default!;
             public string Title { get; set; } = default!;
-            public string VideoId { get; set; } = default!;
+            public string VideoId { get; set; }
         }
 
         public class VideoReportDetailDto
@@ -51,6 +56,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
             public VideoReportDetailDto(
                 string id,
                 string description,
+                string manifestHash,
                 string reportAddress,
                 DateTime reportDate)
             {
@@ -59,13 +65,15 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
 
                 Id = id;
                 Description = description;
-                ReportAddress = reportAddress;
+                ManifestHash = manifestHash;
+                ReporterAddress = reportAddress;
                 ReportDate = reportDate;
             }
 
             public string Id { get; }
             public string Description { get; }
-            public string ReportAddress { get; }
+            public string ManifestHash { get; }
+            public string ReporterAddress { get; }
             public DateTime ReportDate { get; }
         }
 
@@ -97,9 +105,9 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
 #pragma warning restore CA1002 // Do not expose generic lists
 
         // Methods.
-        public async Task OnGetAsync(string manifestHash, int? p)
+        public async Task OnGetAsync(string videoId, string manifestHash, int? p)
         {
-            VideoReport = new VideoReportDto(manifestHash);
+            VideoReport = new VideoReportDto(manifestHash, videoId);
             await InitializeAsync(p);
         }
 
@@ -112,24 +120,18 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
                 string.IsNullOrWhiteSpace(button))
                 return RedirectToPage("Index");
 
-            ContentReviewType contentReviewType;
-            if (button.Equals("Approve Video", StringComparison.Ordinal))
-                contentReviewType = ContentReviewType.ApprovedVideo;
-            else if (button.Equals("Reject Video", StringComparison.Ordinal))
-                contentReviewType = ContentReviewType.RejectVideo;
-            else if (button.Equals("Approve Manifest", StringComparison.Ordinal))
-                contentReviewType = ContentReviewType.ApprovedManifest;
-            else if (button.Equals("Reject Manifest", StringComparison.Ordinal))
-                contentReviewType = ContentReviewType.RejectManifest;
-            else if (button.Equals("Waiting Review", StringComparison.Ordinal))
-                contentReviewType = ContentReviewType.WaitingReview;
-            else
-                return RedirectToPage("Index");
+            var contentReviewType = button switch
+            {
+                "Approve Manifest" => ContentReviewStatus.ApprovedManifest,
+                "Reject Manifest" => ContentReviewStatus.RejectManifest,
+                "Waiting Review" => ContentReviewStatus.WaitingReview,
+                _ => throw new ArgumentOutOfRangeException(nameof(button), "Invalid button value")
+            };
 
             var address = HttpContext.User.GetEtherAddress();
             var user = await indexDbContext.Users.FindOneAsync(c => c.Address == address);
 
-            await videoReportService.SetReviewAsync(videoId, manifestHash, contentReviewType, user);
+            await videoReportService.SetReviewAsync(videoId, manifestHash, contentReviewType, user, "");
 
             await indexDbContext.SaveChangesAsync();
 
@@ -140,25 +142,32 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
         private async Task InitializeAsync(int? p)
         {
             // Video info
-            var videoManifest = await indexDbContext.VideoManifests.FindOneAsync(i => i.ManifestHash.Hash == VideoReport.ManifestHash);
+            var videoManifest = await indexDbContext.VideoManifests.FindOneAsync(vm => vm.ManifestHash.Hash == VideoReport.ManifestHash &&
+                                                                                        vm.Video.Id == VideoReport.VideoId);
+            var video = await indexDbContext.Videos.FindOneAsync(vm => vm.Id == VideoReport.VideoId);
 
             CurrentPage = p ?? 0;
 
             var paginatedHashVideoReports = await indexDbContext.VideoReports.QueryPaginatedElementsAsync(
-                vm => vm.Where(i => i.VideoManifest.ManifestHash.Hash == VideoReport.ManifestHash),
+                vm => vm.Where(i => i.VideoManifest.ManifestHash.Hash == videoManifest.ManifestHash.Hash),
                 vm => vm.CreationDateTime,
                 CurrentPage,
                 PageSize);
 
             MaxPage = paginatedHashVideoReports.MaxPage;
 
+            var hasOtherValidManifest = video.VideoManifests.Any(vm => vm.IsValid == true &&
+                                                                    vm.ManifestHash.Hash != videoManifest.ManifestHash.Hash);
+
             DetailReports.AddRange(paginatedHashVideoReports.Elements
                 .Select(vr => new VideoReportDetailDto(
                     vr.Id,
                     vr.Description,
-                    vr.ReporterOwner.Address,
+                    vr.VideoManifest.ManifestHash.Hash,
+                    vr.ReporterAuthor.Address,
                     vr.CreationDateTime)));
 
+            VideoReport.HasOtherValidManifest = hasOtherValidManifest;
             VideoReport.ManifestId = videoManifest.Id;
             VideoReport.Title = videoManifest.Title ?? "";
             VideoReport.VideoId = videoManifest.Video.Id;

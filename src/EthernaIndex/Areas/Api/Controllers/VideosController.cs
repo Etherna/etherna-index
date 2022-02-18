@@ -151,8 +151,9 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// Report a video content with current user.
         /// </summary>
         /// <param name="id">Video id</param>
+        /// <param name="hash">Hash manifest</param>
         /// <param name="description">Report description</param>
-        [HttpPost("{id}/reports")]
+        [HttpPost("{id}/manifest/{hash}/reports")]
         [Authorize]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -160,8 +161,9 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public Task ReportVideoAsync(
             [Required] string id,
+            [Required] string hash,
             [Required] string description) =>
-            service.ReportVideoAsync(id, description);
+            service.ReportVideoAsync(id, hash, description);
 
         /// <summary>
         /// Vote a video content with current user.

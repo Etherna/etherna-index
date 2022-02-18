@@ -15,6 +15,7 @@
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Services.Domain
@@ -32,36 +33,59 @@ namespace Etherna.EthernaIndex.Services.Domain
         }
 
         // Methods.
-        public async Task SetReviewAsync(string videoId, string hashReportVideo, ContentReviewType contentReview, User user)
+        public async Task SetReviewAsync(
+            string videoId, 
+            string hashReportVideo, 
+            ContentReviewStatus contentReview, 
+            User reviewUser, 
+            string description)
         {
             if (hashReportVideo is null)
                 throw new ArgumentNullException(nameof(hashReportVideo));
             if (videoId is null)
                 throw new ArgumentNullException(nameof(videoId));
+            if (reviewUser is null)
+                throw new ArgumentNullException(nameof(reviewUser));
 
-            var video = await indexDbContext.Videos.FindOneAsync(i => i.Id == videoId);
-            if (contentReview == ContentReviewType.ApprovedManifest ||
-                contentReview == ContentReviewType.RejectManifest)
-            {
-                if (video.GetLastValidManifest()?.Title == hashReportVideo) //Set review only for last valid hashReportVideo
-                    video.SetReview(contentReview);
-                else
-                    return;
-            }
-            else
-                video.SetReview(contentReview);
+            // Get video and manifest data.
+            var video = await indexDbContext.Videos.FindOneAsync(v => v.Id == videoId);
+            var videoManifest = await indexDbContext.VideoManifests.FindOneAsync(vm => vm.ManifestHash.Hash == hashReportVideo);
 
-            var review = await indexDbContext.VideoReviews.TryFindOneAsync(i => i.Video.Id == videoId &&
-                                                                            i.ManifestHash == hashReportVideo);
-            if (review is null)
+            if (videoManifest.Video.Id != video.Id)
             {
-                review = new VideoReview(contentReview, "", hashReportVideo, user, video);
-                await indexDbContext.VideoReviews.CreateAsync(review);
+                var ex = new InvalidOperationException("Missmatching between manifest and video");
+                ex.Data.Add("VideoId", video.Id);
+                ex.Data.Add("VideoManifests.Hash", videoManifest.ManifestHash.Hash);
+                ex.Data.Add("VideoManifests.Id", videoManifest.Video.Id);
+                throw ex;
             }
-            else
+
+            if (contentReview == ContentReviewStatus.RejectVideo)
             {
-                review.ChangeReview(contentReview, "");
+                await indexDbContext.Videos.DeleteAsync(video);
+                await indexDbContext.VideoManifests.DeleteAsync(videoManifest);
             }
+            else if (contentReview == ContentReviewStatus.RejectManifest)
+            {
+                var hasOtherValidManifest = video.VideoManifests.Any(vm => vm.IsValid == true &&
+                                                                    vm.ManifestHash.Hash != videoManifest.ManifestHash.Hash);
+                if (!hasOtherValidManifest)
+                {
+                    var ex = new InvalidOperationException("RejectManifest only when there are other valid manifest for video");
+                    ex.Data.Add("VideoId", video.Id);
+                    ex.Data.Add("VideoManifests.Hash", videoManifest.ManifestHash.Hash);
+                    throw ex;
+                }
+
+                videoManifest.SetReviewStatus(contentReview); //TODO for review SetReviewStatus is mandatory for call RemoveManifest
+                video.RemoveManifest(videoManifest);
+                await indexDbContext.VideoManifests.DeleteAsync(videoManifest);
+            }
+            else 
+                videoManifest.SetReviewStatus(contentReview);
+
+            var videoReview = new VideoReview(contentReview, description, videoManifest.ManifestHash.Hash, reviewUser, video.Id);
+            await indexDbContext.VideoReviews.CreateAsync(videoReview);
         }
     }
 }

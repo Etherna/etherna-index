@@ -8,10 +8,10 @@ namespace Etherna.EthernaIndex.Domain.Models
         // Constructors.
         protected ReportBase(
             string description,
-            User owner) 
+            User reporterAuthor) 
         {
             Description = description;
-            ReporterOwner = owner ?? throw new ArgumentNullException(nameof(owner));
+            ReporterAuthor = reporterAuthor ?? throw new ArgumentNullException(nameof(reporterAuthor));
         }
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         protected ReportBase() { }
@@ -20,7 +20,7 @@ namespace Etherna.EthernaIndex.Domain.Models
         // Properties.
         public virtual string Description { get; protected set; }
         public virtual DateTime? LastUpdate { get; protected set; }
-        public virtual User ReporterOwner { get; protected set; } = default!;
+        public virtual User ReporterAuthor { get; protected set; } = default!;
 
         // Methods.
         [PropertyAlterer(nameof(Description))]

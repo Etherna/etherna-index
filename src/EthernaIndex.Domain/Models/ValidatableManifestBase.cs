@@ -33,7 +33,7 @@ namespace Etherna.EthernaIndex.Domain.Models
         protected ValidatableManifestBase() { }
 
         // Properties.
-        public virtual bool? ContentApproved { get; set; }
+        public virtual bool? ReviewApproved { get; set; }
         public virtual IEnumerable<ErrorDetail> ErrorValidationResults
         {
             get => _errorValidationResults;
@@ -54,12 +54,17 @@ namespace Etherna.EthernaIndex.Domain.Models
             _errorValidationResults.AddRange(errorDetails);
         }
 
-        [PropertyAlterer(nameof(IsValid))]
-        [PropertyAlterer(nameof(ValidationTime))]
-        public virtual void ForceStatus(bool isValid)
+        [PropertyAlterer(nameof(ReviewApproved))]
+        public virtual void SetReviewStatus(ContentReviewStatus contentReviewType)
         {
-            IsValid = isValid;
-            ValidationTime = DateTime.UtcNow;
+            if (contentReviewType == ContentReviewStatus.ApprovedManifest)
+                ReviewApproved = true;
+            else if (contentReviewType == ContentReviewStatus.RejectManifest)
+                ReviewApproved = false;
+            else if (contentReviewType == ContentReviewStatus.WaitingReview)
+                ReviewApproved = null;
+            else
+                throw new InvalidOperationException("ContentReviewType.RejectVideo not supported");
         }
 
         [PropertyAlterer(nameof(ErrorValidationResults))]

@@ -90,7 +90,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
 
                 return new VideoManifestDto(
                     videoManifest.Id,
-                    videoManifest.ContentApproved,
+                    videoManifest.ReviewApproved,
                     videoManifest.CreationDateTime,
                     videoManifest.Description,
                     videoManifest.Duration,
@@ -156,14 +156,14 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
             {
                 public VideoInfoDto(
                     string videoId,
-                    ContentReviewType? contentReview)
+                    ContentReviewStatus? contentReview)
                 {
                     VideoId = videoId;
                     ContentReview = contentReview;
                 }
 
                 public string VideoId { get; set; }
-                public ContentReviewType? ContentReview { get; set; }
+                public ContentReviewStatus? ContentReview { get; set; }
             }
         }
 
@@ -202,10 +202,8 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
 
             if (button.Equals("Force New Validation", StringComparison.Ordinal))
                 await ForceNewValidationAsync(manifestHash);
-            else if (button.Equals("Force Invalid Status", StringComparison.Ordinal))
-                await ForceStatusAsync(manifestHash, false);
-            else if (button.Equals("Force Valid Status", StringComparison.Ordinal))
-                await ForceStatusAsync(manifestHash, true);
+            else
+                throw new ArgumentOutOfRangeException(nameof(button), "Invalid button value");
 
             await dbContext.SaveChangesAsync();
 
@@ -222,26 +220,17 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
                     new EnqueuedState(Queues.METADATA_VIDEO_VALIDATOR));
         }
 
-        private async Task ForceStatusAsync(string manifestHash, bool isValid)
-        {
-            var videoManifest = await dbContext.VideoManifests.TryFindOneAsync(c => c.ManifestHash.Hash == manifestHash);
-            if (videoManifest is null)
-                return;
-
-            videoManifest.ForceStatus(isValid);
-        }
-
         private async Task InitializeAsync(string manifestHash)
         {
             // Video info
             var videoManifest = await dbContext.VideoManifests.FindOneAsync(i => i.ManifestHash.Hash == manifestHash);
             var video = await dbContext.Videos.FindOneAsync(i => i.Id == videoManifest.Video.Id);
-
+            /*
             VideoManifest = VideoManifestDto.FromManifestEntity(
                 videoManifest, 
                 new VideoManifestDto.VideoInfoDto(
                     video.Id,
-                    video.ContentReview));
+                    video.ContentReview));*/
         }
 
     }
