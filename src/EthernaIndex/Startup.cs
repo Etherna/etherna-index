@@ -47,6 +47,7 @@ using System.Reflection;
 using System.Security.Claims;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.DataProtection;
 
 namespace Etherna.EthernaIndex
 {
@@ -70,7 +71,11 @@ namespace Etherna.EthernaIndex
         {
             // Configure Asp.Net Core framework services.
             services.AddDataProtection()
-                .PersistKeysToDbContext(new DbContextOptions { ConnectionString = Configuration["ConnectionStrings:SystemDb"] });
+                .PersistKeysToDbContext(new DbContextOptions
+                {
+                    ConnectionString = Configuration["ConnectionStrings:DataProtectionDb"] ?? throw new ServiceConfigurationException()
+                })
+                .SetApplicationName(CommonConsts.SharedCookieApplicationName);
 
             services.AddCors();
             services.AddRazorPages();
@@ -98,7 +103,7 @@ namespace Etherna.EthernaIndex
                 })
                 .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
                 {
-                    options.Cookie.Name = Configuration["Application:CompactName"];
+                    options.Cookie.Name = CommonConsts.SharedCookieApplicationName;
                     options.AccessDeniedPath = "/AccessDenied";
 
                     if (Environment.IsProduction())
@@ -130,6 +135,9 @@ namespace Etherna.EthernaIndex
                     options.Scope.Add("ether_accounts");
                     options.Scope.Add("role");
                 });
+
+            // Configure authorization.
+            //policy and requirements
             services.AddAuthorization(options =>
             {
                 options.AddPolicy(CommonConsts.RequireAdministratorClaimPolicy,
@@ -139,6 +147,7 @@ namespace Etherna.EthernaIndex
                         policy.RequireClaim(ClaimTypes.Role, CommonConsts.AdministratorRoleName);
                     });
             });
+
             // Configure token management.
             services.AddAccessTokenManagement();
 
