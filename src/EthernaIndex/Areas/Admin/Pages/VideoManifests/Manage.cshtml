@@ -105,12 +105,6 @@
 
     <div class="row">
         <div class="col-2 mb-3 text-left mt-1">
-            <strong>ContentApproved:</strong>
-        </div>
-        <div class="col-2 mb-3 text-left mt-1">
-            @(Model.VideoManifest.VideoInfo.ContentReview?.ToString() ?? "Not Defined")
-        </div>
-        <div class="col-2 mb-3 text-left mt-1">
             <strong>Video Id:</strong>
         </div>
         <div class="col-2 mb-3 text-left mt-1">
@@ -120,7 +114,6 @@
 
     <div class="form-row">
         <div class="col-12 mb-3">
-            <input type="submit" class="btn btn-primary" value="Approve Video" name="button" />
             <input type="submit" class="btn btn-primary" value="Reject Video" name="button" />
         </div>
     </div>
@@ -134,8 +127,6 @@
     <div class="form-row">
         <div class="col-12 text-center  mb-3">
             <input type="submit" class="btn btn-primary" value="Force New Validation" name="button" />
-            <input type="submit" class="btn btn-primary" value="Force Invalid Status" name="button" />
-            <input type="submit" class="btn btn-primary" value="Force Valid Status" name="button" />
         </div>
     </div>
 

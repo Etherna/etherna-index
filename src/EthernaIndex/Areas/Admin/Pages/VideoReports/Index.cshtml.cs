@@ -18,10 +18,11 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
         // Models.
         public class InputModel
         {
-            [Required]
             [Display(Name = "Manifest Hash")]
-            public string ManifestHash { get; set; } = default!;
+            public string? ManifestHash { get; set; }
 
+            [Display(Name = "Video Id")]
+            public string? VideoId { get; set; }
 
             [Display(Name = "Include Reviewed")]
             public bool IncludeReportReviewed { get; set; } = default!;
@@ -118,24 +119,19 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
                     paginatedVideos.Elements.First(pv => pv.Id == videoManifest.Id).Count));
         }
 
-        public async Task<IActionResult> OnPostAsync(int? p)
+        public async Task<IActionResult> OnPostAsync()
         {
-            var manifest = await indexDbContext.VideoManifests.TryFindOneAsync(vm => vm.ManifestHash.Hash == Input.ManifestHash);
+            await InitializeAsync(null);
 
-            if (manifest is null)
-            {
-                ModelState.AddModelError(string.Empty, "Can't find any report for hash");
-                await InitializeAsync(p);
-                return Page();
-            }
-
-            return RedirectToPage("Manage", new { manifestHash = manifest.ManifestHash.Hash, videoId = manifest.Video.Id });
+            return Page();
         }
 
         private IMongoQueryable<VideoReport> VideoReportsWhere(IMongoQueryable<VideoReport> querable)
         {
             if (!string.IsNullOrWhiteSpace(Input?.ManifestHash))
                 querable = querable.Where(vr => vr.VideoManifest.ManifestHash.Hash == Input.ManifestHash);
+            if (!string.IsNullOrWhiteSpace(Input?.VideoId))
+                querable = querable.Where(vr => vr.VideoManifest.Video.Id == Input.VideoId);
             if (Input is null || 
                 !Input.IncludeReportReviewed)
                 return querable.Where(vr => vr.VideoManifest.ReviewApproved == null);

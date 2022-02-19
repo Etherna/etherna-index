@@ -33,7 +33,10 @@
     <div asp-validation-summary="All" class="text-danger"></div>
 
     <div class="form-row">
-        <div class="col-12 mb-3">
+        <div class="col-4 mb-3">
+            <input asp-for="Input.VideoId" type="text" placeholder="video id" class="form-control" />
+        </div>
+        <div class="col-4 mb-3">
             <input asp-for="Input.ManifestHash" type="text" placeholder="manifest hash" class="form-control" />
         </div>
     </div>

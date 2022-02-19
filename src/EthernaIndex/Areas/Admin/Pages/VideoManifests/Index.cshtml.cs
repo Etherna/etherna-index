@@ -1,4 +1,5 @@
 using Etherna.EthernaIndex.Domain;
+using Etherna.EthernaIndex.Domain.Models;
 using Etherna.MongoDB.Driver.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -16,9 +17,11 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
         // Models.
         public class InputModel
         {
-            [Required]
             [Display(Name = "Manifest Hash")]
-            public string ManifestHash { get; set; } = default!;
+            public string? ManifestHash { get; set; }
+
+            [Display(Name = "Video Id")]
+            public string? VideoId { get; set; }
         }
 
         public class VideoManifestDto
@@ -80,7 +83,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
             CurrentPage = p ?? 0;
 
             var paginatedVideoManifests = await indexDbContext.VideoManifests.QueryPaginatedElementsAsync(
-                vm => vm,
+                vm => VideoWhere(vm),
                 vm => vm.Id,
                 CurrentPage,
                 PageSize);
@@ -91,20 +94,21 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
                 e => new VideoManifestDto(e.ManifestHash.Hash, e.Title ?? "", e.Video.Id)));
         }
 
-        public async Task<IActionResult> OnPostAsync(int? p)
+        public async Task<IActionResult> OnPostAsync()
         {
-            var totalVideo = await indexDbContext.VideoReports.QueryElementsAsync(elements =>
-                elements.Where(u => u.VideoManifest.ManifestHash.Hash == Input.ManifestHash) 
-                        .CountAsync());
+            await InitializeAsync(null);
 
-            if (totalVideo == 0)
-            {
-                ModelState.AddModelError(string.Empty, "Can't find manifest hash");
-                await InitializeAsync(p);
-                return Page();
-            }
+            return Page();
+        }
 
-            return RedirectToPage("Manage", new { manifestHash = Input.ManifestHash });
+        private IMongoQueryable<VideoManifest> VideoWhere(IMongoQueryable<VideoManifest> querable)
+        {
+            if (!string.IsNullOrWhiteSpace(Input?.ManifestHash))
+                querable = querable.Where(v => v.ManifestHash.Hash == Input.ManifestHash);
+            if (!string.IsNullOrWhiteSpace(Input?.VideoId))
+                querable = querable.Where(v => v.Video.Id == Input.VideoId);
+
+            return querable;
         }
 
     }

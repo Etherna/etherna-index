@@ -154,16 +154,12 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
 
             public class VideoInfoDto
             {
-                public VideoInfoDto(
-                    string videoId,
-                    ContentReviewStatus? contentReview)
+                public VideoInfoDto(string videoId)
                 {
                     VideoId = videoId;
-                    ContentReview = contentReview;
                 }
 
                 public string VideoId { get; set; }
-                public ContentReviewStatus? ContentReview { get; set; }
             }
         }
 
@@ -225,12 +221,10 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
             // Video info
             var videoManifest = await dbContext.VideoManifests.FindOneAsync(i => i.ManifestHash.Hash == manifestHash);
             var video = await dbContext.Videos.FindOneAsync(i => i.Id == videoManifest.Video.Id);
-            /*
+            
             VideoManifest = VideoManifestDto.FromManifestEntity(
                 videoManifest, 
-                new VideoManifestDto.VideoInfoDto(
-                    video.Id,
-                    video.ContentReview));*/
+                new VideoManifestDto.VideoInfoDto(video.Id));
         }
 
     }
