@@ -25,7 +25,7 @@ using Etherna.EthernaIndex.Swagger;
 using Etherna.MongODM;
 using Etherna.MongODM.AspNetCore.UI;
 using Etherna.MongODM.Core.Options;
-using Etherna.SSL.Exceptions;
+using Etherna.ACR.Exceptions;
 using Hangfire;
 using Hangfire.Mongo;
 using Hangfire.Mongo.Migration.Strategies;
