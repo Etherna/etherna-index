@@ -509,7 +509,7 @@ namespace EthernaIndex.Services.Tests.Tasks
         [Fact]
         public async Task Should_ParseManifest()
         {
-            var jsonDeserializeOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true, Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) } }
+            var jsonDeserializeOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true, Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) } };
             var txt = await System.IO.File.ReadAllTextAsync("JsonData/Manifest.json");
             var metatdata = JsonSerializer.Deserialize<MetadataVideoDto>(txt, jsonDeserializeOptions);
 

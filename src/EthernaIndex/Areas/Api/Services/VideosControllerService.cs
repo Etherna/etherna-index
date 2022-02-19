@@ -122,13 +122,25 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             logger.AuthorDeletedVideo(id);
         }
 
+        public async Task<VideoDto> FindByIdAsync(string id)
+        {
+            var video = await indexContext.Videos.FindOneAsync(v => v.Id == id);
+
+            var lastValidManifest = video.GetLastValidManifest();
+            VideoManifest? videoManifest = null;
+            if (lastValidManifest is not null)
+                videoManifest = await indexContext.VideoManifests.FindOneAsync(vm => vm.Id == lastValidManifest.Id);
+
+            return new VideoDto(video, videoManifest);
+        }
+
         public async Task<VideoDto> FindByManifestHashAsync(string hash)
         {
-            var manifest = await indexContext.VideoManifests.FindOneAsync(vm => vm.ManifestHash.Hash == hash);
+            var videoManifest = await indexContext.VideoManifests.FindOneAsync(vm => vm.ManifestHash.Hash == hash);
 
-            var video = await indexContext.Videos.FindOneAsync(v => v.Id == manifest.Video.Id);
+            var video = await indexContext.Videos.FindOneAsync(v => v.Id == videoManifest.Video.Id);
 
-            return new VideoDto(video, manifest);
+            return new VideoDto(video, videoManifest);
         }
 
         public async Task<IEnumerable<VideoDto>> GetLastUploadedVideosAsync(int page, int take)
@@ -230,5 +242,6 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
 
             logger.VotedVideo(user.Id, id);
         }
+
     }
 }
