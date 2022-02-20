@@ -13,8 +13,8 @@
 //   limitations under the License.
 
 using Etherna.EthernaIndex.Domain.Models.Swarm;
+using Etherna.EthernaIndex.Domain.Models.UserAgg;
 using Etherna.MongODM.Core.Attributes;
-using Nethereum.Util;
 using System;
 using System.Collections.Generic;
 
@@ -26,15 +26,25 @@ namespace Etherna.EthernaIndex.Domain.Models
         private List<Video> _videos = new();
 
         // Constructors.
-        public User(string address)
+        public User(UserSharedInfo sharedInfo)
         {
-            SetAddress(address);
+            if (sharedInfo is null)
+                throw new ArgumentNullException(nameof(sharedInfo));
+
+            SharedInfoId = sharedInfo.Id;
         }
         protected User() { }
 
         // Properties.
-        public virtual string Address { get; protected set; } = default!;
         public virtual SwarmContentHash? IdentityManifest { get; set; }
+
+        /* SharedInfo is encapsulable with resolution of https://etherna.atlassian.net/browse/MODM-101.
+         * With encapsulation we can expose also EtherAddress and EtherPreviousAddresses properties
+         * pointing to SharedInfo internal property.
+         */
+        //protected virtual SharedUserInfo SharedInfo { get; set; }
+        public virtual string SharedInfoId { get; protected set; } = default!;
+
         public virtual IEnumerable<Video> Videos
         {
             get => _videos;
@@ -53,17 +63,6 @@ namespace Etherna.EthernaIndex.Domain.Models
         protected internal virtual void RemoveVideo(Video video)
         {
             _videos.Remove(video);
-        }
-
-        // Helpers.
-        private void SetAddress(string address)
-        {
-            if (address is null)
-                throw new ArgumentNullException(nameof(address));
-            if (!address.IsValidEthereumAddressHexFormat())
-                throw new ArgumentException("The value is not a valid address", nameof(address));
-
-            Address = address.ConvertToEthereumChecksumAddress();
         }
     }
 }

@@ -215,6 +215,12 @@ namespace Etherna.EthernaIndex
                 {
                     options.ConnectionString = Configuration["ConnectionStrings:IndexDb"] ?? throw new ServiceConfigurationException();
                     options.DocumentSemVer.CurrentVersion = assemblyVersion.SimpleVersion;
+                })
+
+                .AddDbContext<ISharedDbContext, SharedDbContext>(options =>
+                {
+                    options.ConnectionString = Configuration["ConnectionStrings:ServiceSharedDb"] ?? throw new ServiceConfigurationException();
+                    options.DocumentSemVer.CurrentVersion = assemblyVersion.SimpleVersion;
                 });
 
             services.AddMongODMAdminDashboard(new MongODM.AspNetCore.UI.DashboardOptions

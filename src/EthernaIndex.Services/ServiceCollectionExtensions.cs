@@ -13,6 +13,7 @@
 //   limitations under the License.
 
 using Etherna.DomainEvents;
+using Etherna.EthernaIndex.Services.Domain;
 using Etherna.EthernaIndex.Services.Tasks;
 using Etherna.EthernaIndex.Swarm;
 using Microsoft.Extensions.Configuration;
@@ -62,6 +63,10 @@ namespace Etherna.EthernaIndex.Services
 
             // Tasks.
             services.AddTransient<IMetadataVideoValidatorTask, MetadataVideoValidatorTask>();
+
+            // Services.
+            //domain
+            services.AddScoped<IUserService, UserService>();
         }
     }
 }
