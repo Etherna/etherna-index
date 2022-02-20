@@ -134,14 +134,19 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
 
         public async Task<VideoDto> FindByIdAsync(string id)
         {
+            // Get Video.
             var video = await indexContext.Videos.FindOneAsync(v => v.Id == id);
 
+            // Get VideoManifest.
             var lastValidManifest = video.GetLastValidManifest();
             VideoManifest? videoManifest = null;
             if (lastValidManifest is not null)
                 videoManifest = await indexContext.VideoManifests.FindOneAsync(vm => vm.Id == lastValidManifest.Id);
 
-            return new VideoDto(video, videoManifest);
+            // Get User.
+            var (_, sharedInfo) = await userService.FindUserAsync(video.Owner.SharedInfoId);
+
+            return new VideoDto(video, videoManifest, sharedInfo);
         }
 
         public async Task<VideoDto> FindByManifestHashAsync(string hash)
@@ -150,27 +155,36 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
 
             var video = await indexContext.Videos.FindOneAsync(v => v.Id == videoManifest.Video.Id);
 
-            return new VideoDto(video, videoManifest);
+            var ownerSharedInfo = await sharedDbContext.UsersInfo.FindOneAsync(video.Owner.SharedInfoId);
+
+            return new VideoDto(video, videoManifest, ownerSharedInfo);
         }
 
         public async Task<IEnumerable<VideoDto>> GetLastUploadedVideosAsync(int page, int take)
         {
             // Get videos with valid manifest.
             var videos = await indexContext.Videos.QueryElementsAsync(elements =>
-                elements.Where(i => i.VideoManifests.Any(k => k.IsValid == true))
+                elements.Where(v => v.VideoManifests.Any(vm => vm.IsValid == true))
                         .PaginateDescending(v => v.CreationDateTime, page, take)
                         .ToListAsync());
 
             // Get manfinest info from video selected.
-            var manifestIds = videos.Select(i => i.GetLastValidManifest()?.Id)
-                                    .Where(i => !string.IsNullOrWhiteSpace(i));
-
+            var manifestIds = videos.Select(v => v.GetLastValidManifest()?.Id)
+                                    .Where(manifestId => !string.IsNullOrWhiteSpace(manifestId));
             var manifests = await indexContext.VideoManifests.QueryElementsAsync(elements =>
-                elements.Where(i => manifestIds.Contains(i.Id))
+                elements.Where(vm => manifestIds.Contains(vm.Id))
                         .ToListAsync());
 
+            // Get user info from video selected
+            var userIds = videos.Select(v => v.Id);
+            var usersInfo = await sharedDbContext.UsersInfo.QueryElementsAsync(elements =>
+                elements.Where(ui => userIds.Contains(ui.Id))
+                        .ToListAsync());
 
-            return videos.Select(v => new VideoDto(v, manifests.FirstOrDefault(i => i.Video.Id == v.Id)));
+            return videos.Select(v => new VideoDto(
+                v, 
+                manifests.FirstOrDefault(i => i.Video.Id == v.Id), 
+                usersInfo.First(u => u.Id == v.Owner.Id)));
         }
 
         public async Task<ManifestStatusDto> ValidationStatusByHashAsync(string hash)
