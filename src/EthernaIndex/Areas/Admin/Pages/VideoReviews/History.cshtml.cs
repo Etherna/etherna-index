@@ -20,11 +20,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using static Etherna.EthernaIndex.Areas.Admin.Pages.VideoReviews.ManageModel.VideoReviewDto;
+using static Etherna.EthernaIndex.Areas.Admin.Pages.VideoReviews.HistoryModel.VideoReviewDto;
 
 namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReviews
 {
-    public class ManageModel : PageModel
+    public class HistoryModel : PageModel
     {
         public class VideoReviewDto
         {
@@ -85,7 +85,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReviews
         private readonly IIndexDbContext indexDbContext;
 
         // Constructor.
-        public ManageModel(IIndexDbContext indexDbContext)
+        public HistoryModel(IIndexDbContext indexDbContext)
         {
             if (indexDbContext is null)
                 throw new ArgumentNullException(nameof(indexDbContext));
