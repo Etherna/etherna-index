@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
 {
-    public class IndexModel : PageModel
+    public class ReportModel : PageModel
     {
 
         // Models.
@@ -62,7 +62,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
         private readonly IIndexDbContext indexDbContext;
 
         // Constructor.
-        public IndexModel(
+        public ReportModel(
             IIndexDbContext indexDbContext)
         {
             this.indexDbContext = indexDbContext;
@@ -74,9 +74,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
 
         public int CurrentPage { get; private set; }
         public int MaxPage { get; private set; }
-#pragma warning disable CA1002 // Do not expose generic lists
-        public List<VideoReportDto> VideoReports { get; } = new();
-#pragma warning restore CA1002 // Do not expose generic lists
+        public IEnumerable<VideoReportDto> VideoReports { get; private set; } = default!;
 
         // Methods.
         public async Task OnGetAsync(int? p)
@@ -110,13 +108,12 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
                elements.Where(u => videoManifestIds.Contains(u.Id))
                        .OrderBy(i => i.Id)
                        .ToListAsync());
-            foreach (var videoManifest in videoManifests)
-                VideoReports.Add(
-                    new VideoReportDto(
-                    videoManifest.ManifestHash.Hash,
-                    videoManifest.Title ?? "",
-                    videoManifest.Video.Id,
-                    paginatedVideos.Elements.First(pv => pv.Id == videoManifest.Id).Count));
+
+                VideoReports = videoManifests.Select(vm => new VideoReportDto(
+                    vm.ManifestHash.Hash,
+                    vm.Title ?? "",
+                    vm.Video.Id,
+                    paginatedVideos.Elements.First(pv => pv.Id == vm.Id).Count));
         }
 
         public async Task<IActionResult> OnPostAsync()

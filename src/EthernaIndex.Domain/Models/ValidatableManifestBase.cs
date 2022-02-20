@@ -55,16 +55,15 @@ namespace Etherna.EthernaIndex.Domain.Models
         }
 
         [PropertyAlterer(nameof(ReviewApproved))]
-        public virtual void SetReviewStatus(ContentReviewStatus contentReviewType)
+        public virtual void SetReviewApproved(ContentReviewStatus contentReviewType)
         {
-            if (contentReviewType == ContentReviewStatus.ApprovedManifest)
-                ReviewApproved = true;
-            else if (contentReviewType == ContentReviewStatus.RejectManifest)
-                ReviewApproved = false;
-            else if (contentReviewType == ContentReviewStatus.WaitingReview)
-                ReviewApproved = null;
-            else
-                throw new InvalidOperationException("ContentReviewType.RejectVideo not supported");
+            ReviewApproved = true;
+        }
+
+        [PropertyAlterer(nameof(ReviewApproved))]
+        public virtual void SetReviewRejected(ContentReviewStatus contentReviewType)
+        {
+            ReviewApproved = false;
         }
 
         [PropertyAlterer(nameof(ErrorValidationResults))]

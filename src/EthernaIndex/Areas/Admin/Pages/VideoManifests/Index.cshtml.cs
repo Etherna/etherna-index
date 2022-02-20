@@ -67,9 +67,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
 
         public int CurrentPage { get; private set; }
         public int MaxPage { get; private set; }
-#pragma warning disable CA1002 // Do not expose generic lists
-        public List<VideoManifestDto> VideoManifests { get; } = new();
-#pragma warning restore CA1002 // Do not expose generic lists
+        public IEnumerable<VideoManifestDto> VideoManifests { get; set; } = default!;
 
         // Methods.
         public async Task OnGetAsync(int? p)
@@ -90,8 +88,11 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
 
             MaxPage = paginatedVideoManifests.MaxPage;
 
-            VideoManifests.AddRange(paginatedVideoManifests.Elements.Select( 
-                e => new VideoManifestDto(e.ManifestHash.Hash, e.Title ?? "", e.Video.Id)));
+            VideoManifests= paginatedVideoManifests.Elements.Select( 
+                e => new VideoManifestDto(
+                    e.ManifestHash.Hash, 
+                    e.Title ?? "", 
+                    e.Video.Id));
         }
 
         public async Task<IActionResult> OnPostAsync()

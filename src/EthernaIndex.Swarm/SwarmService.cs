@@ -57,7 +57,7 @@ namespace Etherna.EthernaIndex.Swarm
         }
 
         // Helpers.
-        private static readonly JsonSerializerOptions _jsonDeserializeOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true, Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) } };
+        private static readonly JsonSerializerOptions _jsonDeserializeOptions = new() { PropertyNameCaseInsensitive = true, Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) } };
 
     }
 }

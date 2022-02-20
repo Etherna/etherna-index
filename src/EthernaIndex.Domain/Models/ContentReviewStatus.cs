@@ -4,7 +4,6 @@
     {
         ApprovedManifest,
         RejectManifest,
-        RejectVideo,
-        WaitingReview
+        RejectVideo
     }
 }

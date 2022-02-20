@@ -68,9 +68,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.Reviews
 
         public int CurrentPage { get; private set; }
         public int MaxPage { get; private set; }
-#pragma warning disable CA1002 // Do not expose generic lists
-        public List<VideoReviewDto> VideoReports { get; } = new();
-#pragma warning restore CA1002 // Do not expose generic lists
+        public IEnumerable<VideoReviewDto> VideoReports { get; private set; } = default!;
 
         // Methods.
         public async Task OnGetAsync(int? p)
@@ -104,11 +102,12 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.Reviews
                 elements.Where(u => videoReviewsIds.Contains(u.Id))
                         .OrderBy(i => i.Id)
                         .ToListAsync());
-            foreach (var item in videos)
+
+            VideoReports = videos.Select(v =>
             {
-                var manifest = item.GetLastValidManifest();
-                VideoReports.Add(new VideoReviewDto(manifest?.ManifestHash?.Hash ?? "", manifest?.Title ?? "", item.Id));
-            }
+                var manifest = v.GetLastValidManifest();
+                return new VideoReviewDto(manifest?.ManifestHash?.Hash ?? "", manifest?.Title ?? "", v.Id);
+            });
         }
 
         public async Task<IActionResult> OnPostAsync()

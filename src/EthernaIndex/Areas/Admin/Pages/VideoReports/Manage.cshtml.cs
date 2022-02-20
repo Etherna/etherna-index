@@ -17,7 +17,6 @@ using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.Services.Domain;
 using Etherna.MongoDB.Driver.Linq;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System;
@@ -32,49 +31,62 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
         public class VideoReportDto
         {
             public VideoReportDto(
+                IEnumerable<VideoReport> videoReports,
+                bool hasOtherValidManifest,
                 string manifestHash,
+                string manifestId,
+                string title,
                 string videoId)
             {
-                if (manifestHash is null)
-                    throw new ArgumentNullException(nameof(manifestHash));
                 if (videoId is null)
                     throw new ArgumentNullException(nameof(videoId));
+                if (manifestHash is null)
+                    throw new ArgumentNullException(nameof(manifestHash));
 
+                DetailReports = videoReports.Select(vr => new VideoReportDetailDto(
+                    vr.Id,
+                    vr.Description,
+                    vr.VideoManifest.ManifestHash.Hash,
+                    vr.ReporterAuthor.SharedInfoId,
+                    vr.CreationDateTime));
                 ManifestHash = manifestHash;
+                HasOtherValidManifest = hasOtherValidManifest;
+                ManifestId = manifestId;
+                Title = title;
                 VideoId = videoId;
             }
 
+            public IEnumerable<VideoReportDetailDto> DetailReports { get; }
             public bool HasOtherValidManifest { get; set; }
             public string ManifestHash { get; private set; }
             public string ManifestId { get; set; } = default!;
             public string Title { get; set; } = default!;
             public string VideoId { get; set; }
-        }
-
-        public class VideoReportDetailDto
-        {
-            public VideoReportDetailDto(
-                string id,
-                string description,
-                string manifestHash,
-                string reportAddress,
-                DateTime reportDate)
+            public class VideoReportDetailDto
             {
-                if (id is null)
-                    throw new ArgumentNullException(nameof(id));
+                public VideoReportDetailDto(
+                    string id,
+                    string description,
+                    string manifestHash,
+                    string reportAddress,
+                    DateTime reportDate)
+                {
+                    if (id is null)
+                        throw new ArgumentNullException(nameof(id));
 
-                Id = id;
-                Description = description;
-                ManifestHash = manifestHash;
-                ReporterAddress = reportAddress;
-                ReportDate = reportDate;
+                    Id = id;
+                    Description = description;
+                    ManifestHash = manifestHash;
+                    ReporterAddress = reportAddress;
+                    ReportDate = reportDate;
+                }
+
+                public string Id { get; }
+                public string Description { get; }
+                public string ManifestHash { get; }
+                public string ReporterAddress { get; }
+                public DateTime ReportDate { get; }
             }
-
-            public string Id { get; }
-            public string Description { get; }
-            public string ManifestHash { get; }
-            public string ReporterAddress { get; }
-            public DateTime ReportDate { get; }
         }
 
         // Consts.
@@ -103,51 +115,47 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
         public int CurrentPage { get; private set; }
         public int MaxPage { get; private set; }
         public VideoReportDto VideoReport { get; private set; } = default!;
-#pragma warning disable CA1002 // Do not expose generic lists
-        public List<VideoReportDetailDto> DetailReports { get; } = new();
-#pragma warning restore CA1002 // Do not expose generic lists
 
         // Methods.
         public async Task OnGetAsync(string videoId, string manifestHash, int? p)
         {
-            VideoReport = new VideoReportDto(manifestHash, videoId);
-            await InitializeAsync(p);
+            await InitializeAsync(videoId, manifestHash, p);
         }
 
-        public async Task<IActionResult> OnPostManageVideoReportAsync(
+        public async Task<IActionResult> OnPostApprovedManifest(
             string videoId,
-            string manifestHash,
-            string button)
+            string manifestHash)
         {
-            if (!ModelState.IsValid ||
-                string.IsNullOrWhiteSpace(button))
-                return RedirectToPage("Index");
+            await SetReviewAsync(videoId, manifestHash, ContentReviewStatus.ApprovedManifest);
 
-            var contentReviewType = button switch
-            {
-                "Approve Manifest" => ContentReviewStatus.ApprovedManifest,
-                "Reject Manifest" => ContentReviewStatus.RejectManifest,
-                "Waiting Review" => ContentReviewStatus.WaitingReview,
-                _ => throw new ArgumentOutOfRangeException(nameof(button), "Invalid button value")
-            };
+            return RedirectToPage("Index");
+        }
 
-            var address = HttpContext!.User.GetEtherAddress();
-            var (user, _) = await userService.FindUserAsync(address);
+        public async Task<IActionResult> OnPostRejectManifest(
+            string videoId,
+            string manifestHash)
+        {
+            await SetReviewAsync(videoId, manifestHash, ContentReviewStatus.RejectManifest);
 
-            await videoReportService.SetReviewAsync(videoId, manifestHash, contentReviewType, user, "");
+            return RedirectToPage("Index");
+        }
 
-            await indexDbContext.SaveChangesAsync();
+        public async Task<IActionResult> OnPostRejectVideo(
+            string videoId,
+            string manifestHash)
+        {
+            await SetReviewAsync(videoId, manifestHash, ContentReviewStatus.RejectVideo);
 
             return RedirectToPage("Index");
         }
 
         // Helpers.
-        private async Task InitializeAsync(int? p)
+        private async Task InitializeAsync(string videoId, string manifestHash, int? p)
         {
             // Video info
-            var videoManifest = await indexDbContext.VideoManifests.FindOneAsync(vm => vm.ManifestHash.Hash == VideoReport.ManifestHash &&
-                                                                                        vm.Video.Id == VideoReport.VideoId);
-            var video = await indexDbContext.Videos.FindOneAsync(vm => vm.Id == VideoReport.VideoId);
+            var videoManifest = await indexDbContext.VideoManifests.FindOneAsync(vm => vm.ManifestHash.Hash == manifestHash &&
+                                                                                        vm.Video.Id == videoId);
+            var video = await indexDbContext.Videos.FindOneAsync(vm => vm.Id == videoId);
 
             CurrentPage = p ?? 0;
 
@@ -162,18 +170,21 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
             var hasOtherValidManifest = video.VideoManifests.Any(vm => vm.IsValid == true &&
                                                                     vm.ManifestHash.Hash != videoManifest.ManifestHash.Hash);
 
-            DetailReports.AddRange(paginatedHashVideoReports.Elements
-                .Select(vr => new VideoReportDetailDto(
-                    vr.Id,
-                    vr.Description,
-                    vr.VideoManifest.ManifestHash.Hash,
-                    vr.ReporterAuthor.SharedInfoId,
-                    vr.CreationDateTime)));
+            VideoReport = new VideoReportDto(
+                paginatedHashVideoReports.Elements,
+                hasOtherValidManifest,
+                videoManifest.ManifestHash.Hash,
+                videoManifest.Id,
+                videoManifest.Title ?? "",
+                video.Id);
+        }
 
-            VideoReport.HasOtherValidManifest = hasOtherValidManifest;
-            VideoReport.ManifestId = videoManifest.Id;
-            VideoReport.Title = videoManifest.Title ?? "";
-            VideoReport.VideoId = videoManifest.Video.Id;
+        private async Task SetReviewAsync(string videoId, string manifestHash, ContentReviewStatus contentReviewStatus)
+        {
+            var address = HttpContext!.User.GetEtherAddress();
+            var (user, _) = await userService.FindUserAsync(address);
+
+            await videoReportService.SetReviewAsync(videoId, manifestHash, contentReviewStatus, user, "");
         }
 
     }

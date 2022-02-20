@@ -142,7 +142,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public Task<string> CreateAsync(
             [Required] VideoCreateInput videoInput) =>
-            service.CreateAsync(videoInput);
+            service.CreateAsync(videoInput, User);
 
         /// <summary>
         /// Create a new comment on a video with current user.
@@ -158,7 +158,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         public Task<CommentDto> CreateCommentAsync(
             [Required] string id,
             [Required][FromBody] string text) =>
-            service.CreateCommentAsync(id, text);
+            service.CreateCommentAsync(id, text, User);
 
         /// <summary>
         /// Report a video content with current user.
@@ -176,7 +176,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
             [Required] string id,
             [Required] string hash,
             [Required] string description) =>
-            service.ReportVideoAsync(id, hash, description);
+            service.ReportVideoAsync(id, hash, description, User);
 
         /// <summary>
         /// Vote a video content with current user.
@@ -192,7 +192,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         public Task VoteVideAsync(
             [Required] string id,
             [Required] VoteValue value) =>
-            service.VoteVideAsync(id, value);
+            service.VoteVideAsync(id, value, User);
 
         // Put.
 
@@ -211,7 +211,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         public Task<VideoManifestDto> UpdateAsync(
             [Required] string id,
             [Required] string newHash) =>
-            service.UpdateAsync(id, newHash);
+            service.UpdateAsync(id, newHash, User);
 
         // Delete.
 
@@ -228,6 +228,6 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public Task DeleteAsync(
             [Required] string id) =>
-            service.DeleteAsync(id);
+            service.DeleteAsync(id, User);
     }
 }

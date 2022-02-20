@@ -77,12 +77,12 @@ namespace Etherna.EthernaIndex.Services.Domain
                     throw ex;
                 }
 
-                videoManifest.SetReviewStatus(contentReview); //TODO for review SetReviewStatus is mandatory for call RemoveManifest
+                videoManifest.SetReviewRejected(contentReview); //TODO for review SetReviewStatus is mandatory for call RemoveManifest
                 video.RemoveManifest(videoManifest);
                 await indexDbContext.VideoManifests.DeleteAsync(videoManifest);
             }
             else 
-                videoManifest.SetReviewStatus(contentReview);
+                videoManifest.SetReviewApproved(contentReview);
 
             var videoReview = new VideoReview(contentReview, description, videoManifest.ManifestHash.Hash, reviewUser, video.Id);
             await indexDbContext.VideoReviews.CreateAsync(videoReview);

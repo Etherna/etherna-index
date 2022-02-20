@@ -14,7 +14,7 @@
 *@
 
 @page
-@model Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports.IndexModel
+@model Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports.ReportModel
 @{
     ViewData["Title"] = "Video Reports";
 
@@ -27,7 +27,7 @@
     </div>
 </div>
 
-<form method="post"
+<form method="get"
       asp-route-p="@Model.CurrentPage">
 
     <div asp-validation-summary="All" class="text-danger"></div>
