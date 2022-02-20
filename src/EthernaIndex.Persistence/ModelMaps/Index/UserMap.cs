@@ -20,46 +20,45 @@ using Etherna.MongODM.Core.Extensions;
 using Etherna.MongODM.Core.Serialization;
 using Etherna.MongODM.Core.Serialization.Serializers;
 
-namespace Etherna.EthernaIndex.Persistence.ModelMaps
+namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
 {
-    class VideoManifestMap : IModelMapsCollector
+    class UserMap : IModelMapsCollector
     {
         public void Register(IDbContext dbContext)
         {
-            dbContext.SchemaRegistry.AddModelMapsSchema<VideoManifest>("ec578080-ccd2-4d49-8a76-555b10a5dad5",
+            dbContext.SchemaRegistry.AddModelMapsSchema<User>("a547abdc-420c-41f9-b496-e6cf704a3844",
                 cm =>
                 {
                     cm.AutoMap();
 
                     // Set members with custom serializers.
-                    cm.SetMemberSerializer(v => v.Video, VideoMap.InformationSerializer(dbContext));
+                    cm.SetMemberSerializer(c => c.Videos,
+                        new EnumerableSerializer<Video>(
+                            VideoMap.InformationSerializer(dbContext, true)));
                 });
         }
 
         /// <summary>
         /// The full entity serializer without relations
         /// </summary>
-        public static ReferenceSerializer<VideoManifest, string> InformationSerializer(
+        public static ReferenceSerializer<User, string> InformationSerializer(
             IDbContext dbContext,
             bool useCascadeDelete = false) =>
             new(dbContext, config =>
             {
                 config.UseCascadeDelete = useCascadeDelete;
-                config.AddModelMapsSchema<ModelBase>("23889d7e-fb5e-4245-871f-2d63baed10d1");
-                config.AddModelMapsSchema<EntityModelBase>("c6e9e564-293a-4fc4-a3fc-c4a05827f5e7", mm =>
-                {
-                    mm.MapMember(m => m.CreationDateTime);
-                });
-                config.AddModelMapsSchema<EntityModelBase<string>>("d71a8188-9baa-4454-8fba-9cc547bee291", mm =>
+                config.AddModelMapsSchema<ModelBase>("f2b68f90-0851-40fc-a9af-556458f85662");
+                config.AddModelMapsSchema<EntityModelBase>("1401ce64-0eb9-4f64-b9b2-cd570934268b", mm => { });
+                config.AddModelMapsSchema<EntityModelBase<string>>("3fabed81-1e86-4183-86dc-b875f9a940ac", mm =>
                 {
                     mm.MapIdMember(m => m.Id);
                     mm.IdMemberMap.SetSerializer(new StringSerializer(BsonType.ObjectId));
                 });
-                config.AddModelMapsSchema<ManifestBase>("fa2c6046-6b74-41bc-bba6-a3c98b501ec6", mm => 
+                config.AddModelMapsSchema<User>("caa0968f-4493-485b-b8d0-bc40942e8684", mm =>
                 {
-                    mm.MapMember(m => m.IsValid);
+                    mm.MapMember(u => u.Address);
+                    mm.MapMember(u => u.IdentityManifest);
                 });
-                config.AddModelMapsSchema<VideoManifest>("f7966611-14aa-4f18-92f4-8697b4927fb6", mm => { });
             });
     }
 }

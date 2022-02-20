@@ -32,7 +32,7 @@ namespace Etherna.EthernaIndex.Persistence
     public class IndexDbContext : DbContext, IEventDispatcherDbContext, IIndexDbContext
     {
         // Consts.
-        private const string SerializersNamespace = "Etherna.EthernaIndex.Persistence.ModelMaps";
+        private const string SerializersNamespace = "Etherna.EthernaIndex.Persistence.ModelMaps.Index";
 
         // Constructor.
         public IndexDbContext(
