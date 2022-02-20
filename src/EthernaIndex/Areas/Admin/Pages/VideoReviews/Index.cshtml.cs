@@ -18,31 +18,33 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.Reviews
         // Models.
         public class InputModel
         {
-            [Required]
+            [Display(Name = "Manifest Hash")]
+            public string? ManifestHash { get; set; }
+
             [Display(Name = "Video Id")]
-            public string VideoId { get; set; } = default!;
+            public string? VideoId { get; set; }
         }
 
         public class VideoReviewDto
         {
             public VideoReviewDto(
-                string manifestHash,
+                string lastValidManifestHash,
                 string title,
                 string videoId)
             {
-                if (manifestHash is null)
-                    throw new ArgumentNullException(nameof(manifestHash));
+                if (lastValidManifestHash is null)
+                    throw new ArgumentNullException(nameof(lastValidManifestHash));
                 if (title is null)
                     throw new ArgumentNullException(nameof(title));
                 if (videoId is null)
                     throw new ArgumentNullException(nameof(videoId));
 
-                ManifestHash = manifestHash;
+                LastValidManifestHash = lastValidManifestHash;
                 Title = title;
                 VideoId = videoId;
             }
 
-            public string ManifestHash { get; }
+            public string LastValidManifestHash { get; }
             public string Title { get; }
             public string VideoId { get; }
         }
@@ -81,18 +83,21 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.Reviews
         {
             CurrentPage = p ?? 0;
 
-            // Get all reviews for video.
-            CurrentPage = p ?? 0;
-
             var paginatedVideoReviews = await indexDbContext.VideoReviews.QueryPaginatedElementsAsync(
-                vr => vr.GroupBy(i => i.VideoId),
-                vr => vr.Key,
+                vm => VideoReviewsWhere(vm)
+                        .GroupBy(i => i.VideoId)
+                        .Select(group => new
+                        {
+                            Id = group.Key,
+                            Count = group.Count()
+                        }),
+                vm => vm.Id,
                 CurrentPage,
                 PageSize);
 
             MaxPage = paginatedVideoReviews.MaxPage;
 
-            var videoReviewsIds = paginatedVideoReviews.Elements.Select(e => e.Key);
+            var videoReviewsIds = paginatedVideoReviews.Elements.Select(e => e.Id);
 
             // Get video and manifest info.
             var videos = await indexDbContext.Videos.QueryElementsAsync(elements =>
@@ -106,20 +111,21 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.Reviews
             }
         }
 
-        public async Task<IActionResult> OnPostAsync(int? p)
+        public async Task<IActionResult> OnPostAsync()
         {
-            var totalReviews = await indexDbContext.VideoReviews.QueryElementsAsync(elements =>
-                elements.Where(u => u.VideoId == Input.VideoId)
-                        .CountAsync());
+            await InitializeAsync(null);
 
-            if (totalReviews == 0)
-            {
-                ModelState.AddModelError(string.Empty, "Can't find report for video id");
-                await InitializeAsync(p);
-                return Page();
-            }
+            return Page();
+        }
 
-            return RedirectToPage("History", new { videoId = Input.VideoId });
+        private IMongoQueryable<VideoReview> VideoReviewsWhere(IMongoQueryable<VideoReview> querable)
+        {
+            if (!string.IsNullOrWhiteSpace(Input?.ManifestHash))
+                querable = querable.Where(vr => vr.ManifestHash == Input.ManifestHash);
+            if (!string.IsNullOrWhiteSpace(Input?.VideoId))
+                querable = querable.Where(vr => vr.VideoId == Input.VideoId);
+
+            return querable;
         }
 
     }

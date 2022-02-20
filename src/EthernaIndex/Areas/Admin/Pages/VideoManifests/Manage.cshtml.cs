@@ -154,29 +154,33 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
 
             public class VideoInfoDto
             {
-                public VideoInfoDto(string videoId)
+                public VideoInfoDto(
+                    string videoId, 
+                    bool hasOtherValidManifest)
                 {
                     VideoId = videoId;
+                    HasOtherValidManifest = hasOtherValidManifest;
                 }
 
                 public string VideoId { get; set; }
+                public bool HasOtherValidManifest { get; set; }
             }
         }
 
         // Fields.
         private readonly IBackgroundJobClient backgroundJobClient;
-        private readonly IIndexDbContext dbContext;
+        private readonly IIndexDbContext indexDbContext;
 
         // Constructor.
         public ManageModel(
             IBackgroundJobClient backgroundJobClient,
-            IIndexDbContext dbContext)
+            IIndexDbContext indexDbContext)
         {
-            if (dbContext is null)
-                throw new ArgumentNullException(nameof(dbContext));
+            if (indexDbContext is null)
+                throw new ArgumentNullException(nameof(indexDbContext));
 
             this.backgroundJobClient = backgroundJobClient;
-            this.dbContext = dbContext;
+            this.indexDbContext = indexDbContext;
         }
 
         // Properties.
@@ -201,7 +205,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
             else
                 throw new ArgumentOutOfRangeException(nameof(button), "Invalid button value");
 
-            await dbContext.SaveChangesAsync();
+            await indexDbContext.SaveChangesAsync();
 
             return RedirectToPage("Index");
         }
@@ -209,9 +213,8 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
         // Helpers.
         private async Task ForceNewValidationAsync(string manifestHash)
         {
-            var videoManifest = await dbContext.VideoManifests.TryFindOneAsync(c => c.ManifestHash.Hash == manifestHash);
-            if (videoManifest is not null)
-                backgroundJobClient.Create<MetadataVideoValidatorTask>(
+            var videoManifest = await indexDbContext.VideoManifests.FindOneAsync(c => c.ManifestHash.Hash == manifestHash);
+            backgroundJobClient.Create<MetadataVideoValidatorTask>(
                     task => task.RunAsync(videoManifest.Video.Id, videoManifest.ManifestHash.Hash),
                     new EnqueuedState(Queues.METADATA_VIDEO_VALIDATOR));
         }
@@ -219,12 +222,15 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
         private async Task InitializeAsync(string manifestHash)
         {
             // Video info
-            var videoManifest = await dbContext.VideoManifests.FindOneAsync(i => i.ManifestHash.Hash == manifestHash);
-            var video = await dbContext.Videos.FindOneAsync(i => i.Id == videoManifest.Video.Id);
-            
+            var videoManifest = await indexDbContext.VideoManifests.FindOneAsync(i => i.ManifestHash.Hash == manifestHash);
+            var video = await indexDbContext.Videos.FindOneAsync(i => i.Id == videoManifest.Video.Id);
+
+            var hasOtherValidManifest = video.VideoManifests.Any(vm => vm.IsValid == true &&
+                                                                        vm.ManifestHash.Hash != videoManifest.ManifestHash.Hash);
+
             VideoManifest = VideoManifestDto.FromManifestEntity(
                 videoManifest, 
-                new VideoManifestDto.VideoInfoDto(video.Id));
+                new VideoManifestDto.VideoInfoDto(video.Id, hasOtherValidManifest));
         }
 
     }

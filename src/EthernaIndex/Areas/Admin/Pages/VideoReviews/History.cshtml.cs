@@ -77,18 +77,14 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReviews
 
         // Fields.
         private readonly IIndexDbContext indexDbContext;
-        private readonly IVideoReportService videoReportService;
 
         // Constructor.
-        public ManageModel(
-            IIndexDbContext indexDbContext,
-            IVideoReportService videoReportService)
+        public ManageModel(IIndexDbContext indexDbContext)
         {
             if (indexDbContext is null)
                 throw new ArgumentNullException(nameof(indexDbContext));
 
             this.indexDbContext = indexDbContext;
-            this.videoReportService = videoReportService;
         }
 
         // Properties.
