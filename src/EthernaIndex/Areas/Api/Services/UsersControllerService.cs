@@ -90,22 +90,14 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             return userDtos;
         }
 
-        public async Task<IEnumerable<VideoDto>> GetVideosAsync(string address, int page, int take)
+        public async Task<IEnumerable<VideoInfoDto>> GetVideosAsync(string address, int page, int take)
         {
             var (user, sharedInfo) = await userService.FindUserAsync(address);
             var videos = user.Videos.Where(i => i.VideoManifests.Any(k => k.IsValid == true))
                             .PaginateDescending(v => v.CreationDateTime, page, take);
 
-            // Get manfinest info from video selected.
-            var manifestIds = videos.Select(i => i.GetLastValidManifest()?.Id)
-                                    .Where(i => !string.IsNullOrWhiteSpace(i));
-
-            var manifests = await indexContext.VideoManifests.QueryElementsAsync(elements =>
-                elements.Where(i => manifestIds.Contains(i.Id))
-                        .ToListAsync());
-
             return user.Videos.PaginateDescending(v => v.CreationDateTime, page, take)
-                                 .Select(v => new VideoDto(v, manifests.FirstOrDefault(i => i.Video.Id == v.Id), sharedInfo));
+                                 .Select(v => new VideoInfoDto(v, v.GetLastValidManifest()?.Title, sharedInfo));
         }
 
         public async Task UpdateCurrentUserIdentityManifestAsync(string? hash)

@@ -18,7 +18,7 @@ using System.Collections.Generic;
 
 namespace Etherna.EthernaIndex.Domain.Models
 {
-    public class VideoManifest : ValidatableManifestBase
+    public class VideoManifest : ValidableManifestBase
     {
         // Fields.
         private List<VideoSource> _sources = new();

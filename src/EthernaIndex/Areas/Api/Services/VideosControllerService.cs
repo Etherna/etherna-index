@@ -159,19 +159,12 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             return new VideoDto(video, videoManifest, ownerSharedInfo);
         }
 
-        public async Task<IEnumerable<VideoDto>> GetLastUploadedVideosAsync(int page, int take)
+        public async Task<IEnumerable<VideoInfoDto>> GetLastUploadedVideosAsync(int page, int take)
         {
             // Get videos with valid manifest.
             var videos = await indexDbContext.Videos.QueryElementsAsync(elements =>
                 elements.Where(v => v.VideoManifests.Any(vm => vm.IsValid == true))
                         .PaginateDescending(v => v.CreationDateTime, page, take)
-                        .ToListAsync());
-
-            // Get manfinest info from video selected.
-            var manifestIds = videos.Select(v => v.GetLastValidManifest()?.Id)
-                                    .Where(manifestId => !string.IsNullOrWhiteSpace(manifestId));
-            var manifests = await indexDbContext.VideoManifests.QueryElementsAsync(elements =>
-                elements.Where(vm => manifestIds.Contains(vm.Id))
                         .ToListAsync());
 
             // Get user info from video selected
@@ -180,9 +173,9 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
                 elements.Where(ui => userIds.Contains(ui.Id))
                         .ToListAsync());
 
-            return videos.Select(v => new VideoDto(
+            return videos.Select(v => new VideoInfoDto(
                 v,
-                manifests.FirstOrDefault(i => i.Video.Id == v.Id),
+                v.GetLastValidManifest()?.Title,
                 usersInfo.First(u => u.Id == v.Owner.Id)));
         }
 

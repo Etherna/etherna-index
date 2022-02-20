@@ -20,17 +20,17 @@ using System.Collections.Generic;
 
 namespace Etherna.EthernaIndex.Domain.Models
 {
-    public abstract class ValidatableManifestBase : EntityModelBase<string>
+    public abstract class ValidableManifestBase : EntityModelBase<string>
     {
         // Fields.
         private List<ErrorDetail> _errorValidationResults = new();
 
         // Constructors.
-        protected ValidatableManifestBase(string manifestHash)
+        protected ValidableManifestBase(string manifestHash)
         {
             ManifestHash = new SwarmContentHash(manifestHash);
         }
-        protected ValidatableManifestBase() { }
+        protected ValidableManifestBase() { }
 
         // Properties.
         public virtual bool? ReviewApproved { get; set; }
