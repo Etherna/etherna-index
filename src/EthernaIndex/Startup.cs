@@ -12,6 +12,7 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
+using Etherna.ACR.Exceptions;
 using Etherna.DomainEvents;
 using Etherna.EthernaIndex.Configs;
 using Etherna.EthernaIndex.Configs.Hangfire;
@@ -25,7 +26,6 @@ using Etherna.EthernaIndex.Swagger;
 using Etherna.MongODM;
 using Etherna.MongODM.AspNetCore.UI;
 using Etherna.MongODM.Core.Options;
-using Etherna.ACR.Exceptions;
 using Hangfire;
 using Hangfire.Mongo;
 using Hangfire.Mongo.Migration.Strategies;
@@ -33,7 +33,9 @@ using Hangfire.Mongo.Migration.Strategies.Backup;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -41,13 +43,14 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
+using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Security.Claims;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.DataProtection;
 
 namespace Etherna.EthernaIndex
 {
@@ -76,6 +79,29 @@ namespace Etherna.EthernaIndex
                     ConnectionString = Configuration["ConnectionStrings:DataProtectionDb"] ?? throw new ServiceConfigurationException()
                 })
                 .SetApplicationName(CommonConsts.SharedCookieApplicationName);
+
+            services.Configure<ForwardedHeadersOptions>(options =>
+            {
+                options.ForwardedHeaders = ForwardedHeaders.All;
+
+                var knownNetworksConfig = Configuration.GetSection("ForwardedHeaders:KnownNetworks");
+                if (knownNetworksConfig.Exists())
+                {
+                    var networks = knownNetworksConfig.Get<string[]>().Select(address =>
+                    {
+                        var parts = address.Split('/');
+                        if (parts.Length != 2)
+                            throw new ServiceConfigurationException();
+
+                        return new IPNetwork(
+                            IPAddress.Parse(parts[0]),
+                            int.Parse(parts[1], CultureInfo.InvariantCulture));
+                    });
+
+                    foreach (var network in networks)
+                        options.KnownNetworks.Add(network);
+                }
+            });
 
             services.AddCors();
             services.AddRazorPages(options =>
@@ -242,10 +268,12 @@ namespace Etherna.EthernaIndex
             if (Environment.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                app.UseForwardedHeaders();
             }
             else
             {
                 app.UseExceptionHandler("/Error");
+                app.UseForwardedHeaders();
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }

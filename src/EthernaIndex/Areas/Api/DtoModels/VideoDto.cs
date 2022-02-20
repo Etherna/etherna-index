@@ -23,7 +23,7 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
         // Constructors.
         public VideoDto(
             Video video,
-            VideoManifest? lastValidManifest, 
+            VideoManifest? lastValidManifest,
             UserSharedInfo userSharedInfo)
         {
             if (video is null)

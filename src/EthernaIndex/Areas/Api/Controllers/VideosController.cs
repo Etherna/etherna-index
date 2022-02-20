@@ -59,6 +59,19 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
             service.GetLastUploadedVideosAsync(page, take);
 
         /// <summary>
+        /// Get video info by id.
+        /// </summary>
+        /// <param name="id">The video id</param>
+        [HttpGet("{id}")]
+        [SimpleExceptionFilter]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public Task<VideoDto> FindByIdAsync(
+            [Required] string id) =>
+            service.FindByIdAsync(id);
+
+        /// <summary>
         /// Get video info by manifest hash.
         /// </summary>
         /// <param name="hash">The video hash</param>

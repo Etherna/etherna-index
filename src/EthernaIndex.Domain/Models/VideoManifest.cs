@@ -36,7 +36,7 @@ namespace Etherna.EthernaIndex.Domain.Models
 
         // Properties.
         public virtual string? Description { get; protected set; }
-        public virtual int? Duration { get; protected set; }
+        public virtual float? Duration { get; protected set; }
         public virtual string? OriginalQuality { get; protected set; }
         public virtual IEnumerable<VideoSource>? Sources
         {
@@ -56,7 +56,7 @@ namespace Etherna.EthernaIndex.Domain.Models
         [PropertyAlterer(nameof(Thumbnail))]
         public virtual void SuccessfulValidation(
             string? description,
-            int duration,
+            float duration,
             string originalQuality,
             string? title,
             SwarmImageRaw? thumbnail,

@@ -24,6 +24,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -507,6 +509,16 @@ namespace EthernaIndex.Services.Tests.Tasks
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
         }
 
+        [Fact]
+        public async Task Should_ParseManifest()
+        {
+            var jsonDeserializeOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true, Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) } };
+            var txt = await System.IO.File.ReadAllTextAsync("JsonData/Manifest.json");
+            var metatdata = JsonSerializer.Deserialize<MetadataVideoDto>(txt, jsonDeserializeOptions);
+
+
+            Assert.NotNull(metatdata);
+        }
 
     }
 }

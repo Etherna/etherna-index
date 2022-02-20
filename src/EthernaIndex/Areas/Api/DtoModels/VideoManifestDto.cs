@@ -39,7 +39,7 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
         public string? Title { get; set; }
         public string? Description { get; set; }
         public string? OriginalQuality { get; set; }
-        public int? Duration { get; set; }
+        public float? Duration { get; set; }
         public ImageDto? Thumbnail { get; set; }
         public IEnumerable<SourceDto>? Sources { get; set; }
     }

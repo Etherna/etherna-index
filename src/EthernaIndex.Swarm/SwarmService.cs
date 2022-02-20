@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using System;
 using System.IO;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Swarm
@@ -39,11 +40,11 @@ namespace Etherna.EthernaIndex.Swarm
             if (BeeNodeClient.GatewayClient is null)
                 throw new InvalidOperationException(nameof(BeeNodeClient.GatewayClient));
 
-            using var stream = await BeeNodeClient.GatewayClient.GetDataAsync(manifestHash);
+            using var stream = await BeeNodeClient.GatewayClient.GetFileAsync(manifestHash);
             using var reader = new StreamReader(stream);
             try
             {
-                var metadataVideoDto = JsonSerializer.Deserialize<MetadataVideoDto>(await reader.ReadToEndAsync());
+                var metadataVideoDto = JsonSerializer.Deserialize<MetadataVideoDto>(await reader.ReadToEndAsync(), _jsonDeserializeOptions);
                 if (metadataVideoDto is null)
                     throw new MetadataVideoException("Empty json");
 
@@ -54,5 +55,9 @@ namespace Etherna.EthernaIndex.Swarm
                 throw new MetadataVideoException("Unable to cast json", ex);
             }
         }
+
+        // Helpers.
+        private static readonly JsonSerializerOptions _jsonDeserializeOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true, Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) } };
+
     }
 }
