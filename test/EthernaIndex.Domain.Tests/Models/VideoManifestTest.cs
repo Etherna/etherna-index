@@ -13,6 +13,8 @@
 //   limitations under the License.
 
 using Etherna.EthernaIndex.Domain.Models.ManifestAgg;
+using Etherna.EthernaIndex.Domain.Models.UserAgg;
+using Moq;
 using System;
 using System.Collections.Generic;
 using Xunit;
@@ -26,11 +28,14 @@ namespace Etherna.EthernaIndex.Domain.Models
         readonly string encryptKey = "1d111a1d73fd8f28d71e6b03d2e42f44721db94b734c2edcfe6fcd48b76a74f1";
         readonly string hash = "5d942a1d73fd8f28d71e6b03d2e42f44721db94b734c2edcfe6fcd48b76a74f9";
         readonly VideoManifest manifest;
+        private readonly Mock<UserSharedInfo> userSharedInfoMock = new();
 
         // Constructors.
         public VideoManifestTest()
         {
-            manifest = new VideoManifest(hash, new Video(encryptKey, EncryptionType.AES256, new User(address)));
+            userSharedInfoMock.Setup(s => s.EtherAddress).Returns(address);
+            var user = new User(userSharedInfoMock.Object);
+            manifest = new VideoManifest(hash, new Video(encryptKey, EncryptionType.AES256, user));
         }
 
         [Fact]

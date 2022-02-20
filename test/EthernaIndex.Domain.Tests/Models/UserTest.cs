@@ -12,8 +12,8 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-using Etherna.EthernaIndex.Domain.Models.Swarm;
-using System;
+using Etherna.EthernaIndex.Domain.Models.UserAgg;
+using Moq;
 using Xunit;
 
 namespace Etherna.EthernaIndex.Domain.Models
@@ -26,11 +26,13 @@ namespace Etherna.EthernaIndex.Domain.Models
         // Fields.
         private readonly User user;
         private readonly Video video;
+        private readonly Mock<UserSharedInfo> userSharedInfoMock = new();
 
         // Constructors.
         public UserTest()
         {
-            user = new User(UserAddress);
+            userSharedInfoMock.Setup(s => s.EtherAddress).Returns(UserAddress);
+            user = new User(userSharedInfoMock.Object);
             video = new Video(null, EncryptionType.Plain, user);
         }
 
@@ -44,13 +46,6 @@ namespace Etherna.EthernaIndex.Domain.Models
             // Assert.
             Assert.Contains(video, user.Videos);
             Assert.Equal(user, video.Owner);
-        }
-
-        [Fact]
-        public void InvalidAddress()
-        {
-            // Assert.
-            Assert.Throws<ArgumentException>(() => new User("ImNotAnAddress"));
         }
 
         [Fact]

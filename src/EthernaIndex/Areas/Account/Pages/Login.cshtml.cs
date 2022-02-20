@@ -12,60 +12,17 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-using Etherna.Authentication.Extensions;
-using Etherna.EthernaIndex.Domain;
-using Etherna.EthernaIndex.Domain.Models;
-using Etherna.MongoDB.Driver.Linq;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Areas.Account.Pages
 {
     [Authorize]
     public class LoginModel : PageModel
     {
-        // Fields.
-        private readonly IIndexDbContext indexContext;
-
-        // Constructors.
-        public LoginModel(IIndexDbContext indexContext)
-        {
-            this.indexContext = indexContext;
-        }
-
         // Methods.
-        public async Task<IActionResult> OnGetAsync(string? returnUrl = null)
-        {
-            returnUrl ??= Url.Content("~/");
-
-            var address = User.GetEtherAddress();
-            var prevAddresses = User.GetEtherPrevAddresses();
-
-            // Verify if user exists.
-            var user = await indexContext.Users.QueryElementsAsync(elements =>
-                elements.Where(u => u.Address == address ||
-                                    prevAddresses.Contains(u.Address))
-                        .FirstOrDefaultAsync());
-
-            // Create if it doesn't exist.
-            if (user is null)
-            {
-                user = new User(address);
-                await indexContext.Users.CreateAsync(user);
-            }
-
-            // Check if user have changed address.
-            if (address != user.Address)
-            {
-                //migrate
-                throw new NotImplementedException();
-            }
-
-            return Redirect(returnUrl);
-        }
+        public IActionResult OnGetAsync(string? returnUrl = null) =>
+             Redirect(returnUrl ?? Url.Content("~/"));
     }
 }

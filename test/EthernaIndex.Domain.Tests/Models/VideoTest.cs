@@ -13,6 +13,8 @@
 //   limitations under the License.
 
 using Etherna.EthernaIndex.Domain.Models.ManifestAgg;
+using Etherna.EthernaIndex.Domain.Models.UserAgg;
+using Moq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,17 +25,19 @@ namespace Etherna.EthernaIndex.Domain.Models
     public class VideoTest
     {
         // Fields.
-        readonly string address = "0x300a31dBAB42863F4b0bEa3E03d0aa89D47DB3f0";
-        readonly string encryptKey = "1d111a1d73fd8f28d71e6b03d2e42f44721db94b734c2edcfe6fcd48b76a74f1";
-        readonly string manifestHash = "5d942a1d73fd8f28d71e6b03d2e42f44721db94b734c2edcfe6fcd48b76a74f9";
-        readonly string secondManifestHash = "2b678a1d73fd8f28d71e6b03d2e42f44721db94b734c2edcfe6fcd48b76a74f9";
-        readonly User owner;
-        readonly Video video;
+        private readonly string address = "0x300a31dBAB42863F4b0bEa3E03d0aa89D47DB3f0";
+        private readonly string encryptKey = "1d111a1d73fd8f28d71e6b03d2e42f44721db94b734c2edcfe6fcd48b76a74f1";
+        private readonly string manifestHash = "5d942a1d73fd8f28d71e6b03d2e42f44721db94b734c2edcfe6fcd48b76a74f9";
+        private readonly string secondManifestHash = "2b678a1d73fd8f28d71e6b03d2e42f44721db94b734c2edcfe6fcd48b76a74f9";
+        private readonly User owner;
+        private readonly Mock<UserSharedInfo> userSharedInfoMock = new();
+        private readonly Video video;
 
         // Constructors.
         public VideoTest()
         {
-            owner = new User(address);
+            userSharedInfoMock.Setup(s => s.EtherAddress).Returns(address);
+            owner = new User(userSharedInfoMock.Object);
             video = new Video(encryptKey, EncryptionType.AES256, owner);
         }
 
@@ -51,7 +55,6 @@ namespace Etherna.EthernaIndex.Domain.Models
             Assert.Equal(0, video.TotDownvotes);
             Assert.Equal(EncryptionType.AES256, video.EncryptionType);
             Assert.NotNull(video.Owner);
-            Assert.Equal(address, video.Owner.Address);
             Assert.Empty(video.VideoManifests);
         }
 

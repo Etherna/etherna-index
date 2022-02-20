@@ -13,6 +13,7 @@
 //   limitations under the License.
 
 using Etherna.EthernaIndex.Domain.Models;
+using Etherna.EthernaIndex.Domain.Models.UserAgg;
 using System;
 
 namespace Etherna.EthernaIndex.Areas.Api.DtoModels
@@ -20,16 +21,18 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
     public class VideoDto
     {
         // Constructors.
-        public VideoDto(Video video)
+        public VideoDto(Video video, UserSharedInfo userSharedInfo)
         {
             if (video is null)
                 throw new ArgumentNullException(nameof(video));
+            if (userSharedInfo is null)
+                throw new ArgumentNullException(nameof(userSharedInfo));
 
             CreationDateTime = video.CreationDateTime;
             EncryptionKey = video.EncryptionKey;
             EncryptionType = video.EncryptionType;
             Id = video.Id;
-            OwnerAddress = video.Owner.Address;
+            OwnerAddress = userSharedInfo.EtherAddress;
             OwnerIdentityManifest = video.Owner.IdentityManifest?.Hash;
             TotDownvotes = video.TotDownvotes;
             TotUpvotes = video.TotUpvotes;

@@ -20,18 +20,18 @@ namespace Etherna.EthernaIndex.Domain.Models
     {
         // Constructors.
         public Comment(
-            User owner,
+            User author,
             string text,
             Video video)
         {
-            Owner = owner ?? throw new ArgumentNullException(nameof(owner));
+            Author = author ?? throw new ArgumentNullException(nameof(author));
             Text = text ?? throw new ArgumentNullException(nameof(text));
             Video = video ?? throw new ArgumentNullException(nameof(video));
         }
         protected Comment() { }
 
         // Properties.
-        public virtual User Owner { get; protected set; } = default!;
+        public virtual User Author { get; protected set; } = default!;
         public virtual string Text { get; protected set; } = default!;
         public virtual Video Video { get; protected set; } = default!;
     }
