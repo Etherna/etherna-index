@@ -70,18 +70,27 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
         public IEnumerable<VideoManifestDto> VideoManifests { get; set; } = default!;
 
         // Methods.
-        public async Task OnGetAsync(int? p)
+        public async Task OnGetAsync(
+            string manifestHash,
+            string videoId, 
+            int? p)
         {
-            await InitializeAsync(p);
+            await InitializeAsync(
+                manifestHash,
+                videoId,
+                p);
         }
 
         // Helpers.
-        private async Task InitializeAsync(int? p)
+        private async Task InitializeAsync(
+            string? manifestHash,
+            string? videoId,
+            int? p)
         {
             CurrentPage = p ?? 0;
 
             var paginatedVideoManifests = await indexDbContext.VideoManifests.QueryPaginatedElementsAsync(
-                vm => VideoWhere(vm),
+                vm => VideoWhere(vm, manifestHash, videoId),
                 vm => vm.Id,
                 CurrentPage,
                 PageSize);
@@ -95,19 +104,23 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
                     e.Video.Id));
         }
 
-        public async Task<IActionResult> OnPostAsync()
+        public async Task OnPost()
         {
-            await InitializeAsync(null);
-
-            return Page();
+            await InitializeAsync(
+                Input?.ManifestHash,
+                Input?.VideoId,
+                null);
         }
 
-        private IMongoQueryable<VideoManifest> VideoWhere(IMongoQueryable<VideoManifest> querable)
+        private IMongoQueryable<VideoManifest> VideoWhere(
+            IMongoQueryable<VideoManifest> querable,
+            string? manifestHash,
+            string? videoId)
         {
-            if (!string.IsNullOrWhiteSpace(Input?.ManifestHash))
-                querable = querable.Where(v => v.ManifestHash.Hash == Input.ManifestHash);
-            if (!string.IsNullOrWhiteSpace(Input?.VideoId))
-                querable = querable.Where(v => v.Video.Id == Input.VideoId);
+            if (!string.IsNullOrWhiteSpace(manifestHash))
+                querable = querable.Where(v => v.ManifestHash.Hash == manifestHash);
+            if (!string.IsNullOrWhiteSpace(videoId))
+                querable = querable.Where(v => v.Video.Id == videoId);
 
             return querable;
         }

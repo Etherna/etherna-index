@@ -18,14 +18,14 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
         // Models.
         public class InputModel
         {
+            [Display(Name = "Include Reviewed")]
+            public bool IncludeReportReviewed { get; set; } = default!;
+
             [Display(Name = "Manifest Hash")]
             public string? ManifestHash { get; set; }
 
             [Display(Name = "Video Id")]
             public string? VideoId { get; set; }
-
-            [Display(Name = "Include Reviewed")]
-            public bool IncludeReportReviewed { get; set; } = default!;
         }
 
         public class VideoReportDto
@@ -77,18 +77,30 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
         public IEnumerable<VideoReportDto> VideoReports { get; private set; } = default!;
 
         // Methods.
-        public async Task OnGetAsync(int? p)
+        public async Task OnGetAsync(
+            bool includeReportReviewed,
+            string manifestHash,
+            string videoId,
+            int? p)
         {
-            await InitializeAsync(p);
+            await InitializeAsync(
+                includeReportReviewed,
+                manifestHash,
+                videoId,
+                p);
         }
 
         // Helpers.
-        private async Task InitializeAsync(int? p)
+        private async Task InitializeAsync(
+            bool includeReportReviewed,
+            string? manifestHash,
+            string? videoId,
+            int? p)
         {
             CurrentPage = p ?? 0;
 
             var paginatedVideos = await indexDbContext.VideoReports.QueryPaginatedElementsAsync(
-                vm => VideoReportsWhere(vm)
+                vm => VideoReportsWhere(vm, includeReportReviewed, manifestHash, videoId)
                         .GroupBy(i => i.VideoManifest.Id)
                         .Select(group => new
                         {
@@ -109,28 +121,33 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
                        .OrderBy(i => i.Id)
                        .ToListAsync());
 
-                VideoReports = videoManifests.Select(vm => new VideoReportDto(
-                    vm.ManifestHash.Hash,
-                    vm.Title ?? "",
-                    vm.Video.Id,
-                    paginatedVideos.Elements.First(pv => pv.Id == vm.Id).Count));
+            VideoReports = videoManifests.Select(vm => new VideoReportDto(
+                vm.ManifestHash.Hash,
+                vm.Title ?? "",
+                vm.Video.Id,
+                paginatedVideos.Elements.First(pv => pv.Id == vm.Id).Count));
         }
 
-        public async Task<IActionResult> OnPostAsync()
+        public async Task OnPost()
         {
-            await InitializeAsync(null);
-
-            return Page();
+            await InitializeAsync(
+                Input?.IncludeReportReviewed ?? false,
+                Input?.ManifestHash,
+                Input?.VideoId,
+                null);
         }
 
-        private IMongoQueryable<VideoReport> VideoReportsWhere(IMongoQueryable<VideoReport> querable)
+        private IMongoQueryable<VideoReport> VideoReportsWhere(
+            IMongoQueryable<VideoReport> querable,
+            bool includeReportReviewed,
+            string? manifestHash,
+            string? videoId)
         {
-            if (!string.IsNullOrWhiteSpace(Input?.ManifestHash))
-                querable = querable.Where(vr => vr.VideoManifest.ManifestHash.Hash == Input.ManifestHash);
-            if (!string.IsNullOrWhiteSpace(Input?.VideoId))
-                querable = querable.Where(vr => vr.VideoManifest.Video.Id == Input.VideoId);
-            if (Input is null || 
-                !Input.IncludeReportReviewed)
+            if (!string.IsNullOrWhiteSpace(manifestHash))
+                querable = querable.Where(vr => vr.VideoManifest.ManifestHash.Hash == manifestHash);
+            if (!string.IsNullOrWhiteSpace(videoId))
+                querable = querable.Where(vr => vr.VideoManifest.Video.Id == videoId);
+            if (includeReportReviewed)
                 return querable.Where(vr => vr.VideoManifest.ReviewApproved == null);
 
             return querable;
