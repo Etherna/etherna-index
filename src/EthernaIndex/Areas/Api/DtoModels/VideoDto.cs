@@ -13,6 +13,7 @@
 //   limitations under the License.
 
 using Etherna.EthernaIndex.Domain.Models;
+using Etherna.EthernaIndex.Domain.Models.UserAgg;
 using Etherna.EthernaIndex.Swarm.DtoModel;
 using System;
 using System.Linq;
@@ -25,9 +26,12 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
         public VideoDto(
             Video video,
             VideoManifest? lastValidManifest)
+        public VideoDto(Video video, UserSharedInfo userSharedInfo)
         {
             if (video is null)
                 throw new ArgumentNullException(nameof(video));
+            if (userSharedInfo is null)
+                throw new ArgumentNullException(nameof(userSharedInfo));
 
             if (lastValidManifest is not null &&
                 lastValidManifest.Video.Id != video.Id)
@@ -46,6 +50,7 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
             if (lastValidManifest is not null)
                 LastValidManifest = new VideoManifestDto(lastValidManifest);
             OwnerAddress = video.Owner.Address;
+            OwnerAddress = userSharedInfo.EtherAddress;
             OwnerIdentityManifest = video.Owner.IdentityManifest?.Hash;
             TotDownvotes = video.TotDownvotes;
             TotUpvotes = video.TotUpvotes;

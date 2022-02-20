@@ -20,7 +20,7 @@ using Etherna.MongODM.Core.Extensions;
 using Etherna.MongODM.Core.Serialization;
 using Etherna.MongODM.Core.Serialization.Serializers;
 
-namespace Etherna.EthernaIndex.Persistence.ModelMaps
+namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
 {
     class UserMap : IModelMapsCollector
     {
@@ -56,8 +56,8 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                 });
                 config.AddModelMapsSchema<User>("caa0968f-4493-485b-b8d0-bc40942e8684", mm =>
                 {
-                    mm.MapMember(u => u.Address);
                     mm.MapMember(u => u.IdentityManifest);
+                    mm.MapMember(u => u.SharedInfoId);
                 });
             });
     }

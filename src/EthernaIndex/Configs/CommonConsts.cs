@@ -22,5 +22,7 @@ namespace Etherna.EthernaIndex.Configs
         public const string RequireAdministratorClaimPolicy = "RequireAdministratorClaimPolicy";
 
         public const string AdministratorRoleName = "ADMINISTRATOR";
+
+        public const string SharedCookieApplicationName = "ethernaSharedCookie";
     }
 }
