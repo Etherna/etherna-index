@@ -32,7 +32,7 @@ namespace Etherna.EthernaIndex.Persistence
     public class IndexDbContext : DbContext, IEventDispatcherDbContext, IIndexDbContext
     {
         // Consts.
-        private const string SerializersNamespace = "Etherna.EthernaIndex.Persistence.ModelMaps";
+        private const string SerializersNamespace = "Etherna.EthernaIndex.Persistence.ModelMaps.Index";
 
         // Constructor.
         public IndexDbContext(
@@ -56,8 +56,8 @@ namespace Etherna.EthernaIndex.Persistence
             {
                 IndexBuilders = new[]
                 {
-                    (Builders<User>.IndexKeys.Ascending(u => u.Address), new CreateIndexOptions<User> { Unique = true }),
-                    (Builders<User>.IndexKeys.Ascending(u => u.IdentityManifest!.Hash), new CreateIndexOptions<User>{ Sparse = true, Unique = true })
+                    (Builders<User>.IndexKeys.Ascending(u => u.IdentityManifest!.Hash), new CreateIndexOptions<User>{ Sparse = true, Unique = true }),
+                    (Builders<User>.IndexKeys.Ascending(u => u.SharedInfoId), new CreateIndexOptions<User> { Unique = true })
                 }
             });
         public ICollectionRepository<Video, string> Videos { get; } = new DomainCollectionRepository<Video, string>("videos");
@@ -78,7 +78,7 @@ namespace Etherna.EthernaIndex.Persistence
             {
                 IndexBuilders = new[]
                 {
-                    (Builders<VideoVote>.IndexKeys.Ascending(v => v.Owner.Address)
+                    (Builders<VideoVote>.IndexKeys.Ascending(v => v.Owner.Id)
                                                   .Ascending(v => v.Video.Id), new CreateIndexOptions<VideoVote>{ Unique = true }),
                     (Builders<VideoVote>.IndexKeys.Ascending(v => v.Video.Id), new CreateIndexOptions<VideoVote>()),
                     (Builders<VideoVote>.IndexKeys.Ascending(v => v.Value), new CreateIndexOptions<VideoVote>()),

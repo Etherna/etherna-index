@@ -13,29 +13,24 @@
 //   limitations under the License.
 
 using Etherna.EthernaIndex.Domain.Models;
-using Etherna.MongoDB.Bson;
-using Etherna.MongoDB.Bson.Serialization.IdGenerators;
-using Etherna.MongoDB.Bson.Serialization.Serializers;
 using Etherna.MongODM.Core;
+using Etherna.MongODM.Core.Extensions;
 using Etherna.MongODM.Core.Serialization;
 
-namespace Etherna.EthernaIndex.Persistence.ModelMaps
+namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
 {
-    class ModelBaseMap : IModelMapsCollector
+    class VoteMap : IModelMapsCollector
     {
         public void Register(IDbContext dbContext)
         {
-            // register class maps.
-            dbContext.SchemaRegistry.AddModelMapsSchema<ModelBase>("87302867-8134-4aea-a249-7d8d2239c8d2");
-            dbContext.SchemaRegistry.AddModelMapsSchema<EntityModelBase>("7f442ce1-5964-4a2a-98f5-4e179cfe4d98");
-            dbContext.SchemaRegistry.AddModelMapsSchema<EntityModelBase<string>>("e710ad96-4b24-47fe-a214-a312d226d70b",
+            dbContext.SchemaRegistry.AddModelMapsSchema<VideoVote>("624955bf-8c09-427f-93da-fc6ddb9668a6",
                 mm =>
                 {
                     mm.AutoMap();
 
-                    // Set Id representation.
-                    mm.IdMemberMap.SetSerializer(new StringSerializer(BsonType.ObjectId))
-                                  .SetIdGenerator(new StringObjectIdGenerator());
+                    // Set members with custom serializers.
+                    mm.SetMemberSerializer(v => v.Owner, UserMap.InformationSerializer(dbContext));
+                    mm.SetMemberSerializer(v => v.Video, VideoMap.ReferenceSerializer(dbContext));
                 });
         }
     }

@@ -16,6 +16,7 @@ using Etherna.Authentication.Extensions;
 using Etherna.EthernaIndex.Areas.Api.DtoModels;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models.Swarm;
+using Etherna.EthernaIndex.Services.Domain;
 using Etherna.MongoDB.Driver;
 using Etherna.MongoDB.Driver.Linq;
 using Etherna.MongODM.Core.Extensions;
@@ -33,14 +34,20 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         // Fields.
         private readonly IHttpContextAccessor httpContextAccessor;
         private readonly IIndexDbContext indexContext;
+        private readonly ISharedDbContext sharedDbContext;
+        private readonly IUserService userService;
 
         // Constructors.
         public UsersControllerService(
             IHttpContextAccessor httpContextAccessor,
-            IIndexDbContext indexContext)
+            IIndexDbContext indexContext,
+            ISharedDbContext sharedDbContext,
+            IUserService userService)
         {
             this.httpContextAccessor = httpContextAccessor;
             this.indexContext = indexContext;
+            this.sharedDbContext = sharedDbContext;
+            this.userService = userService;
         }
 
         // Methods.
@@ -51,32 +58,37 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             if (!address.IsValidEthereumAddressHexFormat())
                 throw new ArgumentException("The value is not a valid address", nameof(address));
 
-            address = address.ConvertToEthereumChecksumAddress();
+            var (user, sharedInfo) = await userService.FindUserAsync(address);
 
-            return new UserDto(await indexContext.Users.FindOneAsync(c => c.Address == address));
+            return new UserDto(user, sharedInfo);
         }
 
-        public async Task<UserPrivateDto> GetCurrentUserAsync()
+        public async Task<UserDto> GetCurrentUserAsync()
         {
             var address = httpContextAccessor.HttpContext!.User.GetEtherAddress();
-            var prevAddresses = httpContextAccessor.HttpContext.User.GetEtherPrevAddresses();
 
-            var manifest = await indexContext.Users.QueryElementsAsync(elements =>
-                elements.Where(u => u.Address == address ||
-                                    prevAddresses.Contains(u.Address))
-                        .Select(u => u.IdentityManifest)
-                        .FirstAsync());
+            var (user, sharedInfo) = await userService.FindUserAsync(address);
 
-            return new UserPrivateDto(address, manifest?.Hash, prevAddresses);
+            return new UserDto(user, sharedInfo);
         }
 
         public async Task<IEnumerable<UserDto>> GetUsersAsync(
-            bool onlyWithVideo, int page, int take) =>
-            (await indexContext.Users.QueryElementsAsync(elements =>
+            bool onlyWithVideo, int page, int take)
+        {
+            var users = await indexContext.Users.QueryElementsAsync(elements =>
                 elements.Where(u => !onlyWithVideo || u.Videos.Any())
                         .PaginateDescending(u => u.CreationDateTime, page, take)
-                        .ToListAsync()))
-              .Select(c => new UserDto(c));
+                        .ToListAsync());
+
+            var userDtos = new List<UserDto>();
+            foreach (var user in users)
+            {
+                var sharedInfo = await sharedDbContext.UsersInfo.FindOneAsync(user.SharedInfoId);
+                userDtos.Add(new UserDto(user, sharedInfo));
+            }
+
+            return userDtos;
+        }
 
         public async Task<IEnumerable<VideoDto>> GetVideosAsync(string address, int page, int take)
         {
@@ -93,17 +105,16 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
                         .ToListAsync());
 
             return videos.Select(v => new VideoDto(v, manifests.FirstOrDefault(i => i.Video.Id == v.Id)));
+            var (user, sharedInfo) = await userService.FindUserAsync(address);
+
+            return user.Videos.PaginateDescending(v => v.CreationDateTime, page, take)
+                                 .Select(v => new VideoDto(v, sharedInfo));
         }
 
         public async Task UpdateCurrentUserIdentityManifestAsync(string? hash)
         {
             var address = httpContextAccessor.HttpContext!.User.GetEtherAddress();
-            var prevAddresses = httpContextAccessor.HttpContext.User.GetEtherPrevAddresses();
-
-            var user = await indexContext.Users.QueryElementsAsync(elements =>
-                elements.Where(u => u.Address == address ||
-                                    prevAddresses.Contains(u.Address))
-                        .FirstAsync());
+            var (user, _) = await userService.FindUserAsync(address);
 
             user.IdentityManifest = hash is null ?
                 null :

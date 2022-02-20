@@ -25,7 +25,7 @@ using Etherna.EthernaIndex.Swagger;
 using Etherna.MongODM;
 using Etherna.MongODM.AspNetCore.UI;
 using Etherna.MongODM.Core.Options;
-using Etherna.SSL.Exceptions;
+using Etherna.ACR.Exceptions;
 using Hangfire;
 using Hangfire.Mongo;
 using Hangfire.Mongo.Migration.Strategies;
@@ -47,6 +47,7 @@ using System.Reflection;
 using System.Security.Claims;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.DataProtection;
 
 namespace Etherna.EthernaIndex
 {
@@ -70,7 +71,11 @@ namespace Etherna.EthernaIndex
         {
             // Configure Asp.Net Core framework services.
             services.AddDataProtection()
-                .PersistKeysToDbContext(new DbContextOptions { ConnectionString = Configuration["ConnectionStrings:SystemDb"] });
+                .PersistKeysToDbContext(new DbContextOptions
+                {
+                    ConnectionString = Configuration["ConnectionStrings:DataProtectionDb"] ?? throw new ServiceConfigurationException()
+                })
+                .SetApplicationName(CommonConsts.SharedCookieApplicationName);
 
             services.AddCors();
             services.AddRazorPages(options =>
@@ -101,7 +106,7 @@ namespace Etherna.EthernaIndex
                 })
                 .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
                 {
-                    options.Cookie.Name = Configuration["Application:CompactName"];
+                    options.Cookie.Name = CommonConsts.SharedCookieApplicationName;
                     options.AccessDeniedPath = "/AccessDenied";
 
                     if (Environment.IsProduction())
@@ -133,6 +138,9 @@ namespace Etherna.EthernaIndex
                     options.Scope.Add("ether_accounts");
                     options.Scope.Add("role");
                 });
+
+            // Configure authorization.
+            //policy and requirements
             services.AddAuthorization(options =>
             {
                 options.AddPolicy(CommonConsts.RequireAdministratorClaimPolicy,
@@ -142,6 +150,7 @@ namespace Etherna.EthernaIndex
                         policy.RequireClaim(ClaimTypes.Role, CommonConsts.AdministratorRoleName);
                     });
             });
+
             // Configure token management.
             services.AddAccessTokenManagement();
 
@@ -208,6 +217,12 @@ namespace Etherna.EthernaIndex
                 options =>
                 {
                     options.ConnectionString = Configuration["ConnectionStrings:IndexDb"] ?? throw new ServiceConfigurationException();
+                    options.DocumentSemVer.CurrentVersion = assemblyVersion.SimpleVersion;
+                })
+
+                .AddDbContext<ISharedDbContext, SharedDbContext>(options =>
+                {
+                    options.ConnectionString = Configuration["ConnectionStrings:ServiceSharedDb"] ?? throw new ServiceConfigurationException();
                     options.DocumentSemVer.CurrentVersion = assemblyVersion.SimpleVersion;
                 });
 

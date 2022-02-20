@@ -17,20 +17,20 @@ using Etherna.MongODM.Core;
 using Etherna.MongODM.Core.Extensions;
 using Etherna.MongODM.Core.Serialization;
 
-namespace Etherna.EthernaIndex.Persistence.ModelMaps
+namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
 {
-    class VoteMap : IModelMapsCollector
+    class CommentMap : IModelMapsCollector
     {
         public void Register(IDbContext dbContext)
         {
-            dbContext.SchemaRegistry.AddModelMapsSchema<VideoVote>("624955bf-8c09-427f-93da-fc6ddb9668a6",
+            dbContext.SchemaRegistry.AddModelMapsSchema<Comment>("8e509e8e-5c2b-4874-a734-ada4e2b91f92",
                 mm =>
                 {
                     mm.AutoMap();
 
                     // Set members with custom serializers.
-                    mm.SetMemberSerializer(v => v.Owner, UserMap.InformationSerializer(dbContext));
-                    mm.SetMemberSerializer(v => v.Video, VideoMap.ReferenceSerializer(dbContext));
+                    mm.SetMemberSerializer(c => c.Author, UserMap.InformationSerializer(dbContext));
+                    mm.SetMemberSerializer(c => c.Video, VideoMap.ReferenceSerializer(dbContext));
                 });
         }
     }

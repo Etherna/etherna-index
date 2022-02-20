@@ -94,7 +94,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         [Authorize]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public Task<UserPrivateDto> GetCurrentUserAsync() =>
+        public Task<UserDto> GetCurrentUserAsync() =>
             controllerService.GetCurrentUserAsync();
 
         // Put.
