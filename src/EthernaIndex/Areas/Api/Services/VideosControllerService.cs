@@ -176,7 +176,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
                         .ToListAsync());
 
             // Get user info from video selected
-            var userIds = videos.Select(v => v.Id);
+            var userIds = videos.Select(v => v.Owner.SharedInfoId);
             var usersInfo = await sharedDbContext.UsersInfo.QueryElementsAsync(elements =>
                 elements.Where(ui => userIds.Contains(ui.Id))
                         .ToListAsync());
