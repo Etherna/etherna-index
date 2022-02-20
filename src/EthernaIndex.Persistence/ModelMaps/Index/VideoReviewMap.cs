@@ -3,7 +3,7 @@ using Etherna.MongODM.Core;
 using Etherna.MongODM.Core.Extensions;
 using Etherna.MongODM.Core.Serialization;
 
-namespace Etherna.EthernaIndex.Persistence.ModelMaps
+namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
 {
     class VideoReviewMap : IModelMapsCollector
     {

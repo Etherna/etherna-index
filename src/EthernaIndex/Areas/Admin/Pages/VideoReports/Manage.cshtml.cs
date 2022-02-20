@@ -82,17 +82,20 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
 
         // Fields.
         private readonly IIndexDbContext indexDbContext;
+        private readonly IUserService userService;
         private readonly IVideoReportService videoReportService;
 
         // Constructor.
         public ManageModel(
             IIndexDbContext indexDbContext,
+            IUserService userService,
             IVideoReportService videoReportService)
         {
             if (indexDbContext is null)
                 throw new ArgumentNullException(nameof(indexDbContext));
 
             this.indexDbContext = indexDbContext;
+            this.userService = userService;
             this.videoReportService = videoReportService;
         }
 
@@ -128,8 +131,8 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
                 _ => throw new ArgumentOutOfRangeException(nameof(button), "Invalid button value")
             };
 
-            var address = HttpContext.User.GetEtherAddress();
-            var user = await indexDbContext.Users.FindOneAsync(c => c.Address == address);
+            var address = HttpContext!.User.GetEtherAddress();
+            var (user, _) = await userService.FindUserAsync(address);
 
             await videoReportService.SetReviewAsync(videoId, manifestHash, contentReviewType, user, "");
 
@@ -164,7 +167,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
                     vr.Id,
                     vr.Description,
                     vr.VideoManifest.ManifestHash.Hash,
-                    vr.ReporterAuthor.Address,
+                    vr.ReporterAuthor.SharedInfoId,
                     vr.CreationDateTime)));
 
             VideoReport.HasOtherValidManifest = hasOtherValidManifest;

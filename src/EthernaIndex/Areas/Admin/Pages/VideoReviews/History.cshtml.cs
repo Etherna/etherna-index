@@ -124,7 +124,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReviews
                         e.Id,
                         e.ContentReview,
                         e.Description,
-                        e.ReviewAuthor.Address,
+                        e.ReviewAuthor.SharedInfoId,
                         e.CreationDateTime)));
 
             var currentManifest = video.GetLastValidManifest();

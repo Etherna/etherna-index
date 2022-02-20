@@ -1,4 +1,5 @@
 ﻿using Etherna.EthernaIndex.Domain.Models;
+using Etherna.EthernaIndex.Persistence.ModelMaps.Index;
 using Etherna.MongODM.Core;
 using Etherna.MongODM.Core.Extensions;
 using Etherna.MongODM.Core.Serialization;
@@ -16,7 +17,7 @@ using Etherna.MongODM.Core.Serialization;
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-namespace Etherna.EthernaIndex.Persistence.ModelMaps
+namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
 {
     class VideoReportMap : IModelMapsCollector
     {

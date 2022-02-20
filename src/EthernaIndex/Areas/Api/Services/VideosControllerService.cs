@@ -70,9 +70,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             var address = httpContextAccessor.HttpContext!.User.GetEtherAddress();
             var (user, userSharedInfo) = await userService.FindUserAsync(address);
 
-            var videoManifest = await indexContext.VideoManifests.TryFindOneAsync(c => c.ManifestHash.Hash == videoInput.ManifestHash);
-            var user = await indexDbContext.Users.FindOneAsync(c => c.Address == address);
-            var videoManifest = await indexDbContext.VideoManifests.TryFindOneAsync(vm => vm.ManifestHash.Hash == videoInput.ManifestHash);
+            var videoManifest = await indexDbContext.VideoManifests.TryFindOneAsync(c => c.ManifestHash.Hash == videoInput.ManifestHash);
 
             if (videoManifest is not null)
             {
@@ -104,7 +102,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         public async Task<CommentDto> CreateCommentAsync(string id, string text)
         {
             var address = httpContextAccessor.HttpContext!.User.GetEtherAddress();
-            var user = await indexDbContext.Users.FindOneAsync(u => u.Address == address);
+            var (user, userSharedInfo) = await userService.FindUserAsync(address);
             var video = await indexDbContext.Videos.FindOneAsync(id);
 
             var comment = new Comment(user, text, video);
@@ -120,10 +118,9 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         {
             // Get data.
             var address = httpContextAccessor.HttpContext!.User.GetEtherAddress();
-            var video = await indexDbContext.Videos.FindOneAsync(id);
             var (currentUser, _) = await userService.FindUserAsync(address);
 
-            var video = await indexContext.Videos.FindOneAsync(id);
+            var video = await indexDbContext.Videos.FindOneAsync(id);
 
             // Verify authz.
             if (currentUser.Id != video.Owner.Id)
@@ -135,33 +132,89 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             logger.AuthorDeletedVideo(id);
         }
 
+        public async Task<VideoDto> FindByIdAsync(string id)
+        {
+            // Get Video.
+            var video = await indexDbContext.Videos.FindOneAsync(v => v.Id == id);
+
+            // Get VideoManifest.
+            var lastValidManifest = video.GetLastValidManifest();
+            VideoManifest? videoManifest = null;
+            if (lastValidManifest is not null)
+                videoManifest = await indexDbContext.VideoManifests.FindOneAsync(vm => vm.Id == lastValidManifest.Id);
+
+            // Get User.
+            var (_, sharedInfo) = await userService.FindUserAsync(video.Owner.SharedInfoId);
+
+            return new VideoDto(video, videoManifest, sharedInfo);
+        }
+
         public async Task<VideoDto> FindByManifestHashAsync(string hash)
         {
-            var manifest = await indexDbContext.VideoManifests.FindOneAsync(vm => vm.ManifestHash.Hash == hash);
+            var videoManifest = await indexDbContext.VideoManifests.FindOneAsync(vm => vm.ManifestHash.Hash == hash);
 
-            var video = await indexDbContext.Videos.FindOneAsync(v => v.Id == manifest.Video.Id);
+            var video = await indexDbContext.Videos.FindOneAsync(v => v.Id == videoManifest.Video.Id);
 
-            return new VideoDto(video, manifest);
+            var ownerSharedInfo = await sharedDbContext.UsersInfo.FindOneAsync(video.Owner.SharedInfoId);
+
+            return new VideoDto(video, videoManifest, ownerSharedInfo);
         }
 
         public async Task<IEnumerable<VideoDto>> GetLastUploadedVideosAsync(int page, int take)
         {
             // Get videos with valid manifest.
             var videos = await indexDbContext.Videos.QueryElementsAsync(elements =>
-                elements.Where(i => i.VideoManifests.Any(k => k.IsValid == true))
+                elements.Where(v => v.VideoManifests.Any(vm => vm.IsValid == true))
                         .PaginateDescending(v => v.CreationDateTime, page, take)
                         .ToListAsync());
 
             // Get manfinest info from video selected.
             var manifestIds = videos.Select(v => v.GetLastValidManifest()?.Id)
-                                    .Where(id => !string.IsNullOrWhiteSpace(id));
-
+                                    .Where(manifestId => !string.IsNullOrWhiteSpace(manifestId));
             var manifests = await indexDbContext.VideoManifests.QueryElementsAsync(elements =>
                 elements.Where(vm => manifestIds.Contains(vm.Id))
                         .ToListAsync());
 
+            // Get user info from video selected
+            var userIds = videos.Select(v => v.Id);
+            var usersInfo = await sharedDbContext.UsersInfo.QueryElementsAsync(elements =>
+                elements.Where(ui => userIds.Contains(ui.Id))
+                        .ToListAsync());
 
-            return videos.Select(v => new VideoDto(v, manifests.FirstOrDefault(i => i.Video.Id == v.Id)));
+            return videos.Select(v => new VideoDto(
+                v,
+                manifests.FirstOrDefault(i => i.Video.Id == v.Id),
+                usersInfo.First(u => u.Id == v.Owner.Id)));
+        }
+
+        public async Task ReportVideoAsync(string videoId, string hash, string description)
+        {
+            // Get data.
+            var video = await indexDbContext.Videos.FindOneAsync(v => v.Id == videoId);
+            var manifest = await indexDbContext.VideoManifests.FindOneAsync(vm => vm.ManifestHash.Hash == hash);
+
+            if (manifest.Video.Id != video.Id)
+                throw new InvalidOperationException("Video id not match with manifest hash");
+
+            var address = httpContextAccessor.HttpContext!.User.GetEtherAddress();
+            var (user, userSharedInfo) = await userService.FindUserAsync(address);
+
+            var videoReport = await indexDbContext.VideoReports
+                                                .TryFindOneAsync(v => v.VideoManifest.Id == manifest.Id &&
+                                                                    v.ReporterAuthor.Id == userSharedInfo.Id);
+
+            if (videoReport is null)
+            {
+                // Create new report.
+                var videoReported = new VideoReport(manifest, user, description);
+                await indexDbContext.VideoReports.CreateAsync(videoReported);
+            }
+            else
+            {
+                // Edit report.
+                videoReport.ChangeDescription(description);
+                await indexDbContext.SaveChangesAsync();
+            }
         }
 
         public async Task<ManifestStatusDto> ValidationStatusByHashAsync(string hash)
@@ -173,29 +226,15 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
 
         public async Task<IEnumerable<ManifestStatusDto>> ValidationStatusByIdAsync(string videoId)
         {
-            var manifest = await indexDbContext.Videos.FindOneAsync(v => v.Id == videoId);
+            var manifest = await indexDbContext.Videos.FindOneAsync(i => i.Id == videoId);
 
-            return new VideoDto(video, ownerSharedInfo);
+            return manifest.VideoManifests
+            .Select(i => new ManifestStatusDto(i));
         }
 
-        public async Task<IEnumerable<VideoDto>> GetLastUploadedVideosAsync(int page, int take)
+        public async Task<IEnumerable<CommentDto>> GetVideoCommentsAsync(string id, int page, int take)
         {
-            var videos = await indexContext.Videos.QueryElementsAsync(elements =>
-                elements.PaginateDescending(v => v.CreationDateTime, page, take)
-                        .ToListAsync());
-
-            var videoDtos = new List<VideoDto>();
-            foreach (var video in videos)
-            {
-                var ownerSharedInfo = await sharedDbContext.UsersInfo.FindOneAsync(video.Owner.SharedInfoId);
-                videoDtos.Add(new VideoDto(video, ownerSharedInfo));
-            }
-
-            return videoDtos;
-        }
-
-        public async Task<IEnumerable<CommentDto>> GetVideoCommentsAsync(string id, int page, int take) =>
-            (await indexDbContext.Comments.QueryElementsAsync(elements =>
+            var comments = await indexDbContext.Comments.QueryElementsAsync(elements =>
                 elements.Where(c => c.Video.Id == id)
                         .PaginateDescending(c => c.CreationDateTime, page, take)
                         .ToListAsync());
@@ -216,7 +255,6 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             var address = httpContextAccessor.HttpContext!.User.GetEtherAddress();
             var (currentUser, currentUserSharedInfo) = await userService.FindUserAsync(address);
 
-            var video = await indexContext.Videos.FindOneAsync(id);
             var video = await indexDbContext.Videos.FindOneAsync(id);
 
             // Verify authz.
@@ -237,50 +275,16 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             return new VideoManifestDto(videoManifest);
         }
 
-        public async Task ReportVideoAsync(string videoId, string hash, string description)
-        {
-            // Get data.
-            var video = await indexDbContext.Videos.FindOneAsync(v => v.Id == videoId);
-            var manifest = await indexDbContext.VideoManifests.FindOneAsync(vm => vm.ManifestHash.Hash == hash);
-
-            if (manifest.Video.Id != video.Id)
-                throw new InvalidOperationException("Video id not match with manifest hash");
-
-            var address = httpContextAccessor.HttpContext!.User.GetEtherAddress();
-            var user = await indexDbContext.Users.FindOneAsync(u => u.Address == address);
-
-            var videoReport = await indexDbContext.VideoReports
-                                                .TryFindOneAsync(v => v.VideoManifest.Id == manifest.Id &&
-                                                                    v.ReporterAuthor.Address == address);
-
-            if (videoReport is null)
-            {
-                // Create new report.
-                var videoReported = new VideoReport(manifest, user, description);
-                await indexDbContext.VideoReports.CreateAsync(videoReported);
-            }
-            else
-            {
-                // Edit report.
-                videoReport.ChangeDescription(description);
-                await indexDbContext.SaveChangesAsync();
-            }
-        }
-
         public async Task VoteVideAsync(string id, VoteValue value)
         {
             // Get data.
             var address = httpContextAccessor.HttpContext!.User.GetEtherAddress();
             var (user, userSharedInfo) = await userService.FindUserAsync(address);
-            var video = await indexContext.Videos.FindOneAsync(id);
-            var user = await indexDbContext.Users.FindOneAsync(u => u.Address == address);
             var video = await indexDbContext.Videos.FindOneAsync(id);
 
             // Remove prev votes of user on this content.
-            var prevVotes = await indexContext.Votes.QueryElementsAsync(elements =>
-                elements.Where(v => v.Owner.Id == user.Id && v.Video.Id == id)
             var prevVotes = await indexDbContext.Votes.QueryElementsAsync(elements =>
-                elements.Where(v => v.Owner.Address == address && v.Video.Id == id)
+                elements.Where(v => v.Owner.Id == user.Id && v.Video.Id == id)
                         .ToListAsync());
             foreach (var prevVote in prevVotes)
                 await indexDbContext.Votes.DeleteAsync(prevVote);
@@ -304,5 +308,6 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
 
             logger.VotedVideo(user.Id, id);
         }
+
     }
 }

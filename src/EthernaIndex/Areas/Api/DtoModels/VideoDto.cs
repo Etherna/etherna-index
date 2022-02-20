@@ -14,9 +14,7 @@
 
 using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.Domain.Models.UserAgg;
-using Etherna.EthernaIndex.Swarm.DtoModel;
 using System;
-using System.Linq;
 
 namespace Etherna.EthernaIndex.Areas.Api.DtoModels
 {
@@ -25,8 +23,8 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
         // Constructors.
         public VideoDto(
             Video video,
-            VideoManifest? lastValidManifest)
-        public VideoDto(Video video, UserSharedInfo userSharedInfo)
+            VideoManifest? lastValidManifest, 
+            UserSharedInfo userSharedInfo)
         {
             if (video is null)
                 throw new ArgumentNullException(nameof(video));
@@ -43,13 +41,12 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
                 throw ex;
             }
 
+            Id = video.Id;
             CreationDateTime = video.CreationDateTime;
             EncryptionKey = video.EncryptionKey;
             EncryptionType = video.EncryptionType;
-            Id = video.Id;
             if (lastValidManifest is not null)
                 LastValidManifest = new VideoManifestDto(lastValidManifest);
-            OwnerAddress = video.Owner.Address;
             OwnerAddress = userSharedInfo.EtherAddress;
             OwnerIdentityManifest = video.Owner.IdentityManifest?.Hash;
             TotDownvotes = video.TotDownvotes;
