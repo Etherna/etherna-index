@@ -100,7 +100,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoUnsuitableReports
             CurrentPage = p ?? 0;
 
             var paginatedUnsuitableReports = await indexDbContext.VideoUnsuitableReports.QueryPaginatedElementsAsync(
-                vm => VideoReportsWhere(vm, includeReportReviewed, manifestHash, videoId)
+                vm => VideoUnsuitableReportWhere(vm, includeReportReviewed, manifestHash, videoId)
                         .GroupBy(i => i.VideoManifest.Id)
                         .Select(group => new
                         {
@@ -137,18 +137,18 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoUnsuitableReports
                 null);
         }
 
-        private IMongoQueryable<VideoUnsuitableReport> VideoReportsWhere(
+        private IMongoQueryable<VideoUnsuitableReport> VideoUnsuitableReportWhere(
             IMongoQueryable<VideoUnsuitableReport> querable,
             bool includeReportReviewed,
             string? manifestHash,
             string? videoId)
         {
             if (!string.IsNullOrWhiteSpace(manifestHash))
-                querable = querable.Where(vr => vr.VideoManifest.ManifestHash.Hash == manifestHash);
+                querable = querable.Where(vur => vur.VideoManifest.ManifestHash.Hash == manifestHash);
             if (!string.IsNullOrWhiteSpace(videoId))
-                querable = querable.Where(vr => vr.VideoManifest.Video.Id == videoId);
-            if (includeReportReviewed)
-                return querable.Where(vr => vr.VideoManifest.ReviewApproved == null);
+                querable = querable.Where(vur => vur.VideoManifest.Video.Id == videoId);
+            if (!includeReportReviewed)
+                return querable.Where(vur => vur.VideoManifest.ReviewApproved == null);
 
             return querable;
         }
