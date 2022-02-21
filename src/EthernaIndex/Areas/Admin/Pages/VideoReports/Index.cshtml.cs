@@ -99,7 +99,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
         {
             CurrentPage = p ?? 0;
 
-            var paginatedVideos = await indexDbContext.VideoReports.QueryPaginatedElementsAsync(
+            var paginatedVideos = await indexDbContext.VideoUnsuitableReports.QueryPaginatedElementsAsync(
                 vm => VideoReportsWhere(vm, includeReportReviewed, manifestHash, videoId)
                         .GroupBy(i => i.VideoManifest.Id)
                         .Select(group => new
@@ -137,8 +137,8 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
                 null);
         }
 
-        private IMongoQueryable<VideoReport> VideoReportsWhere(
-            IMongoQueryable<VideoReport> querable,
+        private IMongoQueryable<VideoUnsuitableReport> VideoReportsWhere(
+            IMongoQueryable<VideoUnsuitableReport> querable,
             bool includeReportReviewed,
             string? manifestHash,
             string? videoId)

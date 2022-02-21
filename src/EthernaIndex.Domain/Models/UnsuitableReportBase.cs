@@ -3,10 +3,10 @@ using System;
 
 namespace Etherna.EthernaIndex.Domain.Models
 {
-    public abstract class ReportBase : EntityModelBase<string>
+    public abstract class UnsuitableReportBase : EntityModelBase<string>
     {
         // Constructors.
-        protected ReportBase(
+        protected UnsuitableReportBase(
             string description,
             User reporterAuthor) 
         {
@@ -14,7 +14,7 @@ namespace Etherna.EthernaIndex.Domain.Models
             ReporterAuthor = reporterAuthor ?? throw new ArgumentNullException(nameof(reporterAuthor));
         }
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-        protected ReportBase() { }
+        protected UnsuitableReportBase() { }
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         // Properties.

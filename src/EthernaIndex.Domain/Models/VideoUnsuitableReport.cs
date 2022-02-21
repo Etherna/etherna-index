@@ -16,10 +16,10 @@ using System;
 
 namespace Etherna.EthernaIndex.Domain.Models
 {
-    public class VideoReport : ReportBase
+    public class VideoUnsuitableReport : UnsuitableReportBase
     {
         // Constructors.
-        public VideoReport(
+        public VideoUnsuitableReport(
             VideoManifest videoManifest,
             User reporterAuthor,
             string description)
@@ -29,7 +29,7 @@ namespace Etherna.EthernaIndex.Domain.Models
             Description = description ?? throw new ArgumentNullException(nameof(description));
         }
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-        protected VideoReport() { }
+        protected VideoUnsuitableReport() { }
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
 

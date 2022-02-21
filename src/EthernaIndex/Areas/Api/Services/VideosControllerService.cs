@@ -208,15 +208,15 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             var address = claimsPrincipal.GetEtherAddress();
             var (user, userSharedInfo) = await userService.FindUserAsync(address);
 
-            var videoReport = await indexDbContext.VideoReports
+            var videoReport = await indexDbContext.VideoUnsuitableReports
                                                 .TryFindOneAsync(v => v.VideoManifest.Id == manifest.Id &&
                                                                     v.ReporterAuthor.Id == userSharedInfo.Id);
 
             if (videoReport is null)
             {
                 // Create new report.
-                var videoReported = new VideoReport(manifest, user, description);
-                await indexDbContext.VideoReports.CreateAsync(videoReported);
+                var videoReported = new VideoUnsuitableReport(manifest, user, description);
+                await indexDbContext.VideoUnsuitableReports.CreateAsync(videoReported);
             }
             else
             {

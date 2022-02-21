@@ -71,7 +71,7 @@ namespace Etherna.EthernaIndex.Persistence
                     (Builders<VideoManifest>.IndexKeys.Ascending(c => c.IsValid), new CreateIndexOptions<VideoManifest>())
                 }
             });
-        public ICollectionRepository<VideoReport, string> VideoReports { get; } = new DomainCollectionRepository<VideoReport, string>("videoReports");
+        public ICollectionRepository<VideoUnsuitableReport, string> VideoUnsuitableReports { get; } = new DomainCollectionRepository<VideoUnsuitableReport, string>("videoReports");
         public ICollectionRepository<VideoReview, string> VideoReviews { get; } = new DomainCollectionRepository<VideoReview, string>("videoReviews");
         public ICollectionRepository<VideoVote, string> Votes { get; } = new DomainCollectionRepository<VideoVote, string>(
             new CollectionRepositoryOptions<VideoVote>("votes")

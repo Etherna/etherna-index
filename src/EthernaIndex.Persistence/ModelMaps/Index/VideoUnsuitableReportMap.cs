@@ -19,11 +19,11 @@ using Etherna.MongODM.Core.Serialization;
 
 namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
 {
-    class VideoReportMap : IModelMapsCollector
+    class VideoUnsuitableReportMap : IModelMapsCollector
     {
         public void Register(IDbContext dbContext)
         {
-            dbContext.SchemaRegistry.AddModelMapsSchema<VideoReport>("91e7a66a-d1e2-48eb-9627-3c3c2ceb5e2d",
+            dbContext.SchemaRegistry.AddModelMapsSchema<VideoUnsuitableReport>("91e7a66a-d1e2-48eb-9627-3c3c2ceb5e2d",
                 cm =>
                 {
                     cm.AutoMap();

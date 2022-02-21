@@ -31,7 +31,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
         public class VideoReportDto
         {
             public VideoReportDto(
-                IEnumerable<VideoReport> videoReports,
+                IEnumerable<VideoUnsuitableReport> videoReports,
                 bool hasOtherValidManifest,
                 string manifestHash,
                 string manifestId,
@@ -159,7 +159,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
 
             CurrentPage = p ?? 0;
 
-            var paginatedHashVideoReports = await indexDbContext.VideoReports.QueryPaginatedElementsAsync(
+            var paginatedHashVideoReports = await indexDbContext.VideoUnsuitableReports.QueryPaginatedElementsAsync(
                 vm => vm.Where(i => i.VideoManifest.ManifestHash.Hash == videoManifest.ManifestHash.Hash),
                 vm => vm.CreationDateTime,
                 CurrentPage,

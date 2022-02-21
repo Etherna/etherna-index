@@ -11,7 +11,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
         public void Register(IDbContext dbContext)
         {
             // register class maps.
-            dbContext.SchemaRegistry.AddModelMapsSchema<ReportBase>("d658ffcf-91ea-4e5e-b163-92eabb5490cc",
+            dbContext.SchemaRegistry.AddModelMapsSchema<UnsuitableReportBase>("d658ffcf-91ea-4e5e-b163-92eabb5490cc",
                 cm =>
                 {
                     cm.AutoMap();
