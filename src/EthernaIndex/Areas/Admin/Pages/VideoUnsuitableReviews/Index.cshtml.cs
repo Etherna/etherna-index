@@ -127,15 +127,15 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoUnsuitableReviews
                 null);
         }
 
-        private IMongoQueryable<VideoUnsuitableReview> VideoReviewsWhere(
+        private IMongoQueryable<VideoUnsuitableReview> VideoUnsuitableReviewWhere(
             IMongoQueryable<VideoUnsuitableReview> querable,
             string? manifestHash,
             string? videoId)
         {
             if (!string.IsNullOrWhiteSpace(manifestHash))
-                querable = querable.Where(vr => vr.ManifestHash == manifestHash);
+                querable = querable.Where(vur => vur.ManifestHash == manifestHash);
             if (!string.IsNullOrWhiteSpace(videoId))
-                querable = querable.Where(vr => vr.VideoId == videoId);
+                querable = querable.Where(vur => vur.VideoId == videoId);
 
             return querable;
         }
