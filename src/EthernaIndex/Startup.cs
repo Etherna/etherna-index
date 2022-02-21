@@ -15,6 +15,7 @@
 using Etherna.ACR.Exceptions;
 using Etherna.DomainEvents;
 using Etherna.EthernaIndex.Configs;
+using Etherna.EthernaIndex.Configs.Authorization;
 using Etherna.EthernaIndex.Configs.Hangfire;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Extensions;
@@ -32,6 +33,8 @@ using Hangfire.Mongo.Migration.Strategies;
 using Hangfire.Mongo.Migration.Strategies.Backup;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
@@ -139,7 +142,7 @@ namespace Etherna.EthernaIndex
                 })
                 .AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, options => //client config
                 {
-                    options.Authority = Configuration["SsoServer:BaseUrl"];
+                    options.Authority = Configuration["SsoServer:BaseUrl"] ?? throw new ServiceConfigurationException();
 
                     // Response 401 for unauthorized call on api.
                     options.Events.OnRedirectToIdentityProvider = context =>
@@ -152,8 +155,8 @@ namespace Etherna.EthernaIndex
                         return Task.CompletedTask;
                     };
 
-                    options.ClientId = Configuration["SsoServer:Clients:Webapp:ClientId"];
-                    options.ClientSecret = Configuration["SsoServer:Clients:Webapp:Secret"];
+                    options.ClientId = Configuration["SsoServer:Clients:Webapp:ClientId"] ?? throw new ServiceConfigurationException();
+                    options.ClientSecret = Configuration["SsoServer:Clients:Webapp:Secret"] ?? throw new ServiceConfigurationException();
                     options.ResponseType = "code";
 
                     options.SaveTokens = true;
@@ -166,6 +169,16 @@ namespace Etherna.EthernaIndex
             //policy and requirements
             services.AddAuthorization(options =>
             {
+                //default policy
+                options.DefaultPolicy = new AuthorizationPolicy(
+                    new IAuthorizationRequirement[]
+                    {
+                        new DenyAnonymousAuthorizationRequirement(),
+                        new DenyBannedAuthorizationRequirement()
+                    },
+                    Array.Empty<string>());
+
+                //other policies
                 options.AddPolicy(CommonConsts.RequireAdministratorClaimPolicy,
                     policy =>
                     {
@@ -173,6 +186,9 @@ namespace Etherna.EthernaIndex
                         policy.RequireClaim(ClaimTypes.Role, CommonConsts.AdministratorRoleName);
                     });
             });
+
+            //requirement handlers
+            services.AddScoped<IAuthorizationHandler, DenyBannedAuthorizationHandler>();
 
             // Configure token management.
             services.AddAccessTokenManagement();
@@ -208,7 +224,7 @@ namespace Etherna.EthernaIndex
 
             // Configure setting.
             var assemblyVersion = new AssemblyVersion(GetType().GetTypeInfo().Assembly);
-            services.Configure<ApplicationSettings>(Configuration.GetSection("Application") ?? throw new ServiceConfigurationException());
+            services.Configure<ApplicationSettings>(Configuration.GetSection("Application"));
             services.PostConfigure<ApplicationSettings>(options =>
             {
                 options.AssemblyVersion = assemblyVersion.Version;
