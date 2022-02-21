@@ -29,7 +29,7 @@ using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
 {
-    public class ManageModel : PageModel
+    public class ManifestModel : PageModel
     {
         public class VideoManifestDto
         {
@@ -145,7 +145,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
         private readonly IVideoReportService videoReportService;
 
         // Constructor.
-        public ManageModel(
+        public ManifestModel(
             IBackgroundJobClient backgroundJobClient,
             IIndexDbContext indexDbContext,
             IUserService userService,
