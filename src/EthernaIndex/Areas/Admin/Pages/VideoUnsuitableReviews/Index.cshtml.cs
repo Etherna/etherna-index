@@ -91,7 +91,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoUnsuitableReviews
             CurrentPage = p ?? 0;
 
             var paginatedVideoReviews = await indexDbContext.VideoUnsuitableReviews.QueryPaginatedElementsAsync(
-                vm => VideoReviewsWhere(vm, manifestHash, videoId)
+                vm => VideoUnsuitableReviewWhere(vm, manifestHash, videoId)
                         .GroupBy(i => i.VideoId)
                         .Select(group => new
                         {
