@@ -5,11 +5,11 @@ using Etherna.MongODM.Core.Serialization;
 
 namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
 {
-    class VideoReviewMap : IModelMapsCollector
+    class VideoUnsuitableReviewMap : IModelMapsCollector
     {
         public void Register(IDbContext dbContext)
         {
-            dbContext.SchemaRegistry.AddModelMapsSchema<VideoReview>("e3e734ab-d845-4ec2-8920-68956eba950d");
+            dbContext.SchemaRegistry.AddModelMapsSchema<VideoUnsuitableReview>("e3e734ab-d845-4ec2-8920-68956eba950d");
         }
     }
 }

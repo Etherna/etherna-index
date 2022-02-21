@@ -1,12 +1,11 @@
-﻿using Etherna.MongODM.Core.Attributes;
-using System;
+﻿using System;
 
 namespace Etherna.EthernaIndex.Domain.Models
 {
-    public abstract class ReviewBase : EntityModelBase<string>
+    public abstract class UnsuitableReviewBase : EntityModelBase<string>
     {
         // Constructors.
-        protected ReviewBase(
+        protected UnsuitableReviewBase(
             ContentReviewStatus contentReview,
             string description,
             string manifestHash,
@@ -18,7 +17,7 @@ namespace Etherna.EthernaIndex.Domain.Models
             ReviewAuthor = reviewAuthor ?? throw new ArgumentNullException(nameof(reviewAuthor));
         }
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-        protected ReviewBase() { }
+        protected UnsuitableReviewBase() { }
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         // Properties.

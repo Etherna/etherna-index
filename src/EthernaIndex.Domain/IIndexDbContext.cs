@@ -26,7 +26,7 @@ namespace Etherna.EthernaIndex.Domain
         ICollectionRepository<Video, string> Videos { get; }
         ICollectionRepository<VideoManifest, string> VideoManifests { get; }
         ICollectionRepository<VideoUnsuitableReport, string> VideoUnsuitableReports { get; }
-        ICollectionRepository<VideoReview, string> VideoReviews { get; }
+        ICollectionRepository<VideoUnsuitableReview, string> VideoUnsuitableReviews { get; }
         ICollectionRepository<VideoVote, string> Votes { get; }
 
         IEventDispatcher EventDispatcher { get; }

@@ -10,14 +10,17 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Etherna.EthernaIndex.Areas.Admin.Pages.Reviews
+namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoUnsuitableReports
 {
-    public class IndexModel : PageModel
+    public class ReportModel : PageModel
     {
 
         // Models.
         public class InputModel
         {
+            [Display(Name = "Include Reviewed")]
+            public bool IncludeReviewed { get; set; } = default!;
+
             [Display(Name = "Manifest Hash")]
             public string? ManifestHash { get; set; }
 
@@ -25,27 +28,30 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.Reviews
             public string? VideoId { get; set; }
         }
 
-        public class VideoReviewDto
+        public class VideoUnsuitableReportDto
         {
-            public VideoReviewDto(
-                string lastValidManifestHash,
+            public VideoUnsuitableReportDto(
+                string manifestHash,
                 string title,
-                string videoId)
+                string videoId,
+                int totalReports)
             {
-                if (lastValidManifestHash is null)
-                    throw new ArgumentNullException(nameof(lastValidManifestHash));
+                if (manifestHash is null)
+                    throw new ArgumentNullException(nameof(manifestHash));
                 if (title is null)
                     throw new ArgumentNullException(nameof(title));
                 if (videoId is null)
                     throw new ArgumentNullException(nameof(videoId));
 
-                LastValidManifestHash = lastValidManifestHash;
+                ManifestHash = manifestHash;
                 Title = title;
+                TotalReports = totalReports;
                 VideoId = videoId;
             }
 
-            public string LastValidManifestHash { get; }
+            public string ManifestHash { get; }
             public string Title { get; }
+            public int TotalReports { get; }
             public string VideoId { get; }
         }
 
@@ -56,7 +62,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.Reviews
         private readonly IIndexDbContext indexDbContext;
 
         // Constructor.
-        public IndexModel(
+        public ReportModel(
             IIndexDbContext indexDbContext)
         {
             this.indexDbContext = indexDbContext;
@@ -68,15 +74,17 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.Reviews
 
         public int CurrentPage { get; private set; }
         public int MaxPage { get; private set; }
-        public IEnumerable<VideoReviewDto> VideoReports { get; private set; } = default!;
+        public IEnumerable<VideoUnsuitableReportDto> VideoUnsuitableReports { get; private set; } = default!;
 
         // Methods.
         public async Task OnGetAsync(
-            string? manifestHash,
-            string? videoId,
+            bool includeReportReviewed,
+            string manifestHash,
+            string videoId,
             int? p)
         {
             await InitializeAsync(
+                includeReportReviewed,
                 manifestHash,
                 videoId,
                 p);
@@ -84,15 +92,16 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.Reviews
 
         // Helpers.
         private async Task InitializeAsync(
+            bool includeReportReviewed,
             string? manifestHash,
             string? videoId,
             int? p)
         {
             CurrentPage = p ?? 0;
 
-            var paginatedVideoReviews = await indexDbContext.VideoReviews.QueryPaginatedElementsAsync(
-                vm => VideoReviewsWhere(vm, manifestHash, videoId)
-                        .GroupBy(i => i.VideoId)
+            var paginatedUnsuitableReports = await indexDbContext.VideoUnsuitableReports.QueryPaginatedElementsAsync(
+                vm => VideoReportsWhere(vm, includeReportReviewed, manifestHash, videoId)
+                        .GroupBy(i => i.VideoManifest.Id)
                         .Select(group => new
                         {
                             Id = group.Key,
@@ -102,40 +111,44 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.Reviews
                 CurrentPage,
                 PageSize);
 
-            MaxPage = paginatedVideoReviews.MaxPage;
+            MaxPage = paginatedUnsuitableReports.MaxPage;
 
-            var videoReviewsIds = paginatedVideoReviews.Elements.Select(e => e.Id);
+            var videoManifestIds = paginatedUnsuitableReports.Elements.Select(e => e.Id);
 
-            // Get video and manifest info.
-            var videos = await indexDbContext.Videos.QueryElementsAsync(elements =>
-                elements.Where(u => videoReviewsIds.Contains(u.Id))
-                        .OrderBy(i => i.Id)
-                        .ToListAsync());
+            // Get manifest info.
+            var videoManifests = await indexDbContext.VideoManifests.QueryElementsAsync(elements =>
+               elements.Where(u => videoManifestIds.Contains(u.Id))
+                       .OrderBy(i => i.Id)
+                       .ToListAsync());
 
-            VideoReports = videos.Select(v =>
-            {
-                var manifest = v.GetLastValidManifest();
-                return new VideoReviewDto(manifest?.ManifestHash?.Hash ?? "", manifest?.Title ?? "", v.Id);
-            });
+            VideoUnsuitableReports = videoManifests.Select(vm => new VideoUnsuitableReportDto(
+                vm.ManifestHash.Hash,
+                vm.Title ?? "",
+                vm.Video.Id,
+                paginatedUnsuitableReports.Elements.First(pv => pv.Id == vm.Id).Count));
         }
 
         public async Task OnPost()
         {
             await InitializeAsync(
+                Input?.IncludeReviewed ?? false,
                 Input?.ManifestHash,
                 Input?.VideoId,
                 null);
         }
 
-        private IMongoQueryable<VideoReview> VideoReviewsWhere(
-            IMongoQueryable<VideoReview> querable,
+        private IMongoQueryable<VideoUnsuitableReport> VideoReportsWhere(
+            IMongoQueryable<VideoUnsuitableReport> querable,
+            bool includeReportReviewed,
             string? manifestHash,
             string? videoId)
         {
             if (!string.IsNullOrWhiteSpace(manifestHash))
-                querable = querable.Where(vr => vr.ManifestHash == manifestHash);
+                querable = querable.Where(vr => vr.VideoManifest.ManifestHash.Hash == manifestHash);
             if (!string.IsNullOrWhiteSpace(videoId))
-                querable = querable.Where(vr => vr.VideoId == videoId);
+                querable = querable.Where(vr => vr.VideoManifest.Video.Id == videoId);
+            if (includeReportReviewed)
+                return querable.Where(vr => vr.VideoManifest.ReviewApproved == null);
 
             return querable;
         }

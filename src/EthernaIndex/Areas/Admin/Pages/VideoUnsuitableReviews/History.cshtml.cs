@@ -20,9 +20,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using static Etherna.EthernaIndex.Areas.Admin.Pages.VideoReviews.HistoryModel.VideoReviewDto;
+using static Etherna.EthernaIndex.Areas.Admin.Pages.VideoUnsuitableReviews.HistoryModel.VideoReviewDto;
 
-namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReviews
+namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoUnsuitableReviews
 {
     public class HistoryModel : PageModel
     {
@@ -114,7 +114,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReviews
             // Get all reviews for video.
             CurrentPage = p ?? 0;
 
-            var paginatedVideoManifests = await indexDbContext.VideoReviews.QueryPaginatedElementsAsync(
+            var paginatedVideoManifests = await indexDbContext.VideoUnsuitableReviews.QueryPaginatedElementsAsync(
                 vr => vr.Where(i => i.VideoId == videoId),
                 vr => vr.CreationDateTime,
                 CurrentPage,

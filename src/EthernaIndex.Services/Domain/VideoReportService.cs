@@ -84,8 +84,8 @@ namespace Etherna.EthernaIndex.Services.Domain
             else 
                 videoManifest.SetReviewApproved(contentReview);
 
-            var videoReview = new VideoReview(contentReview, description, videoManifest.ManifestHash.Hash, reviewUser, video.Id);
-            await indexDbContext.VideoReviews.CreateAsync(videoReview);
+            var videoReview = new VideoUnsuitableReview(contentReview, description, videoManifest.ManifestHash.Hash, reviewUser, video.Id);
+            await indexDbContext.VideoUnsuitableReviews.CreateAsync(videoReview);
         }
     }
 }

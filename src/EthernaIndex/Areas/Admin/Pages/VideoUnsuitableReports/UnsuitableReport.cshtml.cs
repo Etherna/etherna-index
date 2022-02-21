@@ -24,7 +24,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
+namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoUnsuitableReports
 {
     public class UnsuitableReportModel : PageModel
     {

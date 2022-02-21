@@ -67,12 +67,14 @@ namespace Etherna.EthernaIndex.Persistence
                 IndexBuilders = new[]
                 {
                     (Builders<VideoManifest>.IndexKeys.Ascending(c => c.ManifestHash.Hash), new CreateIndexOptions<VideoManifest> { Unique = true }),
+                    (Builders<VideoManifest>.IndexKeys.Ascending(c => c.Video.Id), new CreateIndexOptions<VideoManifest>()),
+                    (Builders<VideoManifest>.IndexKeys.Ascending(c => c.ReviewApproved), new CreateIndexOptions<VideoManifest>()),
                     (Builders<VideoManifest>.IndexKeys.Descending(c => c.CreationDateTime), new CreateIndexOptions<VideoManifest>()),
                     (Builders<VideoManifest>.IndexKeys.Ascending(c => c.IsValid), new CreateIndexOptions<VideoManifest>())
                 }
             });
-        public ICollectionRepository<VideoUnsuitableReport, string> VideoUnsuitableReports { get; } = new DomainCollectionRepository<VideoUnsuitableReport, string>("videoReports");
-        public ICollectionRepository<VideoReview, string> VideoReviews { get; } = new DomainCollectionRepository<VideoReview, string>("videoReviews");
+        public ICollectionRepository<VideoUnsuitableReport, string> VideoUnsuitableReports { get; } = new DomainCollectionRepository<VideoUnsuitableReport, string>("videoUnsuitableReports");
+        public ICollectionRepository<VideoUnsuitableReview, string> VideoUnsuitableReviews { get; } = new DomainCollectionRepository<VideoUnsuitableReview, string>("videoUnsuitableReviews");
         public ICollectionRepository<VideoVote, string> Votes { get; } = new DomainCollectionRepository<VideoVote, string>(
             new CollectionRepositoryOptions<VideoVote>("votes")
             {

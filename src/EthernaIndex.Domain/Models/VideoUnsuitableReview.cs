@@ -2,10 +2,10 @@
 
 namespace Etherna.EthernaIndex.Domain.Models
 {
-    public class VideoReview : ReviewBase
+    public class VideoUnsuitableReview : UnsuitableReviewBase
     {
         // Constructors.
-        public VideoReview(
+        public VideoUnsuitableReview(
             ContentReviewStatus contentReview,
             string description,
             string manifestHash,
@@ -18,7 +18,7 @@ namespace Etherna.EthernaIndex.Domain.Models
             VideoId = videoId;
         }
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-        protected VideoReview() { }
+        protected VideoUnsuitableReview() { }
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         // Properties.

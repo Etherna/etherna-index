@@ -14,7 +14,7 @@
 *@
 
 @page
-@model Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports.ReportModel
+@model Etherna.EthernaIndex.Areas.Admin.Pages.VideoUnsuitableReports.ReportModel
 @{
     ViewData["Title"] = "Video Reports";
 
@@ -38,8 +38,8 @@
             <input asp-for="Input.ManifestHash" type="text" placeholder="manifest hash" class="form-control" />
         </div>
         <div class="col-4 mb-3">
-            <label asp-for="Input.IncludeReportReviewed">Include Reviewed</label>
-            <input asp-for="Input.IncludeReportReviewed" type="checkbox" placeholder="manifest hash" class="form-control" />
+            <label>Include Reviewed</label>
+            <input asp-for="Input.IncludeReviewed" type="checkbox" placeholder="manifest hash" class="form-control" />
         </div>
     </div>
 
@@ -65,7 +65,7 @@
                 </thead>
 
                 <tbody>
-                    @foreach (var videoReport in Model.VideoReports)
+                    @foreach (var videoReport in Model.VideoUnsuitableReports)
                     {
                         <tr>
                             <td class="align-middle">

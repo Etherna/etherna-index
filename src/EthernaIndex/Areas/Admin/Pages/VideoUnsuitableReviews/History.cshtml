@@ -14,9 +14,9 @@
 *@
 
 @page
-@model Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports.UnsuitableReportModel
+@model Etherna.EthernaIndex.Areas.Admin.Pages.VideoUnsuitableReviews.HistoryModel
 @{
-    ViewData["Title"] = Model.VideoReport.Title;
+    ViewData["Title"] = Model.VideoReview.Title;
 
     var pageSelectorModel = new PageSelectorModel(Model.CurrentPage, Model.MaxPage);
 }
@@ -33,21 +33,21 @@
             <table class="table table-striped">
                 <thead>
                     <tr>
+                        <th>Content Review</th>
                         <th>Description</th>
-                        <th>Manifest Hash</th>
                         <th>Reporter Address</th>
                         <th>Report Date</th>
                     </tr>
                 </thead>
 
                 <tbody>
-                    @foreach (var videoReport in Model.VideoReport.DetailReports)
+                    @foreach (var videoReport in Model.DetailReports)
                     {
                     <tr>
+                        <td class="align-middle">@videoReport.ContentReview</td>
                         <td class="align-middle">@videoReport.Description</td>
-                        <td class="align-middle">@videoReport.ManifestHash</td>
-                        <td class="align-middle">@videoReport.ReporterAddress</td>
-                        <td class="align-middle">@videoReport.ReportDate</td>
+                        <td class="align-middle">@videoReport.ReviewAddress</td>
+                        <td class="align-middle">@videoReport.ReviewDate</td>
                     </tr>
                     }
                 </tbody>
@@ -61,18 +61,3 @@
         <partial name="_PageSelector" model="pageSelectorModel" />
     </div>
 </div>
-
-<form id="client-form" Method="post">
-    <div class="form-row">
-        <div class="col-12 mb-3">
-            <input type="hidden" asp-for="VideoReport.ManifestHash" name="ManifestHash" />
-            <input type="hidden" asp-for="VideoReport.VideoId" name="VideoId" />
-            <input type="submit" asp-page-handler="ApprovedManifest" class="btn btn-primary" value="Approve Manifest" name="button" />
-            @if (Model.VideoReport.HasOtherValidManifest)
-            { 
-                <input type="submit" asp-page-handler="RejectManifest" class="btn btn-primary" value="Reject Manifest" name="button" /> 
-            }
-            <input type="submit" asp-page-handler="RejectVideo" class="btn btn-primary" value="Reject Video" name="button" />
-        </div>
-    </div>
-</form>
