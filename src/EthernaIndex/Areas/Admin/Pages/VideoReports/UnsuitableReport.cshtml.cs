@@ -26,7 +26,7 @@ using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
 {
-    public class ManageModel : PageModel
+    public class UnsuitableReportModel : PageModel
     {
         public class VideoReportDto
         {
@@ -98,7 +98,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoReports
         private readonly IVideoReportService videoReportService;
 
         // Constructor.
-        public ManageModel(
+        public UnsuitableReportModel(
             IIndexDbContext indexDbContext,
             IUserService userService,
             IVideoReportService videoReportService)
