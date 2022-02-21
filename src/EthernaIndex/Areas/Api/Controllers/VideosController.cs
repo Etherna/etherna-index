@@ -28,7 +28,7 @@ using System.Threading.Tasks;
 namespace Etherna.EthernaIndex.Areas.Api.Controllers
 {
     [ApiController]
-    [ApiVersion("0.2")]
+    [ApiVersion("0.3")]
     [Route("api/v{api-version:apiVersion}/[controller]")]
     public class VideosController : ControllerBase
     {
