@@ -4,13 +4,38 @@ namespace Etherna.EthernaIndex.Swarm.DtoModel
 {
     public class MetadataVideoDto
     {
-        public string Id { get; set; } = default!;
-        public string Title { get; set; } = default!;
-        public string Description { get; set; } = default!;
-        public string OriginalQuality { get; set; } = default!;
-        public string OwnerAddress { get; set; } = default!;
-        public int Duration { get; set; }
-        public SwarmImageRawDto Thumbnail { get; set; } = default!;
-        public IEnumerable<MetadataVideoSourceDto> Sources { get; set; } = default!;
+        // Constructors.
+        public MetadataVideoDto(
+            string id,
+            string? title,
+            string? description,
+            string? originalQuality,
+            string? ownerAddress,
+            float? duration,
+            SwarmImageRawDto? thumbnail,
+            IEnumerable<MetadataVideoSourceDto>? sources)
+        {
+            Id = id;
+            Title = title;
+            Description = description;
+            OriginalQuality = originalQuality;
+            OwnerAddress = ownerAddress;
+            Duration = duration;
+            Thumbnail = thumbnail;
+            Sources = sources;
+        }
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        public MetadataVideoDto() { }
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+
+        // Properties.
+        public string Id { get; set; }
+        public string? Title { get; set; }
+        public string? Description { get; set; }
+        public string? OriginalQuality { get; set; }
+        public string? OwnerAddress { get; set; }
+        public float? Duration { get; set; }
+        public SwarmImageRawDto? Thumbnail { get; set; }
+        public IEnumerable<MetadataVideoSourceDto>? Sources { get; set; }
     }
 }

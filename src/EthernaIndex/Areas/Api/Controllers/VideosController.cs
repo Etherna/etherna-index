@@ -53,23 +53,36 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public Task<IEnumerable<VideoDto>> GetLastUploadedVideosAsync(
+        public Task<IEnumerable<VideoInfoDto>> GetLastUploadedVideosAsync(
             [Range(0, int.MaxValue)] int page,
             [Range(1, 100)] int take = 25) =>
             service.GetLastUploadedVideosAsync(page, take);
 
         /// <summary>
-        /// Get video info by hash.
+        /// Get video info by id.
         /// </summary>
-        /// <param name="hash">The video hash</param>
-        [HttpGet("{hash}")]
+        /// <param name="id">The video id</param>
+        [HttpGet("{id}")]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public Task<VideoDto> FindByHashAsync(
+        public Task<VideoDto> FindByIdAsync(
+            [Required] string id) =>
+            service.FindByIdAsync(id);
+
+        /// <summary>
+        /// Get video info by manifest hash.
+        /// </summary>
+        /// <param name="hash">The video hash</param>
+        [HttpGet("manifest/{hash}")]
+        [SimpleExceptionFilter]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public Task<VideoDto> FindByManifestHashAsync(
             [Required] string hash) =>
-            service.FindByHashAsync(hash);
+            service.FindByManifestHashAsync(hash);
 
         /// <summary>
         /// Get paginated video comments by id
@@ -89,6 +102,32 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
             [Range(1, 100)] int take = 25) =>
             service.GetVideoCommentsAsync(id, page, take);
 
+        /// <summary>
+        /// Get validation info by manifest hash.
+        /// </summary>
+        /// <param name="hash">The video hash</param>
+        [HttpGet("manifest/{hash}/validation")]
+        [SimpleExceptionFilter]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public Task<ManifestStatusDto> ValidationStatusByHashAsync(
+            [Required] string hash) =>
+            service.GetValidationStatusByHashAsync(hash);
+
+        /// <summary>
+        /// Get validation info by id.
+        /// </summary>
+        /// <param name="id">The video id</param>
+        [HttpGet("{id}/validations")]
+        [SimpleExceptionFilter]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public Task<IEnumerable<ManifestStatusDto>> ValidationsStatusByIdAsync(
+            [Required] string id) =>
+            service.GetValidationStatusByIdAsync(id);
+
         // Post.
 
         /// <summary>
@@ -101,9 +140,9 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public Task<VideoDto> CreateAsync(
+        public Task<string> CreateAsync(
             [Required] VideoCreateInput videoInput) =>
-            service.CreateAsync(videoInput);
+            service.CreateAsync(videoInput, User);
 
         /// <summary>
         /// Create a new comment on a video with current user.
@@ -119,7 +158,25 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         public Task<CommentDto> CreateCommentAsync(
             [Required] string id,
             [Required][FromBody] string text) =>
-            service.CreateCommentAsync(id, text);
+            service.CreateCommentAsync(id, text, User);
+
+        /// <summary>
+        /// Report a video content with current user.
+        /// </summary>
+        /// <param name="id">Video id</param>
+        /// <param name="hash">Hash manifest</param>
+        /// <param name="description">Report description</param>
+        [HttpPost("{id}/manifest/{hash}/reports")]
+        [Authorize]
+        [SimpleExceptionFilter]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public Task ReportVideoAsync(
+            [Required] string id,
+            [Required] string hash,
+            [Required] string description) =>
+            service.ReportVideoAsync(id, hash, description, User);
 
         /// <summary>
         /// Vote a video content with current user.
@@ -135,7 +192,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         public Task VoteVideAsync(
             [Required] string id,
             [Required] VoteValue value) =>
-            service.VoteVideAsync(id, value);
+            service.VoteVideAsync(id, value, User);
 
         // Put.
 
@@ -151,10 +208,10 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public Task<VideoDto> UpdateAsync(
+        public Task<VideoManifestDto> UpdateAsync(
             [Required] string id,
             [Required] string newHash) =>
-            service.UpdateAsync(id, newHash);
+            service.UpdateAsync(id, newHash, User);
 
         // Delete.
 
@@ -171,6 +228,6 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public Task DeleteAsync(
             [Required] string id) =>
-            service.DeleteAsync(id);
+            service.DeleteAsync(id, User);
     }
 }

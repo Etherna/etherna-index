@@ -26,28 +26,28 @@ namespace Etherna.EthernaIndex.Services.Tasks
     public class MetadataVideoValidatorTask : IMetadataVideoValidatorTask
     {
         // Fields.
-        private readonly IIndexDbContext indexContext;
+        private readonly IIndexDbContext indexDbContext;
         private readonly ISwarmService swarmService;
 
         // Constructors.
         public MetadataVideoValidatorTask(
-            IIndexDbContext indexContext,
+            IIndexDbContext indexDbContext,
             ISwarmService swarmService)
         {
-            this.indexContext = indexContext;
+            this.indexDbContext = indexDbContext;
             this.swarmService = swarmService;
         }
 
         // Methods.
         public async Task RunAsync(string videoId, string manifestHash)
         {
-            var video = await indexContext.Videos.FindOneAsync(videoId);
+            var video = await indexDbContext.Videos.FindOneAsync(videoId);
 
             MetadataVideoDto? metadataDto;
             var validationErrors = new List<ErrorDetail>();
 
             // Get manifest.
-            var videoManifest = await indexContext.VideoManifests.FindOneAsync(u => u.ManifestHash.Hash == manifestHash);
+            var videoManifest = await indexDbContext.VideoManifests.FindOneAsync(u => u.Manifest.Hash == manifestHash);
             if (videoManifest.ValidationTime.HasValue)
                 return;
 
@@ -60,13 +60,14 @@ namespace Etherna.EthernaIndex.Services.Tasks
             catch (Exception ex)
 #pragma warning restore CA1031 // Do not catch general exception types
             {
-                validationErrors.Add(new ErrorDetail(ex switch {
-                    MetadataVideoException _=> ValidationErrorType.JsonConvert,
+                validationErrors.Add(new ErrorDetail(ex switch
+                {
+                    MetadataVideoException _ => ValidationErrorType.JsonConvert,
                     _ => ValidationErrorType.Generic
                 }, ex.Message));
                 videoManifest.FailedValidation(validationErrors);
                 video.AddManifest(videoManifest);
-                await indexContext.SaveChangesAsync().ConfigureAwait(false);
+                await indexDbContext.SaveChangesAsync().ConfigureAwait(false);
                 return;
             }
 
@@ -97,13 +98,13 @@ namespace Etherna.EthernaIndex.Services.Tasks
             }
             else
             {
-                var videoSources = metadataDto.Sources?.Select(i => new VideoSource(i.Bitrate, i.Quality, i.Reference, i.Size)).ToList();
+                var videoSources = (metadataDto.Sources ?? Array.Empty<MetadataVideoSourceDto>())
+                    .Select(i => new VideoSource(i.Bitrate, i.Quality, i.Reference, i.Size));
 
                 videoManifest.SuccessfulValidation(
                     metadataDto.Description,
-                    metadataDto.Duration,
-                    metadataDto.Id,
-                    metadataDto.OriginalQuality,
+                    metadataDto.Duration!.Value,
+                    metadataDto.OriginalQuality ?? "",
                     metadataDto.Title,
                     swarmImageRaw,
                     videoSources);
@@ -111,7 +112,7 @@ namespace Etherna.EthernaIndex.Services.Tasks
             video.AddManifest(videoManifest);
 
             // Complete task.
-            await indexContext.SaveChangesAsync().ConfigureAwait(false);
+            await indexDbContext.SaveChangesAsync().ConfigureAwait(false);
         }
 
         // Helpers.
@@ -133,7 +134,7 @@ namespace Etherna.EthernaIndex.Services.Tasks
             return errorDetails;
         }
 
-        private IEnumerable<ErrorDetail> CheckVideoSources(IEnumerable<MetadataVideoSourceDto> videoSources)
+        private IEnumerable<ErrorDetail> CheckVideoSources(IEnumerable<MetadataVideoSourceDto>? videoSources)
         {
             if (videoSources is null ||
                 !videoSources.Any())

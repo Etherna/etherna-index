@@ -29,15 +29,13 @@ namespace Etherna.EthernaIndex.Domain.Models
         {
             Video = video;
         }
-
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         protected VideoManifest() { }
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         // Properties.
-        public virtual string? FeedTopicId { get; protected set; }
         public virtual string? Description { get; protected set; }
-        public virtual int? Duration { get; protected set; }
+        public virtual float? Duration { get; protected set; }
         public virtual string? OriginalQuality { get; protected set; }
         public virtual IEnumerable<VideoSource>? Sources
         {
@@ -51,24 +49,21 @@ namespace Etherna.EthernaIndex.Domain.Models
         // Methods.
         [PropertyAlterer(nameof(Description))]
         [PropertyAlterer(nameof(Duration))]
-        [PropertyAlterer(nameof(FeedTopicId))]
         [PropertyAlterer(nameof(OriginalQuality))]
         [PropertyAlterer(nameof(Sources))]
         [PropertyAlterer(nameof(Title))]
         [PropertyAlterer(nameof(Thumbnail))]
         public virtual void SuccessfulValidation(
-            string description,
-            int duration,
-            string feedTopicId,
+            string? description,
+            float duration,
             string originalQuality,
-            string title,
+            string? title,
             SwarmImageRaw? thumbnail,
-            IEnumerable<VideoSource>? videoSources)
+            IEnumerable<VideoSource> videoSources)
         {
             base.SuccessfulValidation();
             Description = description;
             Duration = duration;
-            FeedTopicId = feedTopicId;
             OriginalQuality = originalQuality;
             Sources = videoSources;
             Title = title;

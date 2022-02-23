@@ -28,9 +28,11 @@ namespace Etherna.EthernaIndex.Domain.Models
         // Constructors.
         protected ManifestBase(string manifestHash)
         {
-            ManifestHash = new SwarmContentHash(manifestHash);
+            Manifest = new SwarmContentHash(manifestHash);
         }
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         protected ManifestBase() { }
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         // Properties.
         public virtual IEnumerable<ErrorDetail> ErrorValidationResults
@@ -39,7 +41,7 @@ namespace Etherna.EthernaIndex.Domain.Models
             protected set => _errorValidationResults = new List<ErrorDetail>(value ?? Array.Empty<ErrorDetail>());
         }
         public virtual bool? IsValid { get; private set; }
-        public virtual SwarmContentHash ManifestHash { get; protected set; } = default!;
+        public virtual SwarmContentHash Manifest { get; protected set; }
         public virtual DateTime? ValidationTime { get; private set; }
 
         // Methods.
@@ -48,8 +50,8 @@ namespace Etherna.EthernaIndex.Domain.Models
         [PropertyAlterer(nameof(ValidationTime))]
         public virtual void FailedValidation(IEnumerable<ErrorDetail> errorDetails)
         {
-            ValidationTime = DateTime.UtcNow;
             IsValid = false;
+            ValidationTime = DateTime.UtcNow;
             _errorValidationResults.AddRange(errorDetails);
         }
 
@@ -58,8 +60,8 @@ namespace Etherna.EthernaIndex.Domain.Models
         [PropertyAlterer(nameof(ValidationTime))]
         protected virtual void SuccessfulValidation()
         {
-            ValidationTime = DateTime.UtcNow;
             IsValid = true;
+            ValidationTime = DateTime.UtcNow;
             _errorValidationResults.Clear();
         }
 

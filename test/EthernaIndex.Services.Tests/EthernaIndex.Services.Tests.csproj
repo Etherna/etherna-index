@@ -29,4 +29,10 @@
     <ProjectReference Include="..\..\src\EthernaIndex.Swarm\EthernaIndex.Swarm.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="JsonData\Manifest.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

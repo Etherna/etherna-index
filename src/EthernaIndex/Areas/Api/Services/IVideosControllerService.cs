@@ -16,19 +16,24 @@ using Etherna.EthernaIndex.Areas.Api.DtoModels;
 using Etherna.EthernaIndex.Areas.Api.InputModels;
 using Etherna.EthernaIndex.Domain.Models;
 using System.Collections.Generic;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Areas.Api.Services
 {
     public interface IVideosControllerService
     {
-        Task<VideoDto> CreateAsync(VideoCreateInput videoInput);
-        Task<CommentDto> CreateCommentAsync(string id, string text);
-        Task DeleteAsync(string id);
-        Task<VideoDto> FindByHashAsync(string hash);
-        Task<IEnumerable<VideoDto>> GetLastUploadedVideosAsync(int page, int take);
+        Task<string> CreateAsync(VideoCreateInput videoInput, ClaimsPrincipal userClaims);
+        Task<CommentDto> CreateCommentAsync(string id, string text, ClaimsPrincipal userClaims);
+        Task DeleteAsync(string id, ClaimsPrincipal userClaims);
+        Task<VideoDto> FindByIdAsync(string id);
+        Task<VideoDto> FindByManifestHashAsync(string hash);
+        Task<IEnumerable<VideoInfoDto>> GetLastUploadedVideosAsync(int page, int take);
+        Task<ManifestStatusDto> GetValidationStatusByHashAsync(string manifestHash);
+        Task<IEnumerable<ManifestStatusDto>> GetValidationStatusByIdAsync(string id);
         Task<IEnumerable<CommentDto>> GetVideoCommentsAsync(string id, int page, int take);
-        Task<VideoDto> UpdateAsync(string id, string newHash);
-        Task VoteVideAsync(string id, VoteValue value);
+        Task ReportVideoAsync(string videoId, string manifestHash, string description, ClaimsPrincipal userClaims);
+        Task<VideoManifestDto> UpdateAsync(string id, string newHash, ClaimsPrincipal userClaims);
+        Task VoteVideAsync(string id, VoteValue value, ClaimsPrincipal userClaims);
     }
 }

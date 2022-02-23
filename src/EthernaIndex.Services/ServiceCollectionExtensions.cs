@@ -56,8 +56,10 @@ namespace Etherna.EthernaIndex.Services
                 return dispatcher;
             });
 
+            // Services.
+            services.AddScoped<IVideoService, VideoService>();
+
             // Infrastructure.
-            //domain
             services.AddScoped<ISwarmService, SwarmService>();
             services.Configure<SwarmSettings>(configuration.GetSection("Swarm"));
 

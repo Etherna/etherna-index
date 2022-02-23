@@ -42,7 +42,7 @@ namespace Etherna.EthernaIndex.Domain.Models
         public void Create_Manifest_WithDefaultValue()
         {
             //Assert
-            Assert.Equal(hash, manifest.ManifestHash.Hash);
+            Assert.Equal(hash, manifest.Manifest.Hash);
             Assert.Null(manifest.IsValid);
             Assert.Null(manifest.ValidationTime);
         }
@@ -75,14 +75,13 @@ namespace Etherna.EthernaIndex.Domain.Models
             manifest.SuccessfulValidation(
                 "DescTest",
                 1,
-                "FeddTopicTest",
                 "OriginalTest",
                 "TitleTest",
                 new SwarmImageRaw(
                     1,
                     "BlurTst",
                     new Dictionary<string, string> { { "1080", "Test1" }, { "720", "Test2" } }),
-                null);
+                new List<VideoSource>());
 
 
             //Assert
@@ -95,7 +94,6 @@ namespace Etherna.EthernaIndex.Domain.Models
         public void SuccessfulValidation_SetMetadataFields()
         {
             //Arrange
-            var feed = "FeedTest";
             var title = "FeddTopicTest";
             var desc = "DescTest";
             var original = "OriginalTest";
@@ -109,7 +107,6 @@ namespace Etherna.EthernaIndex.Domain.Models
             manifest.SuccessfulValidation(
                 desc,
                 duration,
-                feed,
                 original,
                 title,
                 new SwarmImageRaw(aspectRatio, blur, source),
@@ -117,7 +114,6 @@ namespace Etherna.EthernaIndex.Domain.Models
 
 
             //Assert
-            Assert.Equal(feed, manifest.FeedTopicId);
             Assert.Equal(title, manifest.Title);
             Assert.Equal(desc, manifest.Description);
             Assert.Equal(duration, manifest.Duration);
@@ -150,7 +146,6 @@ namespace Etherna.EthernaIndex.Domain.Models
         public void SuccessfulValidation_SetNullSwarmImageRaw()
         {
             //Arrange
-            var feed = "FeedTest";
             var title = "FeddTopicTest";
             var desc = "DescTest";
             var original = "OriginalTest";
@@ -161,7 +156,6 @@ namespace Etherna.EthernaIndex.Domain.Models
             manifest.SuccessfulValidation(
                 desc,
                 duration,
-                feed,
                 original,
                 title,
                 null,

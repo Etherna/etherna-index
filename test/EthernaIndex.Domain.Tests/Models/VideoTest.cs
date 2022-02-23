@@ -93,9 +93,9 @@ namespace Etherna.EthernaIndex.Domain.Models
             //Assert
             Assert.Equal(2, video.VideoManifests.Count());
             Assert.Contains(video.VideoManifests,
-                i => i.ManifestHash.Hash == manifestHash);
+                i => i.Manifest.Hash == manifestHash);
             Assert.Contains(video.VideoManifests,
-                i => i.ManifestHash.Hash == secondManifestHash);
+                i => i.Manifest.Hash == secondManifestHash);
         }
 
         
@@ -103,7 +103,6 @@ namespace Etherna.EthernaIndex.Domain.Models
         private VideoManifest CreateManifest(string hash, bool valid)
         {
             var videoManifest = new VideoManifest(hash, video);
-            var feed = "FeedTest";
             var title = "FeddTopicTest";
             var desc = "DescTest";
             var original = "OriginalTest";
@@ -114,7 +113,6 @@ namespace Etherna.EthernaIndex.Domain.Models
                 videoManifest.SuccessfulValidation(
                     desc,
                     duration,
-                    feed,
                     original,
                     title,
                     null,

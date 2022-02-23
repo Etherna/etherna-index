@@ -73,18 +73,27 @@ namespace Etherna.EthernaIndex.Domain.Models
             if (videoManifest.ValidationTime is null)
             {
                 var ex = new InvalidOperationException("Manifest not validated");
-                ex.Data.Add("ManifestHash", videoManifest.ManifestHash.Hash);
+                ex.Data.Add("ManifestHash", videoManifest.Manifest.Hash);
                 throw ex;
             }
 
-            if (_videoManifests.Any(i => i.ManifestHash.Hash == videoManifest.ManifestHash.Hash))
+            if (_videoManifests.Any(i => i.Manifest.Hash == videoManifest.Manifest.Hash))
             {
                 var ex = new InvalidOperationException("AddManifest duplicate");
-                ex.Data.Add("ManifestHash", videoManifest.ManifestHash.Hash);
+                ex.Data.Add("ManifestHash", videoManifest.Manifest.Hash);
                 throw ex;
             }
 
             _videoManifests.Add(videoManifest);
+        }
+
+        [PropertyAlterer(nameof(VideoManifests))]
+        public virtual bool RemoveManifest(VideoManifest videoManifest)
+        {
+            if (videoManifest is null)
+                throw new ArgumentNullException(nameof(videoManifest));
+
+            return _videoManifests.Remove(videoManifest);
         }
 
         [PropertyAlterer(nameof(EncryptionKey))]

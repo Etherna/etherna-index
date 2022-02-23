@@ -22,9 +22,11 @@ namespace Etherna.EthernaIndex.Domain
     public interface IIndexDbContext : IDbContext
     {
         ICollectionRepository<Comment, string> Comments { get; }
+        ICollectionRepository<ManualVideoReview, string> ManualVideoReviews { get; }
+        ICollectionRepository<UnsuitableVideoReport, string> UnsuitableVideoReports { get; }
         ICollectionRepository<User, string> Users { get; }
-        ICollectionRepository<Video, string> Videos { get; }
         ICollectionRepository<VideoManifest, string> VideoManifests { get; }
+        ICollectionRepository<Video, string> Videos { get; }
         ICollectionRepository<VideoVote, string> Votes { get; }
 
         IEventDispatcher EventDispatcher { get; }

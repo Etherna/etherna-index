@@ -51,6 +51,10 @@ namespace Etherna.EthernaIndex.Persistence
                     (Builders<Comment>.IndexKeys.Ascending(c => c.Video.Id), new CreateIndexOptions<Comment>())
                 }
             });
+        public ICollectionRepository<ManualVideoReview, string> ManualVideoReviews { get; } =
+            new DomainCollectionRepository<ManualVideoReview, string>("manualVideoReviews");
+        public ICollectionRepository<UnsuitableVideoReport, string> UnsuitableVideoReports { get; } =
+            new DomainCollectionRepository<UnsuitableVideoReport, string>("unsuitableVideoReports");
         public ICollectionRepository<User, string> Users { get; } = new DomainCollectionRepository<User, string>(
             new CollectionRepositoryOptions<User>("users")
             {
@@ -59,16 +63,19 @@ namespace Etherna.EthernaIndex.Persistence
                     (Builders<User>.IndexKeys.Ascending(u => u.IdentityManifest!.Hash), new CreateIndexOptions<User>{ Sparse = true, Unique = true }),
                     (Builders<User>.IndexKeys.Ascending(u => u.SharedInfoId), new CreateIndexOptions<User> { Unique = true })
                 }
-            }); 
-        public ICollectionRepository<Video, string> Videos { get; } = new DomainCollectionRepository<Video, string>("videos");
+            });
         public ICollectionRepository<VideoManifest, string> VideoManifests { get; } = new DomainCollectionRepository<VideoManifest, string>(
             new CollectionRepositoryOptions<VideoManifest>("videoManifests")
             {
                 IndexBuilders = new[]
                 {
-                    (Builders<VideoManifest>.IndexKeys.Ascending(c => c.ManifestHash.Hash), new CreateIndexOptions<VideoManifest> { Unique = true })
+                    (Builders<VideoManifest>.IndexKeys.Ascending(c => c.Manifest.Hash), new CreateIndexOptions<VideoManifest> { Unique = true }),
+                    (Builders<VideoManifest>.IndexKeys.Ascending(c => c.Video.Id), new CreateIndexOptions<VideoManifest>()),
+                    (Builders<VideoManifest>.IndexKeys.Descending(c => c.CreationDateTime), new CreateIndexOptions<VideoManifest>()),
+                    (Builders<VideoManifest>.IndexKeys.Ascending(c => c.IsValid), new CreateIndexOptions<VideoManifest>())
                 }
             });
+        public ICollectionRepository<Video, string> Videos { get; } = new DomainCollectionRepository<Video, string>("videos");
         public ICollectionRepository<VideoVote, string> Votes { get; } = new DomainCollectionRepository<VideoVote, string>(
             new CollectionRepositoryOptions<VideoVote>("votes")
             {

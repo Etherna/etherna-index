@@ -16,6 +16,8 @@ namespace Etherna.EthernaIndex.Configs
 {
     public static class CommonConsts
     {
+        public const string AdminArea = "Admin";
+
         public const string DatabaseAdminPath = "/admin/db";
         public const string HangfireAdminPath = "/admin/hangfire";
 
