@@ -90,14 +90,14 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             return userDtos;
         }
 
-        public async Task<IEnumerable<VideoInfoDto>> GetVideosAsync(string address, int page, int take)
+        public async Task<IEnumerable<VideoDto>> GetVideosAsync(string address, int page, int take)
         {
             var (user, sharedInfo) = await userService.FindUserAsync(address);
 
             return user.Videos
                 .Where(v => v.VideoManifests.Any(m => m.IsValid == true))
                 .PaginateDescending(v => v.CreationDateTime, page, take)
-                .Select(v => new VideoInfoDto(v, v.GetLastValidManifest()!.Title, sharedInfo));
+                .Select(v => new VideoDto(v, v.GetLastValidManifest(), sharedInfo));
         }
 
         public async Task UpdateCurrentUserIdentityManifestAsync(string? hash)

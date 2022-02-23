@@ -152,7 +152,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             return new VideoDto(video, videoManifest, ownerSharedInfo);
         }
 
-        public async Task<IEnumerable<VideoInfoDto>> GetLastUploadedVideosAsync(int page, int take)
+        public async Task<IEnumerable<VideoDto>> GetLastUploadedVideosAsync(int page, int take)
         {
             // Get videos with valid manifest.
             var videos = await indexDbContext.Videos.QueryElementsAsync(elements =>
@@ -161,13 +161,13 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
                         .ToListAsync());
 
             // Get user info from video selected
-            var videoDtos = new List<VideoInfoDto>();
+            var videoDtos = new List<VideoDto>();
             foreach (var video in videos)
             {
                 var ownerSharedInfo = await sharedDbContext.UsersInfo.FindOneAsync(video.Owner.SharedInfoId);
-                videoDtos.Add(new VideoInfoDto(
+                videoDtos.Add(new VideoDto(
                     video,
-                    video.GetLastValidManifest()?.Title,
+                    video.GetLastValidManifest(),
                     ownerSharedInfo));
             }
 

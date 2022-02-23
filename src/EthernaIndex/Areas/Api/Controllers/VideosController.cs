@@ -44,21 +44,6 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         // Get.
 
         /// <summary>
-        /// Get list of last uploaded videos.
-        /// </summary>
-        /// <param name="page">Current page of results</param>
-        /// <param name="take">Number of items to retrieve. Max 100</param>
-        /// <response code="200">Current page on list</response>
-        [HttpGet]
-        [SimpleExceptionFilter]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public Task<IEnumerable<VideoInfoDto>> GetLastUploadedVideosAsync(
-            [Range(0, int.MaxValue)] int page,
-            [Range(1, 100)] int take = 25) =>
-            service.GetLastUploadedVideosAsync(page, take);
-
-        /// <summary>
         /// Get video info by id.
         /// </summary>
         /// <param name="id">The video id</param>
@@ -70,19 +55,6 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         public Task<VideoDto> FindByIdAsync(
             [Required] string id) =>
             service.FindByIdAsync(id);
-
-        /// <summary>
-        /// Get video info by manifest hash.
-        /// </summary>
-        /// <param name="hash">The video hash</param>
-        [HttpGet("manifest/{hash}")]
-        [SimpleExceptionFilter]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public Task<VideoDto> FindByManifestHashAsync(
-            [Required] string hash) =>
-            service.FindByManifestHashAsync(hash);
 
         /// <summary>
         /// Get paginated video comments by id
@@ -103,19 +75,6 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
             service.GetVideoCommentsAsync(id, page, take);
 
         /// <summary>
-        /// Get validation info by manifest hash.
-        /// </summary>
-        /// <param name="hash">The video hash</param>
-        [HttpGet("manifest/{hash}/validation")]
-        [SimpleExceptionFilter]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public Task<ManifestStatusDto> ValidationStatusByHashAsync(
-            [Required] string hash) =>
-            service.GetValidationStatusByHashAsync(hash);
-
-        /// <summary>
         /// Get validation info by id.
         /// </summary>
         /// <param name="id">The video id</param>
@@ -127,6 +86,47 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         public Task<IEnumerable<ManifestStatusDto>> ValidationsStatusByIdAsync(
             [Required] string id) =>
             service.GetValidationStatusByIdAsync(id);
+
+        /// <summary>
+        /// Get list of last uploaded videos.
+        /// </summary>
+        /// <param name="page">Current page of results</param>
+        /// <param name="take">Number of items to retrieve. Max 100</param>
+        /// <response code="200">Current page on list</response>
+        [HttpGet("latest")]
+        [SimpleExceptionFilter]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public Task<IEnumerable<VideoDto>> GetLastUploadedVideosAsync(
+            [Range(0, int.MaxValue)] int page,
+            [Range(1, 100)] int take = 25) =>
+            service.GetLastUploadedVideosAsync(page, take);
+
+        /// <summary>
+        /// Get video info by manifest hash.
+        /// </summary>
+        /// <param name="hash">The video hash</param>
+        [HttpGet("manifest/{hash}")]
+        [SimpleExceptionFilter]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public Task<VideoDto> FindByManifestHashAsync(
+            [Required] string hash) =>
+            service.FindByManifestHashAsync(hash);
+
+        /// <summary>
+        /// Get validation info by manifest hash.
+        /// </summary>
+        /// <param name="hash">The video hash</param>
+        [HttpGet("manifest/{hash}/validation")]
+        [SimpleExceptionFilter]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public Task<ManifestStatusDto> ValidationStatusByHashAsync(
+            [Required] string hash) =>
+            service.GetValidationStatusByHashAsync(hash);
 
         // Post.
 
