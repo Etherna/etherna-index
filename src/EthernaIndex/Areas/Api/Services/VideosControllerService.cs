@@ -136,7 +136,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             var lastValidManifest = video.GetLastValidManifest();
 
             // Get User.
-            var (_, sharedInfo) = await userService.FindUserAsync(video.Owner.SharedInfoId);
+            var sharedInfo = await sharedDbContext.UsersInfo.FindOneAsync(video.Owner.SharedInfoId);
 
             return new VideoDto(video, lastValidManifest, sharedInfo);
         }
