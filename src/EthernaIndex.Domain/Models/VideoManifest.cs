@@ -24,11 +24,8 @@ namespace Etherna.EthernaIndex.Domain.Models
         private List<VideoSource> _sources = new();
 
         // Constructors.
-        public VideoManifest(string manifestHash, Video video)
-            : base(manifestHash) 
-        {
-            Video = video;
-        }
+        public VideoManifest(string manifestHash)
+            : base(manifestHash) { }
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         protected VideoManifest() { }
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
@@ -44,7 +41,6 @@ namespace Etherna.EthernaIndex.Domain.Models
         }
         public virtual string? Title { get; protected set; }
         public virtual SwarmImageRaw? Thumbnail { get; protected set; }
-        public virtual Video Video { get; protected set; }
 
         // Methods.
         [PropertyAlterer(nameof(Description))]

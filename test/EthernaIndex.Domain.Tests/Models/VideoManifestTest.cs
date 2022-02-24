@@ -25,7 +25,6 @@ namespace Etherna.EthernaIndex.Domain.Models
     {
         // Fields.
         readonly string address = "0x300a31dBAB42863F4b0bEa3E03d0aa89D47DB3f0";
-        readonly string encryptKey = "1d111a1d73fd8f28d71e6b03d2e42f44721db94b734c2edcfe6fcd48b76a74f1";
         readonly string hash = "5d942a1d73fd8f28d71e6b03d2e42f44721db94b734c2edcfe6fcd48b76a74f9";
         readonly VideoManifest manifest;
         private readonly Mock<UserSharedInfo> userSharedInfoMock = new();
@@ -35,7 +34,7 @@ namespace Etherna.EthernaIndex.Domain.Models
         {
             userSharedInfoMock.Setup(s => s.EtherAddress).Returns(address);
             var user = new User(userSharedInfoMock.Object);
-            manifest = new VideoManifest(hash, new Video(encryptKey, EncryptionType.AES256, user));
+            manifest = new VideoManifest(hash);
         }
 
         [Fact]

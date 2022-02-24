@@ -18,16 +18,6 @@ namespace Etherna.EthernaIndex.Domain.Models
             if (videoManifest is null)
                 throw new ArgumentNullException(nameof(videoManifest));
 
-            // Check manifest.
-            if (videoManifest.Video.Id != video.Id)
-            {
-                var ex = new InvalidOperationException("Missmatching between manifest and video");
-                ex.Data.Add("VideoId", video.Id);
-                ex.Data.Add("VideoManifests.Hash", videoManifest.Manifest.Hash);
-                ex.Data.Add("VideoManifests.Id", videoManifest.Video.Id);
-                throw ex;
-            }
-
             ManifestHash = videoManifest.Manifest.Hash;
             VideoId = video.Id;
         }
