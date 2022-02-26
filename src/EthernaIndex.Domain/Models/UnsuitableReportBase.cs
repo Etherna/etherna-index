@@ -19,6 +19,7 @@ namespace Etherna.EthernaIndex.Domain.Models
 
         // Properties.
         public virtual string Description { get; protected set; }
+        public virtual bool IsArchived { get; protected set; }
         public virtual DateTime? LastUpdate { get; protected set; }
         public virtual User ReporterAuthor { get; protected set; }
 
@@ -29,6 +30,12 @@ namespace Etherna.EthernaIndex.Domain.Models
         {
             Description = description;
             LastUpdate = DateTime.UtcNow;
+        }
+
+        [PropertyAlterer(nameof(IsArchived))]
+        public virtual void SetArchived()
+        {
+            IsArchived = true;
         }
     }
 }
