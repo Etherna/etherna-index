@@ -49,7 +49,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
                 ManifestHash = videoManifest.Manifest.Hash;
                 OriginalQuality = videoManifest.OriginalQuality;
                 OwnerAddress = videoManifest.Id;
-                Title = videoManifest.Id;
+                Title = videoManifest.Title ?? videoManifest.Id;
                 VideoInfo = new VideoInfoDto(videoId);
                 ValidationTime = videoManifest.ValidationTime;
 
