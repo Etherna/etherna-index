@@ -34,7 +34,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
         public class VideoManifestDto
         {
             public VideoManifestDto(
-                bool hasOtherValidManifest,
+                string videoId,
                 VideoManifest videoManifest)
             {
                 if (videoManifest == null)
@@ -50,7 +50,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
                 OriginalQuality = videoManifest.OriginalQuality;
                 OwnerAddress = videoManifest.Id;
                 Title = videoManifest.Id;
-                VideoInfo = new VideoInfoDto(videoManifest.Video.Id, hasOtherValidManifest);
+                VideoInfo = new VideoInfoDto(videoId);
                 ValidationTime = videoManifest.ValidationTime;
 
                 Sources = videoManifest.Sources != null ?
@@ -123,16 +123,12 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
 
             public class VideoInfoDto
             {
-                public VideoInfoDto(
-                    string videoId, 
-                    bool hasOtherValidManifest)
+                public VideoInfoDto(string videoId)
                 {
                     VideoId = videoId;
-                    HasOtherValidManifest = hasOtherValidManifest;
                 }
 
                 public string VideoId { get; set; }
-                public bool HasOtherValidManifest { get; set; }
             }
         }
 
@@ -187,9 +183,13 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
 
         public async Task<IActionResult> OnPostForceNewValidationAsync(string manifestHash)
         {
+            // Get Manifest & Video data.
             var videoManifest = await indexDbContext.VideoManifests.FindOneAsync(c => c.Manifest.Hash == manifestHash);
+            var video = await indexDbContext.Videos.FindOneAsync(v => v.VideoManifests.Any(vm => vm.Id == videoManifest.Id));
+
+            // Background Validator.
             backgroundJobClient.Create<MetadataVideoValidatorTask>(
-                    task => task.RunAsync(videoManifest.Video.Id, videoManifest.Manifest.Hash),
+                    task => task.RunAsync(video.Id, videoManifest.Manifest.Hash),
                     new EnqueuedState(Queues.METADATA_VIDEO_VALIDATOR));
 
             return RedirectToPage("Index");
@@ -200,14 +200,9 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
         {
             // Video info
             var videoManifest = await indexDbContext.VideoManifests.FindOneAsync(vm => vm.Manifest.Hash == manifestHash);
-            var video = await indexDbContext.Videos.FindOneAsync(v => v.Id == videoManifest.Video.Id);
+            var video = await indexDbContext.Videos.FindOneAsync(v => v.VideoManifests.Any(vm => vm.Id == videoManifest.Id));
 
-            var hasOtherValidManifest = video.VideoManifests.Any(vm => vm.IsValid == true &&
-                                                                       vm.Manifest.Hash != videoManifest.Manifest.Hash);
-
-            VideoManifest = new VideoManifestDto(
-                hasOtherValidManifest,
-                videoManifest);
+            VideoManifest = new VideoManifestDto(video.Id, videoManifest);
         }
 
         private async Task CreateReviewAsync(string videoId, string manifestHash, bool isValid)

@@ -145,7 +145,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         {
             var videoManifest = await indexDbContext.VideoManifests.FindOneAsync(vm => vm.Manifest.Hash == hash);
 
-            var video = await indexDbContext.Videos.FindOneAsync(videoManifest.Video.Id);
+            var video = await indexDbContext.Videos.FindOneAsync(v => v.VideoManifests.Any(vm => vm.Id == videoManifest.Id));
 
             var ownerSharedInfo = await sharedDbContext.UsersInfo.FindOneAsync(video.Owner.SharedInfoId);
 
@@ -207,15 +207,10 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             return commentDtos;
         }
 
-        public async Task ReportVideoAsync(string videoId, string manifestHash, string description, ClaimsPrincipal userClaims)
+        public async Task ReportVideoAsync(string videoId, string description, ClaimsPrincipal userClaims)
         {
             // Get video.
             var video = await indexDbContext.Videos.FindOneAsync(videoId);
-            if (!video.VideoManifests.Any(vm => vm.Manifest.Hash == manifestHash))
-            throw new InvalidOperationException("Video id not match with manifest hash");
-
-            // Get manifest.
-            var manifest = await indexDbContext.VideoManifests.FindOneAsync(vm => vm.Manifest.Hash == manifestHash);
 
             // Get user info.
             var address = userClaims.GetEtherAddress();
@@ -223,13 +218,13 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
 
             // Add or Update UnsuitableVideoReport.
             var videoReport = await indexDbContext.UnsuitableVideoReports
-                .TryFindOneAsync(v => v.VideoManifest.Id == manifest.Id &&
+                .TryFindOneAsync(v => v.Video.Id == video.Id &&
                                       v.ReporterAuthor.Id == userSharedInfo.Id);
 
             if (videoReport is null)
             {
                 // Create.
-                var videoReported = new UnsuitableVideoReport(manifest, user, description);
+                var videoReported = new UnsuitableVideoReport(video, user, description);
                 await indexDbContext.UnsuitableVideoReports.CreateAsync(videoReported);
             }
             else

@@ -32,7 +32,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         Task<ManifestStatusDto> GetValidationStatusByHashAsync(string manifestHash);
         Task<IEnumerable<ManifestStatusDto>> GetValidationStatusByIdAsync(string id);
         Task<IEnumerable<CommentDto>> GetVideoCommentsAsync(string id, int page, int take);
-        Task ReportVideoAsync(string videoId, string manifestHash, string description, ClaimsPrincipal userClaims);
+        Task ReportVideoAsync(string videoId, string description, ClaimsPrincipal userClaims);
         Task<VideoManifestDto> UpdateAsync(string id, string newHash, ClaimsPrincipal userClaims);
         Task VoteVideAsync(string id, VoteValue value, ClaimsPrincipal userClaims);
     }

@@ -20,12 +20,12 @@ namespace Etherna.EthernaIndex.Domain.Models
     {
         // Constructors.
         public UnsuitableVideoReport(
-            VideoManifest videoManifest,
+            Video video,
             User reporterAuthor,
             string description)
             : base(description, reporterAuthor)
         {
-            VideoManifest = videoManifest ?? throw new ArgumentNullException(nameof(videoManifest));
+            Video = video ?? throw new ArgumentNullException(nameof(video));
             Description = description ?? throw new ArgumentNullException(nameof(description));
         }
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
@@ -33,6 +33,6 @@ namespace Etherna.EthernaIndex.Domain.Models
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         // Properties.
-        public virtual VideoManifest VideoManifest { get; protected set; }
+        public virtual Video Video { get; protected set; }
     }
 }

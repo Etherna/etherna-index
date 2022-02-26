@@ -18,9 +18,6 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports
         // Models.
         public class InputModel
         {
-            [Display(Name = "Manifest Hash")]
-            public string? ManifestHash { get; set; }
-
             [Display(Name = "Video Id")]
             public string? VideoId { get; set; }
         }
@@ -28,25 +25,20 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports
         public class VideoUnsuitableReportDto
         {
             public VideoUnsuitableReportDto(
-                string manifestHash,
                 string title,
                 string videoId,
                 int totalReports)
             {
-                if (manifestHash is null)
-                    throw new ArgumentNullException(nameof(manifestHash));
                 if (title is null)
                     throw new ArgumentNullException(nameof(title));
                 if (videoId is null)
                     throw new ArgumentNullException(nameof(videoId));
 
-                ManifestHash = manifestHash;
                 Title = title;
                 TotalReports = totalReports;
                 VideoId = videoId;
             }
 
-            public string ManifestHash { get; }
             public string Title { get; }
             public int TotalReports { get; }
             public string VideoId { get; }
@@ -75,12 +67,10 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports
 
         // Methods.
         public async Task OnGetAsync(
-            string manifestHash,
             string videoId,
             int? p)
         {
             await InitializeAsync(
-                manifestHash,
                 videoId,
                 p);
         }
@@ -88,22 +78,20 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports
         public async Task OnPost()
         {
             await InitializeAsync(
-                Input?.ManifestHash,
                 Input?.VideoId,
                 null);
         }
 
         // Helpers.
         private async Task InitializeAsync(
-            string? manifestHash,
             string? videoId,
             int? p)
         {
             CurrentPage = p ?? 0;
 
             var paginatedUnsuitableReports = await indexDbContext.UnsuitableVideoReports.QueryPaginatedElementsAsync(
-                vm => VideoUnsuitableReportWhere(vm, manifestHash, videoId)
-                        .GroupBy(i => i.VideoManifest.Id)
+                vm => VideoUnsuitableReportWhere(vm, videoId)
+                        .GroupBy(i => i.Video.Id)
                         .Select(group => new
                         {
                             Id = group.Key,
@@ -115,30 +103,26 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports
 
             MaxPage = paginatedUnsuitableReports.MaxPage;
 
-            var videoManifestIds = paginatedUnsuitableReports.Elements.Select(e => e.Id);
+            var videoIds = paginatedUnsuitableReports.Elements.Select(e => e.Id);
 
             // Get manifest info.
-            var videoManifests = await indexDbContext.VideoManifests.QueryElementsAsync(elements =>
-               elements.Where(u => videoManifestIds.Contains(u.Id))
+            var videos = await indexDbContext.Videos.QueryElementsAsync(elements =>
+               elements.Where(u => videoIds.Contains(u.Id))
                        .OrderBy(i => i.Id)
                        .ToListAsync());
 
-            VideoUnsuitableReports = videoManifests.Select(vm => new VideoUnsuitableReportDto(
-                vm.Manifest.Hash,
-                vm.Title ?? "",
-                vm.Video.Id,
+            VideoUnsuitableReports = videos.Select(vm => new VideoUnsuitableReportDto(
+                vm.GetLastValidManifest()?.Title ?? "",
+                vm.Id,
                 paginatedUnsuitableReports.Elements.First(pv => pv.Id == vm.Id).Count));
         }
 
         private IMongoQueryable<UnsuitableVideoReport> VideoUnsuitableReportWhere(
             IMongoQueryable<UnsuitableVideoReport> querable,
-            string? manifestHash,
             string? videoId)
         {
-            if (!string.IsNullOrWhiteSpace(manifestHash))
-                querable = querable.Where(vur => vur.VideoManifest.Manifest.Hash == manifestHash);
             if (!string.IsNullOrWhiteSpace(videoId))
-                querable = querable.Where(vur => vur.VideoManifest.Video.Id == videoId);
+                querable = querable.Where(vur => vur.Video.Id == videoId);
 
             return querable;
         }

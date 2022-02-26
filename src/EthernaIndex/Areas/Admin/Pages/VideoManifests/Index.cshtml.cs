@@ -19,33 +19,25 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
         {
             [Display(Name = "Manifest Hash")]
             public string? ManifestHash { get; set; }
-
-            [Display(Name = "Video Id")]
-            public string? VideoId { get; set; }
         }
 
         public class VideoManifestDto
         {
             public VideoManifestDto(
                 string manifestHash,
-                string title,
-                string videoId)
+                string title)
             {
                 if (manifestHash is null)
                     throw new ArgumentNullException(nameof(manifestHash));
                 if (title is null)
                     throw new ArgumentNullException(nameof(title));
-                if (videoId is null)
-                    throw new ArgumentNullException(nameof(videoId));
 
                 ManifestHash = manifestHash;
                 Title = title;
-                VideoId = videoId;
             }
 
             public string ManifestHash { get; }
             public string Title { get; }
-            public string VideoId { get; }
         }
 
         // Consts.
@@ -72,29 +64,25 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
         // Methods.
         public Task OnGetAsync(
             string manifestHash,
-            string videoId,
             int? p) =>
             InitializeAsync(
                 manifestHash,
-                videoId,
                 p);
 
         public Task OnPost() =>
             InitializeAsync(
                 Input?.ManifestHash,
-                Input?.VideoId,
                 null);
 
         // Helpers.
         private async Task InitializeAsync(
             string? manifestHash,
-            string? videoId,
             int? p)
         {
             CurrentPage = p ?? 0;
 
             var paginatedVideoManifests = await indexDbContext.VideoManifests.QueryPaginatedElementsAsync(
-                vm => VideoWhere(vm, manifestHash, videoId),
+                vm => VideoWhere(vm, manifestHash),
                 vm => vm.Id,
                 CurrentPage,
                 PageSize);
@@ -104,19 +92,15 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
             VideoManifests= paginatedVideoManifests.Elements.Select( 
                 e => new VideoManifestDto(
                     e.Manifest.Hash, 
-                    e.Title ?? "", 
-                    e.Video.Id));
+                    e.Title ?? ""));
         }
 
         private IMongoQueryable<VideoManifest> VideoWhere(
             IMongoQueryable<VideoManifest> querable,
-            string? manifestHash,
-            string? videoId)
+            string? manifestHash)
         {
             if (!string.IsNullOrWhiteSpace(manifestHash))
                 querable = querable.Where(v => v.Manifest.Hash == manifestHash);
-            if (!string.IsNullOrWhiteSpace(videoId))
-                querable = querable.Where(v => v.Video.Id == videoId);
 
             return querable;
         }
