@@ -175,6 +175,9 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports
             foreach (var item in unsuitableVideoReports)
                 item.SetArchived();
 
+            // Set validation status to invalid content
+            video.SetInvalidContent();
+
             // Create ManualReview.
             await videoReportService.CreateManualReviewAsync(
                 new ManualVideoReview(user, "", isValid, video, videoManifest));

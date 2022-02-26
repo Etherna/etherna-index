@@ -118,6 +118,14 @@ namespace Etherna.EthernaIndex.Domain.Models
             return _videoManifests.Remove(videoManifest);
         }
 
+        [PropertyAlterer(nameof(ValidationStatus))]
+        [PropertyAlterer(nameof(VideoManifests))]
+        public virtual void SetInvalidContent()
+        {
+            ValidationStatus = VideoValidationStatus.InvalidContent;
+            _videoManifests.Clear();
+        }
+
         [PropertyAlterer(nameof(EncryptionKey))]
         [PropertyAlterer(nameof(EncryptionType))]
         public virtual void SetEncryptionKey(string? encryptionKey, EncryptionType encryptionType)
