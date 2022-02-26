@@ -69,6 +69,7 @@ namespace Etherna.EthernaIndex.Domain.Models
         }
         public virtual long TotDownvotes { get; set; }
         public virtual long TotUpvotes { get; set; }
+        public virtual VideoValidationStatus ValidationStatus { get; set; }
         public virtual IEnumerable<VideoManifest> VideoManifests
         {
             get => _videoManifests;
@@ -97,6 +98,10 @@ namespace Etherna.EthernaIndex.Domain.Models
                 throw ex;
             }
 
+            if (ValidationStatus == VideoValidationStatus.WaitingValidManifest &&
+                videoManifest.IsValid == true)
+                ValidationStatus = VideoValidationStatus.Valid;
+
             _videoManifests.Add(videoManifest);
         }
 
@@ -105,6 +110,10 @@ namespace Etherna.EthernaIndex.Domain.Models
         {
             if (videoManifest is null)
                 throw new ArgumentNullException(nameof(videoManifest));
+
+            if (ValidationStatus == VideoValidationStatus.Valid &&
+                videoManifest.IsValid == true)
+                ValidationStatus = VideoValidationStatus.WaitingValidManifest;
 
             return _videoManifests.Remove(videoManifest);
         }

@@ -154,9 +154,9 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
 
         public async Task<IEnumerable<VideoDto>> GetLastUploadedVideosAsync(int page, int take)
         {
-            // Get videos with valid manifest.
+            // Get valid videos.
             var videos = await indexDbContext.Videos.QueryElementsAsync(elements =>
-                elements.Where(v => v.VideoManifests.Any(vm => vm.IsValid == true))
+                elements.Where(v => v.ValidationStatus == VideoValidationStatus.Valid)
                         .PaginateDescending(v => v.CreationDateTime, page, take)
                         .ToListAsync());
 
