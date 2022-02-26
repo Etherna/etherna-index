@@ -119,7 +119,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports
                        .ToListAsync());
 
             VideoUnsuitableReports = videos.Select(vm => new VideoUnsuitableReportDto(
-                vm.GetLastValidManifest()?.Title ?? "",
+                vm.Title ?? "",
                 vm.Id,
                 paginatedUnsuitableReports.Elements.First(pv => pv.Id == vm.Id).Count));
         }

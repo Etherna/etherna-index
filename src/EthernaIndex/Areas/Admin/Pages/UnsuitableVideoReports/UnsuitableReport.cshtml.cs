@@ -150,7 +150,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports
 
             MaxPage = paginatedHashVideoReports.MaxPage;
 
-            var lastValidManifest = video.GetLastValidManifest();
+            var lastValidManifest = video.LastValidManifest;
 
             VideoReport = new VideoReportDto(
                 paginatedHashVideoReports.Elements,

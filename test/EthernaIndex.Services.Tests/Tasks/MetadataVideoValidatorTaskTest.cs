@@ -117,7 +117,7 @@ namespace EthernaIndex.Services.Tests.Tasks
                     i.Reference == "Ref360" &&
                     i.Size == null);
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
-            Assert.Equal(manifestHash, video.GetLastValidManifest().Manifest.Hash);
+            Assert.Equal(manifestHash, video.LastValidManifest.Manifest.Hash);
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
         }
 
@@ -154,7 +154,7 @@ namespace EthernaIndex.Services.Tests.Tasks
                     i.ErrorNumber == ValidationErrorType.MissingTitle);
             Assert.Contains(video.VideoManifests,
                 i => i.Manifest.Hash == manifestHash);
-            Assert.Null(video.GetLastValidManifest());
+            Assert.Null(video.LastValidManifest);
         }
 
         [Fact]
@@ -176,7 +176,7 @@ namespace EthernaIndex.Services.Tests.Tasks
                     i.ErrorNumber == ValidationErrorType.JsonConvert);
             Assert.Contains(video.VideoManifests,
                 i => i.Manifest.Hash == manifestHash);
-            Assert.Null(video.GetLastValidManifest());
+            Assert.Null(video.LastValidManifest);
         }
 
         [Fact]
@@ -207,7 +207,7 @@ namespace EthernaIndex.Services.Tests.Tasks
                     i.ErrorNumber == ValidationErrorType.InvalidVideoSource);
             Assert.Contains(video.VideoManifests,
                 i => i.Manifest.Hash == manifestHash);
-            Assert.Null(video.GetLastValidManifest());
+            Assert.Null(video.LastValidManifest);
         }
 
         [Fact]
@@ -238,7 +238,7 @@ namespace EthernaIndex.Services.Tests.Tasks
                     i.ErrorNumber == ValidationErrorType.InvalidVideoSource);
             Assert.Contains(video.VideoManifests,
                 i => i.Manifest.Hash == manifestHash);
-            Assert.Null(video.GetLastValidManifest());
+            Assert.Null(video.LastValidManifest);
         }
 
         [Fact]
@@ -274,7 +274,7 @@ namespace EthernaIndex.Services.Tests.Tasks
                     i.ErrorNumber == ValidationErrorType.InvalidVideoSource);
             Assert.Contains(video.VideoManifests,
                 i => i.Manifest.Hash == manifestHash);
-            Assert.Null(video.GetLastValidManifest());
+            Assert.Null(video.LastValidManifest);
         }
 
         [Fact]
@@ -310,7 +310,7 @@ namespace EthernaIndex.Services.Tests.Tasks
                     i.ErrorNumber == ValidationErrorType.InvalidVideoSource);
             Assert.Contains(video.VideoManifests,
                 i => i.Manifest.Hash == manifestHash);
-            Assert.Null(video.GetLastValidManifest());
+            Assert.Null(video.LastValidManifest);
         }
 
         [Fact]
@@ -344,7 +344,7 @@ namespace EthernaIndex.Services.Tests.Tasks
             Assert.Contains(video.VideoManifests,
                 i => i.Manifest.Hash == manifestHash);
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
-            Assert.Equal(manifestHash, video.GetLastValidManifest().Manifest.Hash);
+            Assert.Equal(manifestHash, video.LastValidManifest.Manifest.Hash);
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
         }
 
@@ -378,7 +378,7 @@ namespace EthernaIndex.Services.Tests.Tasks
             Assert.NotNull(videoManifest.ValidationTime);
             Assert.Contains(video.VideoManifests,
                 i => i.Manifest.Hash == manifestHash);
-            Assert.Null(video.GetLastValidManifest());
+            Assert.Null(video.LastValidManifest);
         }
 
         [Fact]
@@ -441,7 +441,7 @@ namespace EthernaIndex.Services.Tests.Tasks
             Assert.Contains(video.VideoManifests,
                 i => i.Manifest.Hash == secondManifestHash);
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
-            Assert.Equal(secondManifestHash, video.GetLastValidManifest().Manifest.Hash);
+            Assert.Equal(secondManifestHash, video.LastValidManifest.Manifest.Hash);
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
         }
 
@@ -505,7 +505,7 @@ namespace EthernaIndex.Services.Tests.Tasks
             Assert.Contains(video.VideoManifests,
                 i => i.Manifest.Hash == secondManifestHash);
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
-            Assert.Equal(manifestHash, video.GetLastValidManifest().Manifest.Hash);
+            Assert.Equal(manifestHash, video.LastValidManifest.Manifest.Hash);
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
         }
 

@@ -133,7 +133,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             var video = await indexDbContext.Videos.FindOneAsync(v => v.Id == id);
 
             // Get VideoManifest.
-            var lastValidManifest = video.GetLastValidManifest();
+            var lastValidManifest = video.LastValidManifest;
 
             // Get User.
             var sharedInfo = await sharedDbContext.UsersInfo.FindOneAsync(video.Owner.SharedInfoId);
@@ -167,7 +167,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
                 var ownerSharedInfo = await sharedDbContext.UsersInfo.FindOneAsync(video.Owner.SharedInfoId);
                 videoDtos.Add(new VideoDto(
                     video,
-                    video.GetLastValidManifest(),
+                    video.LastValidManifest,
                     ownerSharedInfo));
             }
 

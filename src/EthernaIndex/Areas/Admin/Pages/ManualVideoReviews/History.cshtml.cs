@@ -123,7 +123,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.ManualVideoReviews
                         e.Author.SharedInfoId,
                         e.CreationDateTime));
 
-            var currentManifest = video.GetLastValidManifest();
+            var currentManifest = video.LastValidManifest;
 
             VideoReview = new VideoReviewDto(
                 currentManifest?.Manifest.Hash ?? "",
