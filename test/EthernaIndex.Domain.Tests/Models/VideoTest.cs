@@ -26,7 +26,6 @@ namespace Etherna.EthernaIndex.Domain.Models
     {
         // Fields.
         private readonly string address = "0x300a31dBAB42863F4b0bEa3E03d0aa89D47DB3f0";
-        private readonly string encryptKey = "1d111a1d73fd8f28d71e6b03d2e42f44721db94b734c2edcfe6fcd48b76a74f1";
         private readonly string manifestHash = "5d942a1d73fd8f28d71e6b03d2e42f44721db94b734c2edcfe6fcd48b76a74f9";
         private readonly string secondManifestHash = "2b678a1d73fd8f28d71e6b03d2e42f44721db94b734c2edcfe6fcd48b76a74f9";
         private readonly User owner;
@@ -38,7 +37,7 @@ namespace Etherna.EthernaIndex.Domain.Models
         {
             userSharedInfoMock.Setup(s => s.EtherAddress).Returns(address);
             owner = new User(userSharedInfoMock.Object);
-            video = new Video(encryptKey, EncryptionType.AES256, owner);
+            video = new Video(owner);
         }
 
         // Tests.
@@ -50,10 +49,8 @@ namespace Etherna.EthernaIndex.Domain.Models
             //Act
 
             //Assert
-            Assert.Equal(encryptKey, video.EncryptionKey);
             Assert.Equal(0, video.TotDownvotes);
             Assert.Equal(0, video.TotDownvotes);
-            Assert.Equal(EncryptionType.AES256, video.EncryptionType);
             Assert.NotNull(video.Owner);
             Assert.Empty(video.VideoManifests);
         }

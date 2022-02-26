@@ -33,7 +33,7 @@ namespace Etherna.EthernaIndex.Domain.Models
         {
             userSharedInfoMock.Setup(s => s.EtherAddress).Returns(UserAddress);
             user = new User(userSharedInfoMock.Object);
-            video = new Video(null, EncryptionType.Plain, user);
+            video = new Video(user);
         }
 
         // Tests.

@@ -32,7 +32,6 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                     cm.AutoMap();
 
                     // Set members with custom serializers.
-                    cm.SetMemberSerializer(v => v.EncryptionKey!, new HexToBinaryDataSerializer());
                     cm.SetMemberSerializer(v => v.Owner, UserMap.InformationSerializer(dbContext));
                     cm.SetMemberSerializer(c => c.VideoManifests,
                         new EnumerableSerializer<VideoManifest>(

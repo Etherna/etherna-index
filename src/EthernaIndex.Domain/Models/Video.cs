@@ -16,7 +16,6 @@ using Etherna.MongODM.Core.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace Etherna.EthernaIndex.Domain.Models
 {
@@ -26,12 +25,8 @@ namespace Etherna.EthernaIndex.Domain.Models
         private List<VideoManifest> _videoManifests = new();
 
         // Constructors and dispose.
-        public Video(
-            string? encryptionKey,
-            EncryptionType encryptionType,
-            User owner)
+        public Video(User owner)
         {
-            SetEncryptionKey(encryptionKey, encryptionType);
             Owner = owner ?? throw new ArgumentNullException(nameof(owner));
             Owner.AddVideo(this);
         }
@@ -47,8 +42,6 @@ namespace Etherna.EthernaIndex.Domain.Models
         }
 
         // Properties.
-        public virtual string? EncryptionKey { get; protected set; }
-        public virtual EncryptionType EncryptionType { get; protected set; }
         public virtual User Owner { get; protected set; } = default!;
         public virtual long TotDownvotes { get; set; }
         public virtual long TotUpvotes { get; set; }
@@ -94,30 +87,6 @@ namespace Etherna.EthernaIndex.Domain.Models
                 throw new ArgumentNullException(nameof(videoManifest));
 
             return _videoManifests.Remove(videoManifest);
-        }
-
-        [PropertyAlterer(nameof(EncryptionKey))]
-        [PropertyAlterer(nameof(EncryptionType))]
-        public virtual void SetEncryptionKey(string? encryptionKey, EncryptionType encryptionType)
-        {
-            switch (encryptionType)
-            {
-                case EncryptionType.AES256:
-                    if (string.IsNullOrEmpty(encryptionKey))
-                        throw new ArgumentException($"Encryption key can't be empty with encrypted content");
-                    if (!Regex.IsMatch(encryptionKey, "^[A-Fa-f0-9]{64}$"))
-                        throw new ArgumentException($"Encryption key is not a valid {encryptionType} key");
-                    break;
-                case EncryptionType.Plain:
-                    if (!string.IsNullOrEmpty(encryptionKey))
-                        throw new ArgumentException($"Encryption key must be empty with unencrypted content");
-                    break;
-                default:
-                    throw new InvalidOperationException();
-            }
-
-            EncryptionKey = encryptionKey;
-            EncryptionType = encryptionType;
         }
 
     }
