@@ -305,8 +305,7 @@ namespace Etherna.EthernaIndex
                 }
                 else
                 {
-                    builder.WithOrigins("https://*.etherna.io")
-                           .SetIsOriginAllowedToAllowWildcardSubdomains()
+                    builder.WithOrigins("https://app.etherna.io")
                            .AllowAnyHeader()
                            .AllowAnyMethod()
                            .AllowCredentials();
