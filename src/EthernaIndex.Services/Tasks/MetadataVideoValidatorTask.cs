@@ -39,7 +39,10 @@ namespace Etherna.EthernaIndex.Services.Tasks
         }
 
         // Methods.
-        public async Task RunAsync(string videoId, string manifestHash)
+        public async Task RunAsync(
+            string videoId, 
+            string manifestHash,
+            bool forceNewValidation)
         {
             var video = await indexDbContext.Videos.FindOneAsync(videoId);
 
@@ -48,7 +51,8 @@ namespace Etherna.EthernaIndex.Services.Tasks
 
             // Get manifest.
             var videoManifest = await indexDbContext.VideoManifests.FindOneAsync(u => u.Manifest.Hash == manifestHash);
-            if (videoManifest.ValidationTime.HasValue)
+            if (videoManifest.ValidationTime.HasValue &&
+                !forceNewValidation)
                 return;
 
             // Get metadata.
@@ -66,7 +70,8 @@ namespace Etherna.EthernaIndex.Services.Tasks
                     _ => ValidationErrorType.Generic
                 }, ex.Message));
                 videoManifest.FailedValidation(validationErrors);
-                video.AddManifest(videoManifest);
+                if (!forceNewValidation)
+                    video.AddManifest(videoManifest);
                 await indexDbContext.SaveChangesAsync().ConfigureAwait(false);
                 return;
             }
@@ -109,7 +114,10 @@ namespace Etherna.EthernaIndex.Services.Tasks
                     swarmImageRaw,
                     videoSources);
             }
-            video.AddManifest(videoManifest);
+
+            // Only first validation need to add manifest in video.
+            if (!forceNewValidation)
+                video.AddManifest(videoManifest);
 
             // Complete task.
             await indexDbContext.SaveChangesAsync().ConfigureAwait(false);

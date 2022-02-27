@@ -189,7 +189,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
 
             // Background Validator.
             backgroundJobClient.Create<MetadataVideoValidatorTask>(
-                    task => task.RunAsync(video.Id, videoManifest.Manifest.Hash),
+                    task => task.RunAsync(video.Id, videoManifest.Manifest.Hash, true),
                     new EnqueuedState(Queues.METADATA_VIDEO_VALIDATOR));
 
             return RedirectToPage("Index");
