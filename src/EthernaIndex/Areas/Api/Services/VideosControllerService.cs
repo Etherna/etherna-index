@@ -85,6 +85,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             await indexDbContext.VideoManifests.CreateAsync(videoManifest);
 
             // Add manifest to video.
+            video = await indexDbContext.Videos.FindOneAsync(video.Id); //find again because needs to be a proxy for update
             video.AddManifest(videoManifest);
             await indexDbContext.SaveChangesAsync();
 
