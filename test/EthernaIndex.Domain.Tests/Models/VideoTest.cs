@@ -118,7 +118,7 @@ namespace Etherna.EthernaIndex.Domain.Models
                     null,
                     videoSources);
             else
-                videoManifest.FailedValidation(new List<ErrorDetail> { new ErrorDetail(ValidationErrorType.Generic, "test") });
+                videoManifest.FailedValidation(new List<ErrorDetail> { new ErrorDetail(ValidationErrorType.Unknown, "test") });
 
             return videoManifest;
         }

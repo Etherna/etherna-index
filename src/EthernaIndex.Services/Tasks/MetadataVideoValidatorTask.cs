@@ -48,23 +48,16 @@ namespace Etherna.EthernaIndex.Services.Tasks
 
             // Get manifest.
             var videoManifest = await indexDbContext.VideoManifests.FindOneAsync(u => u.Manifest.Hash == manifestHash);
-            if (videoManifest.ValidationTime.HasValue)
-                return;
 
             // Get metadata.
             try
             {
                 metadataDto = await swarmService.GetMetadataVideoAsync(manifestHash);
             }
-#pragma warning disable CA1031 // Do not catch general exception types
-            catch (Exception ex)
-#pragma warning restore CA1031 // Do not catch general exception types
+            catch (MetadataVideoException ex)
             {
-                validationErrors.Add(new ErrorDetail(ex switch
-                {
-                    MetadataVideoException _ => ValidationErrorType.JsonConvert,
-                    _ => ValidationErrorType.Generic
-                }, ex.Message));
+                validationErrors.Add(new ErrorDetail(ValidationErrorType.JsonConvert, ex.Message));
+
                 videoManifest.FailedValidation(validationErrors);
                 video.AddManifest(videoManifest);
                 await indexDbContext.SaveChangesAsync().ConfigureAwait(false);

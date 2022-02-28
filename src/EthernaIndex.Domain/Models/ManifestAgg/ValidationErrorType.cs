@@ -2,10 +2,10 @@
 {
     public enum ValidationErrorType
     {
-        Generic,
         InvalidVideoSource,
         InvalidThumbnailSource,
         JsonConvert,
-        MissingTitle
+        MissingTitle,
+        Unknown,
     }
 }
