@@ -204,7 +204,8 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             var commentDtos = new List<CommentDto>();
             foreach (var comment in comments)
             {
-                var authorSharedInfo = await sharedDbContext.UsersInfo.FindOneAsync(comment.Author.Id);
+                var author = await indexDbContext.Users.FindOneAsync(comment.Author.Id);
+                var authorSharedInfo = await sharedDbContext.UsersInfo.FindOneAsync(author.SharedInfoId);
                 commentDtos.Add(new CommentDto(comment, authorSharedInfo));
             }
 
