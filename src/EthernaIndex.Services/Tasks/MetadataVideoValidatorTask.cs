@@ -59,7 +59,6 @@ namespace Etherna.EthernaIndex.Services.Tasks
                 validationErrors.Add(new ErrorDetail(ValidationErrorType.JsonConvert, ex.Message));
 
                 videoManifest.FailedValidation(validationErrors);
-                video.AddManifest(videoManifest);
                 await indexDbContext.SaveChangesAsync().ConfigureAwait(false);
                 return;
             }
@@ -102,7 +101,6 @@ namespace Etherna.EthernaIndex.Services.Tasks
                     swarmImageRaw,
                     videoSources);
             }
-            video.AddManifest(videoManifest);
 
             // Complete task.
             await indexDbContext.SaveChangesAsync().ConfigureAwait(false);

@@ -84,6 +84,10 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             videoManifest = new VideoManifest(videoInput.ManifestHash, video);
             await indexDbContext.VideoManifests.CreateAsync(videoManifest);
 
+            // Add manifest to video.
+            video.AddManifest(videoManifest);
+            await indexDbContext.SaveChangesAsync();
+
             // Create Validation Manifest Task.
             backgroundJobClient.Create<MetadataVideoValidatorTask>(
                 task => task.RunAsync(video.Id, videoInput.ManifestHash),
@@ -252,6 +256,10 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             // Create videoManifest.
             var videoManifest = new VideoManifest(newHash, video);
             await indexDbContext.VideoManifests.CreateAsync(videoManifest);
+
+            // Add manifest to video.
+            video.AddManifest(videoManifest);
+            await indexDbContext.SaveChangesAsync();
 
             // Create Validation Manifest Task.
             backgroundJobClient.Create<MetadataVideoValidatorTask>(
