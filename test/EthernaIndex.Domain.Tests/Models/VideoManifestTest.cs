@@ -52,7 +52,7 @@ namespace Etherna.EthernaIndex.Domain.Models
         {
             //Act
             manifest.FailedValidation(new List<ErrorDetail> {
-                { new ErrorDetail(ValidationErrorType.Generic, "Generic Error") },
+                { new ErrorDetail(ValidationErrorType.Unknown, "Unknown Error") },
                 { new ErrorDetail(ValidationErrorType.InvalidVideoSource, "Invalid Source Video") }
             });
 
@@ -60,8 +60,8 @@ namespace Etherna.EthernaIndex.Domain.Models
             //Assert
             Assert.False(manifest.IsValid);
             Assert.Contains(manifest.ErrorValidationResults,
-                i => i.ErrorNumber == ValidationErrorType.Generic &&
-                    i.ErrorMessage.Equals("Generic Error", StringComparison.Ordinal));
+                i => i.ErrorNumber == ValidationErrorType.Unknown &&
+                    i.ErrorMessage.Equals("Unknown Error", StringComparison.Ordinal));
             Assert.Contains(manifest.ErrorValidationResults,
                 i => i.ErrorNumber == ValidationErrorType.InvalidVideoSource &&
                     i.ErrorMessage.Equals("Invalid Source Video", StringComparison.Ordinal));
