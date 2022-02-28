@@ -70,13 +70,6 @@ namespace Etherna.EthernaIndex.Domain.Models
             if (videoManifest is null)
                 throw new ArgumentNullException(nameof(videoManifest));
 
-            if (videoManifest.ValidationTime is null)
-            {
-                var ex = new InvalidOperationException("Manifest not validated");
-                ex.Data.Add("ManifestHash", videoManifest.Manifest.Hash);
-                throw ex;
-            }
-
             if (_videoManifests.Any(i => i.Manifest.Hash == videoManifest.Manifest.Hash))
             {
                 var ex = new InvalidOperationException("AddManifest duplicate");

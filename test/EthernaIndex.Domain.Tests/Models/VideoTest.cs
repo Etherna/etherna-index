@@ -59,16 +59,6 @@ namespace Etherna.EthernaIndex.Domain.Models
         }
 
         [Fact]
-        public void AddVideo_ExceptionWhenNotValidated()
-        {
-            //Arrange
-            var videoManifest = new VideoManifest(secondManifestHash, video);
-
-            //Act
-            Assert.Throws<InvalidOperationException>(() => video.AddManifest(videoManifest));
-        }
-
-        [Fact]
         public void AddVideo_ExeptionWhenDuplicated()
         {
             var videoManifest = CreateManifest(secondManifestHash, true);
