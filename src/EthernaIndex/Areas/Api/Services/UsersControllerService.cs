@@ -97,7 +97,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             return user.Videos
                 .Where(v => v.VideoManifests.Any(m => m.IsValid == true))
                 .PaginateDescending(v => v.CreationDateTime, page, take)
-                .Select(v => new VideoDto(v, v.GetLastValidManifest(), sharedInfo));
+                .Select(v => new VideoDto(v, v.LastValidManifest, sharedInfo));
         }
 
         public async Task UpdateCurrentUserIdentityManifestAsync(string? hash)

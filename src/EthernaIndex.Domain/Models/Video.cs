@@ -42,7 +42,11 @@ namespace Etherna.EthernaIndex.Domain.Models
         }
 
         // Properties.
+        public virtual VideoManifest? LastValidManifest => _videoManifests.Where(i => i.IsValid == true)
+                                                                          .OrderByDescending(i => i.CreationDateTime)
+                                                                          .FirstOrDefault();
         public virtual User Owner { get; protected set; } = default!;
+        public virtual string? Title => LastValidManifest?.Title;
         public virtual long TotDownvotes { get; set; }
         public virtual long TotUpvotes { get; set; }
         public virtual IEnumerable<VideoManifest> VideoManifests
@@ -52,10 +56,6 @@ namespace Etherna.EthernaIndex.Domain.Models
         }
 
         // Methods.
-        public virtual VideoManifest? GetLastValidManifest() =>
-            _videoManifests.Where(i => i.IsValid == true)
-                           .OrderByDescending(i => i.CreationDateTime)
-                           .FirstOrDefault();
 
         [PropertyAlterer(nameof(VideoManifests))]
         public virtual void AddManifest(VideoManifest videoManifest)
