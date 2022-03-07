@@ -16,6 +16,7 @@ using Etherna.Authentication.Extensions;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.Services.Domain;
+using Etherna.MongoDB.Driver;
 using Etherna.MongoDB.Driver.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -166,6 +167,18 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports
             var video = await indexDbContext.Videos.FindOneAsync(videoId);
             var videoManifest = await indexDbContext.VideoManifests.FindOneAsync(vm => vm.Manifest.Hash == manifestHash);
 
+            // Get all reports to archive.
+            var unsuitableVideoReports = await indexDbContext.UnsuitableVideoReports.QueryElementsAsync(
+                uvr => uvr.Where(i => i.Video.Id == video.Id)
+                .ToListAsync());
+
+            // Archive.
+            foreach (var item in unsuitableVideoReports)
+                item.SetArchived();
+
+            await indexDbContext.SaveChangesAsync();
+
+            // Create ManualReview.
             await videoReportService.CreateManualReviewAsync(
                 new ManualVideoReview(user, "", isValid, video, videoManifest));
         }

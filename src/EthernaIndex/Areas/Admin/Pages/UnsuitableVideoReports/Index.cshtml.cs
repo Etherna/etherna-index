@@ -18,6 +18,9 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports
         // Models.
         public class InputModel
         {
+            [Display(Name = "Include Reviewed")]
+            public bool IncludeArchived { get; set; } = default!;
+
             [Display(Name = "Video Id")]
             public string? VideoId { get; set; }
         }
@@ -67,10 +70,12 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports
 
         // Methods.
         public async Task OnGetAsync(
+            bool includeArchived, 
             string videoId,
             int? p)
         {
             await InitializeAsync(
+                includeArchived,
                 videoId,
                 p);
         }
@@ -78,19 +83,21 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports
         public async Task OnPost()
         {
             await InitializeAsync(
+                Input?.IncludeArchived ?? false,
                 Input?.VideoId,
                 null);
         }
 
         // Helpers.
         private async Task InitializeAsync(
+            bool includeArchived,
             string? videoId,
             int? p)
         {
             CurrentPage = p ?? 0;
 
             var paginatedUnsuitableReports = await indexDbContext.UnsuitableVideoReports.QueryPaginatedElementsAsync(
-                vm => VideoUnsuitableReportWhere(vm, videoId)
+                vm => VideoUnsuitableReportWhere(vm, includeArchived, videoId)
                         .GroupBy(i => i.Video.Id)
                         .Select(group => new
                         {
@@ -119,10 +126,13 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports
 
         private IMongoQueryable<UnsuitableVideoReport> VideoUnsuitableReportWhere(
             IMongoQueryable<UnsuitableVideoReport> querable,
+            bool includeArchived,
             string? videoId)
         {
             if (!string.IsNullOrWhiteSpace(videoId))
                 querable = querable.Where(vur => vur.Video.Id == videoId);
+            if (!includeArchived)
+                querable = querable.Where(vur => !vur.IsArchived);
 
             return querable;
         }
