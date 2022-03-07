@@ -73,10 +73,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             }
 
             // Create Video.
-            var video = new Video(
-                videoInput.EncryptionKey,
-                videoInput.EncryptionType,
-                user);
+            var video = new Video(user);
 
             await indexDbContext.Videos.CreateAsync(video);
 

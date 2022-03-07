@@ -43,8 +43,6 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
 
             Id = video.Id;
             CreationDateTime = video.CreationDateTime;
-            EncryptionKey = video.EncryptionKey;
-            EncryptionType = video.EncryptionType;
             if (lastValidManifest is not null)
                 LastValidManifest = new VideoManifestDto(lastValidManifest);
             OwnerAddress = userSharedInfo.EtherAddress;
@@ -56,8 +54,6 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
         // Properties.
         public string Id { get; }
         public DateTime CreationDateTime { get; }
-        public string? EncryptionKey { get; }
-        public EncryptionType EncryptionType { get; }
         public VideoManifestDto? LastValidManifest { get; }
         public string OwnerAddress { get; }
         public string? OwnerIdentityManifest { get; }

@@ -39,7 +39,6 @@ namespace EthernaIndex.Services.Tests.Tasks
         private readonly string manifestHash = "1a345a1d73fd8f28d71e6b03d2e42f44721db94b734c2edcfe6fcd48b76a74f9";
         private readonly string videoId = "videoId";
         private readonly string address = "0x300a31dBAB42863F4b0bEa3E03d0aa89D47DB3f0";
-        private readonly string encryptKey = "1d111a1d73fd8f28d71e6b03d2e42f44721db94b734c2edcfe6fcd48b76a74f1";
         private readonly Mock<UserSharedInfo> userSharedInfoMock = new();
         private readonly Video video;
         private readonly VideoManifest videoManifest;
@@ -51,7 +50,7 @@ namespace EthernaIndex.Services.Tests.Tasks
         {
             userSharedInfoMock.Setup(s => s.EtherAddress).Returns(address);
             var owner = new User(userSharedInfoMock.Object);
-            video = new Video(encryptKey, EncryptionType.AES256, owner);
+            video = new Video(owner);
             videoManifest = new VideoManifest(manifestHash, video);
             video.AddManifest(videoManifest);
 
