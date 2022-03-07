@@ -78,7 +78,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             await indexDbContext.Videos.CreateAsync(video);
 
             // Create video manifest.
-            videoManifest = new VideoManifest(videoInput.ManifestHash, video);
+            videoManifest = new VideoManifest(videoInput.ManifestHash);
             await indexDbContext.VideoManifests.CreateAsync(videoManifest);
 
             // Add manifest to video.
@@ -147,7 +147,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         {
             var videoManifest = await indexDbContext.VideoManifests.FindOneAsync(vm => vm.Manifest.Hash == hash);
 
-            var video = await indexDbContext.Videos.FindOneAsync(videoManifest.Video.Id);
+            var video = await indexDbContext.Videos.FindOneAsync(v => v.VideoManifests.Any(vm => vm.Id == videoManifest.Id));
 
             var ownerSharedInfo = await sharedDbContext.UsersInfo.FindOneAsync(video.Owner.SharedInfoId);
 
@@ -212,29 +212,28 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
 
         public async Task ReportVideoAsync(string videoId, string manifestHash, string description, ClaimsPrincipal userClaims)
         {
-            // Get data.
+            // Get video and manifest.
             var video = await indexDbContext.Videos.FindOneAsync(videoId);
-            var manifest = await indexDbContext.VideoManifests.FindOneAsync(vm => vm.Manifest.Hash == manifestHash);
+            var manifest = video.VideoManifests.First(m => m.Manifest.Hash == manifestHash);
 
-            if (manifest.Video.Id != video.Id)
-                throw new InvalidOperationException("Video id not match with manifest hash");
-
+            // Get user info.
             var address = userClaims.GetEtherAddress();
             var (user, userSharedInfo) = await userService.FindUserAsync(address);
 
+            // Add or Update UnsuitableVideoReport.
             var videoReport = await indexDbContext.UnsuitableVideoReports
                 .TryFindOneAsync(v => v.VideoManifest.Id == manifest.Id &&
                                       v.ReporterAuthor.Id == userSharedInfo.Id);
 
             if (videoReport is null)
             {
-                // Create new report.
-                var videoReported = new UnsuitableVideoReport(manifest, user, description);
+                // Create.
+                var videoReported = new UnsuitableVideoReport(video, manifest, user, description);
                 await indexDbContext.UnsuitableVideoReports.CreateAsync(videoReported);
             }
             else
             {
-                // Edit report.
+                // Edit.
                 videoReport.ChangeDescription(description);
                 await indexDbContext.SaveChangesAsync();
             }
@@ -253,7 +252,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
                 throw new UnauthorizedAccessException("User is not owner of the video");
 
             // Create videoManifest.
-            var videoManifest = new VideoManifest(newHash, video);
+            var videoManifest = new VideoManifest(newHash);
             await indexDbContext.VideoManifests.CreateAsync(videoManifest);
 
             // Add manifest to video.

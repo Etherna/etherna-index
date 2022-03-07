@@ -34,7 +34,7 @@ namespace Etherna.EthernaIndex.Domain.Models
         {
             userSharedInfoMock.Setup(s => s.EtherAddress).Returns(address);
             var user = new User(userSharedInfoMock.Object);
-            manifest = new VideoManifest(hash, new Video(user));
+            manifest = new VideoManifest(hash);
         }
 
         [Fact]

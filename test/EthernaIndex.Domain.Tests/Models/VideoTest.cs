@@ -89,7 +89,7 @@ namespace Etherna.EthernaIndex.Domain.Models
 
         private VideoManifest CreateManifest(string hash, bool valid)
         {
-            var videoManifest = new VideoManifest(hash, video);
+            var videoManifest = new VideoManifest(hash);
             var title = "FeddTopicTest";
             var desc = "DescTest";
             var original = "OriginalTest";

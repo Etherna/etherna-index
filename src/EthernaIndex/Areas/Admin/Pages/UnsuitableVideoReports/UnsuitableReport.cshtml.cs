@@ -32,7 +32,6 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports
         {
             public VideoReportDto(
                 IEnumerable<UnsuitableVideoReport> videoReports,
-                bool hasOtherValidManifest,
                 string manifestHash,
                 string manifestId,
                 string title,
@@ -46,18 +45,15 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports
                 DetailReports = videoReports.Select(vr => new VideoReportDetailDto(
                     vr.Id,
                     vr.Description,
-                    vr.VideoManifest.Manifest.Hash,
                     vr.ReporterAuthor.SharedInfoId,
                     vr.CreationDateTime));
                 ManifestHash = manifestHash;
-                HasOtherValidManifest = hasOtherValidManifest;
                 ManifestId = manifestId;
                 Title = title;
                 VideoId = videoId;
             }
 
             public IEnumerable<VideoReportDetailDto> DetailReports { get; }
-            public bool HasOtherValidManifest { get; set; }
             public string ManifestHash { get; private set; }
             public string ManifestId { get; set; } = default!;
             public string Title { get; set; } = default!;
@@ -67,7 +63,6 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports
                 public VideoReportDetailDto(
                     string id,
                     string description,
-                    string manifestHash,
                     string reportAddress,
                     DateTime reportDate)
                 {
@@ -76,14 +71,12 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports
 
                     Id = id;
                     Description = description;
-                    ManifestHash = manifestHash;
                     ReporterAddress = reportAddress;
                     ReportDate = reportDate;
                 }
 
                 public string Id { get; }
                 public string Description { get; }
-                public string ManifestHash { get; }
                 public string ReporterAddress { get; }
                 public DateTime ReportDate { get; }
             }
@@ -117,9 +110,9 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports
         public VideoReportDto VideoReport { get; private set; } = default!;
 
         // Methods.
-        public async Task OnGetAsync(string videoId, string manifestHash, int? p)
+        public async Task OnGetAsync(string videoId, int? p)
         {
-            await InitializeAsync(videoId, manifestHash, p);
+            await InitializeAsync(videoId, p);
         }
 
         public async Task<IActionResult> OnPostApproveVideo(
@@ -141,32 +134,28 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports
         }
 
         // Helpers.
-        private async Task InitializeAsync(string videoId, string manifestHash, int? p)
+        private async Task InitializeAsync(string videoId, int? p)
         {
             // Video info
-            var videoManifest = await indexDbContext.VideoManifests.FindOneAsync(vm => vm.Manifest.Hash == manifestHash &&
-                                                                                        vm.Video.Id == videoId);
             var video = await indexDbContext.Videos.FindOneAsync(vm => vm.Id == videoId);
 
             CurrentPage = p ?? 0;
 
             var paginatedHashVideoReports = await indexDbContext.UnsuitableVideoReports.QueryPaginatedElementsAsync(
-                vm => vm.Where(i => i.VideoManifest.Manifest.Hash == videoManifest.Manifest.Hash),
+                vm => vm.Where(i => i.Video.Id == video.Id),
                 vm => vm.CreationDateTime,
                 CurrentPage,
                 PageSize);
 
             MaxPage = paginatedHashVideoReports.MaxPage;
 
-            var hasOtherValidManifest = video.VideoManifests.Any(vm => vm.IsValid == true &&
-                                                                    vm.Manifest.Hash != videoManifest.Manifest.Hash);
+            var lastValidManifest = video.GetLastValidManifest();
 
             VideoReport = new VideoReportDto(
                 paginatedHashVideoReports.Elements,
-                hasOtherValidManifest,
-                videoManifest.Manifest.Hash,
-                videoManifest.Id,
-                videoManifest.Title ?? "",
+                lastValidManifest?.Manifest.Hash ?? "",
+                lastValidManifest?.Id ?? "",
+                lastValidManifest?.Title ?? "",
                 video.Id);
         }
 

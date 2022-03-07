@@ -51,7 +51,7 @@ namespace EthernaIndex.Services.Tests.Tasks
             userSharedInfoMock.Setup(s => s.EtherAddress).Returns(address);
             var owner = new User(userSharedInfoMock.Object);
             video = new Video(owner);
-            videoManifest = new VideoManifest(manifestHash, video);
+            videoManifest = new VideoManifest(manifestHash);
             video.AddManifest(videoManifest);
 
             swarmService = new Mock<ISwarmService>();
@@ -417,7 +417,7 @@ namespace EthernaIndex.Services.Tests.Tasks
                 {
                     new MetadataVideoSourceDto(2, "10802", "Ref10802", 98)
                 });
-            var secondVideoManifest = new VideoManifest(secondManifestHash, video);
+            var secondVideoManifest = new VideoManifest(secondManifestHash);
             video.AddManifest(secondVideoManifest);
             var secondIndexContext = new Mock<IIndexDbContext>();
             secondIndexContext.Setup(_ => _.VideoManifests.FindOneAsync(It.IsAny<Expression<Func<VideoManifest, bool>>>(), It.IsAny<CancellationToken>()))
@@ -482,7 +482,7 @@ namespace EthernaIndex.Services.Tests.Tasks
                 {
                     new MetadataVideoSourceDto(2, "10802", "Ref10802", 98)
                 });
-            var secondVideoManifest = new VideoManifest(secondManifestHash, video);
+            var secondVideoManifest = new VideoManifest(secondManifestHash);
             video.AddManifest(secondVideoManifest);
             var secondIndexContext = new Mock<IIndexDbContext>();
             secondIndexContext.Setup(_ => _.VideoManifests.FindOneAsync(It.IsAny<Expression<Func<VideoManifest, bool>>>(), It.IsAny<CancellationToken>()))

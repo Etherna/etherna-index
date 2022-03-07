@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 namespace Etherna.EthernaIndex.Domain.Models
 {
@@ -19,12 +20,12 @@ namespace Etherna.EthernaIndex.Domain.Models
                 throw new ArgumentNullException(nameof(videoManifest));
 
             // Check manifest.
-            if (videoManifest.Video.Id != video.Id)
+            if (!video.VideoManifests.Contains(videoManifest))
             {
                 var ex = new InvalidOperationException("Missmatching between manifest and video");
-                ex.Data.Add("VideoId", video.Id);
-                ex.Data.Add("VideoManifests.Hash", videoManifest.Manifest.Hash);
-                ex.Data.Add("VideoManifests.Id", videoManifest.Video.Id);
+                ex.Data.Add("Video.Id", video.Id);
+                ex.Data.Add("VideoManifest.Hash", videoManifest.Manifest.Hash);
+                ex.Data.Add("VideoManifest.Id", videoManifest.Id);
                 throw ex;
             }
 

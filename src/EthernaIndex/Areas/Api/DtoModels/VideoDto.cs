@@ -15,6 +15,7 @@
 using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.Domain.Models.UserAgg;
 using System;
+using System.Linq;
 
 namespace Etherna.EthernaIndex.Areas.Api.DtoModels
 {
@@ -32,12 +33,12 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
                 throw new ArgumentNullException(nameof(userSharedInfo));
 
             if (lastValidManifest is not null &&
-                lastValidManifest.Video.Id != video.Id)
+                !video.VideoManifests.Contains(lastValidManifest))
             {
                 var ex = new InvalidOperationException("Video not compatible with current Manifest");
                 ex.Data.Add("VideoId", video.Id);
                 ex.Data.Add("ManifestHash", lastValidManifest.Manifest.Hash);
-                ex.Data.Add("Manifest.VideoId", lastValidManifest.Video.Id);
+                ex.Data.Add("ManifestId", lastValidManifest.Id);
                 throw ex;
             }
 
