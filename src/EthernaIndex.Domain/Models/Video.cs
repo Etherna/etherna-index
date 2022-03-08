@@ -57,7 +57,7 @@ namespace Etherna.EthernaIndex.Domain.Models
         }
 
         // Methods.
-
+        [PropertyAlterer(nameof(IsValid))]
         [PropertyAlterer(nameof(VideoManifests))]
         public virtual void AddManifest(VideoManifest videoManifest)
         {
@@ -77,6 +77,7 @@ namespace Etherna.EthernaIndex.Domain.Models
             _videoManifests.Add(videoManifest);
         }
 
+        [PropertyAlterer(nameof(IsValid))]
         [PropertyAlterer(nameof(VideoManifests))]
         public virtual bool RemoveManifest(VideoManifest videoManifest)
         {
