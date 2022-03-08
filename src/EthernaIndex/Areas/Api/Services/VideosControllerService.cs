@@ -246,7 +246,8 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             var address = userClaims.GetEtherAddress();
             var (currentUser, _) = await userService.FindUserAsync(address);
 
-            var video = await indexDbContext.Videos.FindOneAsync(id);
+            var video = await indexDbContext.Videos.FindOneAsync(v => v.Id == id &&
+                                                                      !v.Freezed);
 
             // Verify authz.
             if (video.Owner.Id != currentUser.Id)

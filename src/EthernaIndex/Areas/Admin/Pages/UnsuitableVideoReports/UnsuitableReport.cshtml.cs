@@ -176,6 +176,9 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports
             foreach (var item in unsuitableVideoReports)
                 item.SetArchived();
 
+            // Set freezed
+            video.SetFreezed();
+
             await indexDbContext.SaveChangesAsync();
 
             // Create ManualReview.

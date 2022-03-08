@@ -83,5 +83,14 @@ namespace Etherna.EthernaIndex.Domain.Models
             return _videoManifests.Remove(videoManifest);
         }
 
+
+        [PropertyAlterer(nameof(Freezed))]
+        [PropertyAlterer(nameof(VideoManifests))]
+        public virtual void SetFreezed()
+        {
+            Freezed = true;
+            _videoManifests.Clear();
+        }
+
     }
 }
