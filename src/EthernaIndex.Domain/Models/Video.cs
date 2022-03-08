@@ -46,6 +46,7 @@ namespace Etherna.EthernaIndex.Domain.Models
                                                                           .OrderByDescending(i => i.CreationDateTime)
                                                                           .FirstOrDefault();
         public virtual User Owner { get; protected set; } = default!;
+        public virtual bool IsValid { get; set; }
         public virtual string? Title => LastValidManifest?.Title;
         public virtual long TotDownvotes { get; set; }
         public virtual long TotUpvotes { get; set; }
@@ -70,6 +71,9 @@ namespace Etherna.EthernaIndex.Domain.Models
                 throw ex;
             }
 
+            if (videoManifest.IsValid == true)
+                IsValid = true;
+
             _videoManifests.Add(videoManifest);
         }
 
@@ -79,7 +83,12 @@ namespace Etherna.EthernaIndex.Domain.Models
             if (videoManifest is null)
                 throw new ArgumentNullException(nameof(videoManifest));
 
-            return _videoManifests.Remove(videoManifest);
+            var videoRemovedResult = _videoManifests.Remove(videoManifest);
+
+            if (!_videoManifests.Any(vm => vm.IsValid == true))
+                IsValid = false;
+
+            return videoRemovedResult;
         }
 
     }
