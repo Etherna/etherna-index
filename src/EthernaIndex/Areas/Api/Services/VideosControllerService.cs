@@ -158,7 +158,8 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         {
             // Get videos with valid manifest.
             var videos = await indexDbContext.Videos.QueryElementsAsync(elements =>
-                elements.Where(v => v.VideoManifests.Any(vm => vm.IsValid == true))
+                elements.Where(v => v.VideoManifests.Any(vm => vm.IsValid == true) &&
+                                    !v.Freezed)
                         .PaginateDescending(v => v.CreationDateTime, page, take)
                         .ToListAsync());
 
