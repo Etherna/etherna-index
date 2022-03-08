@@ -42,6 +42,7 @@ namespace Etherna.EthernaIndex.Domain.Models
 
         // Properties.
         public virtual bool IsFrozen { get; set; }
+        public virtual bool IsValid => _videoManifests.Any(m => m.IsValid == true);
         public virtual VideoManifest? LastValidManifest => _videoManifests.Where(i => i.IsValid == true)
                                                                           .OrderByDescending(i => i.CreationDateTime)
                                                                           .FirstOrDefault();
@@ -56,7 +57,6 @@ namespace Etherna.EthernaIndex.Domain.Models
         }
 
         // Methods.
-
         [PropertyAlterer(nameof(VideoManifests))]
         public virtual void AddManifest(VideoManifest videoManifest)
         {

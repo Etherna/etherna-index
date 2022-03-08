@@ -27,13 +27,16 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
         public void Register(IDbContext dbContext)
         {
             dbContext.SchemaRegistry.AddModelMapsSchema<Video>("abfbd104-35ff-4429-9afc-79304a11efc0",
-                cm =>
+                mm =>
                 {
-                    cm.AutoMap();
+                    mm.AutoMap();
+
+                    // Add readonly properties.
+                    mm.MapProperty(v => v.IsValid);
 
                     // Set members with custom serializers.
-                    cm.SetMemberSerializer(v => v.Owner, UserMap.InformationSerializer(dbContext));
-                    cm.SetMemberSerializer(c => c.VideoManifests,
+                    mm.SetMemberSerializer(v => v.Owner, UserMap.InformationSerializer(dbContext));
+                    mm.SetMemberSerializer(c => c.VideoManifests,
                         new EnumerableSerializer<VideoManifest>(
                             VideoManifestMap.InformationSerializer(dbContext, true)));
                 });
