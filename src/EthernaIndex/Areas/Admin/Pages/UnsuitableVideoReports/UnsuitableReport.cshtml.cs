@@ -167,14 +167,17 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports
             var video = await indexDbContext.Videos.FindOneAsync(videoId);
             var videoManifest = await indexDbContext.VideoManifests.FindOneAsync(vm => vm.Manifest.Hash == manifestHash);
 
-            // Get all reports to archive.
+            // Archive reports.
             var unsuitableVideoReports = await indexDbContext.UnsuitableVideoReports.QueryElementsAsync(
                 uvr => uvr.Where(i => i.Video.Id == video.Id)
                 .ToListAsync());
 
-            // Archive.
             foreach (var item in unsuitableVideoReports)
                 item.SetArchived();
+
+            // Eventually set video as unsuitable.
+            if (!isValid)
+                video.SetAsUnsuitable();
 
             await indexDbContext.SaveChangesAsync();
 

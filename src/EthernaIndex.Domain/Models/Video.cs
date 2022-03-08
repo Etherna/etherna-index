@@ -30,7 +30,6 @@ namespace Etherna.EthernaIndex.Domain.Models
             Owner = owner ?? throw new ArgumentNullException(nameof(owner));
             Owner.AddVideo(this);
         }
-
         protected Video() { }
 
         public override void DisposeForDelete()
@@ -42,6 +41,7 @@ namespace Etherna.EthernaIndex.Domain.Models
         }
 
         // Properties.
+        public virtual bool IsFrozen { get; set; }
         public virtual VideoManifest? LastValidManifest => _videoManifests.Where(i => i.IsValid == true)
                                                                           .OrderByDescending(i => i.CreationDateTime)
                                                                           .FirstOrDefault();
@@ -62,6 +62,8 @@ namespace Etherna.EthernaIndex.Domain.Models
         {
             if (videoManifest is null)
                 throw new ArgumentNullException(nameof(videoManifest));
+            if (IsFrozen)
+                throw new InvalidOperationException("Video is frozen");
 
             if (_videoManifests.Any(i => i.Manifest.Hash == videoManifest.Manifest.Hash))
             {
@@ -78,9 +80,18 @@ namespace Etherna.EthernaIndex.Domain.Models
         {
             if (videoManifest is null)
                 throw new ArgumentNullException(nameof(videoManifest));
+            if (IsFrozen)
+                throw new InvalidOperationException("Video is frozen");
 
             return _videoManifests.Remove(videoManifest);
         }
 
+        [PropertyAlterer(nameof(IsFrozen))]
+        [PropertyAlterer(nameof(VideoManifests))]
+        public virtual void SetAsUnsuitable()
+        {
+            IsFrozen = true;
+            _videoManifests.Clear();
+        }
     }
 }
