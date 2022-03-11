@@ -175,15 +175,15 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports
             foreach (var item in unsuitableVideoReports)
                 item.SetArchived();
 
+            // Create ManualReview.
+            await videoReportService.CreateManualReviewAsync(
+                new ManualVideoReview(user, "", isValid, video, videoManifest));
+
             // Eventually set video as unsuitable.
             if (!isValid)
                 video.SetAsUnsuitable();
 
             await indexDbContext.SaveChangesAsync();
-
-            // Create ManualReview.
-            await videoReportService.CreateManualReviewAsync(
-                new ManualVideoReview(user, "", isValid, video, videoManifest));
         }
     }
 }
