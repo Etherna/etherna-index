@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Etherna.EthernaIndex.Domain.Events;
+using System;
 using System.Linq;
 
 namespace Etherna.EthernaIndex.Domain.Models
@@ -31,6 +32,9 @@ namespace Etherna.EthernaIndex.Domain.Models
 
             ManifestHash = videoManifest.Manifest.Hash;
             VideoId = video.Id;
+
+            if (!isValid)
+                AddEvent(new ManualVideoReviewRejectedEvent(video));
         }
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         protected ManualVideoReview() { }

@@ -13,6 +13,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="EthernaSSL" Version="0.1.0-alpha.18" />
+    <PackageReference Include="Etherna.DomainEvents.AspNetCore" Version="1.3.0" />
     <ProjectReference Include="..\EthernaIndex.Domain\EthernaIndex.Domain.csproj" />
     <ProjectReference Include="..\EthernaIndex.Swarm\EthernaIndex.Swarm.csproj" />
   </ItemGroup>

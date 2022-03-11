@@ -17,6 +17,7 @@ using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.Services.Domain;
 using Etherna.EthernaIndex.Services.Tasks;
+using Etherna.MongoDB.Driver;
 using Etherna.MongoDB.Driver.Linq;
 using Hangfire;
 using Hangfire.States;
@@ -139,14 +140,12 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
         private readonly IBackgroundJobClient backgroundJobClient;
         private readonly IIndexDbContext indexDbContext;
         private readonly IUserService userService;
-        private readonly IVideoService videoReportService;
 
         // Constructor.
         public ManifestModel(
             IBackgroundJobClient backgroundJobClient,
             IIndexDbContext indexDbContext,
-            IUserService userService,
-            IVideoService videoReportService)
+            IUserService userService)
         {
             if (indexDbContext is null)
                 throw new ArgumentNullException(nameof(indexDbContext));
@@ -154,7 +153,6 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
             this.backgroundJobClient = backgroundJobClient;
             this.indexDbContext = indexDbContext;
             this.userService = userService;
-            this.videoReportService = videoReportService;
         }
 
         // Properties.
@@ -215,8 +213,18 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
             var video = await indexDbContext.Videos.FindOneAsync(videoId);
             var videoManifest = await indexDbContext.VideoManifests.FindOneAsync(vm => vm.Manifest.Hash == manifestHash);
 
-            await videoReportService.CreateManualReviewAsync(
-                new ManualVideoReview(user, "", isValid, video, videoManifest));
+            // Archive reports.
+            var unsuitableVideoReports = await indexDbContext.UnsuitableVideoReports.QueryElementsAsync(
+                uvr => uvr.Where(i => i.Video.Id == video.Id)
+                .ToListAsync());
+
+            foreach (var item in unsuitableVideoReports)
+                item.SetArchived();
+
+            // Create ManualReview.
+            await indexDbContext.ManualVideoReviews.CreateAsync(new ManualVideoReview(user, "", isValid, video, videoManifest));
+
+            await indexDbContext.SaveChangesAsync();
         }
     }
 }

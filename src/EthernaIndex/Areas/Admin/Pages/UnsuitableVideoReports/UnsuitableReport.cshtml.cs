@@ -89,20 +89,17 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports
         // Fields.
         private readonly IIndexDbContext indexDbContext;
         private readonly IUserService userService;
-        private readonly IVideoService videoReportService;
 
         // Constructor.
         public UnsuitableReportModel(
             IIndexDbContext indexDbContext,
-            IUserService userService,
-            IVideoService videoReportService)
+            IUserService userService)
         {
             if (indexDbContext is null)
                 throw new ArgumentNullException(nameof(indexDbContext));
 
             this.indexDbContext = indexDbContext;
             this.userService = userService;
-            this.videoReportService = videoReportService;
         }
 
         // Properties.
@@ -175,15 +172,10 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports
             foreach (var item in unsuitableVideoReports)
                 item.SetArchived();
 
-            // Eventually set video as unsuitable.
-            if (!isValid)
-                video.SetAsUnsuitable();
+            // Create ManualReview.
+            await indexDbContext.ManualVideoReviews.CreateAsync(new ManualVideoReview(user, "", isValid, video, videoManifest));
 
             await indexDbContext.SaveChangesAsync();
-
-            // Create ManualReview.
-            await videoReportService.CreateManualReviewAsync(
-                new ManualVideoReview(user, "", isValid, video, videoManifest));
         }
     }
 }
