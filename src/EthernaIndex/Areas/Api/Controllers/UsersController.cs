@@ -96,21 +96,5 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         public Task<UserDto> GetCurrentUserAsync() =>
             controllerService.GetCurrentUserAsync();
-
-        // Put.
-
-        /// <summary>
-        /// Update current user identity manifest.
-        /// </summary>
-        /// <param name="manifestHash">The new identity manifest hash. Null for remove</param>
-        [HttpPut("current")]
-        [Authorize]
-        [SimpleExceptionFilter]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public Task UpdateCurrentUserIdentityManifestAsync(
-            string? manifestHash) =>
-            controllerService.UpdateCurrentUserIdentityManifestAsync(manifestHash);
     }
 }

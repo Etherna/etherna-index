@@ -47,7 +47,6 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
             if (lastValidManifest is not null)
                 LastValidManifest = new VideoManifestDto(lastValidManifest);
             OwnerAddress = userSharedInfo.EtherAddress;
-            OwnerIdentityManifest = video.Owner.IdentityManifest?.Hash;
             TotDownvotes = video.TotDownvotes;
             TotUpvotes = video.TotUpvotes;
         }
@@ -57,7 +56,6 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
         public DateTime CreationDateTime { get; }
         public VideoManifestDto? LastValidManifest { get; }
         public string OwnerAddress { get; }
-        public string? OwnerIdentityManifest { get; }
         public long TotDownvotes { get; }
         public long TotUpvotes { get; }
     }
