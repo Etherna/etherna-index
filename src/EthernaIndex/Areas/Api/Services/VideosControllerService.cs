@@ -223,7 +223,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             // Add or Update UnsuitableVideoReport.
             var videoReport = await indexDbContext.UnsuitableVideoReports
                 .TryFindOneAsync(v => v.VideoManifest.Id == manifest.Id &&
-                                      v.ReporterAuthor.Id == userSharedInfo.Id);
+                                      v.ReporterAuthor.SharedInfoId == userSharedInfo.Id);
 
             if (videoReport is null)
             {
