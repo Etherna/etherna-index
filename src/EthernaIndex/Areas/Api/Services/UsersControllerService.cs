@@ -99,17 +99,5 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
                 .PaginateDescending(v => v.CreationDateTime, page, take)
                 .Select(v => new VideoDto(v, v.LastValidManifest, sharedInfo));
         }
-
-        public async Task UpdateCurrentUserIdentityManifestAsync(string? hash)
-        {
-            var address = httpContextAccessor.HttpContext!.User.GetEtherAddress();
-            var (user, _) = await userService.FindUserAsync(address);
-
-            user.IdentityManifest = hash is null ?
-                null :
-                new SwarmContentHash(hash);
-
-            await indexContext.SaveChangesAsync();
-        }
     }
 }

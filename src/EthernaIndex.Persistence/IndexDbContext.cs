@@ -60,7 +60,6 @@ namespace Etherna.EthernaIndex.Persistence
             {
                 IndexBuilders = new[]
                 {
-                    (Builders<User>.IndexKeys.Ascending(u => u.IdentityManifest!.Hash), new CreateIndexOptions<User>{ Sparse = true, Unique = true }),
                     (Builders<User>.IndexKeys.Ascending(u => u.SharedInfoId), new CreateIndexOptions<User> { Unique = true })
                 }
             });

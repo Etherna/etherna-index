@@ -29,14 +29,12 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
 
             CreationDateTime = comment.CreationDateTime;
             OwnerAddress = userSharedInfo.EtherAddress;
-            OwnerIdentityManifest = comment.Author.IdentityManifest?.Hash;
             Text = comment.Text;
             VideoId = comment.Video.Id;
         }
 
         public DateTime CreationDateTime { get; }
         public string OwnerAddress { get; }
-        public string? OwnerIdentityManifest { get; }
         public string Text { get; }
         public string VideoId { get; }
     }

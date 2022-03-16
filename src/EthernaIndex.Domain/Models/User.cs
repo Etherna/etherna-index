@@ -36,8 +36,6 @@ namespace Etherna.EthernaIndex.Domain.Models
         protected User() { }
 
         // Properties.
-        public virtual SwarmContentHash? IdentityManifest { get; set; }
-
         /* SharedInfo is encapsulable with resolution of https://etherna.atlassian.net/browse/MODM-101.
          * With encapsulation we can expose also EtherAddress and EtherPreviousAddresses properties
          * pointing to SharedInfo internal property.
