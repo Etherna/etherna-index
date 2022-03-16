@@ -43,7 +43,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
         }
 
         /// <summary>
-        /// The full entity serializer without relations
+        /// Minimal reference to the entity
         /// </summary>
         public static ReferenceSerializer<Video, string> ReferenceSerializer(
             IDbContext dbContext,
