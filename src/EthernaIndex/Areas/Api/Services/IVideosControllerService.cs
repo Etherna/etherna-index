@@ -26,8 +26,8 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         Task<string> CreateAsync(VideoCreateInput videoInput, ClaimsPrincipal userClaims);
         Task<CommentDto> CreateCommentAsync(string id, string text, ClaimsPrincipal userClaims);
         Task DeleteAsync(string id, ClaimsPrincipal userClaims);
-        Task<VideoDto> FindByIdAsync(string id);
-        Task<VideoDto> FindByManifestHashAsync(string hash);
+        Task<VideoDto> FindByIdAsync(string id, ClaimsPrincipal userClaims);
+        Task<VideoDto> FindByManifestHashAsync(string hash, ClaimsPrincipal userClaims);
         Task<IEnumerable<VideoDto>> GetLastUploadedVideosAsync(int page, int take);
         Task<ManifestStatusDto> GetValidationStatusByHashAsync(string manifestHash);
         Task<IEnumerable<ManifestStatusDto>> GetValidationStatusByIdAsync(string id);

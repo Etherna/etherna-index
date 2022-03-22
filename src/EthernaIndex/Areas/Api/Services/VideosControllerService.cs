@@ -129,7 +129,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             logger.AuthorDeletedVideo(id);
         }
 
-        public async Task<VideoDto> FindByIdAsync(string id)
+        public async Task<VideoDto> FindByIdAsync(string id, ClaimsPrincipal userClaims)
         {
             // Get Video.
             var video = await indexDbContext.Videos.FindOneAsync(v => v.Id == id);
@@ -137,21 +137,38 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             // Get VideoManifest.
             var lastValidManifest = video.LastValidManifest;
 
-            // Get User.
-            var sharedInfo = await sharedDbContext.UsersInfo.FindOneAsync(video.Owner.SharedInfoId);
-
-            return new VideoDto(video, lastValidManifest, sharedInfo);
-        }
-
-        public async Task<VideoDto> FindByManifestHashAsync(string hash)
-        {
-            var videoManifest = await indexDbContext.VideoManifests.FindOneAsync(vm => vm.Manifest.Hash == hash);
-
-            var video = await indexDbContext.Videos.FindOneAsync(v => v.VideoManifests.Any(vm => vm.Id == videoManifest.Id));
-
+            // Get Owner User.
             var ownerSharedInfo = await sharedDbContext.UsersInfo.FindOneAsync(video.Owner.SharedInfoId);
 
-            return new VideoDto(video, videoManifest, ownerSharedInfo);
+            // Get Current User.
+            var currentUserSharedInfo = await sharedDbContext.UsersInfo.FindOneAsync(ui => ui.EtherAddress == userClaims.GetEtherAddress());
+
+            // Get Vote.
+            var vote = await indexDbContext.Votes.FindOneAsync(v => v.Video.Id == id &&
+                                                                     v.Owner.SharedInfoId == currentUserSharedInfo.Id);
+
+            return new VideoDto(video, lastValidManifest, ownerSharedInfo, vote?.Value);
+        }
+
+        public async Task<VideoDto> FindByManifestHashAsync(string hash, ClaimsPrincipal userClaims)
+        {
+            // Get Video.
+            var videoManifest = await indexDbContext.VideoManifests.FindOneAsync(vm => vm.Manifest.Hash == hash);
+
+            // Get VideoManifest.
+            var video = await indexDbContext.Videos.FindOneAsync(v => v.VideoManifests.Any(vm => vm.Id == videoManifest.Id));
+
+            // Get Owner User.
+            var ownerSharedInfo = await sharedDbContext.UsersInfo.FindOneAsync(video.Owner.SharedInfoId);
+
+            // Get Current User.
+            var currentUserSharedInfo = await sharedDbContext.UsersInfo.FindOneAsync(ui => ui.EtherAddress == userClaims.GetEtherAddress());
+
+            // Get Vote.
+            var vote = await indexDbContext.Votes.FindOneAsync(v => v.Video.Id == video.Id &&
+                                                                     v.Owner.SharedInfoId == currentUserSharedInfo.Id);
+
+            return new VideoDto(video, videoManifest, ownerSharedInfo, vote?.Value);
         }
 
         public async Task<IEnumerable<VideoDto>> GetLastUploadedVideosAsync(int page, int take)
@@ -170,7 +187,8 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
                 videoDtos.Add(new VideoDto(
                     video,
                     video.LastValidManifest,
-                    ownerSharedInfo));
+                    ownerSharedInfo,
+                    null));
             }
 
             return videoDtos;
