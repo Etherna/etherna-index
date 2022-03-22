@@ -63,13 +63,19 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         public async Task<string> CreateAsync(VideoCreateInput videoInput, ClaimsPrincipal userClaims)
         {
             var address = userClaims.GetEtherAddress();
-            var (user, _) = await userService.FindUserAsync(address);
+            var (user, currentUserSharedInfo) = await userService.FindUserAsync(address);
 
             var videoManifest = await indexDbContext.VideoManifests.TryFindOneAsync(c => c.Manifest.Hash == videoInput.ManifestHash);
 
             if (videoManifest is not null)
             {
-                throw new DuplicatedManifestHashException(videoInput.ManifestHash);
+                var existingVideo = await indexDbContext.Videos
+                    .FindOneAsync(v => v.VideoManifests.Any(vm => vm.Manifest.Hash == videoManifest.Manifest.Hash));
+
+                if (existingVideo.Owner.SharedInfoId != currentUserSharedInfo.Id)
+                    throw new DuplicatedManifestHashException(videoInput.ManifestHash);
+
+                return existingVideo.Id;
             }
 
             // Create Video.
