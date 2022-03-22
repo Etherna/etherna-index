@@ -25,6 +25,7 @@ using Nethereum.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Areas.Api.Services
@@ -75,6 +76,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         public async Task<IEnumerable<UserDto>> GetUsersAsync(
             bool onlyWithVideo, int page, int take)
         {
+            //TODO for rewiew. I think in this case not need to return Invalid video
             var users = await indexContext.Users.QueryElementsAsync(elements =>
                 elements.Where(u => !onlyWithVideo || u.Videos.Any(v => v.IsValid))
                         .PaginateDescending(u => u.CreationDateTime, page, take)
@@ -90,12 +92,14 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             return userDtos;
         }
 
-        public async Task<IEnumerable<VideoDto>> GetVideosAsync(string address, int page, int take)
+        public async Task<IEnumerable<VideoDto>> GetVideosAsync(string address, int page, int take, ClaimsPrincipal userClaims)
         {
+            var requestByVideoOwner = address == userClaims.GetEtherAddress();
+
             var (user, sharedInfo) = await userService.FindUserAsync(address);
 
             return user.Videos
-                .Where(v => v.IsValid)
+                .Where(v => requestByVideoOwner || v.IsValid)
                 .PaginateDescending(v => v.CreationDateTime, page, take)
                 .Select(v => new VideoDto(v, v.LastValidManifest, sharedInfo));
         }
