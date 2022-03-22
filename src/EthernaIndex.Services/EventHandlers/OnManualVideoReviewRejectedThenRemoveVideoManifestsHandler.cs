@@ -1,6 +1,7 @@
 ﻿using Etherna.DomainEvents;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Events;
+using Etherna.EthernaIndex.Domain.Models;
 using Etherna.MongoDB.Driver;
 using Etherna.MongoDB.Driver.Linq;
 using System;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Services.EventHandlers
 {
-    class OnManualVideoReviewRejectedThenRemoveVideoManifestsHandler : EventHandlerBase<ManualVideoReviewRejectedEvent>
+    class OnManualVideoReviewRejectedThenRemoveVideoManifestsHandler : EventHandlerBase<EntityCreatedEvent<ManualVideoReview>>
     {
         // Fields.
         private readonly IIndexDbContext indexDbContext;
@@ -22,16 +23,17 @@ namespace Etherna.EthernaIndex.Services.EventHandlers
         }
 
         // Methods.
-        public override async Task HandleAsync(ManualVideoReviewRejectedEvent @event)
+        public override async Task HandleAsync(EntityCreatedEvent<ManualVideoReview> @event)
         {
             if (@event is null)
                 throw new ArgumentNullException(nameof(@event));
+            if (@event.Entity.IsValid)
+                return;
 
-            // Set video status to InvalidContent.
-            @event.Video.SetAsUnsuitable();
+            var video = await indexDbContext.Videos.FindOneAsync(@event.Entity.VideoId);
 
             // Remove all VideoManifests from video and database.
-            var manifestIds = @event.Video.VideoManifests.Select(vm => vm.Id);
+            var manifestIds = video.VideoManifests.Select(vm => vm.Id);
             var videoManifests = await indexDbContext.VideoManifests.QueryElementsAsync(elements =>
                 elements.Where(vm => manifestIds.Contains(vm.Id))
                 .ToListAsync());
@@ -39,7 +41,11 @@ namespace Etherna.EthernaIndex.Services.EventHandlers
             foreach (var videoManifest in videoManifests)
                 await indexDbContext.VideoManifests.DeleteAsync(videoManifest);
 
+            // Set video status to InvalidContent.
+            video.SetAsUnsuitable();
+
             await indexDbContext.SaveChangesAsync();
         }
+
     }
 }
