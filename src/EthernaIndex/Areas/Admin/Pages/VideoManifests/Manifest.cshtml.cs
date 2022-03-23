@@ -62,7 +62,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
                 Thumbnail = videoManifest.Thumbnail != null ? new SwarmImageRawDto
                     (
                         videoManifest.Thumbnail.AspectRatio,
-                        videoManifest.Thumbnail.BlurHash,
+                        videoManifest.Thumbnail.Blurhash,
                         videoManifest.Thumbnail.Sources.ToDictionary(i => i.Key, i => i.Value)
                     ) : null;
             }
