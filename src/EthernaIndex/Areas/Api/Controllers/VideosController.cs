@@ -54,7 +54,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public Task<VideoDto> FindByIdAsync(
             [Required] string id) =>
-            service.FindByIdAsync(id);
+            service.FindByIdAsync(id, User);
 
         /// <summary>
         /// Get paginated video comments by id
@@ -113,7 +113,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public Task<VideoDto> FindByManifestHashAsync(
             [Required] string hash) =>
-            service.FindByManifestHashAsync(hash);
+            service.FindByManifestHashAsync(hash, User);
 
         /// <summary>
         /// Get validation info by manifest hash.

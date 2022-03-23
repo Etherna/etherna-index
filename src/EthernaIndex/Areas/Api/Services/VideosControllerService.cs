@@ -144,7 +144,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             var currentUserSharedInfo = await sharedDbContext.UsersInfo.FindOneAsync(ui => ui.EtherAddress == userClaims.GetEtherAddress());
 
             // Get Vote.
-            var vote = await indexDbContext.Votes.FindOneAsync(v => v.Video.Id == id &&
+            var vote = await indexDbContext.Votes.TryFindOneAsync(v => v.Video.Id == id &&
                                                                      v.Owner.SharedInfoId == currentUserSharedInfo.Id);
 
             return new VideoDto(video, lastValidManifest, ownerSharedInfo, vote?.Value);
@@ -165,7 +165,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             var currentUserSharedInfo = await sharedDbContext.UsersInfo.FindOneAsync(ui => ui.EtherAddress == userClaims.GetEtherAddress());
 
             // Get Vote.
-            var vote = await indexDbContext.Votes.FindOneAsync(v => v.Video.Id == video.Id &&
+            var vote = await indexDbContext.Votes.TryFindOneAsync(v => v.Video.Id == video.Id &&
                                                                      v.Owner.SharedInfoId == currentUserSharedInfo.Id);
 
             return new VideoDto(video, videoManifest, ownerSharedInfo, vote?.Value);
