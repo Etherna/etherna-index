@@ -137,8 +137,8 @@ namespace Etherna.EthernaIndex
                 .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
                 {
                     // Set properties.
-                    options.Cookie.Name = CommonConsts.SharedCookieApplicationName;
                     options.AccessDeniedPath = "/AccessDenied";
+                    options.Cookie.Name = CommonConsts.SharedCookieApplicationName;
 
                     if (Environment.IsProduction())
                         options.Cookie.Domain = ".etherna.io";
