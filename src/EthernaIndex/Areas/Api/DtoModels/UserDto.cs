@@ -30,12 +30,10 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
 
             Address = userSharedInfo.EtherAddress;
             CreationDateTime = user.CreationDateTime;
-            IdentityManifest = user.IdentityManifest?.Hash;
         }
 
         // Properties.
         public string Address { get; }
         public DateTime CreationDateTime { get; }
-        public string? IdentityManifest { get; }
     }
 }
