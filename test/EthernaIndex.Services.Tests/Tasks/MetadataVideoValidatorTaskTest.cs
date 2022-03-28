@@ -35,7 +35,7 @@ namespace EthernaIndex.Services.Tests.Tasks
     public class MetadataVideoValidatorTaskTest
     {
         // Fields.
-        private readonly MetadataVideoValidatorTask metadataVideoValidatorTask;
+        private readonly IMetadataVideoValidatorTask metadataVideoValidatorTask;
         private readonly string manifestHash = "1a345a1d73fd8f28d71e6b03d2e42f44721db94b734c2edcfe6fcd48b76a74f9";
         private readonly string videoId = "videoId";
         private readonly string address = "0x300a31dBAB42863F4b0bEa3E03d0aa89D47DB3f0";
