@@ -95,7 +95,7 @@ namespace Etherna.EthernaIndex.Services.Tasks
 
                 videoManifest.SuccessfulValidation(
                     metadataDto.Description,
-                    metadataDto.Duration!.Value,
+                    metadataDto.Duration,
                     metadataDto.OriginalQuality ?? "",
                     metadataDto.Title,
                     swarmImageRaw,

@@ -8,6 +8,11 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
+#if DEBUG_MOCKUP_SWARM
+#pragma warning disable CA1823 // Avoid unused private fields
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
+#endif
+
 namespace Etherna.EthernaIndex.Swarm
 {
     public class SwarmService : ISwarmService
@@ -15,6 +20,10 @@ namespace Etherna.EthernaIndex.Swarm
         // Fields.
         private readonly IBeeNodeClient BeeNodeClient;
         private readonly SwarmSettings SwarmSettings;
+
+#if DEBUG_MOCKUP_SWARM
+        private readonly System.Collections.Generic.Dictionary<string, object> SwarmObjectMockups = new(); //hash->object
+#endif
 
         // Constructors.
         public SwarmService(IOptions<SwarmSettings> swarmSettings)
@@ -40,21 +49,31 @@ namespace Etherna.EthernaIndex.Swarm
             if (BeeNodeClient.GatewayClient is null)
                 throw new InvalidOperationException(nameof(BeeNodeClient.GatewayClient));
 
-            using var stream = await BeeNodeClient.GatewayClient.GetFileAsync(manifestHash);
-            using var reader = new StreamReader(stream);
             try
             {
+#if !DEBUG_MOCKUP_SWARM
+                using var stream = await BeeNodeClient.GatewayClient.GetFileAsync(manifestHash);
+                using var reader = new StreamReader(stream);
+
                 var metadataVideoDto = JsonSerializer.Deserialize<MetadataVideoDto>(await reader.ReadToEndAsync(), _jsonDeserializeOptions);
                 if (metadataVideoDto is null)
                     throw new MetadataVideoException("Empty json");
 
                 return metadataVideoDto;
+#else
+                return (MetadataVideoDto)SwarmObjectMockups[manifestHash];
+#endif
             }
             catch(Exception ex)
             {
                 throw new MetadataVideoException("Unable to cast json", ex);
             }
         }
+
+#if DEBUG_MOCKUP_SWARM
+        public void SetupHashMockup(string hash, object returnedObject) =>
+            SwarmObjectMockups[hash] = returnedObject;
+#endif
 
         // Helpers.
         private static readonly JsonSerializerOptions _jsonDeserializeOptions = new()
@@ -64,3 +83,8 @@ namespace Etherna.EthernaIndex.Swarm
         };
     }
 }
+
+#if DEBUG_MOCKUP_SWARM
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
+#pragma warning restore CA1823 // Avoid unused private fields
+#endif
