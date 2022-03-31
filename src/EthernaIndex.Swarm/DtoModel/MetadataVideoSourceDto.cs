@@ -7,7 +7,7 @@
             int? bitrate,
             string quality,
             string reference,
-            int? size)
+            long size)
         {
             Bitrate = bitrate;
             Quality = quality;
@@ -19,6 +19,6 @@
         public int? Bitrate { get; set; }
         public string Quality { get; set; }
         public string Reference { get; set; }
-        public int? Size { get; set; }
+        public long Size { get; set; }
     }
 }

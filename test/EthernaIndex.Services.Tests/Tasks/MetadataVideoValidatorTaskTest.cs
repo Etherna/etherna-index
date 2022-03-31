@@ -82,8 +82,7 @@ namespace EthernaIndex.Services.Tests.Tasks
                 new List<MetadataVideoSourceDto>
                 {
                     new MetadataVideoSourceDto(1, "1080", "Ref1080", 32),
-                    new MetadataVideoSourceDto(null, "720", "Ref720", 32),
-                    new MetadataVideoSourceDto(1, "360", "Ref360", null)
+                    new MetadataVideoSourceDto(null, "720", "Ref720", 32)
                 });
             swarmService
                 .Setup(x => x.GetMetadataVideoAsync(manifestHash))
@@ -110,11 +109,6 @@ namespace EthernaIndex.Services.Tests.Tasks
                     i.Quality == "720" &&
                     i.Reference == "Ref720" &&
                     i.Size == 32);
-            Assert.Contains(videoManifest.Sources,
-                i => i.Bitrate == 1 &&
-                    i.Quality == "360" &&
-                    i.Reference == "Ref360" &&
-                    i.Size == null);
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
             Assert.Equal(manifestHash, video.LastValidManifest.Manifest.Hash);
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
@@ -134,8 +128,7 @@ namespace EthernaIndex.Services.Tests.Tasks
                 new List<MetadataVideoSourceDto>
                 {
                     new MetadataVideoSourceDto(1, "1080", "Ref1080", 32),
-                    new MetadataVideoSourceDto(null, "720", "Ref720", 32),
-                    new MetadataVideoSourceDto(1, "360", "Ref360", null)
+                    new MetadataVideoSourceDto(null, "720", "Ref720", 32)
                 });
             swarmService
                 .Setup(x => x.GetMetadataVideoAsync(manifestHash))
@@ -251,8 +244,7 @@ namespace EthernaIndex.Services.Tests.Tasks
                 new List<MetadataVideoSourceDto>
                 {
                     new MetadataVideoSourceDto(1, "1080", "Ref1080", 32),
-                    new MetadataVideoSourceDto(null, "720", "", 32),
-                    new MetadataVideoSourceDto(1, "360", "Ref360", null)
+                    new MetadataVideoSourceDto(null, "720", "", 32)
                 });
             swarmService
                 .Setup(x => x.GetMetadataVideoAsync(manifestHash))
@@ -286,8 +278,7 @@ namespace EthernaIndex.Services.Tests.Tasks
                 new List<MetadataVideoSourceDto>
                 {
                     new MetadataVideoSourceDto(1, "", "Ref1080", 32),
-                    new MetadataVideoSourceDto(null, "720", "Ref720", 32),
-                    new MetadataVideoSourceDto(1, "360", "Ref360", null)
+                    new MetadataVideoSourceDto(null, "720", "Ref720", 32)
                 });
             swarmService
                 .Setup(x => x.GetMetadataVideoAsync(manifestHash))
@@ -321,8 +312,7 @@ namespace EthernaIndex.Services.Tests.Tasks
                 new List<MetadataVideoSourceDto>
                 {
                     new MetadataVideoSourceDto(1, "1080", "Ref1080", 32),
-                    new MetadataVideoSourceDto(null, "720", "Ref720", 32),
-                    new MetadataVideoSourceDto(1, "360", "Ref360", null)
+                    new MetadataVideoSourceDto(null, "720", "Ref720", 32)
                 });
             swarmService
                 .Setup(x => x.GetMetadataVideoAsync(manifestHash))
@@ -355,8 +345,7 @@ namespace EthernaIndex.Services.Tests.Tasks
                 new List<MetadataVideoSourceDto>
                 {
                     new MetadataVideoSourceDto(1, "", "Ref1080", 32),
-                    new MetadataVideoSourceDto(null, "720", "Ref720", 32),
-                    new MetadataVideoSourceDto(1, "360", "Ref360", null)
+                    new MetadataVideoSourceDto(null, "720", "Ref720", 32)
                 });
             swarmService
                 .Setup(x => x.GetMetadataVideoAsync(manifestHash))
@@ -387,8 +376,7 @@ namespace EthernaIndex.Services.Tests.Tasks
                 new List<MetadataVideoSourceDto>
                 {
                     new MetadataVideoSourceDto(1, "1080", "Ref1080", 32),
-                    new MetadataVideoSourceDto(null, "720", "Ref720", 32),
-                    new MetadataVideoSourceDto(1, "360", "Ref360", null)
+                    new MetadataVideoSourceDto(null, "720", "Ref720", 32)
                 });
             swarmService
                 .Setup(x => x.GetMetadataVideoAsync(manifestHash))
