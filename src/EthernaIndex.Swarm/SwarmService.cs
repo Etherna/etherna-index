@@ -3,10 +3,18 @@ using Etherna.BeeNet.Clients.GatewayApi;
 using Etherna.EthernaIndex.Swarm.DtoModel;
 using Microsoft.Extensions.Options;
 using System;
-using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+
+#if DEBUG_MOCKUP_SWARM
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
+using System.Linq;
+#else
+using System.IO;
+#endif
 
 #if DEBUG_MOCKUP_SWARM
 #pragma warning disable CA1823 // Avoid unused private fields
@@ -22,7 +30,8 @@ namespace Etherna.EthernaIndex.Swarm
         private readonly SwarmSettings SwarmSettings;
 
 #if DEBUG_MOCKUP_SWARM
-        private readonly System.Collections.Generic.Dictionary<string, object> SwarmObjectMockups = new(); //hash->object
+        private readonly Dictionary<string, object> SwarmObjectMockups = new(); //hash->object
+        private readonly Random random = new();
 #endif
 
         // Constructors.
@@ -71,8 +80,37 @@ namespace Etherna.EthernaIndex.Swarm
         }
 
 #if DEBUG_MOCKUP_SWARM
+        [SuppressMessage("Security", "CA5394:Do not use insecure randomness", Justification = "Not critical")]
+        public string GenerateNewHash()
+        {
+            var digits = 64;
+
+            byte[] buffer = new byte[digits / 2];
+            random.NextBytes(buffer);
+            string result = string.Concat(buffer.Select(x => x.ToString("X2", CultureInfo.InvariantCulture)).ToArray());
+            if (digits % 2 == 0)
+                return result;
+            return result + random.Next(16).ToString("X", CultureInfo.InvariantCulture);
+        }
+
         public void SetupHashMockup(string hash, object returnedObject) =>
             SwarmObjectMockups[hash] = returnedObject;
+
+        public MetadataVideoDto SetupNewMetadataVideoMockup(string manifestHash)
+        {
+            var manifest = new MetadataVideoDto(
+                "Mocked sample video",
+                null,
+                "720p",
+                "0x5E70C176b03BFe5113E78e920C1C60639E2A1696",
+                420.0f,
+                null,
+                new[] { new MetadataVideoSourceDto(560000, "720p", GenerateNewHash(), 100000000) });
+
+            SetupHashMockup(manifestHash, manifest);
+
+            return manifest;
+        }
 #endif
 
         // Helpers.

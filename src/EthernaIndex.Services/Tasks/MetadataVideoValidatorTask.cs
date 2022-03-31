@@ -52,6 +52,9 @@ namespace Etherna.EthernaIndex.Services.Tasks
             // Get metadata.
             try
             {
+#if DEBUG_MOCKUP_SWARM
+                swarmService.SetupNewMetadataVideoMockup(manifestHash);
+#endif
                 metadataDto = await swarmService.GetMetadataVideoAsync(manifestHash);
             }
             catch (MetadataVideoException ex)
@@ -68,8 +71,8 @@ namespace Etherna.EthernaIndex.Services.Tasks
                 validationErrors.Add(new ErrorDetail(ValidationErrorType.MissingTitle, ValidationErrorType.MissingTitle.ToString()));
 
             // Check Video Format.
-            var validationVideoSources = CheckVideoSources(metadataDto.Sources);
-            validationErrors.AddRange(validationVideoSources);
+            var videoSourcesErrors = CheckVideoSources(metadataDto.Sources);
+            validationErrors.AddRange(videoSourcesErrors);
 
             SwarmImageRaw? swarmImageRaw = null;
             if (metadataDto.Thumbnail is not null)

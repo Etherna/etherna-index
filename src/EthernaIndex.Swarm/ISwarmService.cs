@@ -8,7 +8,9 @@ namespace Etherna.EthernaIndex.Swarm
         Task<MetadataVideoDto> GetMetadataVideoAsync(string manifestHash);
 
 #if DEBUG_MOCKUP_SWARM
+        string GenerateNewHash();
         void SetupHashMockup(string hash, object returnedObject);
+        MetadataVideoDto SetupNewMetadataVideoMockup(string manifestHash);
 #endif
     }
 }
