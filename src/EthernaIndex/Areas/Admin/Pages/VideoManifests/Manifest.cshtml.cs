@@ -165,19 +165,17 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
         }
 
         public async Task<IActionResult> OnPostApproveVideo(
-            string videoId,
-            string manifestHash)
+            string videoId)
         {
-            await CreateReviewAsync(videoId, manifestHash, true);
+            await CreateReviewAsync(videoId, true);
 
             return RedirectToPage("Index");
         }
 
         public async Task<IActionResult> OnPostRejectVideo(
-            string videoId,
-            string manifestHash)
+            string videoId)
         {
-            await CreateReviewAsync(videoId, manifestHash, false);
+            await CreateReviewAsync(videoId, false);
 
             return RedirectToPage("Index");
         }
@@ -206,15 +204,14 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
             VideoManifest = new VideoManifestDto(video, videoManifest);
         }
 
-        private async Task CreateReviewAsync(string videoId, string manifestHash, bool isValid)
+        private async Task CreateReviewAsync(string videoId, bool isValid)
         {
             var address = HttpContext!.User.GetEtherAddress();
             var (user, _) = await userService.FindUserAsync(address);
             var video = await indexDbContext.Videos.FindOneAsync(videoId);
-            var videoManifest = await indexDbContext.VideoManifests.FindOneAsync(vm => vm.Manifest.Hash == manifestHash);
 
             // Create ManualReview.
-            await indexDbContext.ManualVideoReviews.CreateAsync(new ManualVideoReview(user, "", isValid, video, videoManifest));
+            await indexDbContext.ManualVideoReviews.CreateAsync(new ManualVideoReview(user, "", isValid, video));
         }
     }
 }

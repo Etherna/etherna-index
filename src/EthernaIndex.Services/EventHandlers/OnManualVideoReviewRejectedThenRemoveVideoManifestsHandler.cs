@@ -29,7 +29,7 @@ namespace Etherna.EthernaIndex.Services.EventHandlers
             if (@event.Entity.IsValid)
                 return;
 
-            var video = await indexDbContext.Videos.FindOneAsync(@event.Entity.VideoId);
+            var video = await indexDbContext.Videos.FindOneAsync(@event.Entity.Video.Id);
 
             // Delete unsitable manifests.
             //save manifest list
