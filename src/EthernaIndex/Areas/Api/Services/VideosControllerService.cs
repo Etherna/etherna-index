@@ -60,9 +60,9 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         }
 
         // Methods.
-        public async Task<string> CreateAsync(VideoCreateInput videoInput, ClaimsPrincipal userClaims)
+        public async Task<string> CreateAsync(VideoCreateInput videoInput, ClaimsPrincipal currentUserClaims)
         {
-            var address = userClaims.GetEtherAddress();
+            var address = currentUserClaims.GetEtherAddress();
             var (user, _) = await userService.FindUserAsync(address);
 
             var videoManifest = await indexDbContext.VideoManifests.TryFindOneAsync(c => c.Manifest.Hash == videoInput.ManifestHash);
@@ -96,9 +96,9 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             return video.Id;
         }
 
-        public async Task<CommentDto> CreateCommentAsync(string id, string text, ClaimsPrincipal userClaims)
+        public async Task<CommentDto> CreateCommentAsync(string id, string text, ClaimsPrincipal currentUserClaims)
         {
-            var address = userClaims.GetEtherAddress();
+            var address = currentUserClaims.GetEtherAddress();
             var (user, userSharedInfo) = await userService.FindUserAsync(address);
             var video = await indexDbContext.Videos.FindOneAsync(id);
 
@@ -111,10 +111,10 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             return new CommentDto(comment, userSharedInfo);
         }
 
-        public async Task DeleteAsync(string id, ClaimsPrincipal userClaims)
+        public async Task DeleteAsync(string id, ClaimsPrincipal currentUserClaims)
         {
             // Get data.
-            var address = userClaims.GetEtherAddress();
+            var address = currentUserClaims.GetEtherAddress();
             var (currentUser, _) = await userService.FindUserAsync(address);
 
             var video = await indexDbContext.Videos.FindOneAsync(id);
@@ -129,7 +129,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             logger.AuthorDeletedVideo(id);
         }
 
-        public async Task<VideoDto> FindByIdAsync(string id, ClaimsPrincipal userClaims)
+        public async Task<VideoDto> FindByIdAsync(string id, ClaimsPrincipal currentUserClaims)
         {
             // Get Video.
             var video = await indexDbContext.Videos.FindOneAsync(v => v.Id == id);
@@ -141,7 +141,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             var ownerSharedInfo = await sharedDbContext.UsersInfo.FindOneAsync(video.Owner.SharedInfoId);
 
             // Get Current User.
-            var currentUserSharedInfo = await sharedDbContext.UsersInfo.FindOneAsync(ui => ui.EtherAddress == userClaims.GetEtherAddress());
+            var currentUserSharedInfo = await sharedDbContext.UsersInfo.FindOneAsync(ui => ui.EtherAddress == currentUserClaims.GetEtherAddress());
 
             // Get Vote.
             var vote = await indexDbContext.Votes.TryFindOneAsync(v => v.Video.Id == id &&
@@ -150,7 +150,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             return new VideoDto(video, lastValidManifest, ownerSharedInfo, vote?.Value);
         }
 
-        public async Task<VideoDto> FindByManifestHashAsync(string hash, ClaimsPrincipal userClaims)
+        public async Task<VideoDto> FindByManifestHashAsync(string hash, ClaimsPrincipal currentUserClaims)
         {
             // Get Video.
             var videoManifest = await indexDbContext.VideoManifests.FindOneAsync(vm => vm.Manifest.Hash == hash);
@@ -162,7 +162,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             var ownerSharedInfo = await sharedDbContext.UsersInfo.FindOneAsync(video.Owner.SharedInfoId);
 
             // Get Current User.
-            var currentUserSharedInfo = await sharedDbContext.UsersInfo.FindOneAsync(ui => ui.EtherAddress == userClaims.GetEtherAddress());
+            var currentUserSharedInfo = await sharedDbContext.UsersInfo.FindOneAsync(ui => ui.EtherAddress == currentUserClaims.GetEtherAddress());
 
             // Get Vote.
             var vote = await indexDbContext.Votes.TryFindOneAsync(v => v.Video.Id == video.Id &&
@@ -228,14 +228,14 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             return commentDtos;
         }
 
-        public async Task ReportVideoAsync(string videoId, string manifestHash, string description, ClaimsPrincipal userClaims)
+        public async Task ReportVideoAsync(string videoId, string manifestHash, string description, ClaimsPrincipal currentUserClaims)
         {
             // Get video and manifest.
             var video = await indexDbContext.Videos.FindOneAsync(videoId);
             var manifest = video.VideoManifests.First(m => m.Manifest.Hash == manifestHash);
 
             // Get user info.
-            var address = userClaims.GetEtherAddress();
+            var address = currentUserClaims.GetEtherAddress();
             var (user, userSharedInfo) = await userService.FindUserAsync(address);
 
             // Add or Update UnsuitableVideoReport.
@@ -257,10 +257,10 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             }
         }
 
-        public async Task<VideoManifestDto> UpdateAsync(string id, string newHash, ClaimsPrincipal userClaims)
+        public async Task<VideoManifestDto> UpdateAsync(string id, string newHash, ClaimsPrincipal currentUserClaims)
         {
             // Get data.
-            var address = userClaims.GetEtherAddress();
+            var address = currentUserClaims.GetEtherAddress();
             var (currentUser, _) = await userService.FindUserAsync(address);
 
             var video = await indexDbContext.Videos.FindOneAsync(id);
@@ -287,10 +287,10 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             return new VideoManifestDto(videoManifest);
         }
 
-        public async Task VoteVideAsync(string id, VoteValue value, ClaimsPrincipal userClaims)
+        public async Task VoteVideAsync(string id, VoteValue value, ClaimsPrincipal currentUserClaims)
         {
             // Get data.
-            var address = userClaims.GetEtherAddress();
+            var address = currentUserClaims.GetEtherAddress();
             var (user, userSharedInfo) = await userService.FindUserAsync(address);
             var video = await indexDbContext.Videos.FindOneAsync(id);
 
