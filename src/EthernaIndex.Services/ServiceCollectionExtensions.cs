@@ -13,6 +13,7 @@
 //   limitations under the License.
 
 using Etherna.DomainEvents;
+using Etherna.DomainEvents.AspNetCore;
 using Etherna.EthernaIndex.Services.Domain;
 using Etherna.EthernaIndex.Services.Tasks;
 using Etherna.EthernaIndex.Swarm;
@@ -42,33 +43,19 @@ namespace Etherna.EthernaIndex.Services
                                     where t.IsClass && t.Namespace == eventHandlersNamespace
                                     where t.GetInterfaces().Contains(typeof(IEventHandler))
                                     select t;
-            foreach (var handlerType in eventHandlerTypes)
-                services.AddScoped(handlerType);
 
-            services.AddSingleton<IEventDispatcher>(sp =>
-            {
-                var dispatcher = new EventDispatcher(sp);
-
-                //subscrive handlers to dispatcher
-                foreach (var handlerType in eventHandlerTypes)
-                    dispatcher.AddHandler(handlerType);
-
-                return dispatcher;
-            });
+            services.AddDomainEvents(eventHandlerTypes);
 
             // Services.
-            services.AddScoped<IVideoService, VideoService>();
+            //domain
+            services.AddScoped<IUserService, UserService>();
 
-            // Infrastructure.
+            //infrastructure
             services.AddScoped<ISwarmService, SwarmService>();
             services.Configure<SwarmSettings>(configuration.GetSection("Swarm"));
 
             // Tasks.
             services.AddTransient<IMetadataVideoValidatorTask, MetadataVideoValidatorTask>();
-
-            // Services.
-            //domain
-            services.AddScoped<IUserService, UserService>();
         }
     }
 }

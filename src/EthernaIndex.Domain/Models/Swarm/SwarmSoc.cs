@@ -14,13 +14,13 @@
 
 namespace Etherna.EthernaIndex.Domain.Models.Swarm
 {
-    public class SwarmSocHash : SwarmHashBase
+    public class SwarmSoc : SwarmContentBase
     {
         // Constructors.
-        public SwarmSocHash(
+        public SwarmSoc(
             string hash)
             : base(hash)
         { }
-        protected SwarmSocHash() { }
+        protected SwarmSoc() { }
     }
 }

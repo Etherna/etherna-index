@@ -28,7 +28,7 @@ namespace Etherna.EthernaIndex.Domain.Models
         // Constructors.
         protected ManifestBase(string manifestHash)
         {
-            Manifest = new SwarmContentHash(manifestHash);
+            Manifest = new SwarmBzz(manifestHash);
         }
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         protected ManifestBase() { }
@@ -41,7 +41,7 @@ namespace Etherna.EthernaIndex.Domain.Models
             protected set => _errorValidationResults = new List<ErrorDetail>(value ?? Array.Empty<ErrorDetail>());
         }
         public virtual bool? IsValid { get; private set; }
-        public virtual SwarmContentHash Manifest { get; protected set; }
+        public virtual SwarmBzz Manifest { get; protected set; }
         public virtual DateTime? ValidationTime { get; private set; }
 
         // Methods.

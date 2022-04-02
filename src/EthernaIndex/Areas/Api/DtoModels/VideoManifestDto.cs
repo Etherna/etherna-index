@@ -30,7 +30,7 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
             if (videoManifest.Thumbnail is not null)
                 Thumbnail = new ImageDto(
                     videoManifest.Thumbnail.AspectRatio,
-                    videoManifest.Thumbnail.BlurHash,
+                    videoManifest.Thumbnail.Blurhash,
                     videoManifest.Thumbnail.Sources);
         }
 

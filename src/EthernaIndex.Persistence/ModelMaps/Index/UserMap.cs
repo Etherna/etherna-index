@@ -56,7 +56,6 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                 });
                 config.AddModelMapsSchema<User>("caa0968f-4493-485b-b8d0-bc40942e8684", mm =>
                 {
-                    mm.MapMember(u => u.IdentityManifest);
                     mm.MapMember(u => u.SharedInfoId);
                 });
             });

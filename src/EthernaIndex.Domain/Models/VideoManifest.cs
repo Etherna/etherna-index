@@ -32,7 +32,7 @@ namespace Etherna.EthernaIndex.Domain.Models
         public virtual string? Description { get; protected set; }
         public virtual float? Duration { get; protected set; }
         public virtual string? OriginalQuality { get; protected set; }
-        public virtual IEnumerable<VideoSource>? Sources
+        public virtual IEnumerable<VideoSource> Sources
         {
             get => _sources;
             protected set => _sources = new List<VideoSource>(value ?? new List<VideoSource>());
@@ -51,7 +51,7 @@ namespace Etherna.EthernaIndex.Domain.Models
             string? description,
             float duration,
             string originalQuality,
-            string? title,
+            string title,
             SwarmImageRaw? thumbnail,
             IEnumerable<VideoSource> videoSources)
         {

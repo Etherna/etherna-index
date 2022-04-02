@@ -21,7 +21,7 @@ namespace Etherna.EthernaIndex.Domain.Models.ManifestAgg
             int? bitrate,
             string quality,
             string reference,
-            int? size)
+            long size)
         {
             Bitrate = bitrate;
             Quality = quality;
@@ -37,6 +37,6 @@ namespace Etherna.EthernaIndex.Domain.Models.ManifestAgg
         public virtual int? Bitrate { get; set; }
         public virtual string Quality { get; set; }
         public virtual string Reference { get; set; }
-        public virtual int? Size { get; set; }
+        public virtual long Size { get; set; }
     }
 }

@@ -97,7 +97,7 @@ namespace Etherna.EthernaIndex.Domain.Models
             var desc = "DescTest";
             var original = "OriginalTest";
             var duration = 1;
-            var videoSources = new List<VideoSource> { new VideoSource(1, "10801", "reff1", 4), new VideoSource(null, "321", "reff2", null) };
+            var videoSources = new List<VideoSource> { new VideoSource(1, "10801", "reff1", 4), new VideoSource(null, "321", "reff2", 100) };
             var blur = "BlurTst";
             var aspectRatio = 1;
             var source = new Dictionary<string, string> { { "1080", "Test1" }, { "720", "Test2" } };
@@ -126,10 +126,10 @@ namespace Etherna.EthernaIndex.Domain.Models
                i => i.Bitrate == null &&
                    i.Quality == "321" &&
                    i.Reference == "reff2" &&
-                   i.Size == null);
+                   i.Size == 100);
             Assert.NotNull(manifest.Thumbnail);
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
-            Assert.Equal(blur, manifest.Thumbnail.BlurHash);
+            Assert.Equal(blur, manifest.Thumbnail.Blurhash);
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
             Assert.Equal(aspectRatio, manifest.Thumbnail.AspectRatio);
             Assert.NotNull(manifest.Thumbnail.Sources);
@@ -149,7 +149,7 @@ namespace Etherna.EthernaIndex.Domain.Models
             var desc = "DescTest";
             var original = "OriginalTest";
             var duration = 1;
-            var videoSources = new List<VideoSource> { new VideoSource(1, "10801", "reff1", 4), new VideoSource(null, "321", "reff2", null) };
+            var videoSources = new List<VideoSource> { new VideoSource(1, "10801", "reff1", 4), new VideoSource(null, "321", "reff2", 100) };
 
             //Act
             manifest.SuccessfulValidation(
@@ -159,7 +159,6 @@ namespace Etherna.EthernaIndex.Domain.Models
                 title,
                 null,
                 videoSources);
-
 
             //Assert
             Assert.Null(manifest.Thumbnail);
