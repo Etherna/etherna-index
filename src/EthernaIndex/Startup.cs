@@ -24,6 +24,7 @@ using Etherna.EthernaIndex.Services;
 using Etherna.EthernaIndex.Services.Settings;
 using Etherna.EthernaIndex.Services.Tasks;
 using Etherna.EthernaIndex.Swagger;
+using Etherna.EthernaIndex.Swarm.Extensions;
 using Etherna.MongODM;
 using Etherna.MongODM.AspNetCore.UI;
 using Etherna.MongODM.Core.Options;
@@ -284,8 +285,10 @@ namespace Etherna.EthernaIndex
                 BasePath = CommonConsts.DatabaseAdminPath
             });
 
+            services.AddSwarmServices(Configuration);
+
             // Configure domain services.
-            services.AddDomainServices(Configuration);
+            services.AddDomainServices();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
