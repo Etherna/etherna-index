@@ -26,7 +26,7 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
             Video video,
             VideoManifest? videoManifest,
             UserSharedInfo ownerSharedInfo,
-            VoteValue? currentVoteValue)
+            VideoVote? videoVote)
         {
             if (video is null)
                 throw new ArgumentNullException(nameof(video));
@@ -45,7 +45,12 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
 
             Id = video.Id;
             CreationDateTime = video.CreationDateTime;
-            CurrentVoteValue = currentVoteValue;
+            if (videoVote is not null &&
+                videoVote.Value != VoteValue.Neutral)
+            {
+                CurrentVoteValue = videoVote.Value;
+            }
+            
             if (videoManifest is not null)
                 LastValidManifest = new VideoManifestDto(videoManifest);
             OwnerAddress = ownerSharedInfo.EtherAddress;
