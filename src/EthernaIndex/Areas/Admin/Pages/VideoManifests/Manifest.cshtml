@@ -81,7 +81,10 @@
 
     <div class="form-row">
         <div class="col-12 mb-3">
-            <input type="submit" asp-page-handler="ApproveVideo" class="btn btn-primary" value="Approve Video" name="button" />
+            <input type="submit"
+                   asp-page-handler="ApproveVideo"
+                   asp-route-videoId="@Model.VideoManifest.VideoInfo.VideoId"
+                   class="btn btn-primary" value="Approve Video" name="button" />
         </div>
     </div>
 
@@ -102,7 +105,10 @@
 
     <div class="form-row">
         <div class="col-12 mb-3">
-            <input type="submit" asp-page-handler="RejectVideo" class="btn btn-primary" value="Reject Video" name="button" />
+            <input type="submit"
+                   asp-page-handler="RejectVideo"
+                   asp-route-videoId="@Model.VideoManifest.VideoInfo.VideoId"
+                   class="btn btn-primary" value="Reject Video" name="button" />
         </div>
     </div>
 
