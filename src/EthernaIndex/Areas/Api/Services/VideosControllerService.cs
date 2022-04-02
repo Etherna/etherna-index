@@ -273,7 +273,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         {
             // Get data.
             var address = userClaims.GetEtherAddress();
-            var (user, userSharedInfo) = await userService.FindUserAsync(address);
+            var (user, _) = await userService.FindUserAsync(address);
             var video = await indexDbContext.Videos.FindOneAsync(id);
 
             // Remove prev votes of user on this content.
@@ -284,8 +284,11 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
                 await indexDbContext.Votes.DeleteAsync(prevVote);
 
             // Create new vote.
-            var vote = new VideoVote(user, video, value);
-            await indexDbContext.Votes.CreateAsync(vote);
+            if (value != VoteValue.Neutral)
+            {
+                var vote = new VideoVote(user, video, value);
+                await indexDbContext.Votes.CreateAsync(vote);
+            }
 
             // Update counters on video.
             var totDownvotes = await indexDbContext.Votes.QueryElementsAsync(elements =>
