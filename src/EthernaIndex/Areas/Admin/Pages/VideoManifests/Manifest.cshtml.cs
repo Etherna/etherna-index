@@ -90,7 +90,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
                 public MetadataVideoSourceDto(
                     int? bitrate,
                     string reference,
-                    int? size,
+                    long size,
                     string quality)
                 {
                     Bitrate = bitrate;
@@ -101,7 +101,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
 
                 public int? Bitrate { get; set; }
                 public string Reference { get; set; } = default!;
-                public int? Size { get; set; }
+                public long Size { get; set; }
                 public string Quality { get; set; } = default!;
             }
 

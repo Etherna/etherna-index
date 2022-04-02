@@ -52,6 +52,9 @@ namespace Etherna.EthernaIndex.Services.Tasks
             // Get metadata.
             try
             {
+#if DEBUG_MOCKUP_SWARM
+                swarmService.SetupNewMetadataVideoMockup(manifestHash);
+#endif
                 metadataDto = await swarmService.GetMetadataVideoAsync(manifestHash);
             }
             catch (MetadataVideoException ex)
@@ -63,14 +66,16 @@ namespace Etherna.EthernaIndex.Services.Tasks
                 return;
             }
 
-            // Check Title.
-            if (string.IsNullOrWhiteSpace(metadataDto.Title))
-                validationErrors.Add(new ErrorDetail(ValidationErrorType.MissingTitle, ValidationErrorType.MissingTitle.ToString()));
+            // Validate manifest.
+            //duration
+            if (metadataDto.Duration is null)
+                validationErrors.Add(new ErrorDetail(ValidationErrorType.MissingDuration, ValidationErrorType.MissingDuration.ToString()));
 
-            // Check Video Format.
-            var validationVideoSources = CheckVideoSources(metadataDto.Sources);
-            validationErrors.AddRange(validationVideoSources);
+            //original quality
+            if (string.IsNullOrWhiteSpace(metadataDto.OriginalQuality))
+                validationErrors.Add(new ErrorDetail(ValidationErrorType.MissingOriginalQuality, ValidationErrorType.MissingOriginalQuality.ToString()));
 
+            //thumbnail
             SwarmImageRaw? swarmImageRaw = null;
             if (metadataDto.Thumbnail is not null)
             {
@@ -82,6 +87,14 @@ namespace Etherna.EthernaIndex.Services.Tasks
                     metadataDto.Thumbnail.Blurhash,
                     metadataDto.Thumbnail.Sources);
             }
+
+            //title
+            if (string.IsNullOrWhiteSpace(metadataDto.Title))
+                validationErrors.Add(new ErrorDetail(ValidationErrorType.MissingTitle, ValidationErrorType.MissingTitle.ToString()));
+
+            //video sources
+            var videoSourcesErrors = CheckVideoSources(metadataDto.Sources);
+            validationErrors.AddRange(videoSourcesErrors);
 
             // Set result of validation.
             if (validationErrors.Any())
@@ -96,8 +109,8 @@ namespace Etherna.EthernaIndex.Services.Tasks
                 videoManifest.SuccessfulValidation(
                     metadataDto.Description,
                     metadataDto.Duration!.Value,
-                    metadataDto.OriginalQuality ?? "",
-                    metadataDto.Title,
+                    metadataDto.OriginalQuality!,
+                    metadataDto.Title!,
                     swarmImageRaw,
                     videoSources);
             }
