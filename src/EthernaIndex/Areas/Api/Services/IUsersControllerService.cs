@@ -24,6 +24,6 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         Task<UserDto> FindByAddressAsync(string address);
         Task<UserDto> GetCurrentUserAsync();
         Task<IEnumerable<UserDto>> GetUsersAsync(bool onlyWithVideo, int page, int take);
-        Task<IEnumerable<VideoDto>> GetVideosAsync(string address, int page, int take, ClaimsPrincipal userClaims);
+        Task<IEnumerable<VideoDto>> GetVideosAsync(string address, int page, int take, ClaimsPrincipal currentUserClaims);
     }
 }
