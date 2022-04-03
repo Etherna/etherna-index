@@ -16,10 +16,17 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                     cm.AutoMap();
 
                     // Set members with custom serializers.
-                    cm.SetMemberSerializer(c => c.Author, UserMap.InformationSerializer(dbContext));
+                    cm.SetMemberSerializer(r => r.Author, UserMap.InformationSerializer(dbContext));
                 });
 
-            dbContext.SchemaRegistry.AddModelMapsSchema<ManualVideoReview>("e3e734ab-d845-4ec2-8920-68956eba950d");
+            dbContext.SchemaRegistry.AddModelMapsSchema<ManualVideoReview>("e3e734ab-d845-4ec2-8920-68956eba950d",
+                cm =>
+                {
+                    cm.AutoMap();
+
+                    // Set members with custom serializers.
+                    cm.SetMemberSerializer(r => r.Video, VideoMap.ReferenceSerializer(dbContext));
+                });
         }
     }
 }
