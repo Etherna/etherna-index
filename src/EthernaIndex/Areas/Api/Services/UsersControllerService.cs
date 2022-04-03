@@ -16,11 +16,13 @@ using Etherna.Authentication.Extensions;
 using Etherna.EthernaIndex.Areas.Api.DtoModels;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models.Swarm;
+using Etherna.EthernaIndex.Extensions;
 using Etherna.EthernaIndex.Services.Domain;
 using Etherna.MongoDB.Driver;
 using Etherna.MongoDB.Driver.Linq;
 using Etherna.MongODM.Core.Extensions;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Nethereum.Util;
 using System;
 using System.Collections.Generic;
@@ -34,6 +36,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         // Fields.
         private readonly IHttpContextAccessor httpContextAccessor;
         private readonly IIndexDbContext indexContext;
+        private readonly ILogger<UsersControllerService> logger;
         private readonly ISharedDbContext sharedDbContext;
         private readonly IUserService userService;
 
@@ -41,11 +44,13 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         public UsersControllerService(
             IHttpContextAccessor httpContextAccessor,
             IIndexDbContext indexContext,
+            ILogger<UsersControllerService> logger,
             ISharedDbContext sharedDbContext,
             IUserService userService)
         {
             this.httpContextAccessor = httpContextAccessor;
             this.indexContext = indexContext;
+            this.logger = logger;
             this.sharedDbContext = sharedDbContext;
             this.userService = userService;
         }
@@ -60,6 +65,8 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
 
             var (user, sharedInfo) = await userService.FindUserAsync(address);
 
+            logger.UserFindByAddress(address);
+
             return new UserDto(user, sharedInfo);
         }
 
@@ -68,6 +75,8 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             var address = httpContextAccessor.HttpContext!.User.GetEtherAddress();
 
             var (user, sharedInfo) = await userService.FindUserAsync(address);
+
+            logger.UserGetCurrent(address);
 
             return new UserDto(user, sharedInfo);
         }
@@ -87,12 +96,16 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
                 userDtos.Add(new UserDto(user, sharedInfo));
             }
 
+            logger.UserListPaginated(page, take);
+
             return userDtos;
         }
 
         public async Task<IEnumerable<VideoDto>> GetVideosAsync(string address, int page, int take)
         {
             var (user, sharedInfo) = await userService.FindUserAsync(address);
+
+            logger.UserGetVideoPaginated(address, page, take);
 
             return user.Videos
                 .Where(v => v.IsValid)

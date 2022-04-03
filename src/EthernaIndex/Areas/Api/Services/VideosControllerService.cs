@@ -140,6 +140,8 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             // Get User.
             var sharedInfo = await sharedDbContext.UsersInfo.FindOneAsync(video.Owner.SharedInfoId);
 
+            logger.VideoFindById(id);
+
             return new VideoDto(video, lastValidManifest, sharedInfo);
         }
 
@@ -150,6 +152,8 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             var video = await indexDbContext.Videos.FindOneAsync(v => v.VideoManifests.Any(vm => vm.Id == videoManifest.Id));
 
             var ownerSharedInfo = await sharedDbContext.UsersInfo.FindOneAsync(video.Owner.SharedInfoId);
+
+            logger.ManifestFindByHash(hash);
 
             return new VideoDto(video, videoManifest, ownerSharedInfo);
         }
@@ -173,6 +177,8 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
                     ownerSharedInfo));
             }
 
+            logger.LastUploadedVideos(page, take);
+
             return videoDtos;
         }
 
@@ -187,6 +193,8 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         public async Task<IEnumerable<ManifestStatusDto>> GetValidationStatusByIdAsync(string videoId)
         {
             var manifest = await indexDbContext.Videos.FindOneAsync(i => i.Id == videoId);
+
+            logger.VideoGetValidationStatusById(videoId);
 
             return manifest.VideoManifests
             .Select(i => new ManifestStatusDto(i));
@@ -206,6 +214,8 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
                 var authorSharedInfo = await sharedDbContext.UsersInfo.FindOneAsync(author.SharedInfoId);
                 commentDtos.Add(new CommentDto(comment, authorSharedInfo));
             }
+
+            logger.VideoGetComments(id, page, take);
 
             return commentDtos;
         }
@@ -230,12 +240,16 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
                 // Create.
                 var videoReported = new UnsuitableVideoReport(video, manifest, user, description);
                 await indexDbContext.UnsuitableVideoReports.CreateAsync(videoReported);
+
+                logger.ReportVideoCreate(videoId, manifestHash);
             }
             else
             {
                 // Edit.
                 videoReport.ChangeDescription(description);
                 await indexDbContext.SaveChangesAsync();
+
+                logger.ReportVideoChangeDescription(videoId, manifestHash);
             }
         }
 
