@@ -25,11 +25,11 @@ namespace Etherna.EthernaIndex.Domain.Models.ManifestAgg
         // Constructors.
         public SwarmImageRaw(
             float aspectRatio,
-            string blurHash,
+            string blurhash,
             IReadOnlyDictionary<string, string>? sources)
         {
             AspectRatio = aspectRatio;
-            BlurHash = blurHash;
+            Blurhash = blurhash;
             Sources = sources ?? new Dictionary<string, string>();
         }
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
@@ -37,7 +37,7 @@ namespace Etherna.EthernaIndex.Domain.Models.ManifestAgg
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         public virtual float AspectRatio { get; set; }
-        public virtual string BlurHash { get; set; }
+        public virtual string Blurhash { get; set; }
         public virtual IReadOnlyDictionary<string, string> Sources
         {
             get => _sources;

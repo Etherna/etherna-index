@@ -93,7 +93,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             await indexDbContext.SaveChangesAsync();
 
             // Create Validation Manifest Task.
-            backgroundJobClient.Create<MetadataVideoValidatorTask>(
+            backgroundJobClient.Create<IMetadataVideoValidatorTask>(
                 task => task.RunAsync(video.Id, videoInput.ManifestHash),
                 new EnqueuedState(Queues.METADATA_VIDEO_VALIDATOR));
 
@@ -266,7 +266,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             await indexDbContext.SaveChangesAsync();
 
             // Create Validation Manifest Task.
-            backgroundJobClient.Create<MetadataVideoValidatorTask>(
+            backgroundJobClient.Create<IMetadataVideoValidatorTask>(
                 task => task.RunAsync(video.Id, newHash),
                 new EnqueuedState(Queues.METADATA_VIDEO_VALIDATOR));
 

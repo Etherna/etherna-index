@@ -89,20 +89,17 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports
         // Fields.
         private readonly IIndexDbContext indexDbContext;
         private readonly IUserService userService;
-        private readonly IVideoService videoReportService;
 
         // Constructor.
         public UnsuitableReportModel(
             IIndexDbContext indexDbContext,
-            IUserService userService,
-            IVideoService videoReportService)
+            IUserService userService)
         {
             if (indexDbContext is null)
                 throw new ArgumentNullException(nameof(indexDbContext));
 
             this.indexDbContext = indexDbContext;
             this.userService = userService;
-            this.videoReportService = videoReportService;
         }
 
         // Properties.
@@ -167,23 +164,8 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports
             var video = await indexDbContext.Videos.FindOneAsync(videoId);
             var videoManifest = await indexDbContext.VideoManifests.FindOneAsync(vm => vm.Manifest.Hash == manifestHash);
 
-            // Archive reports.
-            var unsuitableVideoReports = await indexDbContext.UnsuitableVideoReports.QueryElementsAsync(
-                uvr => uvr.Where(i => i.Video.Id == video.Id)
-                .ToListAsync());
-
-            foreach (var item in unsuitableVideoReports)
-                item.SetArchived();
-
             // Create ManualReview.
-            await videoReportService.CreateManualReviewAsync(
-                new ManualVideoReview(user, "", isValid, video, videoManifest));
-
-            // Eventually set video as unsuitable.
-            if (!isValid)
-                video.SetAsUnsuitable();
-
-            await indexDbContext.SaveChangesAsync();
+            await indexDbContext.ManualVideoReviews.CreateAsync(new ManualVideoReview(user, "", isValid, video, videoManifest));
         }
     }
 }

@@ -12,14 +12,15 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-using Etherna.EthernaIndex.Domain.Models;
-using System.Threading.Tasks;
-
-namespace Etherna.EthernaIndex.Services.Domain
+namespace Etherna.EthernaIndex.Domain.Models.Swarm
 {
-    public interface IVideoService
+    public class SwarmBzz : SwarmContentBase
     {
-        Task CreateManualReviewAsync(
-            ManualVideoReview videoReview);
+        // Constructors.
+        public SwarmBzz(
+            string hash)
+            : base(hash)
+        { }
+        protected SwarmBzz() { }
     }
 }

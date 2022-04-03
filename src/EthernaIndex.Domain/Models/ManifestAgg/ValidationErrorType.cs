@@ -5,6 +5,8 @@
         InvalidVideoSource,
         InvalidThumbnailSource,
         JsonConvert,
+        MissingDuration,
+        MissingOriginalQuality,
         MissingTitle,
         Unknown,
     }
