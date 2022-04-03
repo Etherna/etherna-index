@@ -94,7 +94,8 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
 
         public async Task<IEnumerable<VideoDto>> GetVideosAsync(string address, int page, int take, ClaimsPrincipal userClaims)
         {
-            var requestByVideoOwner = address == userClaims.GetEtherAddress();
+            var userCurrentaddress = userClaims.TryGetEtherAddress();
+            var requestByVideoOwner = address == userCurrentaddress;
 
             var (user, sharedInfo) = await userService.FindUserAsync(address);
 
