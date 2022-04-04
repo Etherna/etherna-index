@@ -5,7 +5,7 @@ using Etherna.MongoDB.Bson.Serialization.Serializers;
 using Etherna.MongODM.Core;
 using Etherna.MongODM.Core.Serialization;
 
-namespace Etherna.EthernaIndex.Persistence.ModelMaps.Shared
+namespace Etherna.EthernaIndex.Persistence.ModelMaps.SsoShared
 {
     class ModelBaseMap : IModelMapsCollector
     {

@@ -43,6 +43,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EthernaIndex.Services.Tests
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EthernaIndex.Domain.Tests", "test\EthernaIndex.Domain.Tests\EthernaIndex.Domain.Tests.csproj", "{1F9834D1-EAD7-4AF3-96B9-4191680CBE3C}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EthernaIndex.Persistence.Tests", "test\EthernaIndex.Persistence.Tests\EthernaIndex.Persistence.Tests.csproj", "{55F3DAD7-3092-4F76-B668-3F39E1F7E278}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -92,6 +94,12 @@ Global
 		{1F9834D1-EAD7-4AF3-96B9-4191680CBE3C}.Debug-Mockup-Swarm|Any CPU.Build.0 = Debug|Any CPU
 		{1F9834D1-EAD7-4AF3-96B9-4191680CBE3C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1F9834D1-EAD7-4AF3-96B9-4191680CBE3C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{55F3DAD7-3092-4F76-B668-3F39E1F7E278}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{55F3DAD7-3092-4F76-B668-3F39E1F7E278}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{55F3DAD7-3092-4F76-B668-3F39E1F7E278}.Debug-Mockup-Swarm|Any CPU.ActiveCfg = Debug|Any CPU
+		{55F3DAD7-3092-4F76-B668-3F39E1F7E278}.Debug-Mockup-Swarm|Any CPU.Build.0 = Debug|Any CPU
+		{55F3DAD7-3092-4F76-B668-3F39E1F7E278}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{55F3DAD7-3092-4F76-B668-3F39E1F7E278}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -107,6 +115,7 @@ Global
 		{7BA052AB-A1A6-4596-B00A-6AF3BD079FEF} = {552815A3-3072-492B-B3D4-B5E115B8038C}
 		{E402005E-81B1-4440-86C7-F481CD1CB274} = {A97F8160-ADCD-4B37-8EB7-E8782BF88315}
 		{1F9834D1-EAD7-4AF3-96B9-4191680CBE3C} = {A97F8160-ADCD-4B37-8EB7-E8782BF88315}
+		{55F3DAD7-3092-4F76-B668-3F39E1F7E278} = {A97F8160-ADCD-4B37-8EB7-E8782BF88315}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {465D7329-3E56-44B5-A500-E557EA259014}
