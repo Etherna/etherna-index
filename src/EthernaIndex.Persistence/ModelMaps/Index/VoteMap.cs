@@ -23,7 +23,8 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
     {
         public void Register(IDbContext dbContext)
         {
-            dbContext.SchemaRegistry.AddModelMapsSchema<VideoVote>("624955bf-8c09-427f-93da-fc6ddb9668a6",
+            dbContext.SchemaRegistry.AddModelMapsSchema<VideoVote>(
+                "624955bf-8c09-427f-93da-fc6ddb9668a6", //dev (pre v0.3.0), published for WAM event
                 mm =>
                 {
                     mm.AutoMap();

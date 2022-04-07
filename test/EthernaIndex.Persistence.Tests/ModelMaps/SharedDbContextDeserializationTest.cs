@@ -60,6 +60,32 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
             {
                 var tests = new List<(string sourceDocument, UserSharedInfo expectedUserSharedInfo)>();
 
+                // "6d0d2ee1-6aa3-42ea-9833-ac592bfc6613" - from sso v0.3.0
+                {
+                    var sourceDocument =
+                        @"{ 
+                            ""_id"" : ObjectId(""61cdffb4fa7c4052d258adcb""), 
+                            ""_m"" : ""6d0d2ee1-6aa3-42ea-9833-ac592bfc6613"", 
+                            ""CreationDateTime"" : ISODate(""2021-12-30T18:51:32.706+0000""), 
+                            ""EtherAddress"" : ""0x410211F4824A8f7EDf174B32AB215924557b4437"", 
+                            ""EtherPreviousAddresses"" : [
+                                ""0x6401ceD81d2e864f214A93823647F5baBF819123""
+                            ], 
+                            ""LockoutEnabled"" : true, 
+                            ""LockoutEnd"" : ISODate(""2022-12-30T18:51:32.706+0000""),
+                        }";
+
+                    var expectedSharedInfoMock = new Mock<UserSharedInfo>();
+                    expectedSharedInfoMock.Setup(i => i.Id).Returns("61cdffb4fa7c4052d258adcb");
+                    expectedSharedInfoMock.Setup(i => i.CreationDateTime).Returns(new DateTime(2021, 12, 30, 18, 51, 32, 706));
+                    expectedSharedInfoMock.Setup(i => i.EtherAddress).Returns("0x410211F4824A8f7EDf174B32AB215924557b4437");
+                    expectedSharedInfoMock.Setup(i => i.EtherPreviousAddresses).Returns(new[] { "0x6401ceD81d2e864f214A93823647F5baBF819123" });
+                    expectedSharedInfoMock.Setup(i => i.LockoutEnabled).Returns(true);
+                    expectedSharedInfoMock.Setup(i => i.LockoutEnd).Returns(new DateTimeOffset(2022, 12, 30, 18, 51, 32, 706, TimeSpan.Zero));
+
+                    tests.Add((sourceDocument, expectedSharedInfoMock.Object));
+                }
+
                 return tests.Select(t => new object[] { t.sourceDocument, t.expectedUserSharedInfo });
             }
         }
@@ -90,6 +116,9 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
             Assert.Equal(expectedUserSharedInfo.IsLockedOutNow, result.IsLockedOutNow);
             Assert.Equal(expectedUserSharedInfo.LockoutEnabled, result.LockoutEnabled);
             Assert.Equal(expectedUserSharedInfo.LockoutEnd, result.LockoutEnd);
+            Assert.NotNull(expectedUserSharedInfo.Id);
+            Assert.NotNull(expectedUserSharedInfo.EtherAddress);
+            Assert.NotNull(expectedUserSharedInfo.EtherPreviousAddresses);
         }
     }
 }

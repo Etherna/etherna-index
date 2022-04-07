@@ -25,7 +25,11 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
     {
         public void Register(IDbContext dbContext)
         {
-            dbContext.SchemaRegistry.AddModelMapsSchema<VideoManifest>("ec578080-ccd2-4d49-8a76-555b10a5dad5");
+            dbContext.SchemaRegistry.AddModelMapsSchema<ManifestBase>(
+                "013c3e29-764c-4bc8-941c-631d8d94adec"); //dev (pre v0.3.0), published for WAM event
+
+            dbContext.SchemaRegistry.AddModelMapsSchema<VideoManifest>(
+                "ec578080-ccd2-4d49-8a76-555b10a5dad5"); //dev (pre v0.3.0), published for WAM event
         }
 
         /// <summary>
