@@ -13,6 +13,7 @@
 //   limitations under the License.
 
 using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace Etherna.EthernaIndex.Domain.Models.Swarm
@@ -36,5 +37,24 @@ namespace Etherna.EthernaIndex.Domain.Models.Swarm
 
         // Properties.
         public virtual string Hash { get; protected set; }
+
+        // Methods.
+        public override bool Equals(object? obj)
+        {
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj is null) return false;
+            if (EqualityComparer<string>.Default.Equals(Hash, default) ||
+                obj is not SwarmContentBase ||
+                EqualityComparer<string>.Default.Equals((obj as SwarmContentBase)!.Hash, default)) return false;
+            return GetType() == obj.GetType() &&
+                EqualityComparer<string>.Default.Equals(Hash, (obj as SwarmContentBase)!.Hash);
+        }
+
+        public override int GetHashCode()
+        {
+            if (EqualityComparer<string>.Default.Equals(Hash, default))
+                return -1;
+            return Hash.GetHashCode(StringComparison.OrdinalIgnoreCase);
+        }
     }
 }

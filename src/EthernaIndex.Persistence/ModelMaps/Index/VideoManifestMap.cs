@@ -13,6 +13,7 @@
 //   limitations under the License.
 
 using Etherna.EthernaIndex.Domain.Models;
+using Etherna.EthernaIndex.Domain.Models.ManifestAgg;
 using Etherna.MongoDB.Bson;
 using Etherna.MongoDB.Bson.Serialization.Serializers;
 using Etherna.MongODM.Core;
@@ -30,6 +31,16 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
 
             dbContext.SchemaRegistry.AddModelMapsSchema<VideoManifest>(
                 "ec578080-ccd2-4d49-8a76-555b10a5dad5"); //dev (pre v0.3.0), published for WAM event
+
+            dbContext.SchemaRegistry.AddModelMapsSchema<ErrorDetail>(
+                "f555eaa8-d8e1-4f23-a402-8b9ac5930832"); //v0.3.0
+
+            dbContext.SchemaRegistry.AddModelMapsSchema<SwarmImageRaw>(
+                "91ce6fdc-b59a-46bc-9ad0-7a8608cdfa1c"); //v0.3.0
+                .AddFallbackModelMap(); //dev (pre v0.3.0), published for WAM event
+
+            dbContext.SchemaRegistry.AddModelMapsSchema<VideoSource>(
+                "ca9caff9-df18-4101-a362-f8f449bb2aac"); //v0.3.0
         }
 
         /// <summary>

@@ -1,7 +1,9 @@
 ﻿using Etherna.EthernaIndex.Domain.Models.UserAgg;
+using Etherna.EthernaIndex.Persistence.Helpers;
 using Etherna.ExecContext.AsyncLocal;
 using Etherna.MongoDB.Bson.IO;
 using Etherna.MongoDB.Bson.Serialization;
+using Etherna.MongoDB.Driver;
 using Etherna.MongODM.Core;
 using Etherna.MongODM.Core.Options;
 using Etherna.MongODM.Core.ProxyModels;
@@ -23,6 +25,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
     {
         // Fields.
         private readonly SharedDbContext dbContext;
+        private readonly Mock<IMongoDatabase> mongoDatabaseMock;
 
         // Constructor.
         [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "Need to keep objects after test construction")]
@@ -46,9 +49,17 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
             dbDependenciesMock.Setup(d => d.SchemaRegistry).Returns(new SchemaRegistry());
             dbDependenciesMock.Setup(d => d.SerializerModifierAccessor).Returns(new SerializerModifierAccessor(execContext));
 
+            // Setup MongoClient.
+            mongoDatabaseMock = new Mock<IMongoDatabase>();
+
+            var mongoClientMock = new Mock<IMongoClient>();
+            mongoClientMock.Setup(c => c.GetDatabase(It.IsAny<string>(), It.IsAny<MongoDatabaseSettings>()))
+                .Returns(mongoDatabaseMock.Object);
+
             // Initialize dbContext.
             dbContext.Initialize(
                 dbDependenciesMock.Object,
+                mongoClientMock.Object,
                 new DbContextOptions(),
                 Array.Empty<IDbContext>());
         }
@@ -58,7 +69,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
         {
             get
             {
-                var tests = new List<(string sourceDocument, UserSharedInfo expectedUserSharedInfo)>();
+                var tests = new List<DeserializationTestElement<UserSharedInfo>>();
 
                 // "6d0d2ee1-6aa3-42ea-9833-ac592bfc6613" - from sso v0.3.0
                 {
@@ -83,24 +94,22 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                     expectedSharedInfoMock.Setup(i => i.LockoutEnabled).Returns(true);
                     expectedSharedInfoMock.Setup(i => i.LockoutEnd).Returns(new DateTimeOffset(2022, 12, 30, 18, 51, 32, 706, TimeSpan.Zero));
 
-                    tests.Add((sourceDocument, expectedSharedInfoMock.Object));
+                    tests.Add(new DeserializationTestElement<UserSharedInfo>(sourceDocument, expectedSharedInfoMock.Object));
                 }
 
-                return tests.Select(t => new object[] { t.sourceDocument, t.expectedUserSharedInfo });
+                return tests.Select(t => new object[] { t });
             }
         }
 
         // Tests.
         [Theory, MemberData(nameof(UserSharedInfoDeserializationTests))]
-        public void UserSharedInfoDeserialization(string sourceDocument, UserSharedInfo expectedUserSharedInfo)
+        public void UserSharedInfoDeserialization(DeserializationTestElement<UserSharedInfo> testElement)
         {
-            if (sourceDocument is null)
-                throw new ArgumentNullException(nameof(sourceDocument));
-            if (expectedUserSharedInfo is null)
-                throw new ArgumentNullException(nameof(expectedUserSharedInfo));
+            if (testElement is null)
+                throw new ArgumentNullException(nameof(testElement));
 
             // Setup.
-            using var documentReader = new JsonReader(sourceDocument);
+            using var documentReader = new JsonReader(testElement.SourceDocument);
             var modelMapSerializer = new ModelMapSerializer<UserSharedInfo>(dbContext);
             var deserializationContext = BsonDeserializationContext.CreateRoot(documentReader);
             using var execContext = AsyncLocalContext.Instance.InitAsyncLocalContext(); //start an execution context
@@ -109,16 +118,16 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
             var result = modelMapSerializer.Deserialize(deserializationContext);
 
             // Assert.
-            Assert.Equal(expectedUserSharedInfo.Id, result.Id);
-            Assert.Equal(expectedUserSharedInfo.CreationDateTime, result.CreationDateTime);
-            Assert.Equal(expectedUserSharedInfo.EtherAddress, result.EtherAddress);
-            Assert.Equal(expectedUserSharedInfo.EtherPreviousAddresses, result.EtherPreviousAddresses);
-            Assert.Equal(expectedUserSharedInfo.IsLockedOutNow, result.IsLockedOutNow);
-            Assert.Equal(expectedUserSharedInfo.LockoutEnabled, result.LockoutEnabled);
-            Assert.Equal(expectedUserSharedInfo.LockoutEnd, result.LockoutEnd);
-            Assert.NotNull(expectedUserSharedInfo.Id);
-            Assert.NotNull(expectedUserSharedInfo.EtherAddress);
-            Assert.NotNull(expectedUserSharedInfo.EtherPreviousAddresses);
+            Assert.Equal(testElement.ExpectedModel.Id, result.Id);
+            Assert.Equal(testElement.ExpectedModel.CreationDateTime, result.CreationDateTime);
+            Assert.Equal(testElement.ExpectedModel.EtherAddress, result.EtherAddress);
+            Assert.Equal(testElement.ExpectedModel.EtherPreviousAddresses, result.EtherPreviousAddresses);
+            Assert.Equal(testElement.ExpectedModel.IsLockedOutNow, result.IsLockedOutNow);
+            Assert.Equal(testElement.ExpectedModel.LockoutEnabled, result.LockoutEnabled);
+            Assert.Equal(testElement.ExpectedModel.LockoutEnd, result.LockoutEnd);
+            Assert.NotNull(result.Id);
+            Assert.NotNull(result.EtherAddress);
+            Assert.NotNull(result.EtherPreviousAddresses);
         }
     }
 }

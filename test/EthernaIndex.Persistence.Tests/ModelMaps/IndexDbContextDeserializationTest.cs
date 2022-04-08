@@ -1,4 +1,5 @@
 ﻿using Etherna.DomainEvents;
+using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.Domain.Models.ManifestAgg;
 using Etherna.EthernaIndex.Domain.Models.Swarm;
@@ -6,6 +7,7 @@ using Etherna.EthernaIndex.Persistence.Helpers;
 using Etherna.ExecContext.AsyncLocal;
 using Etherna.MongoDB.Bson.IO;
 using Etherna.MongoDB.Bson.Serialization;
+using Etherna.MongoDB.Driver;
 using Etherna.MongODM.Core;
 using Etherna.MongODM.Core.Options;
 using Etherna.MongODM.Core.ProxyModels;
@@ -27,6 +29,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
     {
         // Fields.
         private readonly IndexDbContext dbContext;
+        private readonly Mock<IMongoDatabase> mongoDatabaseMock;
 
         // Constructor.
         [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "Need to keep objects after test construction")]
@@ -51,9 +54,17 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
             dbDependenciesMock.Setup(d => d.SchemaRegistry).Returns(new SchemaRegistry());
             dbDependenciesMock.Setup(d => d.SerializerModifierAccessor).Returns(new SerializerModifierAccessor(execContext));
 
+            // Setup Mongo client.
+            mongoDatabaseMock = new Mock<IMongoDatabase>();
+
+            var mongoClientMock = new Mock<IMongoClient>();
+            mongoClientMock.Setup(c => c.GetDatabase(It.IsAny<string>(), It.IsAny<MongoDatabaseSettings>()))
+                .Returns(mongoDatabaseMock.Object);
+
             // Initialize dbContext.
             dbContext.Initialize(
                 dbDependenciesMock.Object,
+                mongoClientMock.Object,
                 new DbContextOptions(),
                 Array.Empty<IDbContext>());
         }
@@ -63,7 +74,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
         {
             get
             {
-                var tests = new List<(string sourceDocument, Comment expectedComment)>();
+                var tests = new List<DeserializationTestElement<Comment>>();
 
                 // "8e509e8e-5c2b-4874-a734-ada4e2b91f92" - dev (pre v0.3.0), published for WAM event
                 {
@@ -102,10 +113,10 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                         expectedCommentMock.Setup(c => c.Video).Returns(videoMock.Object);
                     }
 
-                    tests.Add((sourceDocument, expectedCommentMock.Object));
+                    tests.Add(new DeserializationTestElement<Comment>(sourceDocument, expectedCommentMock.Object));
                 }
 
-                return tests.Select(t => new object[] { t.sourceDocument, t.expectedComment });
+                return tests.Select(t => new object[] { t });
             }
         }
 
@@ -113,9 +124,9 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
         {
             get
             {
-                var tests = new List<(string sourceDocument, ManualVideoReview expectedReview)>();
+                var tests = new List<DeserializationTestElement<ManualVideoReview>>();
 
-                return tests.Select(t => new object[] { t.sourceDocument, t.expectedReview });
+                return tests.Select(t => new object[] { t });
             }
         }
 
@@ -123,7 +134,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
         {
             get
             {
-                var tests = new List<(string sourceDocument, UnsuitableVideoReport expectedReport)>();
+                var tests = new List<DeserializationTestElement<UnsuitableVideoReport>>();
 
                 // "91e7a66a-d1e2-48eb-9627-3c3c2ceb5e2d" - dev (pre v0.3.0), published for WAM event
                 {
@@ -179,10 +190,19 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                         expectedReportMock.Setup(c => c.VideoManifest).Returns(videoManifestMock.Object);
                     }
 
-                    tests.Add((sourceDocument, expectedReportMock.Object));
+                    var setupAction = new Action<Mock<IMongoDatabase>, IIndexDbContext>((mongoDatabaseMock, dbContext) =>
+                    {
+                        var videoMock = new Mock<Video>();
+                        videoMock.Setup(v => v.Id).Returns("621d54ab0a7a47231123c78f");
+
+                        var videoCollectionMock = DbContextMockHelper.SetupCollectionMock(mongoDatabaseMock, dbContext.Videos);
+                        DbContextMockHelper.SetupFindWithPredicate(videoCollectionMock, _ => new[] { videoMock.Object });
+                    });
+
+                    tests.Add(new DeserializationTestElement<UnsuitableVideoReport>(sourceDocument, expectedReportMock.Object, setupAction));
                 }
 
-                return tests.Select(t => new object[] { t.sourceDocument, t.expectedReport });
+                return tests.Select(t => new object[] { t });
             }
         }
 
@@ -190,7 +210,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
         {
             get
             {
-                var tests = new List<(string sourceDocument, User expectedUser)>();
+                var tests = new List<DeserializationTestElement<User>>();
 
                 // "a547abdc-420c-41f9-b496-e6cf704a3844" - dev (pre v0.3.0), published for WAM event
                 {
@@ -227,10 +247,10 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                         expectedUserMock.Setup(c => c.Videos).Returns(new[] { video0Mock.Object, video1Mock.Object });
                     }
 
-                    tests.Add((sourceDocument, expectedUserMock.Object));
+                    tests.Add(new DeserializationTestElement<User>(sourceDocument, expectedUserMock.Object));
                 }
 
-                return tests.Select(t => new object[] { t.sourceDocument, t.expectedUser });
+                return tests.Select(t => new object[] { t });
             }
         }
 
@@ -238,7 +258,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
         {
             get
             {
-                var tests = new List<(string sourceDocument, Video expectedVideo)>();
+                var tests = new List<DeserializationTestElement<Video>>();
 
                 // "abfbd104-35ff-4429-9afc-79304a11efc0" - dev (pre v0.3.0), published for WAM event
                 {
@@ -310,10 +330,10 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                         expectedVideoMock.Setup(v => v.VideoManifests).Returns(new[] { manifest0Mock.Object, manifest1Mock.Object });
                     }
 
-                    tests.Add((sourceDocument, expectedVideoMock.Object));
+                    tests.Add(new DeserializationTestElement<Video>(sourceDocument, expectedVideoMock.Object));
                 }
 
-                return tests.Select(t => new object[] { t.sourceDocument, t.expectedVideo });
+                return tests.Select(t => new object[] { t });
             }
         }
 
@@ -321,7 +341,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
         {
             get
             {
-                var tests = new List<(string sourceDocument, VideoManifest expectedVideoManifest)>();
+                var tests = new List<DeserializationTestElement<VideoManifest>>();
 
                 // "ec578080-ccd2-4d49-8a76-555b10a5dad5" - dev (pre v0.3.0), published for WAM event
                 {
@@ -382,16 +402,16 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                     expectedManifestMock.Setup(m => m.Title).Returns("Etherna WAM presentation");
                     expectedManifestMock.Setup(m => m.Thumbnail).Returns(new SwarmImageRaw(1.7777777910232544f, "LEHV6nWB2yk8pyo0adR*.7kCMdnj", new Dictionary<string, string>
                     {
+                        { "1920w", "5d2a835a77269dc7bb1fb6be7b12407326cf6dcde4bd14f41b92be9d82414421" },
                         { "480w", "a015d8923a777bf8230291318274a5f9795b4bb9445ad41a2667d06df1ea3008" },
                         { "960w", "60f8f4b17cdae08da8d03f7fa3476f47d7d29517351ffe7bd9f171b929680009" },
-                        { "1440w", "7eb77f7d0c2d17d9e05036f154b4d26091ba3e7d0ccfe8ebda49cda2bb94cd9b" },
-                        { "1920w", "5d2a835a77269dc7bb1fb6be7b12407326cf6dcde4bd14f41b92be9d82414421" }
+                        { "1440w", "7eb77f7d0c2d17d9e05036f154b4d26091ba3e7d0ccfe8ebda49cda2bb94cd9b" }
                     }));
 
-                    tests.Add((sourceDocument, expectedManifestMock.Object));
+                    tests.Add(new DeserializationTestElement<VideoManifest>(sourceDocument, expectedManifestMock.Object));
                 }
 
-                return tests.Select(t => new object[] { t.sourceDocument, t.expectedVideoManifest });
+                return tests.Select(t => new object[] { t });
             }
         }
 
@@ -399,7 +419,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
         {
             get
             {
-                var tests = new List<(string sourceDocument, VideoVote expectedVideoVote)>();
+                var tests = new List<DeserializationTestElement<VideoVote>>();
 
                 // "624955bf-8c09-427f-93da-fc6ddb9668a6" - dev (pre v0.3.0), published for WAM event
                 {
@@ -438,233 +458,226 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                         expectedVoteMock.Setup(v => v.Video).Returns(videoMock.Object);
                     }
 
-                    tests.Add((sourceDocument, expectedVoteMock.Object));
+                    tests.Add(new DeserializationTestElement<VideoVote>(sourceDocument, expectedVoteMock.Object));
                 }
 
-                return tests.Select(t => new object[] { t.sourceDocument, t.expectedVideoVote });
+                return tests.Select(t => new object[] { t });
             }
         }
 
         // Tests.
         [Theory, MemberData(nameof(CommentDeserializationTests))]
-        public void CommentDeserialization(string sourceDocument, Comment expectedComment)
+        public void CommentDeserialization(DeserializationTestElement<Comment> testElement)
         {
-            if (sourceDocument is null)
-                throw new ArgumentNullException(nameof(sourceDocument));
-            if (expectedComment is null)
-                throw new ArgumentNullException(nameof(expectedComment));
+            if (testElement is null)
+                throw new ArgumentNullException(nameof(testElement));
 
             // Setup.
-            using var documentReader = new JsonReader(sourceDocument);
+            using var documentReader = new JsonReader(testElement.SourceDocument);
             var modelMapSerializer = new ModelMapSerializer<Comment>(dbContext);
             var deserializationContext = BsonDeserializationContext.CreateRoot(documentReader);
             using var execContext = AsyncLocalContext.Instance.InitAsyncLocalContext(); //start an execution context
+            testElement.SetupAction(mongoDatabaseMock, dbContext);
 
             // Action.
             var result = modelMapSerializer.Deserialize(deserializationContext);
 
             // Assert.
-            Assert.Equal(expectedComment.Id, result.Id);
-            Assert.Equal(expectedComment.Author, result.Author, EntityModelEqualityComparer.Instance);
-            Assert.Equal(expectedComment.CreationDateTime, result.CreationDateTime);
-            Assert.Equal(expectedComment.Text, result.Text);
-            Assert.Equal(expectedComment.Video, result.Video, EntityModelEqualityComparer.Instance);
-            Assert.NotNull(expectedComment.Id);
-            Assert.NotNull(expectedComment.Author);
-            Assert.NotNull(expectedComment.Text);
-            Assert.NotNull(expectedComment.Video);
+            Assert.Equal(testElement.ExpectedModel.Id, result.Id);
+            Assert.Equal(testElement.ExpectedModel.Author, result.Author, EntityModelEqualityComparer.Instance);
+            Assert.Equal(testElement.ExpectedModel.CreationDateTime, result.CreationDateTime);
+            Assert.Equal(testElement.ExpectedModel.Text, result.Text);
+            Assert.Equal(testElement.ExpectedModel.Video, result.Video, EntityModelEqualityComparer.Instance);
+            Assert.NotNull(result.Id);
+            Assert.NotNull(result.Author);
+            Assert.NotNull(result.Text);
+            Assert.NotNull(result.Video);
         }
 
         [Theory, MemberData(nameof(ManualVideoReviewDeserializationTests))]
-        public void ManualVideoReviewDeserialization(string sourceDocument, ManualVideoReview expectedReview)
+        public void ManualVideoReviewDeserialization(DeserializationTestElement<ManualVideoReview> testElement)
         {
-            if (sourceDocument is null)
-                throw new ArgumentNullException(nameof(sourceDocument));
-            if (expectedReview is null)
-                throw new ArgumentNullException(nameof(expectedReview));
+            if (testElement is null)
+                throw new ArgumentNullException(nameof(testElement));
 
             // Setup.
-            using var documentReader = new JsonReader(sourceDocument);
+            using var documentReader = new JsonReader(testElement.SourceDocument);
             var modelMapSerializer = new ModelMapSerializer<ManualVideoReview>(dbContext);
             var deserializationContext = BsonDeserializationContext.CreateRoot(documentReader);
             using var execContext = AsyncLocalContext.Instance.InitAsyncLocalContext(); //start an execution context
+            testElement.SetupAction(mongoDatabaseMock, dbContext);
 
             // Action.
             var result = modelMapSerializer.Deserialize(deserializationContext);
 
             // Assert.
-            Assert.Equal(expectedReview.Id, result.Id);
-            Assert.Equal(expectedReview.Author, result.Author, EntityModelEqualityComparer.Instance);
-            Assert.Equal(expectedReview.CreationDateTime, result.CreationDateTime);
-            Assert.Equal(expectedReview.Description, result.Description);
-            Assert.Equal(expectedReview.IsValid, result.IsValid);
-            Assert.Equal(expectedReview.Video, result.Video, EntityModelEqualityComparer.Instance);
-            Assert.NotNull(expectedReview.Id);
-            Assert.NotNull(expectedReview.Author);
-            Assert.NotNull(expectedReview.Description);
-            Assert.NotNull(expectedReview.Video);
+            Assert.Equal(testElement.ExpectedModel.Id, result.Id);
+            Assert.Equal(testElement.ExpectedModel.Author, result.Author, EntityModelEqualityComparer.Instance);
+            Assert.Equal(testElement.ExpectedModel.CreationDateTime, result.CreationDateTime);
+            Assert.Equal(testElement.ExpectedModel.Description, result.Description);
+            Assert.Equal(testElement.ExpectedModel.IsValid, result.IsValid);
+            Assert.Equal(testElement.ExpectedModel.Video, result.Video, EntityModelEqualityComparer.Instance);
+            Assert.NotNull(result.Id);
+            Assert.NotNull(result.Author);
+            Assert.NotNull(result.Description);
+            Assert.NotNull(result.Video);
         }
 
         [Theory, MemberData(nameof(UnsuitableVideoReportDeserializationTests))]
-        public void UnsuitableVideoReportDeserialization(string sourceDocument, UnsuitableVideoReport expectedReport)
+        public void UnsuitableVideoReportDeserialization(DeserializationTestElement<UnsuitableVideoReport> testElement)
         {
-            if (sourceDocument is null)
-                throw new ArgumentNullException(nameof(sourceDocument));
-            if (expectedReport is null)
-                throw new ArgumentNullException(nameof(expectedReport));
+            if (testElement is null)
+                throw new ArgumentNullException(nameof(testElement));
 
             // Setup.
-            using var documentReader = new JsonReader(sourceDocument);
+            using var documentReader = new JsonReader(testElement.SourceDocument);
             var modelMapSerializer = new ModelMapSerializer<UnsuitableVideoReport>(dbContext);
             var deserializationContext = BsonDeserializationContext.CreateRoot(documentReader);
             using var execContext = AsyncLocalContext.Instance.InitAsyncLocalContext(); //start an execution context
+            testElement.SetupAction(mongoDatabaseMock, dbContext);
 
             // Action.
             var result = modelMapSerializer.Deserialize(deserializationContext);
 
             // Assert.
-            Assert.Equal(expectedReport.Id, result.Id);
-            Assert.Equal(expectedReport.CreationDateTime, result.CreationDateTime);
-            Assert.Equal(expectedReport.Description, result.Description);
-            Assert.Equal(expectedReport.IsArchived, result.IsArchived);
-            Assert.Equal(expectedReport.LastUpdate, result.LastUpdate);
-            Assert.Equal(expectedReport.ReporterAuthor, result.ReporterAuthor, EntityModelEqualityComparer.Instance);
-            Assert.Equal(expectedReport.Video, result.Video, EntityModelEqualityComparer.Instance);
-            Assert.Equal(expectedReport.VideoManifest, result.VideoManifest, EntityModelEqualityComparer.Instance);
-            Assert.NotNull(expectedReport.Id);
-            Assert.NotNull(expectedReport.Description);
-            Assert.NotNull(expectedReport.LastUpdate);
-            Assert.NotNull(expectedReport.ReporterAuthor);
-            Assert.NotNull(expectedReport.Video);
-            Assert.NotNull(expectedReport.VideoManifest);
+            Assert.Equal(testElement.ExpectedModel.Id, result.Id);
+            Assert.Equal(testElement.ExpectedModel.CreationDateTime, result.CreationDateTime);
+            Assert.Equal(testElement.ExpectedModel.Description, result.Description);
+            Assert.Equal(testElement.ExpectedModel.IsArchived, result.IsArchived);
+            Assert.Equal(testElement.ExpectedModel.LastUpdate, result.LastUpdate);
+            Assert.Equal(testElement.ExpectedModel.ReporterAuthor, result.ReporterAuthor, EntityModelEqualityComparer.Instance);
+            Assert.Equal(testElement.ExpectedModel.Video, result.Video, EntityModelEqualityComparer.Instance);
+            Assert.Equal(testElement.ExpectedModel.VideoManifest, result.VideoManifest, EntityModelEqualityComparer.Instance);
+            Assert.NotNull(result.Id);
+            Assert.NotNull(result.Description);
+            Assert.NotNull(result.LastUpdate);
+            Assert.NotNull(result.ReporterAuthor);
+            Assert.NotNull(result.Video);
+            Assert.NotNull(result.VideoManifest);
         }
 
         [Theory, MemberData(nameof(UserDeserializationTests))]
-        public void UserDeserialization(string sourceDocument, User expectedUser)
+        public void UserDeserialization(DeserializationTestElement<User> testElement)
         {
-            if (sourceDocument is null)
-                throw new ArgumentNullException(nameof(sourceDocument));
-            if (expectedUser is null)
-                throw new ArgumentNullException(nameof(expectedUser));
+            if (testElement is null)
+                throw new ArgumentNullException(nameof(testElement));
 
             // Setup.
-            using var documentReader = new JsonReader(sourceDocument);
+            using var documentReader = new JsonReader(testElement.SourceDocument);
             var modelMapSerializer = new ModelMapSerializer<User>(dbContext);
             var deserializationContext = BsonDeserializationContext.CreateRoot(documentReader);
             using var execContext = AsyncLocalContext.Instance.InitAsyncLocalContext(); //start an execution context
+            testElement.SetupAction(mongoDatabaseMock, dbContext);
 
             // Action.
             var result = modelMapSerializer.Deserialize(deserializationContext);
 
             // Assert.
-            Assert.Equal(expectedUser.Id, result.Id);
-            Assert.Equal(expectedUser.CreationDateTime, result.CreationDateTime);
-            Assert.Equal(expectedUser.SharedInfoId, result.SharedInfoId);
-            Assert.Equal(expectedUser.Videos, result.Videos, EntityModelEqualityComparer.Instance);
-            Assert.NotNull(expectedUser.Id);
-            Assert.NotNull(expectedUser.SharedInfoId);
-            Assert.NotNull(expectedUser.Videos);
+            Assert.Equal(testElement.ExpectedModel.Id, result.Id);
+            Assert.Equal(testElement.ExpectedModel.CreationDateTime, result.CreationDateTime);
+            Assert.Equal(testElement.ExpectedModel.SharedInfoId, result.SharedInfoId);
+            Assert.Equal(testElement.ExpectedModel.Videos, result.Videos, EntityModelEqualityComparer.Instance);
+            Assert.NotNull(result.Id);
+            Assert.NotNull(result.SharedInfoId);
+            Assert.NotNull(result.Videos);
         }
 
         [Theory, MemberData(nameof(VideoDeserializationTests))]
-        public void VideoDeserialization(string sourceDocument, Video expectedVideo)
+        public void VideoDeserialization(DeserializationTestElement<Video> testElement)
         {
-            if (sourceDocument is null)
-                throw new ArgumentNullException(nameof(sourceDocument));
-            if (expectedVideo is null)
-                throw new ArgumentNullException(nameof(expectedVideo));
+            if (testElement is null)
+                throw new ArgumentNullException(nameof(testElement));
 
             // Setup.
-            using var documentReader = new JsonReader(sourceDocument);
+            using var documentReader = new JsonReader(testElement.SourceDocument);
             var modelMapSerializer = new ModelMapSerializer<Video>(dbContext);
             var deserializationContext = BsonDeserializationContext.CreateRoot(documentReader);
             using var execContext = AsyncLocalContext.Instance.InitAsyncLocalContext(); //start an execution context
+            testElement.SetupAction(mongoDatabaseMock, dbContext);
 
             // Action.
             var result = modelMapSerializer.Deserialize(deserializationContext);
 
             // Assert.
-            Assert.Equal(expectedVideo.Id, result.Id);
-            Assert.Equal(expectedVideo.CreationDateTime, result.CreationDateTime);
-            Assert.Equal(expectedVideo.IsFrozen, result.IsFrozen);
-            Assert.Equal(expectedVideo.Owner, result.Owner, EntityModelEqualityComparer.Instance);
-            Assert.Equal(expectedVideo.TotDownvotes, result.TotDownvotes);
-            Assert.Equal(expectedVideo.TotUpvotes, result.TotUpvotes);
-            Assert.Equal(expectedVideo.VideoManifests, result.VideoManifests, EntityModelEqualityComparer.Instance);
-            Assert.NotNull(expectedVideo.Id);
-            Assert.NotNull(expectedVideo.Owner);
-            Assert.NotNull(expectedVideo.VideoManifests);
+            Assert.Equal(testElement.ExpectedModel.Id, result.Id);
+            Assert.Equal(testElement.ExpectedModel.CreationDateTime, result.CreationDateTime);
+            Assert.Equal(testElement.ExpectedModel.IsFrozen, result.IsFrozen);
+            Assert.Equal(testElement.ExpectedModel.Owner, result.Owner, EntityModelEqualityComparer.Instance);
+            Assert.Equal(testElement.ExpectedModel.TotDownvotes, result.TotDownvotes);
+            Assert.Equal(testElement.ExpectedModel.TotUpvotes, result.TotUpvotes);
+            Assert.Equal(testElement.ExpectedModel.VideoManifests, result.VideoManifests, EntityModelEqualityComparer.Instance);
+            Assert.NotNull(result.Id);
+            Assert.NotNull(result.Owner);
+            Assert.NotNull(result.VideoManifests);
         }
 
         [Theory, MemberData(nameof(VideoManifestDeserializationTests))]
-        public void VideoManifestDeserialization(string sourceDocument, VideoManifest expectedVideoManifest)
+        public void VideoManifestDeserialization(DeserializationTestElement<VideoManifest> testElement)
         {
-            if (sourceDocument is null)
-                throw new ArgumentNullException(nameof(sourceDocument));
-            if (expectedVideoManifest is null)
-                throw new ArgumentNullException(nameof(expectedVideoManifest));
+            if (testElement is null)
+                throw new ArgumentNullException(nameof(testElement));
 
             // Setup.
-            using var documentReader = new JsonReader(sourceDocument);
+            using var documentReader = new JsonReader(testElement.SourceDocument);
             var modelMapSerializer = new ModelMapSerializer<VideoManifest>(dbContext);
             var deserializationContext = BsonDeserializationContext.CreateRoot(documentReader);
             using var execContext = AsyncLocalContext.Instance.InitAsyncLocalContext(); //start an execution context
+            testElement.SetupAction(mongoDatabaseMock, dbContext);
 
             // Action.
             var result = modelMapSerializer.Deserialize(deserializationContext);
 
             // Assert.
-            Assert.Equal(expectedVideoManifest.Id, result.Id);
-            Assert.Equal(expectedVideoManifest.CreationDateTime, result.CreationDateTime);
-            Assert.Equal(expectedVideoManifest.Description, result.Description);
-            Assert.Equal(expectedVideoManifest.Duration, result.Duration);
-            Assert.Equal(expectedVideoManifest.ErrorValidationResults, result.ErrorValidationResults); //maybe need to fix, because it isn't an entity
-            Assert.Equal(expectedVideoManifest.IsValid, result.IsValid);
-            Assert.Equal(expectedVideoManifest.Manifest, result.Manifest);
-            Assert.Equal(expectedVideoManifest.OriginalQuality, result.OriginalQuality);
-            Assert.Equal(expectedVideoManifest.Sources, result.Sources);
-            Assert.Equal(expectedVideoManifest.Thumbnail, result.Thumbnail);
-            Assert.Equal(expectedVideoManifest.Title, result.Title);
-            Assert.Equal(expectedVideoManifest.ValidationTime, result.ValidationTime);
-            Assert.NotNull(expectedVideoManifest.Id);
-            Assert.NotNull(expectedVideoManifest.Description);
-            Assert.NotNull(expectedVideoManifest.Duration);
-            Assert.NotNull(expectedVideoManifest.ErrorValidationResults);
-            Assert.NotNull(expectedVideoManifest.IsValid);
-            Assert.NotNull(expectedVideoManifest.Manifest);
-            Assert.NotNull(expectedVideoManifest.OriginalQuality);
-            Assert.NotNull(expectedVideoManifest.Sources);
-            Assert.NotNull(expectedVideoManifest.Thumbnail);
-            Assert.NotNull(expectedVideoManifest.Title);
-            Assert.NotNull(expectedVideoManifest.ValidationTime);
+            Assert.Equal(testElement.ExpectedModel.Id, result.Id);
+            Assert.Equal(testElement.ExpectedModel.CreationDateTime, result.CreationDateTime);
+            Assert.Equal(testElement.ExpectedModel.Description, result.Description);
+            Assert.Equal(testElement.ExpectedModel.Duration, result.Duration);
+            Assert.Equal(testElement.ExpectedModel.ErrorValidationResults, result.ErrorValidationResults);
+            Assert.Equal(testElement.ExpectedModel.IsValid, result.IsValid);
+            Assert.Equal(testElement.ExpectedModel.Manifest, result.Manifest);
+            Assert.Equal(testElement.ExpectedModel.OriginalQuality, result.OriginalQuality);
+            Assert.Equal(testElement.ExpectedModel.Sources, result.Sources);
+            Assert.Equal(testElement.ExpectedModel.Thumbnail, result.Thumbnail);
+            Assert.Equal(testElement.ExpectedModel.Title, result.Title);
+            Assert.Equal(testElement.ExpectedModel.ValidationTime, result.ValidationTime);
+            Assert.NotNull(result.Id);
+            Assert.NotNull(result.Description);
+            Assert.NotNull(result.Duration);
+            Assert.NotNull(result.ErrorValidationResults);
+            Assert.NotNull(result.IsValid);
+            Assert.NotNull(result.Manifest);
+            Assert.NotNull(result.OriginalQuality);
+            Assert.NotNull(result.Sources);
+            Assert.NotNull(result.Thumbnail);
+            Assert.NotNull(result.Title);
+            Assert.NotNull(result.ValidationTime);
         }
 
         [Theory, MemberData(nameof(VideoVoteDeserializationTests))]
-        public void VideoVoteDeserialization(string sourceDocument, VideoVote expectedVideoVote)
+        public void VideoVoteDeserialization(DeserializationTestElement<VideoVote> testElement)
         {
-            if (sourceDocument is null)
-                throw new ArgumentNullException(nameof(sourceDocument));
-            if (expectedVideoVote is null)
-                throw new ArgumentNullException(nameof(expectedVideoVote));
+            if (testElement is null)
+                throw new ArgumentNullException(nameof(testElement));
 
             // Setup.
-            using var documentReader = new JsonReader(sourceDocument);
+            using var documentReader = new JsonReader(testElement.SourceDocument);
             var modelMapSerializer = new ModelMapSerializer<VideoVote>(dbContext);
             var deserializationContext = BsonDeserializationContext.CreateRoot(documentReader);
             using var execContext = AsyncLocalContext.Instance.InitAsyncLocalContext(); //start an execution context
+            testElement.SetupAction(mongoDatabaseMock, dbContext);
 
             // Action.
             var result = modelMapSerializer.Deserialize(deserializationContext);
 
             // Assert.
-            Assert.Equal(expectedVideoVote.Id, result.Id);
-            Assert.Equal(expectedVideoVote.CreationDateTime, result.CreationDateTime);
-            Assert.Equal(expectedVideoVote.Owner, result.Owner, EntityModelEqualityComparer.Instance);
-            Assert.Equal(expectedVideoVote.Value, result.Value);
-            Assert.Equal(expectedVideoVote.Video, result.Video, EntityModelEqualityComparer.Instance);
-            Assert.NotNull(expectedVideoVote.Id);
-            Assert.NotNull(expectedVideoVote.Owner);
-            Assert.NotNull(expectedVideoVote.Video);
+            Assert.Equal(testElement.ExpectedModel.Id, result.Id);
+            Assert.Equal(testElement.ExpectedModel.CreationDateTime, result.CreationDateTime);
+            Assert.Equal(testElement.ExpectedModel.Owner, result.Owner, EntityModelEqualityComparer.Instance);
+            Assert.Equal(testElement.ExpectedModel.Value, result.Value);
+            Assert.Equal(testElement.ExpectedModel.Video, result.Video, EntityModelEqualityComparer.Instance);
+            Assert.NotNull(result.Id);
+            Assert.NotNull(result.Owner);
+            Assert.NotNull(result.Video);
         }
     }
 }

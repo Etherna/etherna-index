@@ -59,10 +59,10 @@ namespace Etherna.EthernaIndex.Domain.Models
             //Assert
             Assert.False(manifest.IsValid);
             Assert.Contains(manifest.ErrorValidationResults,
-                i => i.ErrorNumber == ValidationErrorType.Unknown &&
+                i => i.ErrorType == ValidationErrorType.Unknown &&
                     i.ErrorMessage.Equals("Unknown Error", StringComparison.Ordinal));
             Assert.Contains(manifest.ErrorValidationResults,
-                i => i.ErrorNumber == ValidationErrorType.InvalidVideoSource &&
+                i => i.ErrorType == ValidationErrorType.InvalidVideoSource &&
                     i.ErrorMessage.Equals("Invalid Source Video", StringComparison.Ordinal));
             Assert.NotNull(manifest.ValidationTime);
         }
