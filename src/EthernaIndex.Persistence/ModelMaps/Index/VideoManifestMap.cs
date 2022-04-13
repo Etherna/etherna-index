@@ -36,8 +36,14 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                 "f555eaa8-d8e1-4f23-a402-8b9ac5930832"); //v0.3.0
 
             dbContext.SchemaRegistry.AddModelMapsSchema<SwarmImageRaw>(
-                "91ce6fdc-b59a-46bc-9ad0-7a8608cdfa1c"); //v0.3.0
-                .AddFallbackModelMap(); //dev (pre v0.3.0), published for WAM event
+                "91ce6fdc-b59a-46bc-9ad0-7a8608cdfa1c") //v0.3.0
+                .AddFallbackModelMap(mm => //dev (pre v0.3.0), published for WAM event
+                {
+                    mm.AutoMap();
+
+                    // Set members with custom name.
+                    mm.GetMemberMap(i => i.Blurhash).SetElementName("BlurHash");
+                });
 
             dbContext.SchemaRegistry.AddModelMapsSchema<VideoSource>(
                 "ca9caff9-df18-4101-a362-f8f449bb2aac"); //v0.3.0

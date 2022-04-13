@@ -4,22 +4,14 @@ using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.Domain.Models.ManifestAgg;
 using Etherna.EthernaIndex.Domain.Models.Swarm;
 using Etherna.EthernaIndex.Persistence.Helpers;
-using Etherna.ExecContext.AsyncLocal;
 using Etherna.MongoDB.Bson.IO;
 using Etherna.MongoDB.Bson.Serialization;
 using Etherna.MongoDB.Driver;
-using Etherna.MongODM.Core;
-using Etherna.MongODM.Core.Options;
-using Etherna.MongODM.Core.ProxyModels;
-using Etherna.MongODM.Core.Repositories;
-using Etherna.MongODM.Core.Serialization.Mapping;
-using Etherna.MongODM.Core.Serialization.Modifiers;
 using Etherna.MongODM.Core.Serialization.Serializers;
 using Etherna.MongODM.Core.Utility;
 using Moq;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Xunit;
 
@@ -29,44 +21,16 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
     {
         // Fields.
         private readonly IndexDbContext dbContext;
-        private readonly Mock<IMongoDatabase> mongoDatabaseMock;
+        private readonly Mock<IMongoDatabase> mongoDatabaseMock = new();
 
         // Constructor.
-        [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "Need to keep objects after test construction")]
         public IndexDbContextDeserializationTest()
         {
             // Setup dbContext.
             var eventDispatcherMock = new Mock<IEventDispatcher>();
             dbContext = new IndexDbContext(eventDispatcherMock.Object);
 
-            // Setup dbcontext dependencies for initialization.
-            Mock<IDbDependencies> dbDependenciesMock = new();
-            var execContext = AsyncLocalContext.Instance;
-
-            dbDependenciesMock.Setup(d => d.BsonSerializerRegistry).Returns(new BsonSerializerRegistry());
-            dbDependenciesMock.Setup(d => d.DbCache).Returns(new DbCache());
-            dbDependenciesMock.Setup(d => d.DbMaintainer).Returns(new Mock<IDbMaintainer>().Object);
-            dbDependenciesMock.Setup(d => d.DbMigrationManager).Returns(new Mock<IDbMigrationManager>().Object);
-            dbDependenciesMock.Setup(d => d.DiscriminatorRegistry).Returns(new DiscriminatorRegistry());
-            dbDependenciesMock.Setup(d => d.ExecutionContext).Returns(execContext);
-            dbDependenciesMock.Setup(d => d.ProxyGenerator).Returns(new ProxyGenerator(new Castle.DynamicProxy.ProxyGenerator()));
-            dbDependenciesMock.Setup(d => d.RepositoryRegistry).Returns(new RepositoryRegistry());
-            dbDependenciesMock.Setup(d => d.SchemaRegistry).Returns(new SchemaRegistry());
-            dbDependenciesMock.Setup(d => d.SerializerModifierAccessor).Returns(new SerializerModifierAccessor(execContext));
-
-            // Setup Mongo client.
-            mongoDatabaseMock = new Mock<IMongoDatabase>();
-
-            var mongoClientMock = new Mock<IMongoClient>();
-            mongoClientMock.Setup(c => c.GetDatabase(It.IsAny<string>(), It.IsAny<MongoDatabaseSettings>()))
-                .Returns(mongoDatabaseMock.Object);
-
-            // Initialize dbContext.
-            dbContext.Initialize(
-                dbDependenciesMock.Object,
-                mongoClientMock.Object,
-                new DbContextOptions(),
-                Array.Empty<IDbContext>());
+            DbContextMockHelper.InitializeDbContextMock(dbContext, mongoDatabaseMock);
         }
 
         // Data.
@@ -476,10 +440,10 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
             using var documentReader = new JsonReader(testElement.SourceDocument);
             var modelMapSerializer = new ModelMapSerializer<Comment>(dbContext);
             var deserializationContext = BsonDeserializationContext.CreateRoot(documentReader);
-            using var execContext = AsyncLocalContext.Instance.InitAsyncLocalContext(); //start an execution context
             testElement.SetupAction(mongoDatabaseMock, dbContext);
 
             // Action.
+            using var dbExecutionContext = new DbExecutionContextHandler(dbContext); //run into a db execution context
             var result = modelMapSerializer.Deserialize(deserializationContext);
 
             // Assert.
@@ -504,10 +468,10 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
             using var documentReader = new JsonReader(testElement.SourceDocument);
             var modelMapSerializer = new ModelMapSerializer<ManualVideoReview>(dbContext);
             var deserializationContext = BsonDeserializationContext.CreateRoot(documentReader);
-            using var execContext = AsyncLocalContext.Instance.InitAsyncLocalContext(); //start an execution context
             testElement.SetupAction(mongoDatabaseMock, dbContext);
 
             // Action.
+            using var dbExecutionContext = new DbExecutionContextHandler(dbContext); //run into a db execution context
             var result = modelMapSerializer.Deserialize(deserializationContext);
 
             // Assert.
@@ -533,10 +497,10 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
             using var documentReader = new JsonReader(testElement.SourceDocument);
             var modelMapSerializer = new ModelMapSerializer<UnsuitableVideoReport>(dbContext);
             var deserializationContext = BsonDeserializationContext.CreateRoot(documentReader);
-            using var execContext = AsyncLocalContext.Instance.InitAsyncLocalContext(); //start an execution context
             testElement.SetupAction(mongoDatabaseMock, dbContext);
 
             // Action.
+            using var dbExecutionContext = new DbExecutionContextHandler(dbContext); //run into a db execution context
             var result = modelMapSerializer.Deserialize(deserializationContext);
 
             // Assert.
@@ -566,10 +530,10 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
             using var documentReader = new JsonReader(testElement.SourceDocument);
             var modelMapSerializer = new ModelMapSerializer<User>(dbContext);
             var deserializationContext = BsonDeserializationContext.CreateRoot(documentReader);
-            using var execContext = AsyncLocalContext.Instance.InitAsyncLocalContext(); //start an execution context
             testElement.SetupAction(mongoDatabaseMock, dbContext);
 
             // Action.
+            using var dbExecutionContext = new DbExecutionContextHandler(dbContext); //run into a db execution context
             var result = modelMapSerializer.Deserialize(deserializationContext);
 
             // Assert.
@@ -592,10 +556,10 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
             using var documentReader = new JsonReader(testElement.SourceDocument);
             var modelMapSerializer = new ModelMapSerializer<Video>(dbContext);
             var deserializationContext = BsonDeserializationContext.CreateRoot(documentReader);
-            using var execContext = AsyncLocalContext.Instance.InitAsyncLocalContext(); //start an execution context
             testElement.SetupAction(mongoDatabaseMock, dbContext);
 
             // Action.
+            using var dbExecutionContext = new DbExecutionContextHandler(dbContext); //run into a db execution context
             var result = modelMapSerializer.Deserialize(deserializationContext);
 
             // Assert.
@@ -621,10 +585,10 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
             using var documentReader = new JsonReader(testElement.SourceDocument);
             var modelMapSerializer = new ModelMapSerializer<VideoManifest>(dbContext);
             var deserializationContext = BsonDeserializationContext.CreateRoot(documentReader);
-            using var execContext = AsyncLocalContext.Instance.InitAsyncLocalContext(); //start an execution context
             testElement.SetupAction(mongoDatabaseMock, dbContext);
 
             // Action.
+            using var dbExecutionContext = new DbExecutionContextHandler(dbContext); //run into a db execution context
             var result = modelMapSerializer.Deserialize(deserializationContext);
 
             // Assert.
@@ -663,10 +627,10 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
             using var documentReader = new JsonReader(testElement.SourceDocument);
             var modelMapSerializer = new ModelMapSerializer<VideoVote>(dbContext);
             var deserializationContext = BsonDeserializationContext.CreateRoot(documentReader);
-            using var execContext = AsyncLocalContext.Instance.InitAsyncLocalContext(); //start an execution context
             testElement.SetupAction(mongoDatabaseMock, dbContext);
 
             // Action.
+            using var dbExecutionContext = new DbExecutionContextHandler(dbContext); //run into a db execution context
             var result = modelMapSerializer.Deserialize(deserializationContext);
 
             // Assert.
