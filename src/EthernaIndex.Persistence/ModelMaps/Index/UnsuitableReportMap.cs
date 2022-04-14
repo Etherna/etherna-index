@@ -1,11 +1,11 @@
 ﻿using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
+using Etherna.MongoDB.Bson.Serialization;
 using Etherna.MongODM.Core;
 using Etherna.MongODM.Core.Extensions;
 using Etherna.MongODM.Core.Serialization;
-using Etherna.MongODM.Core.Serialization.Serializers;
+using Etherna.MongODM.Core.Serialization.Mapping;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
 {
@@ -33,15 +33,17 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                     // Set members with custom serializers.
                     mm.SetMemberSerializer(c => c.Video, VideoMap.ReferenceSerializer(dbContext));
                     mm.SetMemberSerializer(c => c.VideoManifest, VideoManifestMap.InformationSerializer(dbContext));
-                }).AddSecondaryMap("91e7a66a-d1e2-48eb-9627-3c3c2ceb5e2d", //dev (pre v0.3.0), published for WAM event
-                mm =>
-                {
-                    mm.AutoMap();
+                })
+                .AddSecondaryMap(new ModelMap<UnsuitableVideoReport>(
+                    "91e7a66a-d1e2-48eb-9627-3c3c2ceb5e2d", //dev (pre v0.3.0), published for WAM event
+                    new BsonClassMap<UnsuitableVideoReport>(mm =>
+                    {
+                        mm.AutoMap();
 
-                    // Set members with custom serializers.
-                    mm.SetMemberSerializer(c => c.VideoManifest, VideoManifestMap.InformationSerializer(dbContext));
-                }, customSerializer: new ModelMapSerializer<UnsuitableVideoReport>(
-                    dbContext, fixDeserializedModelAsync: async (model, context) =>
+                        // Set members with custom serializers.
+                        mm.SetMemberSerializer(c => c.VideoManifest, VideoManifestMap.InformationSerializer(dbContext));
+                    }),
+                    fixDeserializedModelFunc: async model =>
                     {
                         var indexDbContext = (IIndexDbContext)dbContext;
                         var video = await indexDbContext.Videos.TryFindOneAsync(

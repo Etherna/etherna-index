@@ -458,34 +458,34 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
             Assert.NotNull(result.Video);
         }
 
-        [Theory, MemberData(nameof(ManualVideoReviewDeserializationTests))]
-        public void ManualVideoReviewDeserialization(DeserializationTestElement<ManualVideoReview> testElement)
-        {
-            if (testElement is null)
-                throw new ArgumentNullException(nameof(testElement));
+        //[Theory, MemberData(nameof(ManualVideoReviewDeserializationTests))]
+        //public void ManualVideoReviewDeserialization(DeserializationTestElement<ManualVideoReview> testElement)
+        //{
+        //    if (testElement is null)
+        //        throw new ArgumentNullException(nameof(testElement));
 
-            // Setup.
-            using var documentReader = new JsonReader(testElement.SourceDocument);
-            var modelMapSerializer = new ModelMapSerializer<ManualVideoReview>(dbContext);
-            var deserializationContext = BsonDeserializationContext.CreateRoot(documentReader);
-            testElement.SetupAction(mongoDatabaseMock, dbContext);
+        //    // Setup.
+        //    using var documentReader = new JsonReader(testElement.SourceDocument);
+        //    var modelMapSerializer = new ModelMapSerializer<ManualVideoReview>(dbContext);
+        //    var deserializationContext = BsonDeserializationContext.CreateRoot(documentReader);
+        //    testElement.SetupAction(mongoDatabaseMock, dbContext);
 
-            // Action.
-            using var dbExecutionContext = new DbExecutionContextHandler(dbContext); //run into a db execution context
-            var result = modelMapSerializer.Deserialize(deserializationContext);
+        //    // Action.
+        //    using var dbExecutionContext = new DbExecutionContextHandler(dbContext); //run into a db execution context
+        //    var result = modelMapSerializer.Deserialize(deserializationContext);
 
-            // Assert.
-            Assert.Equal(testElement.ExpectedModel.Id, result.Id);
-            Assert.Equal(testElement.ExpectedModel.Author, result.Author, EntityModelEqualityComparer.Instance);
-            Assert.Equal(testElement.ExpectedModel.CreationDateTime, result.CreationDateTime);
-            Assert.Equal(testElement.ExpectedModel.Description, result.Description);
-            Assert.Equal(testElement.ExpectedModel.IsValid, result.IsValid);
-            Assert.Equal(testElement.ExpectedModel.Video, result.Video, EntityModelEqualityComparer.Instance);
-            Assert.NotNull(result.Id);
-            Assert.NotNull(result.Author);
-            Assert.NotNull(result.Description);
-            Assert.NotNull(result.Video);
-        }
+        //    // Assert.
+        //    Assert.Equal(testElement.ExpectedModel.Id, result.Id);
+        //    Assert.Equal(testElement.ExpectedModel.Author, result.Author, EntityModelEqualityComparer.Instance);
+        //    Assert.Equal(testElement.ExpectedModel.CreationDateTime, result.CreationDateTime);
+        //    Assert.Equal(testElement.ExpectedModel.Description, result.Description);
+        //    Assert.Equal(testElement.ExpectedModel.IsValid, result.IsValid);
+        //    Assert.Equal(testElement.ExpectedModel.Video, result.Video, EntityModelEqualityComparer.Instance);
+        //    Assert.NotNull(result.Id);
+        //    Assert.NotNull(result.Author);
+        //    Assert.NotNull(result.Description);
+        //    Assert.NotNull(result.Video);
+        //}
 
         [Theory, MemberData(nameof(UnsuitableVideoReportDeserializationTests))]
         public void UnsuitableVideoReportDeserialization(DeserializationTestElement<UnsuitableVideoReport> testElement)
