@@ -7,10 +7,10 @@ namespace Etherna.EthernaIndex.Domain.Models.ManifestAgg
     {
         // Constructors.
         public ErrorDetail(
-            ValidationErrorType errorNumber,
+            ValidationErrorType errorType,
             string errorMessage)
         {
-            ErrorType = errorNumber;
+            ErrorType = errorType;
             ErrorMessage = errorMessage;
         }
 #pragma warning disable CS8618 //Used only by EthernaIndex.Persistence
