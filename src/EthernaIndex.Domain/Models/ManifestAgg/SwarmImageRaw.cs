@@ -15,6 +15,7 @@
 using Etherna.MongODM.Core.Attributes;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Etherna.EthernaIndex.Domain.Models.ManifestAgg
 {
@@ -66,7 +67,7 @@ namespace Etherna.EthernaIndex.Domain.Models.ManifestAgg
             return GetType() == obj.GetType() &&
                 AspectRatio.Equals((obj as SwarmImageRaw)?.AspectRatio) &&
                 EqualityComparer<string>.Default.Equals(Blurhash, (obj as SwarmImageRaw)!.Blurhash) &&
-                Sources.Equals((obj as SwarmImageRaw)?.Sources);
+                Sources.Count == (obj as SwarmImageRaw)?.Sources?.Count && !Sources.Except(((SwarmImageRaw)obj).Sources).Any();
         }
 
         public override int GetHashCode() =>

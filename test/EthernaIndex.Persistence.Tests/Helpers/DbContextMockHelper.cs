@@ -60,6 +60,9 @@ namespace Etherna.EthernaIndex.Persistence.Helpers
                 mongoClientMock.Object,
                 new DbContextOptions(),
                 Array.Empty<IDbContext>());
+
+            // Disable creation of proxy models, for test scope.
+            dbContext.ProxyGenerator.DisableCreationWithProxyTypes = true;
         }
 
         public static Mock<IMongoCollection<TModel>> SetupCollectionMock<TModel, TKey>(
