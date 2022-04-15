@@ -142,7 +142,7 @@ namespace EthernaIndex.Services.Tests.Tasks
             Assert.NotNull(videoManifest.ValidationTime);
             Assert.Contains(videoManifest.ErrorValidationResults,
                 i => i.ErrorMessage == "MissingTitle" &&
-                    i.ErrorNumber == ValidationErrorType.MissingTitle);
+                    i.ErrorType == ValidationErrorType.MissingTitle);
             Assert.Contains(video.VideoManifests,
                 i => i.Manifest.Hash == manifestHash);
             Assert.Null(video.LastValidManifest);
@@ -164,7 +164,7 @@ namespace EthernaIndex.Services.Tests.Tasks
             Assert.NotNull(videoManifest.ValidationTime);
             Assert.Contains(videoManifest.ErrorValidationResults,
                 i => i.ErrorMessage == "Unable to cast json" &&
-                    i.ErrorNumber == ValidationErrorType.JsonConvert);
+                    i.ErrorType == ValidationErrorType.JsonConvert);
             Assert.Contains(video.VideoManifests,
                 i => i.Manifest.Hash == manifestHash);
             Assert.Null(video.LastValidManifest);
@@ -194,7 +194,7 @@ namespace EthernaIndex.Services.Tests.Tasks
             Assert.NotNull(videoManifest.ValidationTime);
             Assert.Contains(videoManifest.ErrorValidationResults,
                 i => i.ErrorMessage == "Missing sources" &&
-                    i.ErrorNumber == ValidationErrorType.InvalidVideoSource);
+                    i.ErrorType == ValidationErrorType.InvalidVideoSource);
             Assert.Contains(video.VideoManifests,
                 i => i.Manifest.Hash == manifestHash);
             Assert.Null(video.LastValidManifest);
@@ -224,7 +224,7 @@ namespace EthernaIndex.Services.Tests.Tasks
             Assert.NotNull(videoManifest.ValidationTime);
             Assert.Contains(videoManifest.ErrorValidationResults,
                 i => i.ErrorMessage == "Missing sources" &&
-                    i.ErrorNumber == ValidationErrorType.InvalidVideoSource);
+                    i.ErrorType == ValidationErrorType.InvalidVideoSource);
             Assert.Contains(video.VideoManifests,
                 i => i.Manifest.Hash == manifestHash);
             Assert.Null(video.LastValidManifest);
@@ -258,7 +258,7 @@ namespace EthernaIndex.Services.Tests.Tasks
             Assert.NotNull(videoManifest.ValidationTime);
             Assert.Contains(videoManifest.ErrorValidationResults,
                 i => i.ErrorMessage == "[720] empty reference" &&
-                    i.ErrorNumber == ValidationErrorType.InvalidVideoSource);
+                    i.ErrorType == ValidationErrorType.InvalidVideoSource);
             Assert.Contains(video.VideoManifests,
                 i => i.Manifest.Hash == manifestHash);
             Assert.Null(video.LastValidManifest);
@@ -292,7 +292,7 @@ namespace EthernaIndex.Services.Tests.Tasks
             Assert.NotNull(videoManifest.ValidationTime);
             Assert.Contains(videoManifest.ErrorValidationResults,
                 i => i.ErrorMessage == "empty quality" &&
-                    i.ErrorNumber == ValidationErrorType.InvalidVideoSource);
+                    i.ErrorType == ValidationErrorType.InvalidVideoSource);
             Assert.Contains(video.VideoManifests,
                 i => i.Manifest.Hash == manifestHash);
             Assert.Null(video.LastValidManifest);

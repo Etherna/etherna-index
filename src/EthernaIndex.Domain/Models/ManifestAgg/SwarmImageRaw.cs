@@ -13,7 +13,9 @@
 //   limitations under the License.
 
 using Etherna.MongODM.Core.Attributes;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Etherna.EthernaIndex.Domain.Models.ManifestAgg
 {
@@ -36,6 +38,7 @@ namespace Etherna.EthernaIndex.Domain.Models.ManifestAgg
         protected SwarmImageRaw() { }
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
+        // Properties.
         public virtual float AspectRatio { get; set; }
         public virtual string Blurhash { get; set; }
         public virtual IReadOnlyDictionary<string, string> Sources
@@ -56,5 +59,20 @@ namespace Etherna.EthernaIndex.Domain.Models.ManifestAgg
         {
             _sources.Remove(sourceType);
         }
+
+        public override bool Equals(object? obj)
+        {
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj is null) return false;
+            return GetType() == obj.GetType() &&
+                AspectRatio.Equals((obj as SwarmImageRaw)?.AspectRatio) &&
+                EqualityComparer<string>.Default.Equals(Blurhash, (obj as SwarmImageRaw)!.Blurhash) &&
+                Sources.Count == (obj as SwarmImageRaw)?.Sources?.Count && !Sources.Except(((SwarmImageRaw)obj).Sources).Any();
+        }
+
+        public override int GetHashCode() =>
+            AspectRatio.GetHashCode() ^
+            Blurhash.GetHashCode(StringComparison.Ordinal) ^
+            Sources.GetHashCode();
     }
 }

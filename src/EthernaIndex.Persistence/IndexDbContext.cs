@@ -32,7 +32,7 @@ namespace Etherna.EthernaIndex.Persistence
     public class IndexDbContext : DbContext, IEventDispatcherDbContext, IIndexDbContext
     {
         // Consts.
-        private const string SerializersNamespace = "Etherna.EthernaIndex.Persistence.ModelMaps.Index";
+        private const string ModelMapsNamespace = "Etherna.EthernaIndex.Persistence.ModelMaps.Index";
 
         // Constructor.
         public IndexDbContext(
@@ -92,7 +92,7 @@ namespace Etherna.EthernaIndex.Persistence
         // Protected properties.
         protected override IEnumerable<IModelMapsCollector> ModelMapsCollectors =>
             from t in typeof(IndexDbContext).GetTypeInfo().Assembly.GetTypes()
-            where t.IsClass && t.Namespace == SerializersNamespace
+            where t.IsClass && t.Namespace == ModelMapsNamespace
             where t.GetInterfaces().Contains(typeof(IModelMapsCollector))
             select Activator.CreateInstance(t) as IModelMapsCollector;
 

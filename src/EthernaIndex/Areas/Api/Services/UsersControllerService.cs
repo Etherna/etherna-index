@@ -97,7 +97,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             return user.Videos
                 .Where(v => v.IsValid)
                 .PaginateDescending(v => v.CreationDateTime, page, take)
-                .Select(v => new VideoDto(v, v.LastValidManifest, sharedInfo));
+                .Select(v => new VideoDto(v, v.LastValidManifest, sharedInfo, null));
         }
     }
 }

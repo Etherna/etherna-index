@@ -24,29 +24,36 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
         // Constructors.
         public VideoDto(
             Video video,
-            VideoManifest? lastValidManifest,
-            UserSharedInfo userSharedInfo)
+            VideoManifest? videoManifest,
+            UserSharedInfo ownerSharedInfo,
+            VideoVote? currentUserVideoVote)
         {
             if (video is null)
                 throw new ArgumentNullException(nameof(video));
-            if (userSharedInfo is null)
-                throw new ArgumentNullException(nameof(userSharedInfo));
+            if (ownerSharedInfo is null)
+                throw new ArgumentNullException(nameof(ownerSharedInfo));
 
-            if (lastValidManifest is not null &&
-                !video.VideoManifests.Contains(lastValidManifest))
+            if (videoManifest is not null &&
+                !video.VideoManifests.Contains(videoManifest))
             {
                 var ex = new InvalidOperationException("Video not compatible with current Manifest");
                 ex.Data.Add("VideoId", video.Id);
-                ex.Data.Add("ManifestHash", lastValidManifest.Manifest.Hash);
-                ex.Data.Add("ManifestId", lastValidManifest.Id);
+                ex.Data.Add("ManifestHash", videoManifest.Manifest.Hash);
+                ex.Data.Add("ManifestId", videoManifest.Id);
                 throw ex;
             }
 
             Id = video.Id;
             CreationDateTime = video.CreationDateTime;
-            if (lastValidManifest is not null)
-                LastValidManifest = new VideoManifestDto(lastValidManifest);
-            OwnerAddress = userSharedInfo.EtherAddress;
+            if (currentUserVideoVote is not null &&
+                currentUserVideoVote.Value != VoteValue.Neutral)
+            {
+                CurrentVoteValue = currentUserVideoVote.Value;
+            }
+            
+            if (videoManifest is not null)
+                LastValidManifest = new VideoManifestDto(videoManifest);
+            OwnerAddress = ownerSharedInfo.EtherAddress;
             TotDownvotes = video.TotDownvotes;
             TotUpvotes = video.TotUpvotes;
         }
@@ -54,6 +61,7 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
         // Properties.
         public string Id { get; }
         public DateTime CreationDateTime { get; }
+        public VoteValue? CurrentVoteValue { get; }
         public VideoManifestDto? LastValidManifest { get; }
         public string OwnerAddress { get; }
         public long TotDownvotes { get; }

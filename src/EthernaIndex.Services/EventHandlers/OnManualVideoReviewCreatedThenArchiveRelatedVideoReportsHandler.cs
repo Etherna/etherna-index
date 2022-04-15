@@ -24,7 +24,7 @@ namespace Etherna.EthernaIndex.Services.EventHandlers
         public override async Task HandleAsync(EntityCreatedEvent<ManualVideoReview> @event)
         {
             var unsuitableVideoReports = await indexDbContext.UnsuitableVideoReports.QueryElementsAsync(
-                uvr => uvr.Where(i => i.Video.Id == @event.Entity.VideoId)
+                uvr => uvr.Where(i => i.Video.Id == @event.Entity.Video.Id)
                           .ToListAsync());
 
             foreach (var item in unsuitableVideoReports)

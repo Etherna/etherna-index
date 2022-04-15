@@ -17,9 +17,6 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.ManualVideoReviews
         // Models.
         public class InputModel
         {
-            [Display(Name = "Manifest Hash")]
-            public string? ManifestHash { get; set; }
-
             [Display(Name = "Video Id")]
             public string? VideoId { get; set; }
         }
@@ -71,12 +68,10 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.ManualVideoReviews
 
         // Methods.
         public async Task OnGetAsync(
-            string? manifestHash,
             string? videoId,
             int? p)
         {
             await InitializeAsync(
-                manifestHash,
                 videoId,
                 p);
         }
@@ -84,22 +79,20 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.ManualVideoReviews
         public async Task OnPost()
         {
             await InitializeAsync(
-                Input?.ManifestHash,
                 Input?.VideoId,
                 null);
         }
 
         // Helpers.
         private async Task InitializeAsync(
-            string? manifestHash,
             string? videoId,
             int? p)
         {
             CurrentPage = p ?? 0;
 
             var paginatedVideoReviews = await indexDbContext.ManualVideoReviews.QueryPaginatedElementsAsync(
-                vm => VideoUnsuitableReviewWhere(vm, manifestHash, videoId)
-                        .GroupBy(i => i.VideoId)
+                vm => VideoUnsuitableReviewWhere(vm, videoId)
+                        .GroupBy(i => i.Video.Id)
                         .Select(group => new
                         {
                             Id = group.Key,
@@ -128,13 +121,10 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.ManualVideoReviews
 
         private IMongoQueryable<ManualVideoReview> VideoUnsuitableReviewWhere(
             IMongoQueryable<ManualVideoReview> querable,
-            string? manifestHash,
             string? videoId)
         {
-            if (!string.IsNullOrWhiteSpace(manifestHash))
-                querable = querable.Where(vur => vur.ManifestHash == manifestHash);
             if (!string.IsNullOrWhiteSpace(videoId))
-                querable = querable.Where(vur => vur.VideoId == videoId);
+                querable = querable.Where(vur => vur.Video.Id == videoId);
 
             return querable;
         }

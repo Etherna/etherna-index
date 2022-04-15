@@ -23,7 +23,8 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
     {
         public void Register(IDbContext dbContext)
         {
-            dbContext.SchemaRegistry.AddModelMapsSchema<Comment>("8e509e8e-5c2b-4874-a734-ada4e2b91f92",
+            dbContext.SchemaRegistry.AddModelMapsSchema<Comment>(
+                "8e509e8e-5c2b-4874-a734-ada4e2b91f92", //dev (pre v0.3.0), published for WAM event
                 mm =>
                 {
                     mm.AutoMap();
