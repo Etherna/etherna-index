@@ -15,7 +15,7 @@ namespace Etherna.EthernaIndex.Persistence
     public class SharedDbContext : DbContext, ISharedDbContext
     {
         // Consts.
-        private const string ModelMapsNamespace = "Etherna.EthernaIndex.Persistence.ModelMaps.Shared";
+        private const string ModelMapsNamespace = "Etherna.EthernaIndex.Persistence.ModelMaps.SsoShared";
 
         // Properties.
         //repositories

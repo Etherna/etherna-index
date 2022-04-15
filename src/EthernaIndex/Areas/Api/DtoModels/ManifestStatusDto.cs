@@ -15,7 +15,7 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
                 throw new ArgumentNullException(nameof(videoManifest));
 
             ErrorDetails = videoManifest.ErrorValidationResults
-                .Select(i => new ErrorDetailDto(i.ErrorMessage, i.ErrorNumber));
+                .Select(i => new ErrorDetailDto(i.ErrorMessage, i.ErrorType));
             Hash = videoManifest.Manifest.Hash;
             IsValid = videoManifest.IsValid;
             ValidationTime = videoManifest.ValidationTime;

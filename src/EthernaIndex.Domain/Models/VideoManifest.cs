@@ -37,16 +37,16 @@ namespace Etherna.EthernaIndex.Domain.Models
             get => _sources;
             protected set => _sources = new List<VideoSource>(value ?? new List<VideoSource>());
         }
-        public virtual string? Title { get; protected set; }
         public virtual SwarmImageRaw? Thumbnail { get; protected set; }
+        public virtual string? Title { get; protected set; }
 
         // Methods.
         [PropertyAlterer(nameof(Description))]
         [PropertyAlterer(nameof(Duration))]
         [PropertyAlterer(nameof(OriginalQuality))]
         [PropertyAlterer(nameof(Sources))]
-        [PropertyAlterer(nameof(Title))]
         [PropertyAlterer(nameof(Thumbnail))]
+        [PropertyAlterer(nameof(Title))]
         public virtual void SuccessfulValidation(
             string? description,
             float duration,
@@ -60,8 +60,8 @@ namespace Etherna.EthernaIndex.Domain.Models
             Duration = duration;
             OriginalQuality = originalQuality;
             Sources = videoSources;
-            Title = title;
             Thumbnail = thumbnail;
+            Title = title;
         }
     }
 }

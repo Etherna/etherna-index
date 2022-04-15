@@ -12,6 +12,9 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
+using System;
+using System.Collections.Generic;
+
 namespace Etherna.EthernaIndex.Domain.Models.ManifestAgg
 {
     public class VideoSource : ModelBase
@@ -38,5 +41,23 @@ namespace Etherna.EthernaIndex.Domain.Models.ManifestAgg
         public virtual string Quality { get; set; }
         public virtual string Reference { get; set; }
         public virtual long Size { get; set; }
+
+        // Methods.
+        public override bool Equals(object? obj)
+        {
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj is null) return false;
+            return GetType() == obj.GetType() &&
+                EqualityComparer<int?>.Default.Equals(Bitrate, (obj as VideoSource)!.Bitrate) &&
+                EqualityComparer<string>.Default.Equals(Quality, (obj as VideoSource)!.Quality) &&
+                EqualityComparer<string>.Default.Equals(Reference, (obj as VideoSource)!.Reference) &&
+                Size.Equals((obj as VideoSource)?.Size);
+        }
+
+        public override int GetHashCode() =>
+            (Bitrate ?? 0).GetHashCode() ^
+            Quality.GetHashCode(StringComparison.Ordinal) ^
+            Reference.GetHashCode(StringComparison.Ordinal) ^
+            Size.GetHashCode();
     }
 }
