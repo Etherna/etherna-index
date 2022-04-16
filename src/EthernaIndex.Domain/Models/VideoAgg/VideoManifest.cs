@@ -12,11 +12,10 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-using Etherna.EthernaIndex.Domain.Models.ManifestAgg;
 using Etherna.MongODM.Core.Attributes;
 using System.Collections.Generic;
 
-namespace Etherna.EthernaIndex.Domain.Models
+namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
 {
     public class VideoManifest : ManifestBase
     {
@@ -47,7 +46,7 @@ namespace Etherna.EthernaIndex.Domain.Models
         [PropertyAlterer(nameof(Sources))]
         [PropertyAlterer(nameof(Thumbnail))]
         [PropertyAlterer(nameof(Title))]
-        public virtual void SuccessfulValidation(
+        internal virtual void SuccessfulValidation(
             string? description,
             float duration,
             string originalQuality,

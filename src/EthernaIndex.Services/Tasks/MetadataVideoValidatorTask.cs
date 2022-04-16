@@ -13,7 +13,7 @@
 //   limitations under the License.
 
 using Etherna.EthernaIndex.Domain;
-using Etherna.EthernaIndex.Domain.Models.ManifestAgg;
+using Etherna.EthernaIndex.Domain.Models.VideoAgg;
 using Etherna.EthernaIndex.Swarm;
 using Etherna.EthernaIndex.Swarm.DtoModel;
 using System;

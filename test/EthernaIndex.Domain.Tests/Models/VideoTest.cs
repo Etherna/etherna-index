@@ -12,8 +12,8 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-using Etherna.EthernaIndex.Domain.Models.ManifestAgg;
 using Etherna.EthernaIndex.Domain.Models.UserAgg;
+using Etherna.EthernaIndex.Domain.Models.VideoAgg;
 using Moq;
 using System;
 using System.Collections.Generic;
