@@ -46,7 +46,7 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
         [PropertyAlterer(nameof(Sources))]
         [PropertyAlterer(nameof(Thumbnail))]
         [PropertyAlterer(nameof(Title))]
-        internal virtual void SuccessfulValidation(
+        internal virtual void SucceededValidation(
             string? description,
             float duration,
             string originalQuality,
@@ -54,7 +54,7 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
             SwarmImageRaw? thumbnail,
             IEnumerable<VideoSource> videoSources)
         {
-            base.SuccessfulValidation();
+            base.SucceededValidation();
             Description = description;
             Duration = duration;
             OriginalQuality = originalQuality;

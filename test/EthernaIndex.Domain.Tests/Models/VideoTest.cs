@@ -97,7 +97,7 @@ namespace Etherna.EthernaIndex.Domain.Models
             var videoSources = new List<VideoSource> { new VideoSource(1, "10801", "reff1", 4), new VideoSource(null, "321", "reff2", 100) };
 
             if (valid)
-                videoManifest.SuccessfulValidation(
+                videoManifest.SucceededValidation(
                     desc,
                     duration,
                     original,

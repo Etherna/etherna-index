@@ -32,7 +32,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
 
                     // Set members with custom serializers.
                     mm.SetMemberSerializer(c => c.Video, VideoMap.ReferenceSerializer(dbContext));
-                    mm.SetMemberSerializer(c => c.VideoManifest, VideoManifestMap.InformationSerializer(dbContext));
+                    mm.SetMemberSerializer(c => c.VideoManifest, VideoManifestMap.BasicInformationSerializer(dbContext));
                 })
                 .AddSecondaryMap(new ModelMap<UnsuitableVideoReport>(
                     "91e7a66a-d1e2-48eb-9627-3c3c2ceb5e2d", //dev (pre v0.3.0), published for WAM event
@@ -41,7 +41,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                         mm.AutoMap();
 
                         // Set members with custom serializers.
-                        mm.SetMemberSerializer(c => c.VideoManifest, VideoManifestMap.InformationSerializer(dbContext));
+                        mm.SetMemberSerializer(c => c.VideoManifest, VideoManifestMap.BasicInformationSerializer(dbContext));
                     }),
                     fixDeserializedModelFunc: async model =>
                     {

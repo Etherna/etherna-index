@@ -292,6 +292,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                         manifest0Mock.Setup(m => m.Id).Returns("6229f475127a47231a0ec7b0");
                         manifest1Mock.Setup(m => m.Id).Returns("6229fa8540452f3d336a34ee");
                         expectedVideoMock.Setup(v => v.VideoManifests).Returns(new[] { manifest0Mock.Object, manifest1Mock.Object });
+                        expectedVideoMock.Setup(v => v.LastValidManifest).Returns(manifest1Mock.Object);
                     }
 
                     tests.Add(new DeserializationTestElement<Video>(sourceDocument, expectedVideoMock.Object));
@@ -566,6 +567,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
             Assert.Equal(testElement.ExpectedModel.Id, result.Id);
             Assert.Equal(testElement.ExpectedModel.CreationDateTime, result.CreationDateTime);
             Assert.Equal(testElement.ExpectedModel.IsFrozen, result.IsFrozen);
+            Assert.Equal(testElement.ExpectedModel.LastValidManifest, result.LastValidManifest, EntityModelEqualityComparer.Instance);
             Assert.Equal(testElement.ExpectedModel.Owner, result.Owner, EntityModelEqualityComparer.Instance);
             Assert.Equal(testElement.ExpectedModel.TotDownvotes, result.TotDownvotes);
             Assert.Equal(testElement.ExpectedModel.TotUpvotes, result.TotUpvotes);

@@ -37,10 +37,11 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                     mm.MapProperty(v => v.IsValid);
 
                     // Set members with custom serializers.
+                    mm.SetMemberSerializer(v => v.LastValidManifest!, VideoManifestMap.BasicInformationSerializer(dbContext));
                     mm.SetMemberSerializer(v => v.Owner, UserMap.InformationSerializer(dbContext));
                     mm.SetMemberSerializer(c => c.VideoManifests,
                         new EnumerableSerializer<VideoManifest>(
-                            VideoManifestMap.InformationSerializer(dbContext, true)));
+                            VideoManifestMap.ReferenceSerializer(dbContext)));
                 });
         }
 

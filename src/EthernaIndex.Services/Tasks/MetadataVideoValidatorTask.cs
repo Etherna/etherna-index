@@ -61,7 +61,7 @@ namespace Etherna.EthernaIndex.Services.Tasks
             {
                 validationErrors.Add(new ErrorDetail(ValidationErrorType.JsonConvert, ex.Message));
 
-                videoManifest.FailedValidation(validationErrors);
+                video.FailedManifestValidation(videoManifest, validationErrors);
                 await indexDbContext.SaveChangesAsync().ConfigureAwait(false);
                 return;
             }
@@ -99,19 +99,20 @@ namespace Etherna.EthernaIndex.Services.Tasks
             // Set result of validation.
             if (validationErrors.Any())
             {
-                videoManifest.FailedValidation(validationErrors);
+                video.FailedManifestValidation(videoManifest, validationErrors);
             }
             else
             {
                 var videoSources = (metadataDto.Sources ?? Array.Empty<MetadataVideoSourceDto>())
                     .Select(i => new VideoSource(i.Bitrate, i.Quality, i.Reference, i.Size));
 
-                videoManifest.SuccessfulValidation(
+                video.SucceededManifestValidation(
+                    videoManifest,
                     metadataDto.Description,
                     metadataDto.Duration!.Value,
                     metadataDto.OriginalQuality!,
-                    metadataDto.Title!,
                     swarmImageRaw,
+                    metadataDto.Title!,
                     videoSources);
             }
 

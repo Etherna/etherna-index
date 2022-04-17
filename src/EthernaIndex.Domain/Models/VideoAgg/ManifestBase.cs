@@ -57,12 +57,11 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
         [PropertyAlterer(nameof(ErrorValidationResults))]
         [PropertyAlterer(nameof(IsValid))]
         [PropertyAlterer(nameof(ValidationTime))]
-        internal protected virtual void SuccessfulValidation()
+        internal virtual void SucceededValidation()
         {
             IsValid = true;
             ValidationTime = DateTime.UtcNow;
             _errorValidationResults.Clear();
         }
-
     }
 }
