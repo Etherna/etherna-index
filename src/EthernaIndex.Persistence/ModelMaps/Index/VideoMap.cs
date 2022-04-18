@@ -32,16 +32,13 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
         public void Register(IDbContext dbContext)
         {
             dbContext.SchemaRegistry.AddModelMapsSchema<Video>(
-                "d0c48dd8-0887-4ac5-80e5-9b08c5dc77f1", //from v0.3.0
+                "d0c48dd8-0887-4ac5-80e5-9b08c5dc77f1", //v0.3.0
                 mm =>
                 {
                     mm.AutoMap();
 
-                    // Add readonly properties.
-                    mm.MapProperty(v => v.IsValid);
-
                     // Set members with custom serializers.
-                    mm.SetMemberSerializer(v => v.LastValidManifest!, VideoManifestMap.BasicInformationSerializer(dbContext));
+                    mm.SetMemberSerializer(v => v.LastValidManifest!, VideoManifestMap.PreviewInfoSerializer(dbContext));
                     mm.SetMemberSerializer(v => v.Owner, UserMap.InformationSerializer(dbContext));
                     mm.SetMemberSerializer(c => c.VideoManifests,
                         new EnumerableSerializer<VideoManifest>(
@@ -54,14 +51,11 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                         {
                             mm.AutoMap();
 
-                            // Add readonly properties.
-                            mm.MapProperty(v => v.IsValid);
-
                             // Set members with custom serializers.
                             mm.SetMemberSerializer(v => v.Owner, UserMap.InformationSerializer(dbContext));
                             mm.SetMemberSerializer(c => c.VideoManifests,
                                 new EnumerableSerializer<VideoManifest>(
-                                    VideoManifestMap.BasicInformationSerializer(dbContext)));
+                                    VideoManifestMap.PreviewInfoSerializer(dbContext)));
                         }),
                     fixDeserializedModelFunc: video =>
                     {
@@ -92,6 +86,29 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                     mm.IdMemberMap.SetSerializer(new StringSerializer(BsonType.ObjectId));
                 });
                 config.AddModelMapsSchema<Video>("d4844740-472d-48b9-b066-67ba9a2acc9b", mm => { });
+            });
+
+        /// <summary>
+        /// Reference to the video with Title
+        /// </summary>
+        public static ReferenceSerializer<Video, string> ReferenceWithTitleSerializer(
+            IDbContext dbContext,
+            bool useCascadeDelete = false) =>
+            new(dbContext, config =>
+            {
+                config.UseCascadeDelete = useCascadeDelete;
+                config.AddModelMapsSchema<ModelBase>("3c880345-d066-430b-8934-f8f911f52bac");
+                config.AddModelMapsSchema<EntityModelBase>("9021f247-a715-4754-a5ef-b3fdd052c754", mm => { });
+                config.AddModelMapsSchema<EntityModelBase<string>>("2029201a-80b1-4dfb-9038-95706a9bea90", mm =>
+                {
+                    mm.MapIdMember(m => m.Id);
+                    mm.IdMemberMap.SetSerializer(new StringSerializer(BsonType.ObjectId));
+                });
+                config.AddModelMapsSchema<Video>("cd4517e3-809d-455c-b7da-ba07c9e7280f", mm =>
+                {
+                    mm.MapMember(m => m.Title)
+                      .SetIgnoreIfNull(true);
+                });
             });
     }
 }

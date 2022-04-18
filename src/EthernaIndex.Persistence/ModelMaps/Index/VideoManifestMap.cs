@@ -18,6 +18,7 @@ using Etherna.MongoDB.Bson;
 using Etherna.MongoDB.Bson.Serialization.Serializers;
 using Etherna.MongODM.Core;
 using Etherna.MongODM.Core.Serialization;
+using Etherna.MongODM.Core.Serialization.Mapping;
 using Etherna.MongODM.Core.Serialization.Serializers;
 
 namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
@@ -30,7 +31,19 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                 "013c3e29-764c-4bc8-941c-631d8d94adec"); //dev (pre v0.3.0), published for WAM event
 
             dbContext.SchemaRegistry.AddModelMapsSchema<VideoManifest>(
-                "ec578080-ccd2-4d49-8a76-555b10a5dad5"); //dev (pre v0.3.0), published for WAM event
+                "dc33442b-ae1e-428b-8b63-5dafbf192ba8", mm => //v0.3.0
+                {
+                    mm.AutoMap();
+
+                    // Set members to ignore if null.
+                    mm.GetMemberMap(m => m.Description).SetIgnoreIfNull(true);
+                    mm.GetMemberMap(m => m.Duration).SetIgnoreIfNull(true);
+                    mm.GetMemberMap(m => m.OriginalQuality).SetIgnoreIfNull(true);
+                    mm.GetMemberMap(m => m.Thumbnail).SetIgnoreIfNull(true);
+                    mm.GetMemberMap(m => m.Title).SetIgnoreIfNull(true);
+                }) //v0.3.0
+                .AddSecondaryMap(new ModelMap<VideoManifest>(
+                    "ec578080-ccd2-4d49-8a76-555b10a5dad5")); //dev (pre v0.3.0), published for WAM event
 
             dbContext.SchemaRegistry.AddModelMapsSchema<ErrorDetail>(
                 "f555eaa8-d8e1-4f23-a402-8b9ac5930832"); //v0.3.0
@@ -50,9 +63,9 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
         }
 
         /// <summary>
-        /// Basic information serializer
+        /// Information for preview serializer
         /// </summary>
-        public static ReferenceSerializer<VideoManifest, string> BasicInformationSerializer(
+        public static ReferenceSerializer<VideoManifest, string> PreviewInfoSerializer(
             IDbContext dbContext,
             bool useCascadeDelete = false) =>
             new(dbContext, config =>
@@ -73,7 +86,10 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                     mm.MapMember(m => m.IsValid);
                     mm.MapMember(m => m.Manifest);
                 });
-                config.AddModelMapsSchema<VideoManifest>("f7966611-14aa-4f18-92f4-8697b4927fb6", mm => {
+                config.AddModelMapsSchema<VideoManifest>("f7966611-14aa-4f18-92f4-8697b4927fb6", mm =>
+                {
+                    mm.MapMember(m => m.Duration);
+                    mm.MapMember(m => m.Thumbnail);
                     mm.MapMember(m => m.Title);
                 });
             });

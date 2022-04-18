@@ -41,7 +41,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                         mm.AutoMap();
 
                         // Set members with custom serializers.
-                        mm.SetMemberSerializer(c => c.VideoManifest, VideoManifestMap.BasicInformationSerializer(dbContext));
+                        mm.SetMemberSerializer(c => c.VideoManifest, VideoManifestMap.PreviewInfoSerializer(dbContext));
                     }),
                     fixDeserializedModelFunc: async model =>
                     {

@@ -43,7 +43,6 @@ namespace Etherna.EthernaIndex.Domain.Models
 
         // Properties.
         public virtual bool IsFrozen { get; set; }
-        public virtual bool IsValid => _videoManifests.Any(m => m.IsValid == true);
         public virtual VideoManifest? LastValidManifest { get; set; }
         public virtual User Owner { get; protected set; } = default!;
         public virtual string? Title => LastValidManifest?.Title;
@@ -56,6 +55,8 @@ namespace Etherna.EthernaIndex.Domain.Models
         }
 
         // Methods.
+        [PropertyAlterer(nameof(LastValidManifest))]
+        [PropertyAlterer(nameof(Title))]
         [PropertyAlterer(nameof(VideoManifests))]
         public virtual void AddManifest(VideoManifest videoManifest)
         {
@@ -72,9 +73,12 @@ namespace Etherna.EthernaIndex.Domain.Models
             }
 
             _videoManifests.Add(videoManifest);
+
+            UpdateLastValidManifest();
         }
 
         [PropertyAlterer(nameof(LastValidManifest))]
+        [PropertyAlterer(nameof(Title))]
         public virtual void FailedManifestValidation(
             VideoManifest manifest,
             IEnumerable<ErrorDetail> validationErrors)
@@ -96,6 +100,8 @@ namespace Etherna.EthernaIndex.Domain.Models
             UpdateLastValidManifest();
         }
 
+        [PropertyAlterer(nameof(LastValidManifest))]
+        [PropertyAlterer(nameof(Title))]
         [PropertyAlterer(nameof(VideoManifests))]
         public virtual bool RemoveManifest(VideoManifest videoManifest)
         {
@@ -104,7 +110,12 @@ namespace Etherna.EthernaIndex.Domain.Models
             if (IsFrozen)
                 throw new InvalidOperationException("Video is frozen");
 
-            return _videoManifests.Remove(videoManifest);
+            var result = _videoManifests.Remove(videoManifest);
+
+            if (result)
+                UpdateLastValidManifest();
+
+            return result;
         }
 
         [PropertyAlterer(nameof(IsFrozen))]
@@ -116,7 +127,8 @@ namespace Etherna.EthernaIndex.Domain.Models
         }
 
         [PropertyAlterer(nameof(LastValidManifest))]
-        public void SucceededManifestValidation(
+        [PropertyAlterer(nameof(Title))]
+        public virtual void SucceededManifestValidation(
             VideoManifest manifest,
             string? description,
             float duration,

@@ -27,7 +27,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
         public void Register(IDbContext dbContext)
         {
             dbContext.SchemaRegistry.AddModelMapsSchema<User>(
-                "a547abdc-420c-41f9-b496-e6cf704a3844", //dev (pre v0.3.0), published for WAM event
+                "9a2d9664-31d5-4394-9a20-c8789cf0600d", //v0.3.0
                 mm =>
                 {
                     mm.AutoMap();
@@ -35,8 +35,19 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                     // Set members with custom serializers.
                     mm.SetMemberSerializer(c => c.Videos,
                         new EnumerableSerializer<Video>(
-                            VideoMap.ReferenceSerializer(dbContext)));
-                });
+                            VideoMap.ReferenceWithTitleSerializer(dbContext)));
+                })
+                .AddSecondaryMap(new MongODM.Core.Serialization.Mapping.ModelMap<User>(
+                    "a547abdc-420c-41f9-b496-e6cf704a3844", //dev (pre v0.3.0), published for WAM event
+                    new MongoDB.Bson.Serialization.BsonClassMap<User>(mm =>
+                    {
+                        mm.AutoMap();
+
+                        // Set members with custom serializers.
+                        mm.SetMemberSerializer(c => c.Videos,
+                            new EnumerableSerializer<Video>(
+                                VideoMap.ReferenceSerializer(dbContext)));
+                    })));
         }
 
         /// <summary>

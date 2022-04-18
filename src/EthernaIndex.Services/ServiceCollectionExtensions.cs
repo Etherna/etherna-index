@@ -46,7 +46,7 @@ namespace Etherna.EthernaIndex.Services
             services.AddScoped<IUserService, UserService>();
 
             // Tasks.
-            services.AddTransient<IMetadataVideoValidatorTask, MetadataVideoValidatorTask>();
+            services.AddTransient<IVideoManifestValidatorTask, VideoManifestValidatorTask>();
         }
     }
 }
