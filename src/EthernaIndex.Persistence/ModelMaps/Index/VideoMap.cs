@@ -15,11 +15,15 @@
 using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg;
 using Etherna.MongoDB.Bson;
+using Etherna.MongoDB.Bson.Serialization;
 using Etherna.MongoDB.Bson.Serialization.Serializers;
 using Etherna.MongODM.Core;
 using Etherna.MongODM.Core.Extensions;
 using Etherna.MongODM.Core.Serialization;
+using Etherna.MongODM.Core.Serialization.Mapping;
 using Etherna.MongODM.Core.Serialization.Serializers;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
 {
@@ -28,7 +32,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
         public void Register(IDbContext dbContext)
         {
             dbContext.SchemaRegistry.AddModelMapsSchema<Video>(
-                "abfbd104-35ff-4429-9afc-79304a11efc0", //dev (pre v0.3.0), published for WAM event
+                "d0c48dd8-0887-4ac5-80e5-9b08c5dc77f1", //from v0.3.0
                 mm =>
                 {
                     mm.AutoMap();
@@ -42,7 +46,33 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                     mm.SetMemberSerializer(c => c.VideoManifests,
                         new EnumerableSerializer<VideoManifest>(
                             VideoManifestMap.ReferenceSerializer(dbContext)));
-                });
+                }
+                ).AddSecondaryMap(new ModelMap<Video>(
+                    "abfbd104-35ff-4429-9afc-79304a11efc0", //dev (pre v0.3.0), published for WAM event
+                    new BsonClassMap<Video>(
+                        mm =>
+                        {
+                            mm.AutoMap();
+
+                            // Add readonly properties.
+                            mm.MapProperty(v => v.IsValid);
+
+                            // Set members with custom serializers.
+                            mm.SetMemberSerializer(v => v.Owner, UserMap.InformationSerializer(dbContext));
+                            mm.SetMemberSerializer(c => c.VideoManifests,
+                                new EnumerableSerializer<VideoManifest>(
+                                    VideoManifestMap.BasicInformationSerializer(dbContext)));
+                        }),
+                    fixDeserializedModelFunc: video =>
+                    {
+                        ReflectionHelper.SetValue(
+                            video,
+                            v => v.LastValidManifest,
+                            video.VideoManifests.Where(i => i.IsValid == true)
+                                                .OrderByDescending(i => i.CreationDateTime)
+                                                .FirstOrDefault());
+                        return Task.FromResult(video);
+                    }));
         }
 
         /// <summary>
