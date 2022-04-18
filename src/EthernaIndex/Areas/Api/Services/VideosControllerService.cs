@@ -64,17 +64,23 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         public async Task<string> CreateAsync(VideoCreateInput videoInput, ClaimsPrincipal currentUserClaims)
         {
             var address = currentUserClaims.GetEtherAddress();
-            var (user, _) = await userService.FindUserAsync(address);
+            var (currentUser, _) = await userService.FindUserAsync(address);
 
             var videoManifest = await indexDbContext.VideoManifests.TryFindOneAsync(c => c.Manifest.Hash == videoInput.ManifestHash);
 
             if (videoManifest is not null)
             {
-                throw new DuplicatedManifestHashException(videoInput.ManifestHash);
+                var existingVideo = await indexDbContext.Videos
+                    .FindOneAsync(v => v.VideoManifests.Any(vm => vm.Manifest.Hash == videoManifest.Manifest.Hash));
+
+                if (existingVideo.Owner.Id != currentUser.Id)
+                    throw new DuplicatedManifestHashException(videoInput.ManifestHash);
+
+                return existingVideo.Id;
             }
 
             // Create Video.
-            var video = new Video(user);
+            var video = new Video(currentUser);
 
             await indexDbContext.Videos.CreateAsync(video);
 
@@ -92,7 +98,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
                 task => task.RunAsync(video.Id, videoInput.ManifestHash),
                 new EnqueuedState(Queues.METADATA_VIDEO_VALIDATOR));
 
-            logger.CreatedVideo(user.Id, videoInput.ManifestHash);
+            logger.CreatedVideo(currentUser.Id, videoInput.ManifestHash);
 
             return video.Id;
         }
