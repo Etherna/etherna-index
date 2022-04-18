@@ -88,7 +88,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
             [Required] string address,
             [Range(0, int.MaxValue)] int page,
             [Range(1, 100)] int take = 25) =>
-            controllerService.GetVideosAsync(address, page, take);
+            controllerService.GetVideosAsync(address, page, take, User);
 
         [HttpGet("current")]
         [Authorize]

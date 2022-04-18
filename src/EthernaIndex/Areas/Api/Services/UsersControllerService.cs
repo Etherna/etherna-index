@@ -15,7 +15,6 @@
 using Etherna.Authentication.Extensions;
 using Etherna.EthernaIndex.Areas.Api.DtoModels;
 using Etherna.EthernaIndex.Domain;
-using Etherna.EthernaIndex.Domain.Models.Swarm;
 using Etherna.EthernaIndex.Services.Domain;
 using Etherna.MongoDB.Driver;
 using Etherna.MongoDB.Driver.Linq;
@@ -25,6 +24,7 @@ using Nethereum.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Areas.Api.Services
@@ -90,12 +90,15 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             return userDtos;
         }
 
-        public async Task<IEnumerable<VideoDto>> GetVideosAsync(string address, int page, int take)
+        public async Task<IEnumerable<VideoDto>> GetVideosAsync(string address, int page, int take, ClaimsPrincipal currentUserClaims)
         {
+            var currentUserAddress = currentUserClaims.TryGetEtherAddress();
+            var requestByVideoOwner = address == currentUserAddress;
+
             var (user, sharedInfo) = await userService.FindUserAsync(address);
 
             return user.Videos
-                .Where(v => v.IsValid)
+                .Where(v => requestByVideoOwner || v.IsValid)
                 .PaginateDescending(v => v.CreationDateTime, page, take)
                 .Select(v => new VideoDto(v, v.LastValidManifest, sharedInfo, null));
         }
