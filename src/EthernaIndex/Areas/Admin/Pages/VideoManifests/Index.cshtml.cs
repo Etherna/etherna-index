@@ -1,5 +1,5 @@
 using Etherna.EthernaIndex.Domain;
-using Etherna.EthernaIndex.Domain.Models;
+using Etherna.EthernaIndex.Domain.Models.VideoAgg;
 using Etherna.MongoDB.Driver.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;

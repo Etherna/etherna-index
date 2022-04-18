@@ -1,4 +1,4 @@
-﻿namespace Etherna.EthernaIndex.Domain.Models.ManifestAgg
+﻿namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
 {
     public enum ValidationErrorType
     {

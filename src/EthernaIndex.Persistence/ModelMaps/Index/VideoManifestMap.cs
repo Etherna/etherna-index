@@ -13,7 +13,7 @@
 //   limitations under the License.
 
 using Etherna.EthernaIndex.Domain.Models;
-using Etherna.EthernaIndex.Domain.Models.ManifestAgg;
+using Etherna.EthernaIndex.Domain.Models.VideoAgg;
 using Etherna.MongoDB.Bson;
 using Etherna.MongoDB.Bson.Serialization.Serializers;
 using Etherna.MongODM.Core;
@@ -50,29 +50,9 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
         }
 
         /// <summary>
-        /// Minimal reference to the entity
+        /// Basic information serializer
         /// </summary>
-        public static ReferenceSerializer<VideoManifest, string> ReferenceSerializer(
-            IDbContext dbContext,
-            bool useCascadeDelete = false) =>
-            new(dbContext, config =>
-            {
-                config.UseCascadeDelete = useCascadeDelete;
-                config.AddModelMapsSchema<ModelBase>("9d763be2-d9d8-41e9-98d2-1c82b8b9d079");
-                config.AddModelMapsSchema<EntityModelBase>("05025549-b611-459a-9be5-78f22f48abc6", mm => { });
-                config.AddModelMapsSchema<EntityModelBase<string>>("64b18b6a-440d-47cb-9134-0a252223041e", mm =>
-                {
-                    mm.MapIdMember(m => m.Id);
-                    mm.IdMemberMap.SetSerializer(new StringSerializer(BsonType.ObjectId));
-                });
-                config.AddModelMapsSchema<ManifestBase>("2ca48f4b-8333-4ba9-b005-c97ac723511e", mm => { });
-                config.AddModelMapsSchema<VideoManifest>("0e88001c-6972-46cf-9756-097a09b09011", mm => { });
-            });
-
-        /// <summary>
-        /// The full entity serializer without relations and manifest data
-        /// </summary>
-        public static ReferenceSerializer<VideoManifest, string> InformationSerializer(
+        public static ReferenceSerializer<VideoManifest, string> BasicInformationSerializer(
             IDbContext dbContext,
             bool useCascadeDelete = false) =>
             new(dbContext, config =>
@@ -93,7 +73,29 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                     mm.MapMember(m => m.IsValid);
                     mm.MapMember(m => m.Manifest);
                 });
-                config.AddModelMapsSchema<VideoManifest>("f7966611-14aa-4f18-92f4-8697b4927fb6", mm => { });
+                config.AddModelMapsSchema<VideoManifest>("f7966611-14aa-4f18-92f4-8697b4927fb6", mm => {
+                    mm.MapMember(m => m.Title);
+                });
+            });
+
+        /// <summary>
+        /// Reference serializer
+        /// </summary>
+        public static ReferenceSerializer<VideoManifest, string> ReferenceSerializer(
+            IDbContext dbContext,
+            bool useCascadeDelete = false) =>
+            new(dbContext, config =>
+            {
+                config.UseCascadeDelete = useCascadeDelete;
+                config.AddModelMapsSchema<ModelBase>("9d763be2-d9d8-41e9-98d2-1c82b8b9d079");
+                config.AddModelMapsSchema<EntityModelBase>("05025549-b611-459a-9be5-78f22f48abc6", mm => { });
+                config.AddModelMapsSchema<EntityModelBase<string>>("64b18b6a-440d-47cb-9134-0a252223041e", mm =>
+                {
+                    mm.MapIdMember(m => m.Id);
+                    mm.IdMemberMap.SetSerializer(new StringSerializer(BsonType.ObjectId));
+                });
+                config.AddModelMapsSchema<ManifestBase>("2ca48f4b-8333-4ba9-b005-c97ac723511e", mm => { });
+                config.AddModelMapsSchema<VideoManifest>("0e88001c-6972-46cf-9756-097a09b09011", mm => { });
             });
     }
 }

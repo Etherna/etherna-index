@@ -12,12 +12,11 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-using Etherna.MongODM.Core.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Etherna.EthernaIndex.Domain.Models.ManifestAgg
+namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
 {
     public class SwarmImageRaw : ModelBase
     {
@@ -48,18 +47,6 @@ namespace Etherna.EthernaIndex.Domain.Models.ManifestAgg
         }
 
         // Methods.
-        [PropertyAlterer(nameof(Sources))]
-        public virtual void AddSource(string sourceType, string reference)
-        {
-            _sources[sourceType] = reference;
-        }
-
-        [PropertyAlterer(nameof(Sources))]
-        public virtual void DeleteSource(string sourceType, string reference)
-        {
-            _sources.Remove(sourceType);
-        }
-
         public override bool Equals(object? obj)
         {
             if (ReferenceEquals(this, obj)) return true;

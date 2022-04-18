@@ -15,6 +15,7 @@
 using Etherna.DomainEvents;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
+using Etherna.EthernaIndex.Domain.Models.VideoAgg;
 using Etherna.EthernaIndex.Persistence.Repositories;
 using Etherna.MongoDB.Driver;
 using Etherna.MongODM.Core;

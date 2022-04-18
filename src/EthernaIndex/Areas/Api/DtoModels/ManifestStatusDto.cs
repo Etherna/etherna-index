@@ -1,5 +1,4 @@
-﻿using Etherna.EthernaIndex.Areas.Api.DtoModels.ManifestAgg;
-using Etherna.EthernaIndex.Domain.Models;
+﻿using Etherna.EthernaIndex.Domain.Models.VideoAgg;
 using System;
 using System.Collections.Generic;
 using System.Linq;

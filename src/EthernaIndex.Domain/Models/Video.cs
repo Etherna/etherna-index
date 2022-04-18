@@ -12,6 +12,7 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
+using Etherna.EthernaIndex.Domain.Models.VideoAgg;
 using Etherna.MongODM.Core.Attributes;
 using System;
 using System.Collections.Generic;
@@ -43,9 +44,7 @@ namespace Etherna.EthernaIndex.Domain.Models
         // Properties.
         public virtual bool IsFrozen { get; set; }
         public virtual bool IsValid => _videoManifests.Any(m => m.IsValid == true);
-        public virtual VideoManifest? LastValidManifest => _videoManifests.Where(i => i.IsValid == true)
-                                                                          .OrderByDescending(i => i.CreationDateTime)
-                                                                          .FirstOrDefault();
+        public virtual VideoManifest? LastValidManifest { get; set; }
         public virtual User Owner { get; protected set; } = default!;
         public virtual string? Title => LastValidManifest?.Title;
         public virtual long TotDownvotes { get; set; }
@@ -75,6 +74,28 @@ namespace Etherna.EthernaIndex.Domain.Models
             _videoManifests.Add(videoManifest);
         }
 
+        [PropertyAlterer(nameof(LastValidManifest))]
+        public virtual void FailedManifestValidation(
+            VideoManifest manifest,
+            IEnumerable<ErrorDetail> validationErrors)
+        {
+            if (manifest is null)
+                throw new ArgumentNullException(nameof(manifest));
+            if (validationErrors is null)
+                throw new ArgumentNullException(nameof(validationErrors));
+
+            if (!VideoManifests.Contains(manifest))
+            {
+                var ex = new InvalidOperationException("The manifest is not owned by this video");
+                ex.Data.Add("ManifestHash", manifest.Manifest.Hash);
+                throw ex;
+            }
+
+            manifest.FailedValidation(validationErrors);
+
+            UpdateLastValidManifest();
+        }
+
         [PropertyAlterer(nameof(VideoManifests))]
         public virtual bool RemoveManifest(VideoManifest videoManifest)
         {
@@ -93,5 +114,36 @@ namespace Etherna.EthernaIndex.Domain.Models
             IsFrozen = true;
             _videoManifests.Clear();
         }
+
+        [PropertyAlterer(nameof(LastValidManifest))]
+        public void SucceededManifestValidation(
+            VideoManifest manifest,
+            string? description,
+            float duration,
+            string originalQuality,
+            SwarmImageRaw? thumbnail,
+            string title,
+            IEnumerable<VideoSource> videoSources)
+        {
+            if (manifest is null)
+                throw new ArgumentNullException(nameof(manifest));
+
+            if (!VideoManifests.Contains(manifest))
+            {
+                var ex = new InvalidOperationException("The manifest is not owned by this video");
+                ex.Data.Add("ManifestHash", manifest.Manifest.Hash);
+                throw ex;
+            }
+
+            manifest.SucceededValidation(description, duration, originalQuality, title, thumbnail, videoSources);
+
+            UpdateLastValidManifest();
+        }
+
+        // Helpers.
+        private void UpdateLastValidManifest() =>
+            LastValidManifest = VideoManifests.Where(i => i.IsValid == true)
+                                              .OrderByDescending(i => i.CreationDateTime)
+                                              .FirstOrDefault();
     }
 }

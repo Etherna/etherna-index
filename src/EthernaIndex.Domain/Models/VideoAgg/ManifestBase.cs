@@ -12,13 +12,12 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-using Etherna.EthernaIndex.Domain.Models.ManifestAgg;
 using Etherna.EthernaIndex.Domain.Models.Swarm;
 using Etherna.MongODM.Core.Attributes;
 using System;
 using System.Collections.Generic;
 
-namespace Etherna.EthernaIndex.Domain.Models
+namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
 {
     public abstract class ManifestBase : EntityModelBase<string>
     {
@@ -48,7 +47,7 @@ namespace Etherna.EthernaIndex.Domain.Models
         [PropertyAlterer(nameof(ErrorValidationResults))]
         [PropertyAlterer(nameof(IsValid))]
         [PropertyAlterer(nameof(ValidationTime))]
-        public virtual void FailedValidation(IEnumerable<ErrorDetail> errorDetails)
+        internal virtual void FailedValidation(IEnumerable<ErrorDetail> errorDetails)
         {
             IsValid = false;
             ValidationTime = DateTime.UtcNow;
@@ -58,12 +57,11 @@ namespace Etherna.EthernaIndex.Domain.Models
         [PropertyAlterer(nameof(ErrorValidationResults))]
         [PropertyAlterer(nameof(IsValid))]
         [PropertyAlterer(nameof(ValidationTime))]
-        protected virtual void SuccessfulValidation()
+        internal virtual void SucceededValidation()
         {
             IsValid = true;
             ValidationTime = DateTime.UtcNow;
             _errorValidationResults.Clear();
         }
-
     }
 }

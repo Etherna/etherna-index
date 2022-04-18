@@ -5,7 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Etherna.EthernaIndex.Persistence.Helpers
 {
-    internal class EntityModelEqualityComparer : IEqualityComparer<IEntityModel<string>>
+    internal class EntityModelEqualityComparer : IEqualityComparer<IEntityModel<string>?>
     {
         public static EntityModelEqualityComparer Instance { get; } = new EntityModelEqualityComparer();
 
@@ -17,7 +17,7 @@ namespace Etherna.EthernaIndex.Persistence.Helpers
             return x.Id == y.Id;
         }
 
-        public int GetHashCode([DisallowNull] IEntityModel<string> obj)
+        public int GetHashCode([DisallowNull] IEntityModel<string>? obj)
         {
             if (obj?.Id is null)
                 return -1;
