@@ -1,6 +1,6 @@
-﻿using Etherna.EthernaIndex.Domain.Models.ManifestAgg;
+﻿using Etherna.EthernaIndex.Domain.Models.VideoAgg;
 
-namespace Etherna.EthernaIndex.Areas.Api.DtoModels.ManifestAgg
+namespace Etherna.EthernaIndex.Areas.Api.DtoModels
 {
     public class ErrorDetailDto
     {

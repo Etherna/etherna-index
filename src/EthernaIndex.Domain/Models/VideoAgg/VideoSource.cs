@@ -15,7 +15,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Etherna.EthernaIndex.Domain.Models.ManifestAgg
+namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
 {
     public class VideoSource : ModelBase
     {

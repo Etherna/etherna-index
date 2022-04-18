@@ -14,6 +14,7 @@
 
 using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.Domain.Models.UserAgg;
+using Etherna.EthernaIndex.Domain.Models.VideoAgg;
 using System;
 using System.Linq;
 

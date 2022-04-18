@@ -12,8 +12,8 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-using Etherna.EthernaIndex.Domain.Models.ManifestAgg;
 using Etherna.EthernaIndex.Domain.Models.UserAgg;
+using Etherna.EthernaIndex.Domain.Models.VideoAgg;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -71,7 +71,7 @@ namespace Etherna.EthernaIndex.Domain.Models
         public void SuccessfulValidation_SetValidationFields()
         {
             //Act
-            manifest.SuccessfulValidation(
+            manifest.SucceededValidation(
                 "DescTest",
                 1,
                 "OriginalTest",
@@ -103,7 +103,7 @@ namespace Etherna.EthernaIndex.Domain.Models
             var source = new Dictionary<string, string> { { "1080", "Test1" }, { "720", "Test2" } };
 
             //Act
-            manifest.SuccessfulValidation(
+            manifest.SucceededValidation(
                 desc,
                 duration,
                 original,
@@ -152,7 +152,7 @@ namespace Etherna.EthernaIndex.Domain.Models
             var videoSources = new List<VideoSource> { new VideoSource(1, "10801", "reff1", 4), new VideoSource(null, "321", "reff2", 100) };
 
             //Act
-            manifest.SuccessfulValidation(
+            manifest.SucceededValidation(
                 desc,
                 duration,
                 original,

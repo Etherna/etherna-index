@@ -14,6 +14,7 @@
 
 using Etherna.DomainEvents;
 using Etherna.EthernaIndex.Domain.Models;
+using Etherna.EthernaIndex.Domain.Models.VideoAgg;
 using Etherna.MongODM.Core;
 using Etherna.MongODM.Core.Repositories;
 
