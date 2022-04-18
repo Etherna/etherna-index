@@ -35,7 +35,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                     // Set members with custom serializers.
                     mm.SetMemberSerializer(c => c.Videos,
                         new EnumerableSerializer<Video>(
-                            VideoMap.ReferenceWithTitleSerializer(dbContext)));
+                            VideoMap.PreviewInfoSerializer(dbContext)));
                 })
                 .AddSecondaryMap(new MongODM.Core.Serialization.Mapping.ModelMap<User>(
                     "a547abdc-420c-41f9-b496-e6cf704a3844", //dev (pre v0.3.0), published for WAM event

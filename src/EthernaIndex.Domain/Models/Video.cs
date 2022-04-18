@@ -45,7 +45,6 @@ namespace Etherna.EthernaIndex.Domain.Models
         public virtual bool IsFrozen { get; set; }
         public virtual VideoManifest? LastValidManifest { get; set; }
         public virtual User Owner { get; protected set; } = default!;
-        public virtual string? Title => LastValidManifest?.Title;
         public virtual long TotDownvotes { get; set; }
         public virtual long TotUpvotes { get; set; }
         public virtual IEnumerable<VideoManifest> VideoManifests
@@ -56,7 +55,6 @@ namespace Etherna.EthernaIndex.Domain.Models
 
         // Methods.
         [PropertyAlterer(nameof(LastValidManifest))]
-        [PropertyAlterer(nameof(Title))]
         [PropertyAlterer(nameof(VideoManifests))]
         public virtual void AddManifest(VideoManifest videoManifest)
         {
@@ -78,7 +76,6 @@ namespace Etherna.EthernaIndex.Domain.Models
         }
 
         [PropertyAlterer(nameof(LastValidManifest))]
-        [PropertyAlterer(nameof(Title))]
         public virtual void FailedManifestValidation(
             VideoManifest manifest,
             IEnumerable<ErrorDetail> validationErrors)
@@ -101,7 +98,6 @@ namespace Etherna.EthernaIndex.Domain.Models
         }
 
         [PropertyAlterer(nameof(LastValidManifest))]
-        [PropertyAlterer(nameof(Title))]
         [PropertyAlterer(nameof(VideoManifests))]
         public virtual bool RemoveManifest(VideoManifest videoManifest)
         {
@@ -127,7 +123,6 @@ namespace Etherna.EthernaIndex.Domain.Models
         }
 
         [PropertyAlterer(nameof(LastValidManifest))]
-        [PropertyAlterer(nameof(Title))]
         public virtual void SucceededManifestValidation(
             VideoManifest manifest,
             string? description,

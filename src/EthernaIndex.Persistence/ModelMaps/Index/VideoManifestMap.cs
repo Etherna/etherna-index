@@ -63,7 +63,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
         }
 
         /// <summary>
-        /// Information for preview serializer
+        /// Preview information serializer
         /// </summary>
         public static ReferenceSerializer<VideoManifest, string> PreviewInfoSerializer(
             IDbContext dbContext,
