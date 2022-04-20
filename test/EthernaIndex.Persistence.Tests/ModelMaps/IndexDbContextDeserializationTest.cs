@@ -90,6 +90,45 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
             {
                 var tests = new List<DeserializationTestElement<ManualVideoReview>>();
 
+                // "e3e734ab-d845-4ec2-8920-68956eba950d" - v0.3.0
+                {
+                    var sourceDocument =
+                        @"{ 
+                            ""_id"" : ObjectId(""625e913775060536d8a75a8c""), 
+                            ""_m"" : ""e3e734ab-d845-4ec2-8920-68956eba950d"", 
+                            ""CreationDateTime"" : ISODate(""2022-04-19T10:38:47.311+0000""), 
+                            ""Author"" : {
+                                ""_m"" : ""caa0968f-4493-485b-b8d0-bc40942e8684"", 
+                                ""_id"" : ObjectId(""625df43c74679c25b6c157eb""), 
+                                ""SharedInfoId"" : ""625da02c2752994b203d3681""
+                            }, 
+                            ""Description"" : ""Sample description"", 
+                            ""IsValidResult"" : true, 
+                            ""Video"" : {
+                                ""_m"" : ""d4844740-472d-48b9-b066-67ba9a2acc9b"", 
+                                ""_id"" : ObjectId(""625df43c74679c25b6c157ec"")
+                            }
+                        }";
+
+                    var expectedReviewMock = new Mock<ManualVideoReview>();
+                    expectedReviewMock.Setup(r => r.Id).Returns("625e913775060536d8a75a8c");
+                    expectedReviewMock.Setup(r => r.CreationDateTime).Returns(new DateTime(2022, 04, 19, 10, 38, 47, 311));
+                    {
+                        var authorMock = new Mock<User>();
+                        authorMock.Setup(a => a.Id).Returns("625df43c74679c25b6c157eb");
+                        expectedReviewMock.Setup(c => c.Author).Returns(authorMock.Object);
+                    }
+                    expectedReviewMock.Setup(r => r.Description).Returns("Sample description");
+                    expectedReviewMock.Setup(r => r.IsValidResult).Returns(true);
+                    {
+                        var videoMock = new Mock<Video>();
+                        videoMock.Setup(v => v.Id).Returns("625df43c74679c25b6c157ec");
+                        expectedReviewMock.Setup(c => c.Video).Returns(videoMock.Object);
+                    }
+
+                    tests.Add(new DeserializationTestElement<ManualVideoReview>(sourceDocument, expectedReviewMock.Object));
+                }
+
                 return tests.Select(t => new object[] { t });
             }
         }
@@ -99,6 +138,56 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
             get
             {
                 var tests = new List<DeserializationTestElement<UnsuitableVideoReport>>();
+
+                // "39e398d3-3199-43e1-8147-2876b534fbec" - v0.3.0
+                {
+                    var sourceDocument =
+                        @"{ 
+                            ""_id"" : ObjectId(""625e910375060536d8a75a8b""), 
+                            ""_m"" : ""39e398d3-3199-43e1-8147-2876b534fbec"", 
+                            ""CreationDateTime"" : ISODate(""2022-04-19T10:37:55.057+0000""), 
+                            ""Description"" : ""illegal content"", 
+                            ""IsArchived"" : true, 
+                            ""LastUpdate"" : ISODate(""2022-04-01T14:50:25.134+0000""), 
+                            ""ReporterAuthor"" : {
+                                ""_m"" : ""caa0968f-4493-485b-b8d0-bc40942e8684"", 
+                                ""_id"" : ObjectId(""625df43c74679c25b6c157eb""), 
+                                ""SharedInfoId"" : ""625da02c2752994b203d3681""
+                            }, 
+                            ""Video"" : {
+                                ""_m"" : ""d4844740-472d-48b9-b066-67ba9a2acc9b"", 
+                                ""_id"" : ObjectId(""625df43c74679c25b6c157ec"")
+                            }, 
+                            ""VideoManifest"" : {
+                                ""_m"" : ""1ca89e6c-716c-4936-b7dc-908c057a3e41"", 
+                                ""_id"" : ObjectId(""625df43c74679c25b6c157ed"")
+                            }
+                        }";
+
+                    var expectedReportMock = new Mock<UnsuitableVideoReport>();
+                    expectedReportMock.Setup(r => r.Id).Returns("625e910375060536d8a75a8b");
+                    expectedReportMock.Setup(r => r.CreationDateTime).Returns(new DateTime(2022, 04, 19, 10, 37, 55, 057));
+                    expectedReportMock.Setup(r => r.Description).Returns("illegal content");
+                    expectedReportMock.Setup(r => r.IsArchived).Returns(true);
+                    expectedReportMock.Setup(r => r.LastUpdate).Returns(new DateTime(2022, 04, 01, 14, 50, 25, 134));
+                    {
+                        var authorMock = new Mock<User>();
+                        authorMock.Setup(a => a.Id).Returns("625df43c74679c25b6c157eb");
+                        expectedReportMock.Setup(c => c.ReporterAuthor).Returns(authorMock.Object);
+                    }
+                    {
+                        var videoMock = new Mock<Video>();
+                        videoMock.Setup(v => v.Id).Returns("625df43c74679c25b6c157ec");
+                        expectedReportMock.Setup(c => c.Video).Returns(videoMock.Object);
+                    }
+                    {
+                        var videoManifestMock = new Mock<VideoManifest>();
+                        videoManifestMock.Setup(v => v.Id).Returns("625df43c74679c25b6c157ed");
+                        expectedReportMock.Setup(c => c.VideoManifest).Returns(videoManifestMock.Object);
+                    }
+
+                    tests.Add(new DeserializationTestElement<UnsuitableVideoReport>(sourceDocument, expectedReportMock.Object));
+                }
 
                 // "91e7a66a-d1e2-48eb-9627-3c3c2ceb5e2d" - dev (pre v0.3.0), published for WAM event
                 {
@@ -176,6 +265,48 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
             {
                 var tests = new List<DeserializationTestElement<User>>();
 
+                // "9a2d9664-31d5-4394-9a20-c8789cf0600d" - v0.3.0
+                {
+                    var sourceDocument =
+                        @"{ 
+                            ""_id"" : ObjectId(""625df43c74679c25b6c157eb""), 
+                            ""_m"" : ""9a2d9664-31d5-4394-9a20-c8789cf0600d"", 
+                            ""CreationDateTime"" : ISODate(""2022-04-18T23:29:00.718+0000""), 
+                            ""SharedInfoId"" : ""625da02c2752994b203d3681"", 
+                            ""Videos"" : [
+                                {
+                                    ""_m"" : ""cd4517e3-809d-455c-b7da-ba07c9e7280f"", 
+                                    ""_id"" : ObjectId(""625df43c74679c25b6c157ec""), 
+                                    ""LastValidManifest"" : {
+                                        ""_m"" : ""f7966611-14aa-4f18-92f4-8697b4927fb6"", 
+                                        ""CreationDateTime"" : ISODate(""2022-04-18T23:29:00.919+0000""), 
+                                        ""_id"" : ObjectId(""625df43c74679c25b6c157ed""), 
+                                        ""IsValid"" : true, 
+                                        ""Manifest"" : {
+                                            ""_m"" : ""27edd50c-dd67-44d8-84ea-1eedcfe481e8"", 
+                                            ""Hash"" : ""568863d1a27feb3682b720d43cebd723ee09ce57c538831bf94bafc9408871c9""
+                                        }, 
+                                        ""Duration"" : 420.0, 
+                                        ""Thumbnail"" : null, 
+                                        ""Title"" : ""Mocked sample video""
+                                    }
+                                }
+                            ]
+                        }";
+
+                    var expectedUserMock = new Mock<User>();
+                    expectedUserMock.Setup(u => u.Id).Returns("625df43c74679c25b6c157eb");
+                    expectedUserMock.Setup(u => u.CreationDateTime).Returns(new DateTime(2022, 04, 18, 23, 29, 00, 718));
+                    expectedUserMock.Setup(u => u.SharedInfoId).Returns("625da02c2752994b203d3681");
+                    {
+                        var video0Mock = new Mock<Video>();
+                        video0Mock.Setup(a => a.Id).Returns("625df43c74679c25b6c157ec");
+                        expectedUserMock.Setup(c => c.Videos).Returns(new[] { video0Mock.Object });
+                    }
+
+                    tests.Add(new DeserializationTestElement<User>(sourceDocument, expectedUserMock.Object));
+                }
+
                 // "a547abdc-420c-41f9-b496-e6cf704a3844" - dev (pre v0.3.0), published for WAM event
                 {
                     var sourceDocument =
@@ -223,6 +354,63 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
             get
             {
                 var tests = new List<DeserializationTestElement<Video>>();
+
+                // "d0c48dd8-0887-4ac5-80e5-9b08c5dc77f1" - v0.3.0
+                {
+                    var sourceDocument =
+                        @"{ 
+                            ""_id"" : ObjectId(""625df43c74679c25b6c157ec""), 
+                            ""_m"" : ""d0c48dd8-0887-4ac5-80e5-9b08c5dc77f1"", 
+                            ""CreationDateTime"" : ISODate(""2022-04-18T23:29:00.840+0000""), 
+                            ""IsFrozen"" : true, 
+                            ""LastValidManifest"" : {
+                                ""_m"" : ""f7966611-14aa-4f18-92f4-8697b4927fb6"", 
+                                ""CreationDateTime"" : ISODate(""2022-04-18T23:29:00.919+0000""), 
+                                ""_id"" : ObjectId(""625df43c74679c25b6c157ed""), 
+                                ""IsValid"" : true, 
+                                ""Manifest"" : {
+                                    ""_m"" : ""27edd50c-dd67-44d8-84ea-1eedcfe481e8"", 
+                                    ""Hash"" : ""568863d1a27feb3682b720d43cebd723ee09ce57c538831bf94bafc9408871c9""
+                                }, 
+                                ""Duration"" : 420.0, 
+                                ""Thumbnail"" : null, 
+                                ""Title"" : ""Mocked sample video""
+                            }, 
+                            ""Owner"" : {
+                                ""_m"" : ""caa0968f-4493-485b-b8d0-bc40942e8684"", 
+                                ""_id"" : ObjectId(""625df43c74679c25b6c157eb""), 
+                                ""SharedInfoId"" : ""625da02c2752994b203d3681""
+                            }, 
+                            ""TotDownvotes"" : NumberLong(1), 
+                            ""TotUpvotes"" : NumberLong(2), 
+                            ""VideoManifests"" : [
+                                {
+                                    ""_m"" : ""1ca89e6c-716c-4936-b7dc-908c057a3e41"", 
+                                    ""_id"" : ObjectId(""625df43c74679c25b6c157ed"")
+                                }
+                            ]
+                        }";
+
+                    var expectedVideoMock = new Mock<Video>();
+                    expectedVideoMock.Setup(v => v.Id).Returns("625df43c74679c25b6c157ec");
+                    expectedVideoMock.Setup(v => v.CreationDateTime).Returns(new DateTime(2022, 04, 18, 23, 29, 00, 840));
+                    expectedVideoMock.Setup(v => v.IsFrozen).Returns(true);
+                    {
+                        var manifest0Mock = new Mock<VideoManifest>();
+                        manifest0Mock.Setup(m => m.Id).Returns("625df43c74679c25b6c157ed");
+                        expectedVideoMock.Setup(v => v.LastValidManifest).Returns(manifest0Mock.Object);
+                        expectedVideoMock.Setup(v => v.VideoManifests).Returns(new[] { manifest0Mock.Object });
+                    }
+                    {
+                        var ownerMock = new Mock<User>();
+                        ownerMock.Setup(u => u.Id).Returns("625df43c74679c25b6c157eb");
+                        expectedVideoMock.Setup(v => v.Owner).Returns(ownerMock.Object);
+                    }
+                    expectedVideoMock.Setup(v => v.TotDownvotes).Returns(1);
+                    expectedVideoMock.Setup(v => v.TotUpvotes).Returns(2);
+
+                    tests.Add(new DeserializationTestElement<Video>(sourceDocument, expectedVideoMock.Object));
+                }
 
                 // "abfbd104-35ff-4429-9afc-79304a11efc0" - dev (pre v0.3.0), published for WAM event
                 {
@@ -307,6 +495,66 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
             get
             {
                 var tests = new List<DeserializationTestElement<VideoManifest>>();
+
+                // "dc33442b-ae1e-428b-8b63-5dafbf192ba8" - v0.3.0
+                {
+                    var sourceDocument =
+                        @"{ 
+                            ""_id"" : ObjectId(""625df43c74679c25b6c157ed""), 
+                            ""_m"" : ""dc33442b-ae1e-428b-8b63-5dafbf192ba8"", 
+                            ""CreationDateTime"" : ISODate(""2022-04-18T23:29:00.919+0000""), 
+                            ""ErrorValidationResults"" : [
+
+                            ], 
+                            ""IsValid"" : true, 
+                            ""Manifest"" : {
+                                ""_m"" : ""27edd50c-dd67-44d8-84ea-1eedcfe481e8"", 
+                                ""Hash"" : ""568863d1a27feb3682b720d43cebd723ee09ce57c538831bf94bafc9408871c9""
+                            }, 
+                            ""ValidationTime"" : ISODate(""2022-04-18T23:29:06.299+0000""), 
+                            ""Description"" : ""Test description"",
+                            ""Duration"" : 420.0, 
+                            ""OriginalQuality"" : ""720p"", 
+                            ""Sources"" : [
+                                {
+                                    ""_m"" : ""ca9caff9-df18-4101-a362-f8f449bb2aac"", 
+                                    ""Bitrate"" : NumberInt(560000), 
+                                    ""Quality"" : ""720p"", 
+                                    ""Reference"" : ""5FDAC6FCBBBC3CA5DBEAACFA0CF8F5777DB36793931E177D870C45E0D70CE637"", 
+                                    ""Size"" : NumberLong(100000000)
+                                }
+                            ], 
+                            ""Title"" : ""Mocked sample video"", 
+                            ""Thumbnail"" : {
+                                ""AspectRatio"" : 1.7777777910232544, 
+                                ""BlurHash"" : ""LEHV6nWB2yk8pyo0adR*.7kCMdnj"", 
+                                ""Sources"" : {
+                                    ""480w"" : ""a015d8923a777bf8230291318274a5f9795b4bb9445ad41a2667d06df1ea3008""
+                                }
+                            }
+                        }";
+
+                    var expectedManifestMock = new Mock<VideoManifest>();
+                    expectedManifestMock.Setup(m => m.Id).Returns("625df43c74679c25b6c157ed");
+                    expectedManifestMock.Setup(m => m.CreationDateTime).Returns(new DateTime(2022, 04, 18, 23, 29, 00, 919));
+                    expectedManifestMock.Setup(m => m.ErrorValidationResults).Returns(Array.Empty<ErrorDetail>());
+                    expectedManifestMock.Setup(m => m.IsValid).Returns(true);
+                    expectedManifestMock.Setup(m => m.Manifest).Returns(new SwarmBzz("568863d1a27feb3682b720d43cebd723ee09ce57c538831bf94bafc9408871c9"));
+                    expectedManifestMock.Setup(m => m.ValidationTime).Returns(new DateTime(2022, 04, 18, 23, 29, 06, 299));
+                    expectedManifestMock.Setup(m => m.Description).Returns("Test description");
+                    expectedManifestMock.Setup(m => m.Duration).Returns(420);
+                    expectedManifestMock.Setup(m => m.OriginalQuality).Returns("720p");
+                    expectedManifestMock.Setup(m => m.Sources).Returns(new[]{
+                        new VideoSource(560000, "720p", "5FDAC6FCBBBC3CA5DBEAACFA0CF8F5777DB36793931E177D870C45E0D70CE637", 100000000)
+                    });
+                    expectedManifestMock.Setup(m => m.Title).Returns("Mocked sample video");
+                    expectedManifestMock.Setup(m => m.Thumbnail).Returns(new SwarmImageRaw(1.7777777910232544f, "LEHV6nWB2yk8pyo0adR*.7kCMdnj", new Dictionary<string, string>
+                    {
+                        { "480w", "a015d8923a777bf8230291318274a5f9795b4bb9445ad41a2667d06df1ea3008" },
+                    }));
+
+                    tests.Add(new DeserializationTestElement<VideoManifest>(sourceDocument, expectedManifestMock.Object));
+                }
 
                 // "ec578080-ccd2-4d49-8a76-555b10a5dad5" - dev (pre v0.3.0), published for WAM event
                 {
@@ -459,34 +707,34 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
             Assert.NotNull(result.Video);
         }
 
-        //[Theory, MemberData(nameof(ManualVideoReviewDeserializationTests))]
-        //public void ManualVideoReviewDeserialization(DeserializationTestElement<ManualVideoReview> testElement)
-        //{
-        //    if (testElement is null)
-        //        throw new ArgumentNullException(nameof(testElement));
+        [Theory, MemberData(nameof(ManualVideoReviewDeserializationTests))]
+        public void ManualVideoReviewDeserialization(DeserializationTestElement<ManualVideoReview> testElement)
+        {
+            if (testElement is null)
+                throw new ArgumentNullException(nameof(testElement));
 
-        //    // Setup.
-        //    using var documentReader = new JsonReader(testElement.SourceDocument);
-        //    var modelMapSerializer = new ModelMapSerializer<ManualVideoReview>(dbContext);
-        //    var deserializationContext = BsonDeserializationContext.CreateRoot(documentReader);
-        //    testElement.SetupAction(mongoDatabaseMock, dbContext);
+            // Setup.
+            using var documentReader = new JsonReader(testElement.SourceDocument);
+            var modelMapSerializer = new ModelMapSerializer<ManualVideoReview>(dbContext);
+            var deserializationContext = BsonDeserializationContext.CreateRoot(documentReader);
+            testElement.SetupAction(mongoDatabaseMock, dbContext);
 
-        //    // Action.
-        //    using var dbExecutionContext = new DbExecutionContextHandler(dbContext); //run into a db execution context
-        //    var result = modelMapSerializer.Deserialize(deserializationContext);
+            // Action.
+            using var dbExecutionContext = new DbExecutionContextHandler(dbContext); //run into a db execution context
+            var result = modelMapSerializer.Deserialize(deserializationContext);
 
-        //    // Assert.
-        //    Assert.Equal(testElement.ExpectedModel.Id, result.Id);
-        //    Assert.Equal(testElement.ExpectedModel.Author, result.Author, EntityModelEqualityComparer.Instance);
-        //    Assert.Equal(testElement.ExpectedModel.CreationDateTime, result.CreationDateTime);
-        //    Assert.Equal(testElement.ExpectedModel.Description, result.Description);
-        //    Assert.Equal(testElement.ExpectedModel.IsValid, result.IsValid);
-        //    Assert.Equal(testElement.ExpectedModel.Video, result.Video, EntityModelEqualityComparer.Instance);
-        //    Assert.NotNull(result.Id);
-        //    Assert.NotNull(result.Author);
-        //    Assert.NotNull(result.Description);
-        //    Assert.NotNull(result.Video);
-        //}
+            // Assert.
+            Assert.Equal(testElement.ExpectedModel.Id, result.Id);
+            Assert.Equal(testElement.ExpectedModel.Author, result.Author, EntityModelEqualityComparer.Instance);
+            Assert.Equal(testElement.ExpectedModel.CreationDateTime, result.CreationDateTime);
+            Assert.Equal(testElement.ExpectedModel.Description, result.Description);
+            Assert.Equal(testElement.ExpectedModel.IsValidResult, result.IsValidResult);
+            Assert.Equal(testElement.ExpectedModel.Video, result.Video, EntityModelEqualityComparer.Instance);
+            Assert.NotNull(result.Id);
+            Assert.NotNull(result.Author);
+            Assert.NotNull(result.Description);
+            Assert.NotNull(result.Video);
+        }
 
         [Theory, MemberData(nameof(UnsuitableVideoReportDeserializationTests))]
         public void UnsuitableVideoReportDeserialization(DeserializationTestElement<UnsuitableVideoReport> testElement)

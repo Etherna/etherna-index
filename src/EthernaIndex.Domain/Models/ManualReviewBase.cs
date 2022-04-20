@@ -8,11 +8,11 @@ namespace Etherna.EthernaIndex.Domain.Models
         protected ManualReviewBase(
             User author,
             string description,
-            bool isValid)
+            bool isValidResult)
         {
             Author = author ?? throw new ArgumentNullException(nameof(author));
             Description = description;
-            IsValid = isValid;
+            IsValidResult = isValidResult;
         }
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         protected ManualReviewBase() { }
@@ -21,6 +21,6 @@ namespace Etherna.EthernaIndex.Domain.Models
         // Properties.
         public virtual User Author { get; protected set; }
         public virtual string Description { get; protected set; }
-        public virtual bool IsValid { get; protected set; }
+        public virtual bool IsValidResult { get; protected set; }
     }
 }

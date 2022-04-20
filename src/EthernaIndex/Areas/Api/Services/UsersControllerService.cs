@@ -76,7 +76,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             bool onlyWithVideo, int page, int take)
         {
             var users = await indexContext.Users.QueryElementsAsync(elements =>
-                elements.Where(u => !onlyWithVideo || u.Videos.Any(v => v.IsValid))
+                elements.Where(u => !onlyWithVideo || u.Videos.Any(v => v.LastValidManifest != null))
                         .PaginateDescending(u => u.CreationDateTime, page, take)
                         .ToListAsync());
 
@@ -98,7 +98,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             var (user, sharedInfo) = await userService.FindUserAsync(address);
 
             return user.Videos
-                .Where(v => requestByVideoOwner || v.IsValid)
+                .Where(v => requestByVideoOwner || v.LastValidManifest != null)
                 .PaginateDescending(v => v.CreationDateTime, page, take)
                 .Select(v => new VideoDto(v, v.LastValidManifest, sharedInfo, null));
         }

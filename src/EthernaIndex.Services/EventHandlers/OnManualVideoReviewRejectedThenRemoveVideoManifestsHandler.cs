@@ -26,7 +26,7 @@ namespace Etherna.EthernaIndex.Services.EventHandlers
         {
             if (@event is null)
                 throw new ArgumentNullException(nameof(@event));
-            if (@event.Entity.IsValid)
+            if (@event.Entity.IsValidResult)
                 return;
 
             var video = await indexDbContext.Videos.FindOneAsync(@event.Entity.Video.Id);

@@ -2,7 +2,7 @@
 
 namespace Etherna.EthernaIndex.Services.Tasks
 {
-    public interface IMetadataVideoValidatorTask
+    public interface IVideoManifestValidatorTask
     {
         Task RunAsync(string videoId, string manifestHash);
     }

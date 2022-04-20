@@ -119,7 +119,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.ManualVideoReviews
                 .Select(e => new VideoReviewDetailDto(
                         e.Id,
                         e.Description,
-                        e.IsValid,
+                        e.IsValidResult,
                         e.Author.SharedInfoId,
                         e.CreationDateTime));
 

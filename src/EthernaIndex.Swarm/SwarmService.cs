@@ -100,11 +100,11 @@ namespace Etherna.EthernaIndex.Swarm
         {
             var manifest = new MetadataVideoDto(
                 "Mocked sample video",
-                null,
+                "Test description",
                 "720p",
                 "0x5E70C176b03BFe5113E78e920C1C60639E2A1696",
                 420.0f,
-                null,
+                new SwarmImageRawDto(1.77f, "LEHV6nWB2yk8pyo0adR*.7kCMdnj", new Dictionary<string, string> { { "480w", "a015d8923a777bf8230291318274a5f9795b4bb9445ad41a2667d06df1ea3008"} }),
                 new[] { new MetadataVideoSourceDto(560000, "720p", GenerateNewHash(), 100000000) });
 
             SetupHashMockup(manifestHash, manifest);

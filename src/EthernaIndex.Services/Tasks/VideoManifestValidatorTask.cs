@@ -23,14 +23,14 @@ using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Services.Tasks
 {
-    public class MetadataVideoValidatorTask : IMetadataVideoValidatorTask
+    public class VideoManifestValidatorTask : IVideoManifestValidatorTask
     {
         // Fields.
         private readonly IIndexDbContext indexDbContext;
         private readonly ISwarmService swarmService;
 
         // Constructors.
-        public MetadataVideoValidatorTask(
+        public VideoManifestValidatorTask(
             IIndexDbContext indexDbContext,
             ISwarmService swarmService)
         {

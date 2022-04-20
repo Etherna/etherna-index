@@ -32,10 +32,10 @@ using Xunit;
 
 namespace EthernaIndex.Services.Tests.Tasks
 {
-    public class MetadataVideoValidatorTaskTest
+    public class VideoManifestValidatorTaskTest
     {
         // Fields.
-        private readonly IMetadataVideoValidatorTask metadataVideoValidatorTask;
+        private readonly IVideoManifestValidatorTask videoManifestValidatorTask;
         private readonly string manifestHash = "1a345a1d73fd8f28d71e6b03d2e42f44721db94b734c2edcfe6fcd48b76a74f9";
         private readonly string videoId = "videoId";
         private readonly string address = "0x300a31dBAB42863F4b0bEa3E03d0aa89D47DB3f0";
@@ -46,7 +46,7 @@ namespace EthernaIndex.Services.Tests.Tasks
         private readonly Mock<ISwarmService> swarmService;
 
         // Constructors.
-        public MetadataVideoValidatorTaskTest()
+        public VideoManifestValidatorTaskTest()
         {
             userSharedInfoMock.Setup(s => s.EtherAddress).Returns(address);
             var owner = new User(userSharedInfoMock.Object);
@@ -64,7 +64,7 @@ namespace EthernaIndex.Services.Tests.Tasks
                 .ReturnsAsync(video);
 
             // Inizialize.
-            metadataVideoValidatorTask = new MetadataVideoValidatorTask(indexContext.Object, swarmService.Object);
+            videoManifestValidatorTask = new VideoManifestValidatorTask(indexContext.Object, swarmService.Object);
         }
 
         // Tests.
@@ -89,7 +89,7 @@ namespace EthernaIndex.Services.Tests.Tasks
                 .ReturnsAsync(metadataVideoDto);
 
             //Act
-            await metadataVideoValidatorTask.RunAsync(videoId, manifestHash);
+            await videoManifestValidatorTask.RunAsync(videoId, manifestHash);
 
             //Assert
             Assert.True(videoManifest.IsValid);
@@ -135,7 +135,7 @@ namespace EthernaIndex.Services.Tests.Tasks
                 .ReturnsAsync(metadataVideoDto);
 
             //Act
-            await metadataVideoValidatorTask.RunAsync(videoId, manifestHash);
+            await videoManifestValidatorTask.RunAsync(videoId, manifestHash);
 
             //Assert
             Assert.False(videoManifest.IsValid);
@@ -157,7 +157,7 @@ namespace EthernaIndex.Services.Tests.Tasks
                 .ThrowsAsync(new MetadataVideoException("Unable to cast json"));
 
             //Act
-            await metadataVideoValidatorTask.RunAsync(videoId, manifestHash);
+            await videoManifestValidatorTask.RunAsync(videoId, manifestHash);
 
             //Assert
             Assert.False(videoManifest.IsValid);
@@ -187,7 +187,7 @@ namespace EthernaIndex.Services.Tests.Tasks
                 .ReturnsAsync(metadataVideoDto);
 
             //Act
-            await metadataVideoValidatorTask.RunAsync(videoId, manifestHash);
+            await videoManifestValidatorTask.RunAsync(videoId, manifestHash);
 
             //Assert
             Assert.False(videoManifest.IsValid);
@@ -217,7 +217,7 @@ namespace EthernaIndex.Services.Tests.Tasks
                 .ReturnsAsync(metadataVideoDto);
 
             //Act
-            await metadataVideoValidatorTask.RunAsync(videoId, manifestHash);
+            await videoManifestValidatorTask.RunAsync(videoId, manifestHash);
 
             //Assert
             Assert.False(videoManifest.IsValid);
@@ -251,7 +251,7 @@ namespace EthernaIndex.Services.Tests.Tasks
                 .ReturnsAsync(metadataVideoDto);
 
             //Act
-            await metadataVideoValidatorTask.RunAsync(videoId, manifestHash);
+            await videoManifestValidatorTask.RunAsync(videoId, manifestHash);
 
             //Assert
             Assert.False(videoManifest.IsValid);
@@ -285,7 +285,7 @@ namespace EthernaIndex.Services.Tests.Tasks
                 .ReturnsAsync(metadataVideoDto);
 
             //Act
-            await metadataVideoValidatorTask.RunAsync(videoId, manifestHash);
+            await videoManifestValidatorTask.RunAsync(videoId, manifestHash);
 
             //Assert
             Assert.False(videoManifest.IsValid);
@@ -319,7 +319,7 @@ namespace EthernaIndex.Services.Tests.Tasks
                 .ReturnsAsync(metadataVideoDto);
 
             //Act
-            await metadataVideoValidatorTask.RunAsync(videoId, manifestHash);
+            await videoManifestValidatorTask.RunAsync(videoId, manifestHash);
 
             //Assert
             Assert.True(videoManifest.IsValid);
@@ -352,7 +352,7 @@ namespace EthernaIndex.Services.Tests.Tasks
                 .ReturnsAsync(metadataVideoDto);
 
             //Act
-            await metadataVideoValidatorTask.RunAsync(videoId, manifestHash);
+            await videoManifestValidatorTask.RunAsync(videoId, manifestHash);
 
             // Assert.
             Assert.False(videoManifest.IsValid);
@@ -381,7 +381,7 @@ namespace EthernaIndex.Services.Tests.Tasks
             swarmService
                 .Setup(x => x.GetMetadataVideoAsync(manifestHash))
                 .ReturnsAsync(firstMetadataVideoDto);
-            await metadataVideoValidatorTask.RunAsync(videoId, manifestHash);
+            await videoManifestValidatorTask.RunAsync(videoId, manifestHash);
             //second manifest for same video
             string secondManifestHash = "2b678a1d73fd8f28d71e6b03d2e42f44721db94b734c2edcfe6fcd48b76a74f9";
             var secondMetadataVideoDto = new MetadataVideoDto(
@@ -406,7 +406,7 @@ namespace EthernaIndex.Services.Tests.Tasks
             secondSwarmService
                 .Setup(x => x.GetMetadataVideoAsync(secondManifestHash))
                 .ReturnsAsync(secondMetadataVideoDto);
-            var secondMetadataVideoValidatorTask = new MetadataVideoValidatorTask(secondIndexContext.Object, secondSwarmService.Object);
+            var secondMetadataVideoValidatorTask = new VideoManifestValidatorTask(secondIndexContext.Object, secondSwarmService.Object);
 
             //Act
             await secondMetadataVideoValidatorTask.RunAsync(videoId, secondManifestHash);
