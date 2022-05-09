@@ -120,7 +120,10 @@
 
     <div class="form-row">
         <div class="col-12 text-center  mb-3">
-            <input type="submit" asp-page-handler="ForceNewValidation" class="btn btn-primary" value="Force New Validation" name="button" />
+            <input type="submit"
+                   asp-page-handler="ForceNewValidation"
+                   asp-route-manifestHash="@Model.VideoManifest.ManifestHash"
+                   class="btn btn-primary" value="Force New Validation" name="button" />
         </div>
     </div>
 
