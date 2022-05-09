@@ -138,6 +138,7 @@ namespace Etherna.EthernaIndex
                 {
                     // Set properties.
                     options.AccessDeniedPath = "/AccessDenied";
+                    options.Cookie.MaxAge = TimeSpan.FromDays(30);
                     options.Cookie.Name = CommonConsts.SharedCookieApplicationName;
 
                     if (Environment.IsProduction())
