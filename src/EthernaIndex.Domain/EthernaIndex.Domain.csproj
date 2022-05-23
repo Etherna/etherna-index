@@ -15,7 +15,7 @@
 
   <ItemGroup>
     <PackageReference Include="DomainEvents" Version="1.1.1" />
-    <PackageReference Include="MongODM.Core" Version="0.23.0-alpha.105" />
+    <PackageReference Include="MongODM.Core" Version="0.23.0-alpha.106" />
     <PackageReference Include="Nethereum.Util" Version="4.5.0" />
   </ItemGroup>
 
