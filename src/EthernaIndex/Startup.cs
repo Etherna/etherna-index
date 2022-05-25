@@ -129,6 +129,12 @@ namespace Etherna.EthernaIndex
                 // can also be used to control the format of the API version in route templates
                 options.SubstituteApiVersionInUrl = true;
             });
+
+            // Configure authentication.
+            var allowUnsafeAuthorityConnection = false;
+            if (Configuration["SsoServer:AllowUnsafeConnection"] is not null)
+                allowUnsafeAuthorityConnection = bool.Parse(Configuration["SsoServer:AllowUnsafeConnection"]);
+
             services.AddAuthentication(options =>
                 {
                     options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
@@ -166,6 +172,8 @@ namespace Etherna.EthernaIndex
 
                     options.Scope.Add("ether_accounts");
                     options.Scope.Add("role");
+
+                    options.RequireHttpsMetadata = !allowUnsafeAuthorityConnection;
 
                     // Handle unauthorized call on api with 401 response. For users not logged in.
                     options.Events.OnRedirectToIdentityProvider = context =>
