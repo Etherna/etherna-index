@@ -344,9 +344,6 @@ namespace Etherna.EthernaIndex
             app.UseAuthentication();
             app.UseAuthorization();
 
-            // Seed db if required.
-            app.UseDbContextsSeeding();
-
             // Add Hangfire.
             app.UseHangfireDashboard(
                 CommonConsts.HangfireAdminPath,
@@ -372,6 +369,9 @@ namespace Etherna.EthernaIndex
                 endpoints.MapControllers();
                 endpoints.MapRazorPages();
             });
+
+            // Seed db.
+            app.SeedDbContexts();
         }
     }
 }
