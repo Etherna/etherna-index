@@ -19,6 +19,7 @@ using Etherna.EthernaIndex.Domain.Models.VideoAgg;
 using Etherna.EthernaIndex.Persistence.Repositories;
 using Etherna.MongoDB.Driver;
 using Etherna.MongODM.Core;
+using Etherna.MongODM.Core.Migration;
 using Etherna.MongODM.Core.Repositories;
 using Etherna.MongODM.Core.Serialization;
 using System;
@@ -88,6 +89,9 @@ namespace Etherna.EthernaIndex.Persistence
             });
 
         //other properties
+        public override IEnumerable<DocumentMigration> DocumentMigrationList => new[] {
+            new DocumentMigration<Video, string>(Videos)
+        };
         public IEventDispatcher EventDispatcher { get; }
 
         // Protected properties.
