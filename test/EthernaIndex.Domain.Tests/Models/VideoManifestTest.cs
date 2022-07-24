@@ -26,6 +26,7 @@ namespace Etherna.EthernaIndex.Domain.Models
         // Fields.
         readonly string address = "0x300a31dBAB42863F4b0bEa3E03d0aa89D47DB3f0";
         readonly string hash = "5d942a1d73fd8f28d71e6b03d2e42f44721db94b734c2edcfe6fcd48b76a74f9";
+        private readonly string videoId = "42f44721db94b734c";
         readonly VideoManifest manifest;
         private readonly Mock<UserSharedInfo> userSharedInfoMock = new();
 

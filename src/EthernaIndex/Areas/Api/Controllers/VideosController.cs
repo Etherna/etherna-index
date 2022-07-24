@@ -163,6 +163,27 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
             [Required] string hash) =>
             service.GetValidationStatusByHashAsync(hash);
 
+        /// <summary>
+        /// Search videos.
+        /// </summary>
+        /// <param name="title">Video title</param>
+        /// <param name="description">Video description</param>
+        /// <param name="page">Current page of results</param>
+        /// <param name="take">Number of items to retrieve. Max 100</param>
+        /// <response code="200">Videos</response>
+        [HttpGet("Search")]
+        [Authorize]
+        [SimpleExceptionFilter]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public Task<IEnumerable<VideoDto>> SearchVideoAsync(
+            string? title,
+            string? description,
+            [Range(0, int.MaxValue)] int page,
+            [Range(1, 100)] int take = 25) =>
+            service.SearchVideoAsync(title, description, page, take);
+
         // Post.
 
         /// <summary>

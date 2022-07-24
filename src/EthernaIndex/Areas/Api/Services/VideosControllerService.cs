@@ -17,7 +17,10 @@ using Etherna.EthernaIndex.Areas.Api.DtoModels;
 using Etherna.EthernaIndex.Areas.Api.InputModels;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
+using Etherna.EthernaIndex.Domain.Models.UserAgg;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg;
+using Etherna.EthernaIndex.ElasticSearch;
+using Etherna.EthernaIndex.ElasticSearch.DtoModel;
 using Etherna.EthernaIndex.Extensions;
 using Etherna.EthernaIndex.Services.Domain;
 using Etherna.EthernaIndex.Services.Exceptions;
@@ -40,6 +43,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
     {
         // Fields.
         private readonly IBackgroundJobClient backgroundJobClient;
+        private readonly IElasticSearchService elasticSearchService;
         private readonly IIndexDbContext indexDbContext;
         private readonly ILogger<VideosControllerService> logger;
         private readonly ISharedDbContext sharedDbContext;
@@ -49,6 +53,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         // Constructors.
         public VideosControllerService(
             IBackgroundJobClient backgroundJobClient,
+            IElasticSearchService elasticSearchService,
             IIndexDbContext indexContext,
             ILogger<VideosControllerService> logger,
             ISharedDbContext sharedDbContext,
@@ -56,6 +61,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             IVideoService videoService)
         {
             this.backgroundJobClient = backgroundJobClient;
+            this.elasticSearchService = elasticSearchService;
             this.indexDbContext = indexContext;
             this.logger = logger;
             this.sharedDbContext = sharedDbContext;
@@ -287,6 +293,46 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             }
         }
 
+        public async Task<IEnumerable<VideoDto>> SearchVideoAsync(string? title, string? description, int page, int take)
+        {
+            var findVideoDto = new FindVideoDto
+            {
+                Title = title,
+                Description = description,
+                Page = page,
+                Take = take,
+                FilterType = FilterType.FilterInOr
+            };
+            var videoIds = (await elasticSearchService.FindVideoAsync(findVideoDto)).Select(v => v.VideoId);
+
+            // Get videos with valid manifest.
+            var videos = await indexDbContext.Videos.QueryElementsAsync(elements =>
+                elements.Where(ui => videoIds.Contains(ui.Id))
+                        .ToListAsync());
+
+            // Get user info from video selected.
+            var sharedInfos = new Dictionary<string, UserSharedInfo>();
+            var videoDtos = new List<VideoDto>();
+            foreach (var video in videos)
+            {
+                // Get shared info.
+                if (!sharedInfos.ContainsKey(video.Owner.SharedInfoId))
+                {
+                    sharedInfos[video.Owner.SharedInfoId] = await sharedDbContext.UsersInfo.FindOneAsync(video.Owner.SharedInfoId);
+                }
+                //TODO review. It's more readible but less efficient
+                var ownerSharedInfo = sharedInfos[video.Owner.SharedInfoId];
+
+                // Create video dto.
+                videoDtos.Add(new VideoDto(
+                    video,
+                    video.LastValidManifest,
+                    ownerSharedInfo,
+                    null));
+            }
+
+            return videoDtos;
+        }
         public async Task<VideoManifestDto> UpdateAsync(string id, string newHash, ClaimsPrincipal currentUserClaims)
         {
             // Get data.

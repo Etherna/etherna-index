@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\EthernaIndex.Domain\EthernaIndex.Domain.csproj" />
+    <ProjectReference Include="..\EthernaIndex.ElasticSearch\EthernaIndex.ElasticSearch.csproj" />
     <ProjectReference Include="..\EthernaIndex.Swarm\EthernaIndex.Swarm.csproj" />
   </ItemGroup>
 

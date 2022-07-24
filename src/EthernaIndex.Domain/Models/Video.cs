@@ -12,6 +12,7 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
+using Etherna.EthernaIndex.Domain.Events;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg;
 using Etherna.MongODM.Core.Attributes;
 using System;
@@ -122,6 +123,7 @@ namespace Etherna.EthernaIndex.Domain.Models
             IsFrozen = true;
             LastValidManifest = null;
             _videoManifests.Clear();
+            AddEvent(new VideoUnsuitabledEvent(this));
         }
 
         [PropertyAlterer(nameof(LastValidManifest))]

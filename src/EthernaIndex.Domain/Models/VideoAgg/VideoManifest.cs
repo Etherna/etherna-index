@@ -12,6 +12,7 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
+using Etherna.EthernaIndex.Domain.Events;
 using Etherna.MongODM.Core.Attributes;
 using System.Collections.Generic;
 
@@ -65,6 +66,8 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
             Sources = sources;
             Thumbnail = thumbnail;
             Title = title;
+
+            AddEvent(new ManifestSuccessfulValidatedEvent(this, videoId));
         }
     }
 }
