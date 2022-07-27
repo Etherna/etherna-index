@@ -41,15 +41,9 @@ namespace Etherna.EthernaIndex.Swarm
                 throw new ArgumentNullException(nameof(swarmSettings));
 
             SwarmSettings = swarmSettings.Value;
-            var gatewayApiVersion = SwarmSettings.GatewayApiVersion switch
-            {
-                "2.0.0" => GatewayApiVersion.v2_0_0,
-                _ => throw new ArgumentOutOfRangeException(nameof(SwarmService), "Invalid gateway api version") 
-            };
-
             BeeNodeClient = new BeeNodeClient(
-                SwarmSettings.NodeUrl,
-                gatewayApiVersion: gatewayApiVersion);
+                SwarmSettings.GatewayUrl,
+                gatewayApiVersion: GatewayApiVersion.v3_0_1);
         }
 
         // Methods.
