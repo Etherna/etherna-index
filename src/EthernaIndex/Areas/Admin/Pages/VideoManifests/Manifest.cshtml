@@ -81,10 +81,13 @@
 
     <div class="form-row">
         <div class="col-12 mb-3">
-            <input type="submit"
+            @if (@Model.VideoManifest.VideoInfo is not null)
+            {
+                <input type="submit"
                    asp-page-handler="ApproveVideo"
                    asp-route-videoId="@Model.VideoManifest.VideoInfo.VideoId"
                    class="btn btn-primary" value="Approve Video" name="button" />
+            }
         </div>
     </div>
 
@@ -99,16 +102,19 @@
             <strong>Video Id:</strong>
         </div>
         <div class="col-2 mb-3 text-left mt-1">
-            @Model.VideoManifest.VideoInfo.VideoId
+            @Model.VideoManifest.VideoInfo?.VideoId
         </div>
     </div>
 
     <div class="form-row">
         <div class="col-12 mb-3">
-            <input type="submit"
-                   asp-page-handler="RejectVideo"
-                   asp-route-videoId="@Model.VideoManifest.VideoInfo.VideoId"
-                   class="btn btn-primary" value="Reject Video" name="button" />
+            @if (@Model.VideoManifest.VideoInfo is not null)
+            {
+                <input type="submit"
+                       asp-page-handler="RejectVideo"
+                       asp-route-videoId="@Model.VideoManifest.VideoInfo.VideoId"
+                       class="btn btn-primary" value="Reject Video" name="button" />
+            }
         </div>
     </div>
 

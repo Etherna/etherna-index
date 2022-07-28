@@ -36,7 +36,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
         public class VideoManifestDto
         {
             public VideoManifestDto(
-                Video video,
+                Video? video,
                 VideoManifest videoManifest)
             {
                 if (videoManifest == null)
@@ -52,7 +52,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
                 OriginalQuality = videoManifest.OriginalQuality;
                 OwnerAddress = videoManifest.Id;
                 Title = videoManifest.Title ?? videoManifest.Id;
-                VideoInfo = new VideoInfoDto(video);
+                VideoInfo = video is null ? null : new VideoInfoDto(video);
                 ValidationTime = videoManifest.ValidationTime;
 
                 Sources = videoManifest.Sources != null ?
@@ -82,7 +82,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
             public IEnumerable<MetadataVideoSourceDto> Sources { get; set; }
             public SwarmImageRawDto? Thumbnail { get; set; }
             public string? Title { get; set; } = default!;
-            public VideoInfoDto VideoInfo { get; set; }
+            public VideoInfoDto? VideoInfo { get; set; }
             public DateTime? ValidationTime { get; set; }
 
             // Methods.
@@ -200,7 +200,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
         {
             // Video info
             var videoManifest = await indexDbContext.VideoManifests.FindOneAsync(vm => vm.Manifest.Hash == manifestHash);
-            var video = await indexDbContext.Videos.FindOneAsync(v => v.VideoManifests.Any(vm => vm.Id == videoManifest.Id));
+            var video = await indexDbContext.Videos.TryFindOneAsync(v => v.VideoManifests.Any(vm => vm.Id == videoManifest.Id));
 
             VideoManifest = new VideoManifestDto(video, videoManifest);
         }
