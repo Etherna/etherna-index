@@ -140,20 +140,17 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
         // Fields.
         private readonly IBackgroundJobClient backgroundJobClient;
         private readonly IIndexDbContext indexDbContext;
-        private readonly IUserService userService;
 
         // Constructor.
         public ManifestModel(
             IBackgroundJobClient backgroundJobClient,
-            IIndexDbContext indexDbContext,
-            IUserService userService)
+            IIndexDbContext indexDbContext)
         {
             if (indexDbContext is null)
                 throw new ArgumentNullException(nameof(indexDbContext));
 
             this.backgroundJobClient = backgroundJobClient;
             this.indexDbContext = indexDbContext;
-            this.userService = userService;
         }
 
         // Properties.
@@ -162,23 +159,11 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
         // Methods.
         public async Task OnGetAsync(string manifestHash)
         {
-            await InitializeAsync(manifestHash);
-        }
+            // Video info
+            var videoManifest = await indexDbContext.VideoManifests.FindOneAsync(vm => vm.Manifest.Hash == manifestHash);
+            var video = await indexDbContext.Videos.TryFindOneAsync(v => v.VideoManifests.Any(vm => vm.Id == videoManifest.Id));
 
-        public async Task<IActionResult> OnPostApproveVideo(
-            string videoId)
-        {
-            await CreateReviewAsync(videoId, true);
-
-            return RedirectToPage("Index");
-        }
-
-        public async Task<IActionResult> OnPostRejectVideo(
-            string videoId)
-        {
-            await CreateReviewAsync(videoId, false);
-
-            return RedirectToPage("Index");
+            VideoManifest = new VideoManifestDto(video, videoManifest);
         }
 
         public async Task<IActionResult> OnPostForceNewValidationAsync(string manifestHash)
@@ -193,26 +178,6 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
                     new EnqueuedState(Queues.METADATA_VIDEO_VALIDATOR));
 
             return RedirectToPage("Index");
-        }
-
-        // Helpers.
-        private async Task InitializeAsync(string manifestHash)
-        {
-            // Video info
-            var videoManifest = await indexDbContext.VideoManifests.FindOneAsync(vm => vm.Manifest.Hash == manifestHash);
-            var video = await indexDbContext.Videos.TryFindOneAsync(v => v.VideoManifests.Any(vm => vm.Id == videoManifest.Id));
-
-            VideoManifest = new VideoManifestDto(video, videoManifest);
-        }
-
-        private async Task CreateReviewAsync(string videoId, bool isValid)
-        {
-            var address = HttpContext!.User.GetEtherAddress();
-            var (user, _) = await userService.FindUserAsync(address);
-            var video = await indexDbContext.Videos.FindOneAsync(videoId);
-
-            // Create ManualReview.
-            await indexDbContext.ManualVideoReviews.CreateAsync(new ManualVideoReview(user, "", isValid, video));
         }
     }
 }

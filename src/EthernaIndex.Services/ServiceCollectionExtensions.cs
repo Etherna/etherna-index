@@ -44,6 +44,7 @@ namespace Etherna.EthernaIndex.Services
             // Services.
             //domain
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IVideoService, VideoService>();
 
             // Tasks.
             services.AddTransient<IVideoManifestValidatorTask, VideoManifestValidatorTask>();

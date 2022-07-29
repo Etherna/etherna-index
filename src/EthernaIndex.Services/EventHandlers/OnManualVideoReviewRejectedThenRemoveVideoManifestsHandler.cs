@@ -2,9 +2,8 @@
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Events;
 using Etherna.EthernaIndex.Domain.Models;
-using Etherna.MongoDB.Driver;
+using Etherna.EthernaIndex.Services.Domain;
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Services.EventHandlers
@@ -12,13 +11,16 @@ namespace Etherna.EthernaIndex.Services.EventHandlers
     class OnManualVideoReviewRejectedThenRemoveVideoManifestsHandler : EventHandlerBase<EntityCreatedEvent<ManualVideoReview>>
     {
         // Fields.
-        private readonly IIndexDbContext indexDbContext;
+        private readonly IIndexDbContext dbContext;
+        private readonly IVideoService videoService;
 
         // Constructor.
         public OnManualVideoReviewRejectedThenRemoveVideoManifestsHandler(
-            IIndexDbContext indexDbContext)
+            IIndexDbContext dbContext,
+            IVideoService videoService)
         {
-            this.indexDbContext = indexDbContext;
+            this.dbContext = dbContext;
+            this.videoService = videoService;
         }
 
         // Methods.
@@ -26,22 +28,12 @@ namespace Etherna.EthernaIndex.Services.EventHandlers
         {
             if (@event is null)
                 throw new ArgumentNullException(nameof(@event));
-            if (@event.Entity.IsValidResult)
-                return;
-
-            var video = await indexDbContext.Videos.FindOneAsync(@event.Entity.Video.Id);
-
-            // Delete unsitable manifests.
-            //save manifest list
-            var videoManifests = video.VideoManifests.ToList();
-
-            //set video as unsuitable
-            video.SetAsUnsuitable();
-            await indexDbContext.SaveChangesAsync();
-
-            //remove all VideoManifests from database
-            foreach (var videoManifest in videoManifests)
-                await indexDbContext.VideoManifests.DeleteAsync(videoManifest);
+            
+            if (!@event.Entity.IsValidResult)
+            {
+                var video = await dbContext.Videos.FindOneAsync(@event.Entity.Video.Id);
+                await videoService.ModerateUnsuitableVideoAsync(video);
+            }
         }
     }
 }

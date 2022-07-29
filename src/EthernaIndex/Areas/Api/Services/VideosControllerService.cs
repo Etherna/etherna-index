@@ -44,6 +44,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         private readonly ILogger<VideosControllerService> logger;
         private readonly ISharedDbContext sharedDbContext;
         private readonly IUserService userService;
+        private readonly IVideoService videoService;
 
         // Constructors.
         public VideosControllerService(
@@ -51,16 +52,36 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             IIndexDbContext indexContext,
             ILogger<VideosControllerService> logger,
             ISharedDbContext sharedDbContext,
-            IUserService userService)
+            IUserService userService,
+            IVideoService videoService)
         {
             this.backgroundJobClient = backgroundJobClient;
             this.indexDbContext = indexContext;
             this.logger = logger;
             this.sharedDbContext = sharedDbContext;
             this.userService = userService;
+            this.videoService = videoService;
         }
 
         // Methods.
+        public async Task AuthorDeleteAsync(string id, ClaimsPrincipal currentUserClaims)
+        {
+            // Get data.
+            var address = currentUserClaims.GetEtherAddress();
+            var (currentUser, _) = await userService.FindUserAsync(address);
+
+            var video = await indexDbContext.Videos.FindOneAsync(id);
+
+            // Verify authz.
+            if (currentUser.Id != video.Owner.Id)
+                throw new UnauthorizedAccessException("User is not owner of the video");
+
+            // Action.
+            await videoService.DeleteVideoAsync(video);
+
+            logger.AuthorDeletedVideo(id);
+        }
+
         public async Task<string> CreateAsync(VideoCreateInput videoInput, ClaimsPrincipal currentUserClaims)
         {
             var address = currentUserClaims.GetEtherAddress();
@@ -117,24 +138,6 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             logger.CreatedCommentVideo(user.Id, id);
 
             return new CommentDto(comment, userSharedInfo);
-        }
-
-        public async Task DeleteAsync(string id, ClaimsPrincipal currentUserClaims)
-        {
-            // Get data.
-            var address = currentUserClaims.GetEtherAddress();
-            var (currentUser, _) = await userService.FindUserAsync(address);
-
-            var video = await indexDbContext.Videos.FindOneAsync(id);
-
-            // Verify authz.
-            if (currentUser.Id != video.Owner.Id)
-                throw new UnauthorizedAccessException("User is not owner of the video");
-
-            // Action.
-            await indexDbContext.Videos.DeleteAsync(video);
-
-            logger.AuthorDeletedVideo(id);
         }
 
         public async Task<VideoDto> FindByIdAsync(string id, ClaimsPrincipal currentUserClaims)

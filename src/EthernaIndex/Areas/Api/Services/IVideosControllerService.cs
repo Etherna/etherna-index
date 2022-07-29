@@ -23,9 +23,9 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
 {
     public interface IVideosControllerService
     {
+        Task AuthorDeleteAsync(string id, ClaimsPrincipal userClaims);
         Task<string> CreateAsync(VideoCreateInput videoInput, ClaimsPrincipal currentUserClaims);
         Task<CommentDto> CreateCommentAsync(string id, string text, ClaimsPrincipal currentUserClaims);
-        Task DeleteAsync(string id, ClaimsPrincipal userClaims);
         Task<VideoDto> FindByIdAsync(string id, ClaimsPrincipal currentUserClaims);
         Task<VideoDto> FindByManifestHashAsync(string hash, ClaimsPrincipal currentUserClaims);
         Task<IEnumerable<VideoDto>> GetLastUploadedVideosAsync(int page, int take);
