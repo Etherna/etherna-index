@@ -4,6 +4,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
 {
     public interface IModerationControllerService
     {
-        Task RemoveVideoAsync(string id);
+        Task ModerateCommentAsync(string id);
+        Task ModerateVideoAsync(string id);
     }
 }

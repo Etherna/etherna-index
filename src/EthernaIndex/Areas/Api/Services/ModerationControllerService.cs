@@ -20,7 +20,14 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         }
 
         // Methods.
-        public async Task RemoveVideoAsync(string id)
+        public async Task ModerateCommentAsync(string id)
+        {
+            var comment = await dbContext.Comments.FindOneAsync(id);
+            comment.SetAsUnsuitable();
+            await dbContext.SaveChangesAsync();
+        }
+
+        public async Task ModerateVideoAsync(string id)
         {
             var video = await dbContext.Videos.FindOneAsync(id);
             await videoService.ModerateUnsuitableVideoAsync(video);
