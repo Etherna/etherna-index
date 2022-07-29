@@ -27,7 +27,20 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         // Delete.
 
         /// <summary>
-        /// Set a video as unsittable for the index
+        /// Moderate comment as unsittable for the index
+        /// </summary>
+        /// <param name="id">Id of the comment</param>
+        [HttpDelete("comments/{id}")]
+        [SimpleExceptionFilter]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public Task ModerateCommentAsync(
+            [Required] string id) =>
+            service.ModerateCommentAsync(id);
+
+        /// <summary>
+        /// Moderate video as unsittable for the index
         /// </summary>
         /// <param name="id">Id of the video</param>
         [HttpDelete("videos/{id}")]
@@ -35,8 +48,8 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public Task RemoveVideoAsync(
+        public Task ModerateVideoAsync(
             [Required] string id) =>
-            service.RemoveVideoAsync(id);
+            service.ModerateVideoAsync(id);
     }
 }

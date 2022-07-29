@@ -55,6 +55,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                                 }, 
                                 ""SharedInfoId"" : ""61cdffb4fa7c4052d258123b""
                             }, 
+                            ""IsFrozen"" : true,
                             ""Text"" : ""test"", 
                             ""Video"" : {
                                 ""_m"" : ""d4844740-472d-48b9-b066-67ba9a2acc9b"", 
@@ -70,6 +71,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                         authorMock.Setup(a => a.Id).Returns("6217ce1f89618c1a512354a1");
                         expectedCommentMock.Setup(c => c.Author).Returns(authorMock.Object);
                     }
+                    expectedCommentMock.Setup(c => c.IsFrozen).Returns(true);
                     expectedCommentMock.Setup(c => c.Text).Returns("test");
                     {
                         var videoMock = new Mock<Video>();
