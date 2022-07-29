@@ -216,7 +216,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         // Delete.
 
         /// <summary>
-        /// Delete a video from index.
+        /// Delete a video from index. Only author is authorized
         /// </summary>
         /// <param name="id">Id of the video</param>
         [HttpDelete("{id}")]
@@ -226,8 +226,8 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public Task DeleteAsync(
+        public Task AuthorDeleteAsync(
             [Required] string id) =>
-            service.DeleteAsync(id, User);
+            service.AuthorDeleteAsync(id, User);
     }
 }

@@ -115,10 +115,12 @@ namespace Etherna.EthernaIndex.Domain.Models
         }
 
         [PropertyAlterer(nameof(IsFrozen))]
+        [PropertyAlterer(nameof(LastValidManifest))]
         [PropertyAlterer(nameof(VideoManifests))]
         public virtual void SetAsUnsuitable()
         {
             IsFrozen = true;
+            LastValidManifest = null;
             _videoManifests.Clear();
         }
 

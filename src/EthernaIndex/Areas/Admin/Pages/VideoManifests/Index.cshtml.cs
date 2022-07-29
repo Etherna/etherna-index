@@ -13,7 +13,6 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
 {
     public class IndexModel : PageModel
     {
-
         // Models.
         public class InputModel
         {
