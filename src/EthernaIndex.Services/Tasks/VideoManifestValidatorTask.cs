@@ -15,7 +15,8 @@
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg;
 using Etherna.EthernaIndex.Swarm;
-using Etherna.EthernaIndex.Swarm.DtoModel;
+using Etherna.EthernaIndex.Swarm.Models;
+using Etherna.EthernaIndex.Swarm.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -43,7 +44,7 @@ namespace Etherna.EthernaIndex.Services.Tasks
         {
             var video = await indexDbContext.Videos.FindOneAsync(videoId);
 
-            MetadataVideoDto? metadataDto;
+            MetadataVideo metadataDto;
             var validationErrors = new List<ErrorDetail>();
 
             // Get manifest.
@@ -68,7 +69,7 @@ namespace Etherna.EthernaIndex.Services.Tasks
 
             // Validate manifest.
             //duration
-            if (metadataDto.Duration is null)
+            if (metadataDto.Duration == 0)
                 validationErrors.Add(new ErrorDetail(ValidationErrorType.MissingDuration, ValidationErrorType.MissingDuration.ToString()));
 
             //original quality
@@ -76,13 +77,13 @@ namespace Etherna.EthernaIndex.Services.Tasks
                 validationErrors.Add(new ErrorDetail(ValidationErrorType.MissingOriginalQuality, ValidationErrorType.MissingOriginalQuality.ToString()));
 
             //thumbnail
-            SwarmImageRaw? swarmImageRaw = null;
+            EthernaIndex.Domain.Models.VideoAgg.SwarmImageRaw? swarmImageRaw = null;
             if (metadataDto.Thumbnail is not null)
             {
                 var validationVideoError = CheckThumbnailSources(metadataDto.Thumbnail.Sources);
                 validationErrors.AddRange(validationVideoError);
 
-                swarmImageRaw = new SwarmImageRaw(
+                swarmImageRaw = new EthernaIndex.Domain.Models.VideoAgg.SwarmImageRaw(
                     metadataDto.Thumbnail.AspectRatio,
                     metadataDto.Thumbnail.Blurhash,
                     metadataDto.Thumbnail.Sources);
@@ -103,13 +104,13 @@ namespace Etherna.EthernaIndex.Services.Tasks
             }
             else
             {
-                var videoSources = (metadataDto.Sources ?? Array.Empty<MetadataVideoSourceDto>())
+                var videoSources = (metadataDto.Sources ?? Array.Empty<MetadataVideoSource>())
                     .Select(i => new VideoSource(i.Bitrate, i.Quality, i.Reference, i.Size));
 
                 video.SucceededManifestValidation(
                     videoManifest,
                     metadataDto.Description,
-                    metadataDto.Duration!.Value,
+                    metadataDto.Duration,
                     metadataDto.OriginalQuality!,
                     swarmImageRaw,
                     metadataDto.Title!,
@@ -139,7 +140,7 @@ namespace Etherna.EthernaIndex.Services.Tasks
             return errorDetails;
         }
 
-        private IEnumerable<ErrorDetail> CheckVideoSources(IEnumerable<MetadataVideoSourceDto>? videoSources)
+        private IEnumerable<ErrorDetail> CheckVideoSources(IEnumerable<MetadataVideoSource>? videoSources)
         {
             if (videoSources is null ||
                 !videoSources.Any())

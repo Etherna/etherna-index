@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Etherna.EthernaIndex.Swarm.DtoModel
+namespace Etherna.EthernaIndex.Areas.Api.DtoModels
 {
     public class ImageDto
     {

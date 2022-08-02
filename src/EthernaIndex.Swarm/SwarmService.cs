@@ -1,6 +1,8 @@
 ﻿using Etherna.BeeNet;
 using Etherna.BeeNet.Clients.GatewayApi;
-using Etherna.EthernaIndex.Swarm.DtoModel;
+using Etherna.EthernaIndex.Swarm.DtoModels;
+using Etherna.EthernaIndex.Swarm.Models;
+using Etherna.EthernaIndex.Swarm.Exceptions;
 using Microsoft.Extensions.Options;
 using System;
 using System.Text.Json;
@@ -47,7 +49,7 @@ namespace Etherna.EthernaIndex.Swarm
         }
 
         // Methods.
-        public async Task<MetadataVideoDto> GetMetadataVideoAsync(string manifestHash)
+        public async Task<MetadataVideo> GetMetadataVideoAsync(string manifestHash)
         {
             if (BeeNodeClient.GatewayClient is null)
                 throw new InvalidOperationException(nameof(BeeNodeClient.GatewayClient));
@@ -55,12 +57,26 @@ namespace Etherna.EthernaIndex.Swarm
             try
             {
 #if !DEBUG_MOCKUP_SWARM
-                using var stream = await BeeNodeClient.GatewayClient.GetFileAsync(manifestHash);
-                using var reader = new StreamReader(stream);
+                using var manifestStream = await BeeNodeClient.GatewayClient.GetFileAsync(manifestHash);
 
-                var metadataVideoDto = JsonSerializer.Deserialize<MetadataVideoDto>(await reader.ReadToEndAsync(), _jsonDeserializeOptions);
-                if (metadataVideoDto is null)
-                    throw new MetadataVideoException("Empty json");
+                // Find version.
+                var jsonElementManifest = await JsonSerializer.DeserializeAsync<JsonElement>(manifestStream);
+                var version = jsonElementManifest.GetProperty("v").GetString();
+                if (version is null)
+                    throw new MetadataVideoException("Version must exists");
+                var majorVersion = version.Split('.')[0];
+
+                // Deserialize document.
+                var metadataVideoDto = majorVersion switch
+                {
+                    "1" => new MetadataVideo(jsonElementManifest.Deserialize<MetadataVideoSchema1>(
+                        new JsonSerializerOptions
+                        {
+                            Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) },
+                            PropertyNameCaseInsensitive = true,
+                        }) ?? throw new MetadataVideoException("Empty json")),
+                    _ => throw new MetadataVideoException("Invalid version")
+                };
 
                 return metadataVideoDto;
 #else
@@ -106,13 +122,6 @@ namespace Etherna.EthernaIndex.Swarm
             return manifest;
         }
 #endif
-
-        // Helpers.
-        private static readonly JsonSerializerOptions _jsonDeserializeOptions = new()
-        {
-            PropertyNameCaseInsensitive = true,
-            Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) }
-        };
     }
 }
 

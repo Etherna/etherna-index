@@ -93,9 +93,10 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             {
                 // Act as an idempotent call if video and creator are the same.
                 var existingVideo = await indexDbContext.Videos
-                    .FindOneAsync(v => v.VideoManifests.Any(vm => vm.Manifest.Hash == videoManifest.Manifest.Hash));
+                    .TryFindOneAsync(v => v.VideoManifests.Any(vm => vm.Id == videoManifest.Id));
 
-                if (existingVideo.Owner.Id != currentUser.Id)
+                if (existingVideo is null ||
+                    existingVideo.Owner.Id != currentUser.Id)
                     throw new DuplicatedManifestHashException(videoInput.ManifestHash);
 
                 return existingVideo.Id;

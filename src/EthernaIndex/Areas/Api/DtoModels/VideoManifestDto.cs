@@ -1,5 +1,4 @@
 ﻿using Etherna.EthernaIndex.Domain.Models.VideoAgg;
-using Etherna.EthernaIndex.Swarm.DtoModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;

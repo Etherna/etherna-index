@@ -21,7 +21,7 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
     {
         // Constructors.
         public VideoSource(
-            int? bitrate,
+            int bitrate,
             string quality,
             string reference,
             long size)
@@ -37,7 +37,7 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         // Properties.
-        public virtual int? Bitrate { get; set; }
+        public virtual int Bitrate { get; set; }
         public virtual string Quality { get; set; }
         public virtual string Reference { get; set; }
         public virtual long Size { get; set; }
@@ -55,7 +55,7 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
         }
 
         public override int GetHashCode() =>
-            (Bitrate ?? 0).GetHashCode() ^
+            Bitrate.GetHashCode() ^
             Quality.GetHashCode(StringComparison.Ordinal) ^
             Reference.GetHashCode(StringComparison.Ordinal) ^
             Size.GetHashCode();
