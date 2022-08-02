@@ -2,7 +2,7 @@
   "title": "Test 1",
   "description": "desc",
   "createdAt": 1645091199100,
-  "duration": 16.575,
+  "duration": 18,
   "originalQuality": "720p",
   "ownerAddress": "0x6163C4b8264a03CCAc412B83cbD1B551B6c6C246",
   "thumbnail": {
@@ -20,5 +20,6 @@
       "size": 448350,
       "bitrate": 216398
     }
-  ]
+  ],
+  "v": "1.0"
 }

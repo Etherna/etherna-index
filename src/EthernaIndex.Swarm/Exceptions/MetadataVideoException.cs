@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Etherna.EthernaIndex.Swarm
+namespace Etherna.EthernaIndex.Swarm.Exceptions
 {
     public class MetadataVideoException : Exception
     {

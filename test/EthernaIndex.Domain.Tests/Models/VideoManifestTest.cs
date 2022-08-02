@@ -97,7 +97,9 @@ namespace Etherna.EthernaIndex.Domain.Models
             var desc = "DescTest";
             var original = "OriginalTest";
             var duration = 1;
-            var videoSources = new List<VideoSource> { new VideoSource(1, "10801", "reff1", 4), new VideoSource(null, "321", "reff2", 100) };
+            var videoSources = new List<VideoSource> {
+                new VideoSource(1, "10801", "reff1", 4),
+                new VideoSource(2, "321", "reff2", 100) };
             var blur = "BlurTst";
             var aspectRatio = 1;
             var source = new Dictionary<string, string> { { "1080", "Test1" }, { "720", "Test2" } };
@@ -123,7 +125,7 @@ namespace Etherna.EthernaIndex.Domain.Models
                    i.Reference == "reff1" &&
                    i.Size == 4);
             Assert.Contains(manifest.Sources,
-               i => i.Bitrate == null &&
+               i => i.Bitrate == 2 &&
                    i.Quality == "321" &&
                    i.Reference == "reff2" &&
                    i.Size == 100);
@@ -149,7 +151,9 @@ namespace Etherna.EthernaIndex.Domain.Models
             var desc = "DescTest";
             var original = "OriginalTest";
             var duration = 1;
-            var videoSources = new List<VideoSource> { new VideoSource(1, "10801", "reff1", 4), new VideoSource(null, "321", "reff2", 100) };
+            var videoSources = new List<VideoSource> {
+                new VideoSource(1, "10801", "reff1", 4),
+                new VideoSource(2, "321", "reff2", 100) };
 
             //Act
             manifest.SucceededValidation(

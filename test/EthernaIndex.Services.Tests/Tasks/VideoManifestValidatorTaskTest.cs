@@ -18,7 +18,8 @@ using Etherna.EthernaIndex.Domain.Models.UserAgg;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg;
 using Etherna.EthernaIndex.Services.Tasks;
 using Etherna.EthernaIndex.Swarm;
-using Etherna.EthernaIndex.Swarm.DtoModel;
+using Etherna.EthernaIndex.Swarm.Models;
+using Etherna.EthernaIndex.Swarm.Exceptions;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -72,18 +73,19 @@ namespace EthernaIndex.Services.Tests.Tasks
         public async Task ValidateManifest_True_WithCorrectData()
         {
             //Arrange
-            var metadataVideoDto = new MetadataVideoDto(
-                "Titletest",
+            var metadataVideoDto = new MetadataVideo(
                 "Description",
+                10,
+                1234,
                 "123",
                 "",
-                10,
-                null,
-                new List<MetadataVideoSourceDto>
+                new List<MetadataVideoSource>
                 {
-                    new MetadataVideoSourceDto(1, "1080", "Ref1080", 32),
-                    new MetadataVideoSourceDto(null, "720", "Ref720", 32)
-                });
+                    new MetadataVideoSource(1, "1080", "Ref1080", 32),
+                    new MetadataVideoSource(2, "720", "Ref720", 32)
+                },
+                null,
+                "Titletest");
             swarmService
                 .Setup(x => x.GetMetadataVideoAsync(manifestHash))
                 .ReturnsAsync(metadataVideoDto);
@@ -105,7 +107,7 @@ namespace EthernaIndex.Services.Tests.Tasks
                     i.Reference == "Ref1080" &&
                     i.Size == 32);
             Assert.Contains(videoManifest.Sources,
-                i => i.Bitrate == null &&
+                i => i.Bitrate == 2 &&
                     i.Quality == "720" &&
                     i.Reference == "Ref720" &&
                     i.Size == 32);
@@ -118,18 +120,19 @@ namespace EthernaIndex.Services.Tests.Tasks
         public async Task ValidateManifest_False_WithWrongTitle()
         {
             //Arrange
-            var metadataVideoDto = new MetadataVideoDto(
-                null!,
+            var metadataVideoDto = new MetadataVideo(
                 "Description",
+                10,
+                1234,
                 "123",
                 address,
-                10,
-                null,
-                new List<MetadataVideoSourceDto>
+                new List<MetadataVideoSource>
                 {
-                    new MetadataVideoSourceDto(1, "1080", "Ref1080", 32),
-                    new MetadataVideoSourceDto(null, "720", "Ref720", 32)
-                });
+                    new MetadataVideoSource(1, "1080", "Ref1080", 32),
+                    new MetadataVideoSource(2, "720", "Ref720", 32)
+                },
+                null,
+                null!);
             swarmService
                 .Setup(x => x.GetMetadataVideoAsync(manifestHash))
                 .ReturnsAsync(metadataVideoDto);
@@ -174,14 +177,15 @@ namespace EthernaIndex.Services.Tests.Tasks
         public async Task ValidateManifest_False_WithEmptySources()
         {
             //Arrange
-            var metadataVideoDto = new MetadataVideoDto(
-                "Titletest",
+            var metadataVideoDto = new MetadataVideo(
                 "Description",
+                10,
+                1234,
                 "123",
                 address,
-                10,
+                new List<MetadataVideoSource>(),
                 null,
-                new List<MetadataVideoSourceDto>());
+                "Titletest");
             swarmService
                 .Setup(x => x.GetMetadataVideoAsync(manifestHash))
                 .ReturnsAsync(metadataVideoDto);
@@ -204,14 +208,15 @@ namespace EthernaIndex.Services.Tests.Tasks
         public async Task ValidateManifest_False_WithNullSources()
         {
             //Arrange
-            var metadataVideoDto = new MetadataVideoDto(
-                "Titletest",
+            var metadataVideoDto = new MetadataVideo(
                 "Description",
+                10,
+                1234,
                 "123",
                 address,
-                10,
+                null!,
                 null,
-                null!);
+                "Titletest");
             swarmService
                 .Setup(x => x.GetMetadataVideoAsync(manifestHash))
                 .ReturnsAsync(metadataVideoDto);
@@ -234,18 +239,19 @@ namespace EthernaIndex.Services.Tests.Tasks
         public async Task ValidateManifest_False_WithWrongReferenceSources()
         {
             //Arrange
-            var metadataVideoDto = new MetadataVideoDto(
-                "Titletest",
+            var metadataVideoDto = new MetadataVideo(
                 "Description",
+                10,
+                1234,
                 "123",
                 address,
-                10,
-                null,
-                new List<MetadataVideoSourceDto>
+                new List<MetadataVideoSource>
                 {
-                    new MetadataVideoSourceDto(1, "1080", "Ref1080", 32),
-                    new MetadataVideoSourceDto(null, "720", "", 32)
-                });
+                    new MetadataVideoSource(1, "1080", "Ref1080", 32),
+                    new MetadataVideoSource(2, "720", "", 32)
+                },
+                null,
+                "Titletest");
             swarmService
                 .Setup(x => x.GetMetadataVideoAsync(manifestHash))
                 .ReturnsAsync(metadataVideoDto);
@@ -268,18 +274,19 @@ namespace EthernaIndex.Services.Tests.Tasks
         public async Task ValidateManifest_False_WithWrongQualitySources()
         {
             //Arrange
-            var metadataVideoDto = new MetadataVideoDto(
-                "Titletest",
+            var metadataVideoDto = new MetadataVideo(
                 "Description",
+                10,
+                1234,
                 "123",
                 address,
-                10,
-                null,
-                new List<MetadataVideoSourceDto>
+                new List<MetadataVideoSource>
                 {
-                    new MetadataVideoSourceDto(1, "", "Ref1080", 32),
-                    new MetadataVideoSourceDto(null, "720", "Ref720", 32)
-                });
+                    new MetadataVideoSource(1, "", "Ref1080", 32),
+                    new MetadataVideoSource(2, "720", "Ref720", 32)
+                },
+                null,
+                "Titletest");
             swarmService
                 .Setup(x => x.GetMetadataVideoAsync(manifestHash))
                 .ReturnsAsync(metadataVideoDto);
@@ -302,18 +309,19 @@ namespace EthernaIndex.Services.Tests.Tasks
         public async Task ValidateManifest_InsertManifestInVideo_WhenIsValid()
         {
             //Arrange
-            var metadataVideoDto = new MetadataVideoDto(
-                "Titletest",
+            var metadataVideoDto = new MetadataVideo(
                 "Description",
+                10,
+                1234,
                 "123",
                 address,
-                10,
-                null,
-                new List<MetadataVideoSourceDto>
+                new List<MetadataVideoSource>
                 {
-                    new MetadataVideoSourceDto(1, "1080", "Ref1080", 32),
-                    new MetadataVideoSourceDto(null, "720", "Ref720", 32)
-                });
+                    new MetadataVideoSource(1, "1080", "Ref1080", 32),
+                    new MetadataVideoSource(2, "720", "Ref720", 32)
+                },
+                null,
+                "Titletest");
             swarmService
                 .Setup(x => x.GetMetadataVideoAsync(manifestHash))
                 .ReturnsAsync(metadataVideoDto);
@@ -335,18 +343,19 @@ namespace EthernaIndex.Services.Tests.Tasks
         public async Task ValidateManifest_InsertManifestInVideo_EvenIsNotValid()
         {
             //Arrange
-            var metadataVideoDto = new MetadataVideoDto(
-                "Titletest",
+            var metadataVideoDto = new MetadataVideo(
                 "Description",
+                10,
+                1234,
                 "123",
                 address,
-                10,
-                null,
-                new List<MetadataVideoSourceDto>
+                new List<MetadataVideoSource>
                 {
-                    new MetadataVideoSourceDto(1, "", "Ref1080", 32),
-                    new MetadataVideoSourceDto(null, "720", "Ref720", 32)
-                });
+                    new MetadataVideoSource(1, "", "Ref1080", 32),
+                    new MetadataVideoSource(2, "720", "Ref720", 32)
+                },
+                null,
+                "Titletest");
             swarmService
                 .Setup(x => x.GetMetadataVideoAsync(manifestHash))
                 .ReturnsAsync(metadataVideoDto);
@@ -366,35 +375,37 @@ namespace EthernaIndex.Services.Tests.Tasks
         public async Task ValidateManifest_AppendManifestInVideo_WhenIsValidAndHaveAnotherValidManifest()
         {
             // Arrange.
-            var firstMetadataVideoDto = new MetadataVideoDto(
-                "Titletest",
+            var firstMetadataVideoDto = new MetadataVideo(
                 "Description",
+                10,
+                1234,
                 "123",
                 address,
-                10,
-                null,
-                new List<MetadataVideoSourceDto>
+                new List<MetadataVideoSource>
                 {
-                    new MetadataVideoSourceDto(1, "1080", "Ref1080", 32),
-                    new MetadataVideoSourceDto(null, "720", "Ref720", 32)
-                });
+                    new MetadataVideoSource(1, "1080", "Ref1080", 32),
+                    new MetadataVideoSource(2, "720", "Ref720", 32)
+                },
+                null,
+                "Titletest");
             swarmService
                 .Setup(x => x.GetMetadataVideoAsync(manifestHash))
                 .ReturnsAsync(firstMetadataVideoDto);
             await videoManifestValidatorTask.RunAsync(videoId, manifestHash);
             //second manifest for same video
             string secondManifestHash = "2b678a1d73fd8f28d71e6b03d2e42f44721db94b734c2edcfe6fcd48b76a74f9";
-            var secondMetadataVideoDto = new MetadataVideoDto(
-                "Titletest",
+            var secondMetadataVideoDto = new MetadataVideo(
                 "Description2",
+                20,
+                1234,
                 "456",
                 address,
-                20,
-                null,
-                new List<MetadataVideoSourceDto>
+                new List<MetadataVideoSource>
                 {
-                    new MetadataVideoSourceDto(2, "10802", "Ref10802", 98)
-                });
+                    new MetadataVideoSource(2, "10802", "Ref10802", 98)
+                },
+                null,
+                "Titletest");
             var secondVideoManifest = new VideoManifest(secondManifestHash);
             video.AddManifest(secondVideoManifest);
             var secondIndexContext = new Mock<IIndexDbContext>();
@@ -429,7 +440,7 @@ namespace EthernaIndex.Services.Tests.Tasks
         {
             var jsonDeserializeOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true, Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) } };
             var txt = await System.IO.File.ReadAllTextAsync("JsonData/Manifest.json");
-            var metatdata = JsonSerializer.Deserialize<MetadataVideoDto>(txt, jsonDeserializeOptions);
+            var metatdata = JsonSerializer.Deserialize<MetadataVideo>(txt, jsonDeserializeOptions);
 
 
             Assert.NotNull(metatdata);
