@@ -13,7 +13,7 @@
 //   limitations under the License.
 
 using Etherna.DomainEvents;
-using Etherna.MongODM.Models;
+using Etherna.MongODM.Core.Domain.Models;
 using System;
 using System.Collections.Generic;
 
@@ -22,7 +22,7 @@ namespace Etherna.EthernaIndex.Domain.Models
     public abstract class EntityModelBase : ModelBase, IEntityModel
     {
         private DateTime _creationDateTime;
-        private readonly List<IDomainEvent> _events = new List<IDomainEvent>();
+        private readonly List<IDomainEvent> _events = new();
 
         // Constructors and dispose.
         protected EntityModelBase()
@@ -53,7 +53,7 @@ namespace Etherna.EthernaIndex.Domain.Models
             if (ReferenceEquals(this, obj)) return true;
             if (obj is null) return false;
             if (EqualityComparer<TKey>.Default.Equals(Id, default) ||
-                !(obj is IEntityModel<TKey>) ||
+                obj is not IEntityModel<TKey> ||
                 EqualityComparer<TKey>.Default.Equals((obj as IEntityModel<TKey>)!.Id, default)) return false;
             return GetType() == obj.GetType() &&
                 EqualityComparer<TKey>.Default.Equals(Id, (obj as IEntityModel<TKey>)!.Id);

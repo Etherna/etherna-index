@@ -26,7 +26,7 @@ using System.Threading.Tasks;
 namespace Etherna.EthernaIndex.Areas.Api.Controllers
 {
     [ApiController]
-    [ApiVersion("0.2")]
+    [ApiVersion("0.3")]
     [Route("api/v{api-version:apiVersion}/[controller]")]
     public class UsersController : ControllerBase
     {
@@ -88,29 +88,13 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
             [Required] string address,
             [Range(0, int.MaxValue)] int page,
             [Range(1, 100)] int take = 25) =>
-            controllerService.GetVideosAsync(address, page, take);
+            controllerService.GetVideosAsync(address, page, take, User);
 
         [HttpGet("current")]
         [Authorize]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public Task<UserPrivateDto> GetCurrentUserAsync() =>
+        public Task<UserDto> GetCurrentUserAsync() =>
             controllerService.GetCurrentUserAsync();
-
-        // Put.
-
-        /// <summary>
-        /// Update current user identity manifest.
-        /// </summary>
-        /// <param name="manifestHash">The new identity manifest hash. Null for remove</param>
-        [HttpPut("current")]
-        [Authorize]
-        [SimpleExceptionFilter]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public Task UpdateCurrentUserIdentityManifestAsync(
-            string? manifestHash) =>
-            controllerService.UpdateCurrentUserIdentityManifestAsync(manifestHash);
     }
 }

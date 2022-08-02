@@ -12,7 +12,7 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-using Etherna.MongODM;
+using Etherna.MongODM.Core.Options;
 using Microsoft.AspNetCore.DataProtection.Repositories;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -27,14 +27,11 @@ namespace Etherna.EthernaIndex.SystemStore
 {
     public class XmlRepository : IXmlRepository
     {
-        // Consts.
-        public const string CollectionName = "dataProtectionKeys";
-
         // Fields.
         private readonly IMongoCollection<BsonDocument> collection;
 
         // Constructors.
-        public XmlRepository(DbContextOptions options)
+        public XmlRepository(DbContextOptions options, string name)
         {
             if (options is null)
                 throw new ArgumentNullException(nameof(options));
@@ -42,7 +39,7 @@ namespace Etherna.EthernaIndex.SystemStore
             // Initialize MongoDB driver.
             var client = new MongoClient(options.ConnectionString);
             var database = client.GetDatabase(options.DbName);
-            collection = database.GetCollection<BsonDocument>(CollectionName);
+            collection = database.GetCollection<BsonDocument>(name);
         }
 
         // Methods.
@@ -55,6 +52,8 @@ namespace Etherna.EthernaIndex.SystemStore
 
                 var jsonStr = bsonDoc.ToJson();
                 var xDocument = JsonConvert.DeserializeXNode(jsonStr)!;
+                if (xDocument.Root is null)
+                    throw new InvalidOperationException();
                 return xDocument.Root;
             }).ToList();
         }

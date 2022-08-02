@@ -12,18 +12,19 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
+using Etherna.Authentication.Extensions;
 using Etherna.EthernaIndex.Areas.Api.DtoModels;
 using Etherna.EthernaIndex.Domain;
-using Etherna.EthernaIndex.Domain.Models.Swarm;
-using Etherna.EthernaIndex.Extensions;
-using Etherna.MongODM.Extensions;
+using Etherna.EthernaIndex.Services.Domain;
+using Etherna.MongoDB.Driver;
+using Etherna.MongoDB.Driver.Linq;
+using Etherna.MongODM.Core.Extensions;
 using Microsoft.AspNetCore.Http;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using Nethereum.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Areas.Api.Services
@@ -32,15 +33,21 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
     {
         // Fields.
         private readonly IHttpContextAccessor httpContextAccessor;
-        private readonly IIndexContext indexContext;
+        private readonly IIndexDbContext indexContext;
+        private readonly ISharedDbContext sharedDbContext;
+        private readonly IUserService userService;
 
         // Constructors.
         public UsersControllerService(
             IHttpContextAccessor httpContextAccessor,
-            IIndexContext indexContext)
+            IIndexDbContext indexContext,
+            ISharedDbContext sharedDbContext,
+            IUserService userService)
         {
             this.httpContextAccessor = httpContextAccessor;
             this.indexContext = indexContext;
+            this.sharedDbContext = sharedDbContext;
+            this.userService = userService;
         }
 
         // Methods.
@@ -51,55 +58,49 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             if (!address.IsValidEthereumAddressHexFormat())
                 throw new ArgumentException("The value is not a valid address", nameof(address));
 
-            address = address.ConvertToEthereumChecksumAddress();
+            var (user, sharedInfo) = await userService.FindUserAsync(address);
 
-            return new UserDto(await indexContext.Users.FindOneAsync(c => c.Address == address));
+            return new UserDto(user, sharedInfo);
         }
 
-        public async Task<UserPrivateDto> GetCurrentUserAsync()
+        public async Task<UserDto> GetCurrentUserAsync()
         {
-            var address = httpContextAccessor.HttpContext.User.GetEtherAddress();
-            var prevAddresses = httpContextAccessor.HttpContext.User.GetEtherPrevAddresses();
+            var address = httpContextAccessor.HttpContext!.User.GetEtherAddress();
 
-            var manifest = await indexContext.Users.QueryElementsAsync(elements =>
-                elements.Where(u => u.Address == address ||
-                                    prevAddresses.Contains(u.Address))
-                        .Select(u => u.IdentityManifest)
-                        .FirstAsync());
+            var (user, sharedInfo) = await userService.FindUserAsync(address);
 
-            return new UserPrivateDto(address, manifest?.Hash, prevAddresses);
+            return new UserDto(user, sharedInfo);
         }
 
         public async Task<IEnumerable<UserDto>> GetUsersAsync(
-            bool onlyWithVideo, int page, int take) =>
-            (await indexContext.Users.QueryElementsAsync(elements =>
-                elements.Where(u => !onlyWithVideo || u.Videos.Any())
-                        .PaginateDescending(u => u.CreationDateTime, page, take)
-                        .ToListAsync()))
-              .Select(c => new UserDto(c));
-
-        public async Task<IEnumerable<VideoDto>> GetVideosAsync(string address, int page, int take)
+            bool onlyWithVideo, int page, int take)
         {
-            var user = await indexContext.Users.FindOneAsync(c => c.Address == address);
-            return user.Videos.PaginateDescending(v => v.CreationDateTime, page, take)
-                                 .Select(v => new VideoDto(v));
+            var users = await indexContext.Users.QueryElementsAsync(elements =>
+                elements.Where(u => !onlyWithVideo || u.Videos.Any(v => v.LastValidManifest != null))
+                        .PaginateDescending(u => u.CreationDateTime, page, take)
+                        .ToListAsync());
+
+            var userDtos = new List<UserDto>();
+            foreach (var user in users)
+            {
+                var sharedInfo = await sharedDbContext.UsersInfo.FindOneAsync(user.SharedInfoId);
+                userDtos.Add(new UserDto(user, sharedInfo));
+            }
+
+            return userDtos;
         }
 
-        public async Task UpdateCurrentUserIdentityManifestAsync(string? hash)
+        public async Task<IEnumerable<VideoDto>> GetVideosAsync(string address, int page, int take, ClaimsPrincipal currentUserClaims)
         {
-            var address = httpContextAccessor.HttpContext.User.GetEtherAddress();
-            var prevAddresses = httpContextAccessor.HttpContext.User.GetEtherPrevAddresses();
+            var currentUserAddress = currentUserClaims.TryGetEtherAddress();
+            var requestByVideoOwner = address == currentUserAddress;
 
-            var user = await indexContext.Users.QueryElementsAsync(elements =>
-                elements.Where(u => u.Address == address ||
-                                    prevAddresses.Contains(u.Address))
-                        .FirstAsync());
+            var (user, sharedInfo) = await userService.FindUserAsync(address);
 
-            user.IdentityManifest = hash is null ?
-                null :
-                new SwarmContentHash(hash);
-
-            await indexContext.SaveChangesAsync();
+            return user.Videos
+                .Where(v => requestByVideoOwner || v.LastValidManifest != null)
+                .PaginateDescending(v => v.CreationDateTime, page, take)
+                .Select(v => new VideoDto(v, v.LastValidManifest, sharedInfo, null));
         }
     }
 }

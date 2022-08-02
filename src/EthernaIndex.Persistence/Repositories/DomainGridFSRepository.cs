@@ -14,9 +14,9 @@
 
 using Etherna.DomainEvents;
 using Etherna.EthernaIndex.Domain.Events;
-using Etherna.MongODM;
-using Etherna.MongODM.Models;
-using Etherna.MongODM.Repositories;
+using Etherna.MongODM.Core;
+using Etherna.MongODM.Core.Domain.Models;
+using Etherna.MongODM.Core.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,7 +40,7 @@ namespace Etherna.EthernaIndex.Persistence.Repositories
 
         public override void Initialize(IDbContext dbContext)
         {
-            if (!(dbContext is IEventDispatcherDbContext))
+            if (dbContext is not IEventDispatcherDbContext)
                 throw new InvalidOperationException($"DbContext needs to implement {nameof(IEventDispatcherDbContext)}");
 
             base.Initialize(dbContext);

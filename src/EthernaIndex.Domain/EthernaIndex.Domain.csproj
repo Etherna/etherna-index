@@ -1,20 +1,22 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <TargetFramework>net6.0</TargetFramework>
     <RootNamespace>Etherna.EthernaIndex.Domain</RootNamespace>
+
+    <Authors>Etherna Sagl</Authors>
+    
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <Nullable>enable</Nullable>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisMode>AllEnabledByDefault</AnalysisMode>
+    <Configurations>Debug;Release</Configurations>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="DomainEvents" Version="1.1.1" />
-    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="3.3.0">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="MongODM.Core" Version="0.21.0" />
-    <PackageReference Include="Nethereum.Util" Version="3.8.0" />
+    <PackageReference Include="MongODM.Core" Version="0.23.0" />
+    <PackageReference Include="Nethereum.Util" Version="4.7.0" />
   </ItemGroup>
 
 </Project>

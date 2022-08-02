@@ -13,6 +13,7 @@
 //   limitations under the License.
 
 using Etherna.EthernaIndex.Domain.Models;
+using Etherna.EthernaIndex.Domain.Models.UserAgg;
 using System;
 
 namespace Etherna.EthernaIndex.Areas.Api.DtoModels
@@ -20,19 +21,19 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
     public class UserDto
     {
         // Constructors.
-        public UserDto(User user)
+        public UserDto(User user, UserSharedInfo userSharedInfo)
         {
             if (user is null)
                 throw new ArgumentNullException(nameof(user));
+            if (userSharedInfo is null)
+                throw new ArgumentNullException(nameof(userSharedInfo));
 
-            Address = user.Address;
+            Address = userSharedInfo.EtherAddress;
             CreationDateTime = user.CreationDateTime;
-            IdentityManifest = user.IdentityManifest?.Hash;
         }
 
         // Properties.
         public string Address { get; }
         public DateTime CreationDateTime { get; }
-        public string? IdentityManifest { get; }
     }
 }

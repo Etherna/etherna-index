@@ -13,35 +13,58 @@
 //   limitations under the License.
 
 using Etherna.EthernaIndex.Domain.Models;
+using Etherna.EthernaIndex.Domain.Models.UserAgg;
+using Etherna.EthernaIndex.Domain.Models.VideoAgg;
 using System;
+using System.Linq;
 
 namespace Etherna.EthernaIndex.Areas.Api.DtoModels
 {
     public class VideoDto
     {
         // Constructors.
-        public VideoDto(Video video)
+        public VideoDto(
+            Video video,
+            VideoManifest? videoManifest,
+            UserSharedInfo ownerSharedInfo,
+            VideoVote? currentUserVideoVote)
         {
             if (video is null)
                 throw new ArgumentNullException(nameof(video));
+            if (ownerSharedInfo is null)
+                throw new ArgumentNullException(nameof(ownerSharedInfo));
 
+            if (videoManifest is not null &&
+                !video.VideoManifests.Contains(videoManifest))
+            {
+                var ex = new InvalidOperationException("Video not compatible with current Manifest");
+                ex.Data.Add("VideoId", video.Id);
+                ex.Data.Add("ManifestHash", videoManifest.Manifest.Hash);
+                ex.Data.Add("ManifestId", videoManifest.Id);
+                throw ex;
+            }
+
+            Id = video.Id;
             CreationDateTime = video.CreationDateTime;
-            EncryptionKey = video.EncryptionKey;
-            EncryptionType = video.EncryptionType;
-            ManifestHash = video.ManifestHash.Hash;
-            OwnerAddress = video.Owner.Address;
-            OwnerIdentityManifest = video.Owner.IdentityManifest?.Hash;
+            if (currentUserVideoVote is not null &&
+                currentUserVideoVote.Value != VoteValue.Neutral)
+            {
+                CurrentVoteValue = currentUserVideoVote.Value;
+            }
+            
+            if (videoManifest is not null)
+                LastValidManifest = new VideoManifestDto(videoManifest);
+            OwnerAddress = ownerSharedInfo.EtherAddress;
             TotDownvotes = video.TotDownvotes;
             TotUpvotes = video.TotUpvotes;
         }
 
         // Properties.
+        public string Id { get; }
         public DateTime CreationDateTime { get; }
-        public string? EncryptionKey { get; }
-        public EncryptionType EncryptionType { get; }
-        public string ManifestHash { get; }
+        public VoteValue? CurrentVoteValue { get; }
+        public VideoManifestDto? LastValidManifest { get; }
         public string OwnerAddress { get; }
-        public string? OwnerIdentityManifest { get; }
         public long TotDownvotes { get; }
         public long TotUpvotes { get; }
     }

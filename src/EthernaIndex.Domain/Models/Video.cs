@@ -12,24 +12,22 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-using Etherna.EthernaIndex.Domain.Models.Swarm;
-using Etherna.MongODM.Attributes;
+using Etherna.EthernaIndex.Domain.Models.VideoAgg;
+using Etherna.MongODM.Core.Attributes;
 using System;
-using System.Text.RegularExpressions;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Etherna.EthernaIndex.Domain.Models
 {
     public class Video : EntityModelBase<string>
     {
+        // Fields.
+        private List<VideoManifest> _videoManifests = new();
+
         // Constructors and dispose.
-        public Video(
-            string? encryptionKey,
-            EncryptionType encryptionType,
-            SwarmContentHash manifestHash,
-            User owner)
+        public Video(User owner)
         {
-            SetEncryptionKey(encryptionKey, encryptionType);
-            SetManifestHash(manifestHash);
             Owner = owner ?? throw new ArgumentNullException(nameof(owner));
             Owner.AddVideo(this);
         }
@@ -44,40 +42,117 @@ namespace Etherna.EthernaIndex.Domain.Models
         }
 
         // Properties.
-        public virtual string? EncryptionKey { get; protected set; }
-        public virtual EncryptionType EncryptionType { get; protected set; }
-        public virtual SwarmContentHash ManifestHash { get; protected set; } = default!;
+        public virtual bool IsFrozen { get; set; }
+        public virtual VideoManifest? LastValidManifest { get; set; }
         public virtual User Owner { get; protected set; } = default!;
         public virtual long TotDownvotes { get; set; }
         public virtual long TotUpvotes { get; set; }
+        public virtual IEnumerable<VideoManifest> VideoManifests
+        {
+            get => _videoManifests;
+            protected set => _videoManifests = new List<VideoManifest>(value ?? new List<VideoManifest>());
+        }
 
         // Methods.
-        [PropertyAlterer(nameof(EncryptionKey))]
-        [PropertyAlterer(nameof(EncryptionType))]
-        public virtual void SetEncryptionKey(string? encryptionKey, EncryptionType encryptionType)
+        [PropertyAlterer(nameof(LastValidManifest))]
+        [PropertyAlterer(nameof(VideoManifests))]
+        public virtual void AddManifest(VideoManifest videoManifest)
         {
-            switch (encryptionType)
+            if (videoManifest is null)
+                throw new ArgumentNullException(nameof(videoManifest));
+            if (IsFrozen)
+                throw new InvalidOperationException("Video is frozen");
+
+            if (_videoManifests.Any(i => i.Manifest.Hash == videoManifest.Manifest.Hash))
             {
-                case EncryptionType.AES256:
-                    if (!Regex.IsMatch(encryptionKey, "^[A-Fa-f0-9]{64}$"))
-                        throw new ArgumentException($"Encryption key is not a valid {encryptionType} key");
-                    break;
-                case EncryptionType.Plain:
-                    if (!string.IsNullOrEmpty(encryptionKey))
-                        throw new ArgumentException($"Encryption key must be empty with unencrypted content");
-                    break;
-                default:
-                    throw new InvalidOperationException();
+                var ex = new InvalidOperationException("AddManifest duplicate");
+                ex.Data.Add("ManifestHash", videoManifest.Manifest.Hash);
+                throw ex;
             }
 
-            EncryptionKey = encryptionKey;
-            EncryptionType = encryptionType;
+            _videoManifests.Add(videoManifest);
+
+            UpdateLastValidManifest();
         }
 
-        [PropertyAlterer(nameof(ManifestHash))]
-        public void SetManifestHash(SwarmContentHash manifestHash)
+        [PropertyAlterer(nameof(LastValidManifest))]
+        public virtual void FailedManifestValidation(
+            VideoManifest manifest,
+            IEnumerable<ErrorDetail> validationErrors)
         {
-            ManifestHash = manifestHash ?? throw new ArgumentNullException(nameof(manifestHash));
+            if (manifest is null)
+                throw new ArgumentNullException(nameof(manifest));
+            if (validationErrors is null)
+                throw new ArgumentNullException(nameof(validationErrors));
+
+            if (!VideoManifests.Contains(manifest))
+            {
+                var ex = new InvalidOperationException("The manifest is not owned by this video");
+                ex.Data.Add("ManifestHash", manifest.Manifest.Hash);
+                throw ex;
+            }
+
+            manifest.FailedValidation(validationErrors);
+
+            UpdateLastValidManifest();
         }
+
+        [PropertyAlterer(nameof(LastValidManifest))]
+        [PropertyAlterer(nameof(VideoManifests))]
+        public virtual bool RemoveManifest(VideoManifest videoManifest)
+        {
+            if (videoManifest is null)
+                throw new ArgumentNullException(nameof(videoManifest));
+            if (IsFrozen)
+                throw new InvalidOperationException("Video is frozen");
+
+            var result = _videoManifests.Remove(videoManifest);
+
+            if (result)
+                UpdateLastValidManifest();
+
+            return result;
+        }
+
+        [PropertyAlterer(nameof(IsFrozen))]
+        [PropertyAlterer(nameof(LastValidManifest))]
+        [PropertyAlterer(nameof(VideoManifests))]
+        public virtual void SetAsUnsuitable()
+        {
+            IsFrozen = true;
+            LastValidManifest = null;
+            _videoManifests.Clear();
+        }
+
+        [PropertyAlterer(nameof(LastValidManifest))]
+        public virtual void SucceededManifestValidation(
+            VideoManifest manifest,
+            string? description,
+            float duration,
+            string originalQuality,
+            SwarmImageRaw? thumbnail,
+            string title,
+            IEnumerable<VideoSource> videoSources)
+        {
+            if (manifest is null)
+                throw new ArgumentNullException(nameof(manifest));
+
+            if (!VideoManifests.Contains(manifest))
+            {
+                var ex = new InvalidOperationException("The manifest is not owned by this video");
+                ex.Data.Add("ManifestHash", manifest.Manifest.Hash);
+                throw ex;
+            }
+
+            manifest.SucceededValidation(description, duration, originalQuality, title, thumbnail, videoSources);
+
+            UpdateLastValidManifest();
+        }
+
+        // Helpers.
+        private void UpdateLastValidManifest() =>
+            LastValidManifest = VideoManifests.Where(i => i.IsValid == true)
+                                              .OrderByDescending(i => i.CreationDateTime)
+                                              .FirstOrDefault();
     }
 }

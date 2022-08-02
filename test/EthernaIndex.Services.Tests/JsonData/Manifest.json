@@ -1,0 +1,25 @@
+﻿{
+  "title": "Test 1",
+  "description": "desc",
+  "createdAt": 1645091199100,
+  "duration": 18,
+  "originalQuality": "720p",
+  "ownerAddress": "0x6163C4b8264a03CCAc412B83cbD1B551B6c6C246",
+  "thumbnail": {
+    "blurhash": "UTHoa;-VEVO=??v]SlOu2ep0slR:kisia*bJ",
+    "aspectRatio": 1.7777777777777777,
+    "sources": {
+      "720w": "5d69d94f1ffa17560a88abc4a99aa40b0cabe6012766f51e5c19193887adacb1",
+      "480w": "0b7425036143ed65932ac64cd6c4ddb4f2fd3e9bd51ed0f13bd406926c45c325"
+    }
+  },
+  "sources": [
+    {
+      "quality": "720p",
+      "reference": "94f4fcb1a902597c2bc53c5b48637af952a99328ec299f33e129740818a9e302",
+      "size": 448350,
+      "bitrate": 216398
+    }
+  ],
+  "v": "1.0"
+}

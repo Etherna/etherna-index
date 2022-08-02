@@ -13,7 +13,7 @@
 //   limitations under the License.
 
 using Etherna.EthernaIndex.SystemStore;
-using Etherna.MongODM;
+using Etherna.MongODM.Core.Options;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,6 +23,8 @@ namespace Etherna.EthernaIndex.Extensions
 {
     public static class DataProtectionBuilderExtensions
     {
+        private const string KeyCollectionName = "dataProtectionKeys";
+
         /// <summary>
         /// Configures the data protection system to persist keys to a MongoDb datastore
         /// </summary>
@@ -38,7 +40,7 @@ namespace Etherna.EthernaIndex.Extensions
 
             builder.Services.Configure<KeyManagementOptions>(options =>
             {
-                options.XmlRepository = new XmlRepository(dbContextOptions);
+                options.XmlRepository = new XmlRepository(dbContextOptions, KeyCollectionName);
             });
 
             return builder;

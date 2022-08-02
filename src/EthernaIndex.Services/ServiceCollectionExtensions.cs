@@ -13,6 +13,9 @@
 //   limitations under the License.
 
 using Etherna.DomainEvents;
+using Etherna.DomainEvents.AspNetCore;
+using Etherna.EthernaIndex.Services.Domain;
+using Etherna.EthernaIndex.Services.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
@@ -35,19 +38,16 @@ namespace Etherna.EthernaIndex.Services
                                     where t.IsClass && t.Namespace == eventHandlersNamespace
                                     where t.GetInterfaces().Contains(typeof(IEventHandler))
                                     select t;
-            foreach (var handlerType in eventHandlerTypes)
-                services.AddScoped(handlerType);
 
-            services.AddSingleton<IEventDispatcher>(sp =>
-            {
-                var dispatcher = new EventDispatcher(sp);
+            services.AddDomainEvents(eventHandlerTypes);
 
-                //subscrive handlers to dispatcher
-                foreach (var handlerType in eventHandlerTypes)
-                    dispatcher.AddHandler(handlerType);
+            // Services.
+            //domain
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IVideoService, VideoService>();
 
-                return dispatcher;
-            });
+            // Tasks.
+            services.AddTransient<IVideoManifestValidatorTask, VideoManifestValidatorTask>();
         }
     }
 }

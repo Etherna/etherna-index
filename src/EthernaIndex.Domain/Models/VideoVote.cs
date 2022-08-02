@@ -30,11 +30,13 @@ namespace Etherna.EthernaIndex.Domain.Models
             Value = value;
             Video = video ?? throw new ArgumentNullException(nameof(video));
         }
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         protected VideoVote() { }
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         // Properties.
-        public User Owner { get; protected set; } = default!;
-        public VoteValue Value { get; protected set; }
-        public Video Video { get; protected set; } = default!;
+        public virtual User Owner { get; protected set; }
+        public virtual VoteValue Value { get; protected set; }
+        public virtual Video Video { get; protected set; }
     }
 }

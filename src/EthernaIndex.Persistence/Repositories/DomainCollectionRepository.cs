@@ -15,9 +15,7 @@
 using Etherna.DomainEvents;
 using Etherna.EthernaIndex.Domain.Events;
 using Etherna.EthernaIndex.Domain.Models;
-using Etherna.MongODM;
-using Etherna.MongODM.Repositories;
-using System;
+using Etherna.MongODM.Core.Repositories;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -38,16 +36,8 @@ namespace Etherna.EthernaIndex.Persistence.Repositories
             : base(options)
         { }
 
-        public override void Initialize(IDbContext dbContext)
-        {
-            if (!(dbContext is IEventDispatcherDbContext))
-                throw new InvalidOperationException($"DbContext needs to implement {nameof(IEventDispatcherDbContext)}");
-
-            base.Initialize(dbContext);
-        }
-
         // Properties.
-        public IEventDispatcher EventDispatcher => ((IEventDispatcherDbContext)DbContext).EventDispatcher;
+        public IEventDispatcher? EventDispatcher => (DbContext as IEventDispatcherDbContext)?.EventDispatcher;
 
         // Methods.
         public override async Task CreateAsync(IEnumerable<TModel> models, CancellationToken cancellationToken = default)
@@ -55,7 +45,7 @@ namespace Etherna.EthernaIndex.Persistence.Repositories
             await base.CreateAsync(models, cancellationToken);
 
             // Dispatch created events.
-            if (EventDispatcher != null) //could be null in seeding
+            if (EventDispatcher != null)
                 await EventDispatcher.DispatchAsync(
                     models.Select(m => new EntityCreatedEvent<TModel>(m)));
         }
@@ -65,7 +55,7 @@ namespace Etherna.EthernaIndex.Persistence.Repositories
             await base.CreateAsync(model, cancellationToken);
 
             // Dispatch created event.
-            if (EventDispatcher != null) //could be null in seeding
+            if (EventDispatcher != null)
                 await EventDispatcher.DispatchAsync(
                     new EntityCreatedEvent<TModel>(model));
         }
@@ -75,7 +65,7 @@ namespace Etherna.EthernaIndex.Persistence.Repositories
             await base.DeleteAsync(model, cancellationToken);
 
             // Dispatch deleted event.
-            if (EventDispatcher != null) //could be null in seeding
+            if (EventDispatcher != null)
                 await EventDispatcher.DispatchAsync(
                     new EntityDeletedEvent<TModel>(model));
         }

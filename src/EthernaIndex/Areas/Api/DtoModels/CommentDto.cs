@@ -13,28 +13,29 @@
 //   limitations under the License.
 
 using Etherna.EthernaIndex.Domain.Models;
+using Etherna.EthernaIndex.Domain.Models.UserAgg;
 using System;
 
 namespace Etherna.EthernaIndex.Areas.Api.DtoModels
 {
     public class CommentDto
     {
-        public CommentDto(Comment comment)
+        public CommentDto(Comment comment, UserSharedInfo userSharedInfo)
         {
             if (comment is null)
                 throw new ArgumentNullException(nameof(comment));
+            if (userSharedInfo is null)
+                throw new ArgumentNullException(nameof(userSharedInfo));
 
             CreationDateTime = comment.CreationDateTime;
-            OwnerAddress = comment.Owner.Address;
-            OwnerIdentityManifest = comment.Owner.IdentityManifest?.Hash;
+            OwnerAddress = userSharedInfo.EtherAddress;
             Text = comment.Text;
-            VideoManifestHash = comment.Video.ManifestHash.Hash;
+            VideoId = comment.Video.Id;
         }
 
         public DateTime CreationDateTime { get; }
         public string OwnerAddress { get; }
-        public string? OwnerIdentityManifest { get; }
         public string Text { get; }
-        public string VideoManifestHash { get; }
+        public string VideoId { get; }
     }
 }
