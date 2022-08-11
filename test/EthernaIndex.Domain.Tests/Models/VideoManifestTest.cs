@@ -130,9 +130,7 @@ namespace Etherna.EthernaIndex.Domain.Models
                    i.Reference == "reff2" &&
                    i.Size == 100);
             Assert.NotNull(manifest.Thumbnail);
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
             Assert.Equal(blur, manifest.Thumbnail.Blurhash);
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
             Assert.Equal(aspectRatio, manifest.Thumbnail.AspectRatio);
             Assert.NotNull(manifest.Thumbnail.Sources);
             Assert.Contains(manifest.Thumbnail.Sources,
