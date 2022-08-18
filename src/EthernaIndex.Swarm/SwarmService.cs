@@ -68,39 +68,32 @@ namespace Etherna.EthernaIndex.Swarm
             if (BeeNodeClient.GatewayClient is null)
                 throw new InvalidOperationException(nameof(BeeNodeClient.GatewayClient));
 
-            try
-            {
 #if !DEBUG_MOCKUP_SWARM
-                using var manifestStream = await BeeNodeClient.GatewayClient.GetFileAsync(manifestHash);
+            using var manifestStream = await BeeNodeClient.GatewayClient.GetFileAsync(manifestHash);
 
-                // Find version.
-                var jsonElementManifest = await JsonSerializer.DeserializeAsync<JsonElement>(manifestStream);
-                var version = jsonElementManifest.GetProperty("v").GetString();
-                if (version is null)
-                    throw new MetadataVideoException("Version must exists");
-                var majorVersion = version.Split('.')[0];
+            // Find version.
+            var jsonElementManifest = await JsonSerializer.DeserializeAsync<JsonElement>(manifestStream);
+            var version = jsonElementManifest.GetProperty("v").GetString();
+            if (version is null)
+                throw new MetadataVideoException("Version must exists");
+            var majorVersion = version.Split('.')[0];
 
-                // Deserialize document.
-                var metadataVideoDto = majorVersion switch
-                {
-                    "1" => new MetadataVideo(jsonElementManifest.Deserialize<MetadataVideoSchema1>(
-                        new JsonSerializerOptions
-                        {
-                            Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) },
-                            PropertyNameCaseInsensitive = true,
-                        }) ?? throw new MetadataVideoException("Empty json")),
-                    _ => throw new MetadataVideoException("Invalid version")
-                };
-
-                return metadataVideoDto;
-#else
-                return (MetadataVideoDto)SwarmObjectMockups[manifestHash];
-#endif
-            }
-            catch(Exception ex)
+            // Deserialize document.
+            var metadataVideoDto = majorVersion switch
             {
-                throw new MetadataVideoException("Unable to cast json", ex);
-            }
+                "1" => new MetadataVideo(jsonElementManifest.Deserialize<MetadataVideoSchema1>(
+                    new JsonSerializerOptions
+                    {
+                        Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) },
+                        PropertyNameCaseInsensitive = true,
+                    }) ?? throw new MetadataVideoException("Empty json")),
+                _ => throw new MetadataVideoException("Invalid version")
+            };
+
+            return metadataVideoDto;
+#else
+            return (MetadataVideoDto)SwarmObjectMockups[manifestHash];
+#endif
         }
 
 #if DEBUG_MOCKUP_SWARM
