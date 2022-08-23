@@ -33,19 +33,19 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
     {
         // Fields.
         private readonly IHttpContextAccessor httpContextAccessor;
-        private readonly IIndexDbContext indexContext;
+        private readonly IIndexDbContext indexDbContext;
         private readonly ISharedDbContext sharedDbContext;
         private readonly IUserService userService;
 
         // Constructors.
         public UsersControllerService(
             IHttpContextAccessor httpContextAccessor,
-            IIndexDbContext indexContext,
+            IIndexDbContext indexDbContext,
             ISharedDbContext sharedDbContext,
             IUserService userService)
         {
             this.httpContextAccessor = httpContextAccessor;
-            this.indexContext = indexContext;
+            this.indexDbContext = indexDbContext;
             this.sharedDbContext = sharedDbContext;
             this.userService = userService;
         }
@@ -72,35 +72,44 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             return new UserDto(user, sharedInfo);
         }
 
-        public async Task<IEnumerable<UserDto>> GetUsersAsync(
+        public async Task<PaginatedEnumerableDto<UserDto>> GetUsersAsync(
             bool onlyWithVideo, int page, int take)
         {
-            var users = await indexContext.Users.QueryElementsAsync(elements =>
-                elements.Where(u => !onlyWithVideo || u.Videos.Any(v => v.LastValidManifest != null))
-                        .PaginateDescending(u => u.CreationDateTime, page, take)
-                        .ToListAsync());
+            var paginatedUsers = await indexDbContext.Users.QueryPaginatedElementsAsync(
+                elements => elements.Where(u => !onlyWithVideo || u.Videos.Any(v => v.LastValidManifest != null)),
+                u => u.CreationDateTime,
+                page,
+                take,
+                true);
 
             var userDtos = new List<UserDto>();
-            foreach (var user in users)
+            foreach (var user in paginatedUsers.Elements)
             {
                 var sharedInfo = await sharedDbContext.UsersInfo.FindOneAsync(user.SharedInfoId);
                 userDtos.Add(new UserDto(user, sharedInfo));
             }
 
-            return userDtos;
+            return new PaginatedEnumerableDto<UserDto>(
+                paginatedUsers.CurrentPage,
+                userDtos,
+                paginatedUsers.PageSize,
+                paginatedUsers.TotalElements);
         }
 
-        public async Task<IEnumerable<VideoDto>> GetVideosAsync(string address, int page, int take, ClaimsPrincipal currentUserClaims)
+        public async Task<PaginatedEnumerableDto<VideoDto>> GetVideosAsync(string address, int page, int take, ClaimsPrincipal currentUserClaims)
         {
             var currentUserAddress = currentUserClaims.TryGetEtherAddress();
             var requestByVideoOwner = address == currentUserAddress;
 
             var (user, sharedInfo) = await userService.FindUserAsync(address);
 
-            return user.Videos
-                .Where(v => requestByVideoOwner || v.LastValidManifest != null)
-                .PaginateDescending(v => v.CreationDateTime, page, take)
-                .Select(v => new VideoDto(v, v.LastValidManifest, sharedInfo, null));
+            return new PaginatedEnumerableDto<VideoDto>(
+                page,
+                user.Videos.Where(v => requestByVideoOwner || v.LastValidManifest != null)
+                           .PaginateDescending(v => v.CreationDateTime, page, take)
+                           .Select(v => new VideoDto(v, v.LastValidManifest, sharedInfo, null)),
+                take,
+                user.Videos.Where(v => requestByVideoOwner || v.LastValidManifest != null).Count());
         }
     }
 }

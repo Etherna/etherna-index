@@ -64,11 +64,30 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// <param name="take">Number of items to retrieve. Max 100</param>
         /// <response code="200">Current page on list</response>
         [HttpGet("{id}/comments")]
+        [Obsolete("Use \"{id}/comments2\" instead")]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public Task<IEnumerable<CommentDto>> GetVideoCommentsAsync(
+        public async Task<IEnumerable<CommentDto>> GetVideoCommentsAsync(
+            [Required] string id,
+            [Range(0, int.MaxValue)] int page,
+            [Range(1, 100)] int take = 25) =>
+            (await service.GetVideoCommentsAsync(id, page, take)).Elements;
+
+        /// <summary>
+        /// Get paginated video comments by id
+        /// </summary>
+        /// <param name="id">Video id</param>
+        /// <param name="page">Current page of results</param>
+        /// <param name="take">Number of items to retrieve. Max 100</param>
+        /// <response code="200">Current page on list</response>
+        [HttpGet("{id}/comments2")]
+        [SimpleExceptionFilter]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public Task<PaginatedEnumerableDto<CommentDto>> GetVideoComments2Async(
             [Required] string id,
             [Range(0, int.MaxValue)] int page,
             [Range(1, 100)] int take = 25) =>
@@ -94,10 +113,26 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// <param name="take">Number of items to retrieve. Max 100</param>
         /// <response code="200">Current page on list</response>
         [HttpGet("latest")]
+        [Obsolete("Use \"latest2\" instead")]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public Task<IEnumerable<VideoDto>> GetLastUploadedVideosAsync(
+        public async Task<IEnumerable<VideoDto>> GetLastUploadedVideosAsync(
+            [Range(0, int.MaxValue)] int page,
+            [Range(1, 100)] int take = 25) =>
+            (await service.GetLastUploadedVideosAsync(page, take)).Elements;
+
+        /// <summary>
+        /// Get list of last uploaded videos.
+        /// </summary>
+        /// <param name="page">Current page of results</param>
+        /// <param name="take">Number of items to retrieve. Max 100</param>
+        /// <response code="200">Current page on list</response>
+        [HttpGet("latest2")]
+        [SimpleExceptionFilter]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public Task<PaginatedEnumerableDto<VideoDto>> GetLastUploadedVideos2Async(
             [Range(0, int.MaxValue)] int page,
             [Range(1, 100)] int take = 25) =>
             service.GetLastUploadedVideosAsync(page, take);
