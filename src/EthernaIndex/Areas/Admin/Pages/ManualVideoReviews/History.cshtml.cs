@@ -94,7 +94,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.ManualVideoReviews
 
         // Properties.
         public int CurrentPage { get; private set; }
-        public int MaxPage { get; private set; }
+        public long MaxPage { get; private set; }
         public VideoReviewDto VideoReview { get; private set; } = default!;
         public IEnumerable<VideoReviewDetailDto> DetailReports { get; private set; } = default!;
 
