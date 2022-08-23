@@ -28,10 +28,10 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         Task<CommentDto> CreateCommentAsync(string id, string text, ClaimsPrincipal currentUserClaims);
         Task<VideoDto> FindByIdAsync(string id, ClaimsPrincipal currentUserClaims);
         Task<VideoDto> FindByManifestHashAsync(string hash, ClaimsPrincipal currentUserClaims);
-        Task<IEnumerable<VideoDto>> GetLastUploadedVideosAsync(int page, int take);
+        Task<PaginatedEnumerableDto<VideoDto>> GetLastUploadedVideosAsync(int page, int take);
         Task<ManifestStatusDto> GetValidationStatusByHashAsync(string manifestHash);
         Task<IEnumerable<ManifestStatusDto>> GetValidationStatusByIdAsync(string id);
-        Task<IEnumerable<CommentDto>> GetVideoCommentsAsync(string id, int page, int take);
+        Task<PaginatedEnumerableDto<CommentDto>> GetVideoCommentsAsync(string id, int page, int take);
         Task ReportVideoAsync(string videoId, string manifestHash, string description, ClaimsPrincipal currentUserClaims);
         Task<VideoManifestDto> UpdateAsync(string id, string newHash, ClaimsPrincipal currentUserClaims);
         Task VoteVideAsync(string id, VoteValue value, ClaimsPrincipal currentUserClaims);

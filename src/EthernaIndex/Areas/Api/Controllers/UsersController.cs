@@ -49,10 +49,28 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// <param name="take">Number of items to retrieve. Max 100</param>
         /// <response code="200">Current page on list</response>
         [HttpGet]
+        [Obsolete("Use \"list2\" instead")]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public Task<IEnumerable<UserDto>> GetUsersAsync(
+        public async Task<IEnumerable<UserDto>> GetUsersAsync(
+            bool onlyWithVideo,
+            [Range(0, int.MaxValue)] int page,
+            [Range(1, 100)] int take = 25) =>
+            (await controllerService.GetUsersAsync(onlyWithVideo, page, take)).Elements;
+
+        /// <summary>
+        /// Get a complete list of users.
+        /// </summary>
+        /// <param name="onlyWithVideo">Filter only users with published videos</param>
+        /// <param name="page">Current page of results</param>
+        /// <param name="take">Number of items to retrieve. Max 100</param>
+        /// <response code="200">Current page on list</response>
+        [HttpGet("list2")]
+        [SimpleExceptionFilter]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public Task<PaginatedEnumerableDto<UserDto>> GetUsers2Async(
             bool onlyWithVideo,
             [Range(0, int.MaxValue)] int page,
             [Range(1, 100)] int take = 25) =>
@@ -80,11 +98,31 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// <response code="200">List of user's videos</response>
         /// <response code="404">User not found</response>
         [HttpGet("{address}/videos")]
+        [Obsolete("Use \"videos2\" instead")]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public Task<IEnumerable<VideoDto>> GetVideosAsync(
+        public async Task<IEnumerable<VideoDto>> GetVideosAsync(
+            [Required] string address,
+            [Range(0, int.MaxValue)] int page,
+            [Range(1, 100)] int take = 25) =>
+            (await controllerService.GetVideosAsync(address, page, take, User)).Elements;
+
+        /// <summary>
+        /// Get list of videos uploaded by an user.
+        /// </summary>
+        /// <param name="address">Address of user</param>
+        /// <param name="page">Current page of results</param>
+        /// <param name="take">Number of items to retrieve. Max 100</param>
+        /// <response code="200">List of user's videos</response>
+        /// <response code="404">User not found</response>
+        [HttpGet("{address}/videos2")]
+        [SimpleExceptionFilter]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public Task<PaginatedEnumerableDto<VideoDto>> GetVideos2Async(
             [Required] string address,
             [Range(0, int.MaxValue)] int page,
             [Range(1, 100)] int take = 25) =>

@@ -104,7 +104,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports
 
         // Properties.
         public int CurrentPage { get; private set; }
-        public int MaxPage { get; private set; }
+        public long MaxPage { get; private set; }
         public VideoReportDto VideoReport { get; private set; } = default!;
 
         // Methods.
