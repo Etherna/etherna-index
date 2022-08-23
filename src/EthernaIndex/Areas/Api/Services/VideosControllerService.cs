@@ -189,17 +189,19 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             return new VideoDto(video, videoManifest, ownerSharedInfo, currentUserVideoVote);
         }
 
-        public async Task<IEnumerable<VideoDto>> GetLastUploadedVideosAsync(int page, int take)
+        public async Task<PaginatedEnumerableDto<VideoDto>> GetLastUploadedVideosAsync(int page, int take)
         {
             // Get videos with valid manifest.
-            var videos = await indexDbContext.Videos.QueryElementsAsync(elements =>
-                elements.Where(v => v.LastValidManifest != null)
-                        .PaginateDescending(v => v.CreationDateTime, page, take)
-                        .ToListAsync());
+            var paginatedVideos = await indexDbContext.Videos.QueryPaginatedElementsAsync(
+                elements => elements.Where(v => v.LastValidManifest != null),
+                v => v.CreationDateTime,
+                page,
+                take,
+                true);
 
             // Get user info from video selected
             var videoDtos = new List<VideoDto>();
-            foreach (var video in videos)
+            foreach (var video in paginatedVideos.Elements)
             {
                 var ownerSharedInfo = await sharedDbContext.UsersInfo.FindOneAsync(video.Owner.SharedInfoId);
                 videoDtos.Add(new VideoDto(
@@ -209,7 +211,11 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
                     null));
             }
 
-            return videoDtos;
+            return new PaginatedEnumerableDto<VideoDto>(
+                paginatedVideos.CurrentPage,
+                videoDtos,
+                paginatedVideos.PageSize,
+                paginatedVideos.TotalElements);
         }
 
         public async Task<ManifestStatusDto> GetValidationStatusByHashAsync(string hash)
@@ -228,22 +234,28 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             .Select(i => new ManifestStatusDto(i));
         }
 
-        public async Task<IEnumerable<CommentDto>> GetVideoCommentsAsync(string id, int page, int take)
+        public async Task<PaginatedEnumerableDto<CommentDto>> GetVideoCommentsAsync(string id, int page, int take)
         {
-            var comments = await indexDbContext.Comments.QueryElementsAsync(elements =>
-                elements.Where(c => c.Video.Id == id)
-                        .PaginateDescending(c => c.CreationDateTime, page, take)
-                        .ToListAsync());
+            var paginatedComments = await indexDbContext.Comments.QueryPaginatedElementsAsync(
+                elements => elements.Where(c => c.Video.Id == id),
+                c => c.CreationDateTime,
+                page,
+                take,
+                true);
 
             var commentDtos = new List<CommentDto>();
-            foreach (var comment in comments)
+            foreach (var comment in paginatedComments.Elements)
             {
                 var author = await indexDbContext.Users.FindOneAsync(comment.Author.Id);
                 var authorSharedInfo = await sharedDbContext.UsersInfo.FindOneAsync(author.SharedInfoId);
                 commentDtos.Add(new CommentDto(comment, authorSharedInfo));
             }
 
-            return commentDtos;
+            return new PaginatedEnumerableDto<CommentDto>(
+                paginatedComments.CurrentPage,
+                commentDtos,
+                paginatedComments.PageSize,
+                paginatedComments.TotalElements);
         }
 
         public async Task ReportVideoAsync(string videoId, string manifestHash, string description, ClaimsPrincipal currentUserClaims)
