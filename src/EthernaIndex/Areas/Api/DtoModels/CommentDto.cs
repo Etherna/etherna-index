@@ -27,12 +27,14 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
             if (userSharedInfo is null)
                 throw new ArgumentNullException(nameof(userSharedInfo));
 
+            Id = comment.Id;
             CreationDateTime = comment.CreationDateTime;
             OwnerAddress = userSharedInfo.EtherAddress;
             Text = comment.Text;
             VideoId = comment.Video.Id;
         }
 
+        public string Id { get; }
         public DateTime CreationDateTime { get; }
         public string OwnerAddress { get; }
         public string Text { get; }
