@@ -33,6 +33,35 @@ namespace Etherna.EthernaIndex.Swarm
             {
                 var tests = new List<string>
                 {
+                    //v1.1
+                    @"{
+                      ""v"": ""1.1"",
+                      ""title"": ""Titolo 3"",
+                      ""description"": ""test!!!"",
+                      ""duration"": 19,
+                      ""originalQuality"": ""1954p"",
+                      ""ownerAddress"": ""0x6163C4b8264a03CCAc412B83cbD1B551B6c6C246"",
+                      ""createdAt"": 1660397733617,
+                      ""updatedAt"": 1660397733617,
+                      ""thumbnail"": {
+                        ""blurhash"": ""UTHoa;-VEVO=??v]SlOu2ep0slR:kisia*bJ"",
+                        ""aspectRatio"": 1.7777777777777777,
+                        ""sources"": {
+                          ""720w"": ""5d69d94f1ffa17560a88abc4a99aa40b0cabe6012766f51e5c19193887adacb1"",
+                          ""480w"": ""0b7425036143ed65932ac64cd6c4ddb4f2fd3e9bd51ed0f13bd406926c45c325""
+                        }
+                      },
+                      ""sources"": [
+                        {
+                          ""reference"": ""e44671417466df08d3b67d74a081021ab2bba70224fc0d6e4d00c35d80328c6c"",
+                          ""quality"": ""1954p"",
+                          ""size"": 3739997,
+                          ""bitrate"": 1574736
+                        }
+                      ],
+                      ""batchId"": ""5d35cbf4cea6349c1f74340ce9f0befd7a60a17426508da7b205871d683a3a23""
+                    }",
+
                     //v1.0
                     @"{
                       ""title"": ""Test 1"",
@@ -58,28 +87,6 @@ namespace Etherna.EthernaIndex.Swarm
                         }
                       ],
                       ""v"": ""1.0""
-                    }",
-
-                    //v1.1
-                    @"{
-                      ""v"": ""1.1"",
-                      ""title"": ""Titolo 3"",
-                      ""description"": ""test!!!"",
-                      ""duration"": 19,
-                      ""originalQuality"": ""1954p"",
-                      ""ownerAddress"": ""0x6163C4b8264a03CCAc412B83cbD1B551B6c6C246"",
-                      ""createdAt"": 1660397733617,
-                      ""updatedAt"": 1660397733617,
-                      ""thumbnail"": null,
-                      ""sources"": [
-                        {
-                          ""reference"": ""e44671417466df08d3b67d74a081021ab2bba70224fc0d6e4d00c35d80328c6c"",
-                          ""quality"": ""1954p"",
-                          ""size"": 3739997,
-                          ""bitrate"": 1574736
-                        }
-                      ],
-                      ""batchId"": ""5d35cbf4cea6349c1f74340ce9f0befd7a60a17426508da7b205871d683a3a23""
                     }"
                 };
 

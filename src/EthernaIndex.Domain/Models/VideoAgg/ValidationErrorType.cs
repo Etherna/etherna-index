@@ -19,6 +19,7 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
         InvalidVideoSource,
         InvalidThumbnailSource,
         JsonConvert,
+        MissingDescription,
         MissingDuration,
         MissingOriginalQuality,
         MissingTitle,

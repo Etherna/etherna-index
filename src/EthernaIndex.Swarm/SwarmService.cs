@@ -97,7 +97,7 @@ namespace Etherna.EthernaIndex.Swarm
 
             return DeserializeMetadataVideo(jsonElementManifest);
 #else
-            return (MetadataVideoDto)SwarmObjectMockups[manifestHash];
+            return (MetadataVideo)SwarmObjectMockups[manifestHash];
 #endif
         }
 
@@ -118,16 +118,19 @@ namespace Etherna.EthernaIndex.Swarm
         public void SetupHashMockup(string hash, object returnedObject) =>
             SwarmObjectMockups[hash] = returnedObject;
 
-        public MetadataVideoDto SetupNewMetadataVideoMockup(string manifestHash)
+        public MetadataVideo SetupNewMetadataVideoMockup(string manifestHash)
         {
-            var manifest = new MetadataVideoDto(
-                "Mocked sample video",
+            var manifest = new MetadataVideo(
+                "36b7efd913ca4cf880b8eeac5093fa27b0825906c600685b6abdd6566e6cfe8f",
                 "Test description",
+                420,
+                DateTime.Now.Ticks,
                 "720p",
                 "0x5E70C176b03BFe5113E78e920C1C60639E2A1696",
-                420.0f,
-                new SwarmImageRawDto(1.77f, "LEHV6nWB2yk8pyo0adR*.7kCMdnj", new Dictionary<string, string> { { "480w", "a015d8923a777bf8230291318274a5f9795b4bb9445ad41a2667d06df1ea3008"} }),
-                new[] { new MetadataVideoSourceDto(560000, "720p", GenerateNewHash(), 100000000) });
+                new[] { new MetadataVideoSource(560000, "720p", GenerateNewHash(), 100000000) },
+                new SwarmImageRaw(1.77f, "LEHV6nWB2yk8pyo0adR*.7kCMdnj", new Dictionary<string, string> { { "480w", "a015d8923a777bf8230291318274a5f9795b4bb9445ad41a2667d06df1ea3008"} }),
+                "Mocked sample video",
+                DateTime.Now.Ticks);
 
             SetupHashMockup(manifestHash, manifest);
 

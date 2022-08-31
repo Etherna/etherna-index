@@ -13,6 +13,7 @@
 //   limitations under the License.
 
 using Etherna.EthernaIndex.Domain.Models.VideoAgg;
+using System;
 
 namespace Etherna.EthernaIndex.Areas.Api.DtoModels
 {
@@ -21,14 +22,20 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
         // Constructors.
         public ErrorDetailDto(
             string errorMessage,
-            ValidationErrorType errorNumber)
+            ValidationErrorType errorType)
         {
             ErrorMessage = errorMessage;
-            ErrorNumber = errorNumber;
+            ErrorType = errorType;
+
+#pragma warning disable CS0618 // Type or member is obsolete
+            ErrorNumber = errorType;
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         // Properties.
         public virtual string ErrorMessage { get; private set; }
+        [Obsolete("Use ErrorType instead")]
         public virtual ValidationErrorType ErrorNumber { get; private set; }
+        public virtual ValidationErrorType ErrorType { get; private set; }
     }
 }
