@@ -21,7 +21,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
     public interface IUsersControllerService
     {
         Task<UserDto> FindByAddressAsync(string address);
-        Task<UserDto> GetCurrentUserAsync();
+        Task<CurrentUserDto> GetCurrentUserAsync();
         Task<PaginatedEnumerableDto<UserDto>> GetUsersAsync(bool onlyWithVideo, int page, int take);
         Task<PaginatedEnumerableDto<VideoDto>> GetVideosAsync(string address, int page, int take, ClaimsPrincipal currentUserClaims);
     }

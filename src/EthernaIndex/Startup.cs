@@ -207,6 +207,13 @@ namespace Etherna.EthernaIndex
                         policy.RequireAuthenticatedUser();
                         policy.RequireClaim(ClaimTypes.Role, CommonConsts.AdministratorRoleName);
                     });
+
+                options.AddPolicy(CommonConsts.RequireSuperModeratorClaimPolicy,
+                    policy =>
+                    {
+                        policy.RequireAuthenticatedUser();
+                        policy.RequireClaim(ClaimTypes.Role, CommonConsts.AdministratorRoleName);
+                    });
             });
 
             //requirement handlers
