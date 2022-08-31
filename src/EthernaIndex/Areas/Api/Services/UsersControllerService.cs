@@ -85,7 +85,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             var userDtos = new List<UserDto>();
             foreach (var user in paginatedUsers.Elements)
             {
-                var sharedInfo = await sharedDbContext.UsersInfo.FindOneAsync(user.SharedInfoId);
+                var sharedInfo = await sharedDbContext.UsersInfo.TryFindOneAsync(user.SharedInfoId);
                 userDtos.Add(new UserDto(user, sharedInfo));
             }
 
