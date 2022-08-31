@@ -14,7 +14,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Bee.Net" Version="0.2.0-alpha.50" />
+    <PackageReference Include="Bee.Net" Version="0.2.0-alpha.120" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="6.0.0" />
   </ItemGroup>

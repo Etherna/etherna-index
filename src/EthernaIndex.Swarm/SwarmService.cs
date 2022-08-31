@@ -59,7 +59,7 @@ namespace Etherna.EthernaIndex.Swarm
             SwarmSettings = swarmSettings.Value;
             BeeNodeClient = new BeeNodeClient(
                 SwarmSettings.GatewayUrl,
-                gatewayApiVersion: GatewayApiVersion.v3_0_1);
+                gatewayApiVersion: GatewayApiVersion.v3_0_2);
         }
 
         // Methods.
