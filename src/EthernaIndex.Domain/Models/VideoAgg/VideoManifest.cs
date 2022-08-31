@@ -28,8 +28,9 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
         protected VideoManifest() { }
 
         // Properties.
+        public virtual string? BatchId { get; protected set; }
         public virtual string? Description { get; protected set; }
-        public virtual float? Duration { get; protected set; }
+        public virtual long? Duration { get; protected set; }
         public virtual string? OriginalQuality { get; protected set; }
         public virtual IEnumerable<VideoSource> Sources
         {
@@ -40,6 +41,7 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
         public virtual string? Title { get; protected set; }
 
         // Methods.
+        [PropertyAlterer(nameof(BatchId))]
         [PropertyAlterer(nameof(Description))]
         [PropertyAlterer(nameof(Duration))]
         [PropertyAlterer(nameof(OriginalQuality))]
@@ -47,18 +49,20 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
         [PropertyAlterer(nameof(Thumbnail))]
         [PropertyAlterer(nameof(Title))]
         internal virtual void SucceededValidation(
-            string? description,
-            float duration,
+            string? batchId,
+            string description,
+            long duration,
             string originalQuality,
-            string title,
+            IEnumerable<VideoSource> sources,
             SwarmImageRaw? thumbnail,
-            IEnumerable<VideoSource> videoSources)
+            string title)
         {
             base.SucceededValidation();
+            BatchId = batchId;
             Description = description;
             Duration = duration;
             OriginalQuality = originalQuality;
-            Sources = videoSources;
+            Sources = sources;
             Thumbnail = thumbnail;
             Title = title;
         }

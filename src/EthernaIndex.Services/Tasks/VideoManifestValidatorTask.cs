@@ -68,6 +68,10 @@ namespace Etherna.EthernaIndex.Services.Tasks
             }
 
             // Validate manifest.
+            //description
+            if (metadataDto.Description is null)
+                validationErrors.Add(new ErrorDetail(ValidationErrorType.MissingDescription, ValidationErrorType.MissingDescription.ToString()));
+
             //duration
             if (metadataDto.Duration == 0)
                 validationErrors.Add(new ErrorDetail(ValidationErrorType.MissingDuration, ValidationErrorType.MissingDuration.ToString()));
@@ -109,12 +113,13 @@ namespace Etherna.EthernaIndex.Services.Tasks
 
                 video.SucceededManifestValidation(
                     videoManifest,
-                    metadataDto.Description,
+                    metadataDto.BatchId,
+                    metadataDto.Description!,
                     metadataDto.Duration,
-                    metadataDto.OriginalQuality!,
+                    metadataDto.OriginalQuality,
+                    videoSources,
                     swarmImageRaw,
-                    metadataDto.Title!,
-                    videoSources);
+                    metadataDto.Title);
             }
 
             // Complete task.

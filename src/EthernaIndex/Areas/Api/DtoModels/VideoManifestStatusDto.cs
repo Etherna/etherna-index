@@ -19,15 +19,15 @@ using System.Linq;
 
 namespace Etherna.EthernaIndex.Areas.Api.DtoModels
 {
-    public class ManifestStatusDto
+    public class VideoManifestStatusDto
     {
         // Constructors.
-        public ManifestStatusDto(VideoManifest videoManifest)
+        public VideoManifestStatusDto(VideoManifest videoManifest)
         {
             if (videoManifest is null)
                 throw new ArgumentNullException(nameof(videoManifest));
 
-            ErrorDetails = videoManifest.ErrorValidationResults
+            ErrorDetails = videoManifest.ValidationErrors
                 .Select(i => new ErrorDetailDto(i.ErrorMessage, i.ErrorType));
             Hash = videoManifest.Manifest.Hash;
             IsValid = videoManifest.IsValid;
@@ -39,5 +39,5 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
         public string Hash { get; private set; }
         public bool? IsValid { get; private set; }
         public DateTime? ValidationTime { get; private set; }
-}
+    }
 }

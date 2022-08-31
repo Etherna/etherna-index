@@ -22,7 +22,7 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
     public abstract class ManifestBase : EntityModelBase<string>
     {
         // Fields.
-        private List<ErrorDetail> _errorValidationResults = new();
+        private List<ErrorDetail> _validationErrors = new();
 
         // Constructors.
         protected ManifestBase(string manifestHash)
@@ -34,34 +34,34 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         // Properties.
-        public virtual IEnumerable<ErrorDetail> ErrorValidationResults
-        {
-            get => _errorValidationResults;
-            protected set => _errorValidationResults = new List<ErrorDetail>(value ?? Array.Empty<ErrorDetail>());
-        }
         public virtual bool? IsValid { get; private set; }
         public virtual SwarmBzz Manifest { get; protected set; }
+        public virtual IEnumerable<ErrorDetail> ValidationErrors
+        {
+            get => _validationErrors;
+            protected set => _validationErrors = new List<ErrorDetail>(value ?? Array.Empty<ErrorDetail>());
+        }
         public virtual DateTime? ValidationTime { get; private set; }
 
         // Methods.
-        [PropertyAlterer(nameof(ErrorValidationResults))]
         [PropertyAlterer(nameof(IsValid))]
+        [PropertyAlterer(nameof(ValidationErrors))]
         [PropertyAlterer(nameof(ValidationTime))]
         internal virtual void FailedValidation(IEnumerable<ErrorDetail> errorDetails)
         {
             IsValid = false;
             ValidationTime = DateTime.UtcNow;
-            _errorValidationResults.AddRange(errorDetails);
+            _validationErrors.AddRange(errorDetails);
         }
 
-        [PropertyAlterer(nameof(ErrorValidationResults))]
         [PropertyAlterer(nameof(IsValid))]
+        [PropertyAlterer(nameof(ValidationErrors))]
         [PropertyAlterer(nameof(ValidationTime))]
         internal virtual void SucceededValidation()
         {
             IsValid = true;
             ValidationTime = DateTime.UtcNow;
-            _errorValidationResults.Clear();
+            _validationErrors.Clear();
         }
     }
 }

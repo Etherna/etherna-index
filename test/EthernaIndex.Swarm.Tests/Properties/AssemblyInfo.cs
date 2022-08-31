@@ -12,17 +12,6 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
-{
-    public enum ValidationErrorType
-    {
-        InvalidVideoSource,
-        InvalidThumbnailSource,
-        JsonConvert,
-        MissingDescription,
-        MissingDuration,
-        MissingOriginalQuality,
-        MissingTitle,
-        Unknown,
-    }
-}
+using System;
+
+[assembly: CLSCompliant(false)]
