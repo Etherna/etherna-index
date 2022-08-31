@@ -12,21 +12,6 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-using Etherna.EthernaIndex.Swarm.Models;
-using System.Text.Json;
-using System.Threading.Tasks;
+using System;
 
-namespace Etherna.EthernaIndex.Swarm
-{
-    public interface ISwarmService
-    {
-        MetadataVideo DeserializeMetadataVideo(JsonElement jsonElementManifest);
-        Task<MetadataVideo> GetMetadataVideoAsync(string manifestHash);
-
-#if DEBUG_MOCKUP_SWARM
-        string GenerateNewHash();
-        void SetupHashMockup(string hash, object returnedObject);
-        MetadataVideoDto SetupNewMetadataVideoMockup(string manifestHash);
-#endif
-    }
-}
+[assembly: CLSCompliant(false)]

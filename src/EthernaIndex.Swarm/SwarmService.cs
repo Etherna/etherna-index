@@ -63,16 +63,9 @@ namespace Etherna.EthernaIndex.Swarm
         }
 
         // Methods.
-        public async Task<MetadataVideo> GetMetadataVideoAsync(string manifestHash)
+        public MetadataVideo DeserializeMetadataVideo(JsonElement jsonElementManifest)
         {
-            if (BeeNodeClient.GatewayClient is null)
-                throw new InvalidOperationException(nameof(BeeNodeClient.GatewayClient));
-
-#if !DEBUG_MOCKUP_SWARM
-            using var manifestStream = await BeeNodeClient.GatewayClient.GetFileAsync(manifestHash);
-
             // Find version.
-            var jsonElementManifest = await JsonSerializer.DeserializeAsync<JsonElement>(manifestStream);
             var version = jsonElementManifest.GetProperty("v").GetString();
             if (version is null)
                 throw new MetadataVideoException("Version must exists");
@@ -91,6 +84,18 @@ namespace Etherna.EthernaIndex.Swarm
             };
 
             return metadataVideoDto;
+        }
+
+        public async Task<MetadataVideo> GetMetadataVideoAsync(string manifestHash)
+        {
+            if (BeeNodeClient.GatewayClient is null)
+                throw new InvalidOperationException(nameof(BeeNodeClient.GatewayClient));
+
+#if !DEBUG_MOCKUP_SWARM
+            using var manifestStream = await BeeNodeClient.GatewayClient.GetFileAsync(manifestHash);
+            var jsonElementManifest = await JsonSerializer.DeserializeAsync<JsonElement>(manifestStream);
+
+            return DeserializeMetadataVideo(jsonElementManifest);
 #else
             return (MetadataVideoDto)SwarmObjectMockups[manifestHash];
 #endif
