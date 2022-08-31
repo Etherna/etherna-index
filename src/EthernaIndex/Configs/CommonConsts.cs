@@ -22,6 +22,7 @@ namespace Etherna.EthernaIndex.Configs
         public const string HangfireAdminPath = "/admin/hangfire";
 
         public const string RequireAdministratorClaimPolicy = "RequireAdministratorClaimPolicy";
+        public const string RequireSuperModeratorClaimPolicy = "RequireSuperModeratorClaimPolicy";
 
         public const string AdministratorRoleName = "ADMINISTRATOR";
 
