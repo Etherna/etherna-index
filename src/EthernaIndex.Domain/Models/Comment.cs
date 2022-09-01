@@ -19,6 +19,9 @@ namespace Etherna.EthernaIndex.Domain.Models
 {
     public class Comment : EntityModelBase<string>
     {
+        // Consts.
+        public const int MaxLength = 2000;
+
         // Constructors.
         public Comment(
             User author,
@@ -29,6 +32,9 @@ namespace Etherna.EthernaIndex.Domain.Models
             LastUpdateDateTime = DateTime.UtcNow;
             Text = text ?? throw new ArgumentNullException(nameof(text));
             Video = video ?? throw new ArgumentNullException(nameof(video));
+
+            if (text.Length > MaxLength)
+                throw new ArgumentOutOfRangeException(nameof(text));
         }
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         protected Comment() { }
