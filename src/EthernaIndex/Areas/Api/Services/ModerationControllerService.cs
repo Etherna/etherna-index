@@ -37,7 +37,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         public async Task ModerateCommentAsync(string id)
         {
             var comment = await dbContext.Comments.FindOneAsync(id);
-            comment.SetAsUnsuitable();
+            comment.SetAsDeletedByModerator();
             await dbContext.SaveChangesAsync();
         }
 
