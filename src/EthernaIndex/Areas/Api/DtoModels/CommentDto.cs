@@ -29,6 +29,8 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
 
             Id = comment.Id;
             CreationDateTime = comment.CreationDateTime;
+            IsFrozen = comment.IsFrozen;
+            LastUpdateDateTime = comment.LastUpdateDateTime;
             OwnerAddress = userSharedInfo.EtherAddress;
             Text = comment.Text;
             VideoId = comment.Video.Id;
@@ -36,6 +38,8 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
 
         public string Id { get; }
         public DateTime CreationDateTime { get; }
+        public bool IsFrozen { get; }
+        public DateTime LastUpdateDateTime { get; }
         public string OwnerAddress { get; }
         public string Text { get; }
         public string VideoId { get; }

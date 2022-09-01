@@ -26,6 +26,7 @@ namespace Etherna.EthernaIndex.Domain.Models
             Video video)
         {
             Author = author ?? throw new ArgumentNullException(nameof(author));
+            LastUpdateDateTime = DateTime.UtcNow;
             Text = text ?? throw new ArgumentNullException(nameof(text));
             Video = video ?? throw new ArgumentNullException(nameof(video));
         }
@@ -36,16 +37,35 @@ namespace Etherna.EthernaIndex.Domain.Models
         // Properties.
         public virtual User Author { get; protected set; }
         public virtual bool IsFrozen { get; set; }
+        public virtual DateTime LastUpdateDateTime { get; protected set; }
         public virtual string Text { get; protected set; }
         public virtual Video Video { get; protected set; }
 
         // Methods.
         [PropertyAlterer(nameof(IsFrozen))]
+        [PropertyAlterer(nameof(LastUpdateDateTime))]
         [PropertyAlterer(nameof(Text))]
-        public virtual void SetAsUnsuitable()
+        public virtual void SetAsDeletedByAuthor()
         {
+            if (IsFrozen)
+                throw new InvalidOperationException();
+
             IsFrozen = true;
-            Text = "(removed by moderators)";
+            LastUpdateDateTime = DateTime.UtcNow;
+            Text = "(removed by author)";
+        }
+
+        [PropertyAlterer(nameof(IsFrozen))]
+        [PropertyAlterer(nameof(LastUpdateDateTime))]
+        [PropertyAlterer(nameof(Text))]
+        public virtual void SetAsDeletedByModerator()
+        {
+            if (IsFrozen)
+                throw new InvalidOperationException();
+
+            IsFrozen = true;
+            LastUpdateDateTime = DateTime.UtcNow;
+            Text = "(removed by moderator)";
         }
     }
 }
