@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Etherna.EthernaIndex.Domain.Models;
 
 namespace Etherna.EthernaIndex.Services.Tasks
 {
@@ -70,15 +71,17 @@ namespace Etherna.EthernaIndex.Services.Tasks
             // Validate manifest.
             //description
             if (metadataDto.Description is null)
-                validationErrors.Add(new ErrorDetail(ValidationErrorType.MissingDescription, ValidationErrorType.MissingDescription.ToString()));
+                validationErrors.Add(new ErrorDetail(ValidationErrorType.MissingDescription));
+            else if (metadataDto.Description.Length > Video.DescriptionMaxLength)
+                validationErrors.Add(new ErrorDetail(ValidationErrorType.InvalidDescription, "Description is too long"));
 
             //duration
             if (metadataDto.Duration == 0)
-                validationErrors.Add(new ErrorDetail(ValidationErrorType.MissingDuration, ValidationErrorType.MissingDuration.ToString()));
+                validationErrors.Add(new ErrorDetail(ValidationErrorType.MissingDuration));
 
             //original quality
             if (string.IsNullOrWhiteSpace(metadataDto.OriginalQuality))
-                validationErrors.Add(new ErrorDetail(ValidationErrorType.MissingOriginalQuality, ValidationErrorType.MissingOriginalQuality.ToString()));
+                validationErrors.Add(new ErrorDetail(ValidationErrorType.MissingOriginalQuality));
 
             //thumbnail
             EthernaIndex.Domain.Models.VideoAgg.SwarmImageRaw? swarmImageRaw = null;
@@ -95,7 +98,9 @@ namespace Etherna.EthernaIndex.Services.Tasks
 
             //title
             if (string.IsNullOrWhiteSpace(metadataDto.Title))
-                validationErrors.Add(new ErrorDetail(ValidationErrorType.MissingTitle, ValidationErrorType.MissingTitle.ToString()));
+                validationErrors.Add(new ErrorDetail(ValidationErrorType.MissingTitle));
+            else if (metadataDto.Title.Length > Video.TitleMaxLength)
+                validationErrors.Add(new ErrorDetail(ValidationErrorType.InvalidTitle, "Title is too long"));
 
             //video sources
             var videoSourcesErrors = CheckVideoSources(metadataDto.Sources);

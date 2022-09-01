@@ -546,7 +546,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                     expectedManifestMock.Setup(m => m.CreationDateTime).Returns(new DateTime(2022, 08, 31, 18, 50, 26, 067));
                     expectedManifestMock.Setup(m => m.IsValid).Returns(false);
                     expectedManifestMock.Setup(m => m.Manifest).Returns(new SwarmBzz("765a93649a58db3a4a85d800aa8111b13c7082e081b5ea186885d95cdd232dcb"));
-                    expectedManifestMock.Setup(m => m.ValidationErrors).Returns(new[] { new ErrorDetail(ValidationErrorType.MissingTitle, "MissingTitle") });
+                    expectedManifestMock.Setup(m => m.ValidationErrors).Returns(new[] { new ErrorDetail(ValidationErrorType.MissingTitle) });
                     expectedManifestMock.Setup(m => m.ValidationTime).Returns(new DateTime(2022, 08, 31, 18, 50, 26, 473));
                     expectedManifestMock.Setup(m => m.BatchId).Returns("36b7efd913ca4cf880b8eeac5093fa27b0825906c600685b6abdd6566e6cfe8f");
                     expectedManifestMock.Setup(m => m.Description).Returns("Test description");
@@ -672,7 +672,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                     var expectedManifestMock = new Mock<VideoManifest>();
                     expectedManifestMock.Setup(m => m.Id).Returns("625df43c74679c25b6c157ed");
                     expectedManifestMock.Setup(m => m.CreationDateTime).Returns(new DateTime(2022, 04, 18, 23, 29, 00, 919));
-                    expectedManifestMock.Setup(m => m.ValidationErrors).Returns(new[] { new ErrorDetail(ValidationErrorType.MissingTitle, "MissingTitle") });
+                    expectedManifestMock.Setup(m => m.ValidationErrors).Returns(new[] { new ErrorDetail(ValidationErrorType.MissingTitle) });
                     expectedManifestMock.Setup(m => m.IsValid).Returns(false);
                     expectedManifestMock.Setup(m => m.Manifest).Returns(new SwarmBzz("568863d1a27feb3682b720d43cebd723ee09ce57c538831bf94bafc9408871c9"));
                     expectedManifestMock.Setup(m => m.ValidationTime).Returns(new DateTime(2022, 04, 18, 23, 29, 06, 299));
@@ -801,7 +801,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                     var expectedManifestMock = new Mock<VideoManifest>();
                     expectedManifestMock.Setup(m => m.Id).Returns("622e619a0a7a47231a0ec7b5");
                     expectedManifestMock.Setup(m => m.CreationDateTime).Returns(new DateTime(2022, 03, 13, 21, 26, 50, 359));
-                    expectedManifestMock.Setup(m => m.ValidationErrors).Returns(new[] { new ErrorDetail(ValidationErrorType.MissingTitle, "MissingTitle") });
+                    expectedManifestMock.Setup(m => m.ValidationErrors).Returns(new[] { new ErrorDetail(ValidationErrorType.MissingTitle) });
                     expectedManifestMock.Setup(m => m.IsValid).Returns(false);
                     expectedManifestMock.Setup(m => m.Manifest).Returns(new SwarmBzz("ce601b421535419ae5c536d736075afb9eaac39e304c75357ef9312251704232"));
                     expectedManifestMock.Setup(m => m.ValidationTime).Returns(new DateTime(2022, 03, 13, 21, 26, 50, 455));

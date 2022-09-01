@@ -16,8 +16,10 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
 {
     public enum ValidationErrorType
     {
-        InvalidVideoSource,
+        InvalidDescription,
         InvalidThumbnailSource,
+        InvalidTitle,
+        InvalidVideoSource,
         JsonConvert,
         MissingDescription,
         MissingDuration,
