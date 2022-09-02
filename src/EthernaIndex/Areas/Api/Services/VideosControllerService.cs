@@ -218,20 +218,20 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
                 paginatedVideos.TotalElements);
         }
 
-        public async Task<ManifestStatusDto> GetValidationStatusByHashAsync(string hash)
+        public async Task<VideoManifestStatusDto> GetValidationStatusByHashAsync(string hash)
         {
             var manifest = await indexDbContext.VideoManifests.FindOneAsync(i => i.Manifest.Hash == hash);
 
-            return new ManifestStatusDto(manifest);
+            return new VideoManifestStatusDto(manifest);
         }
 
 
-        public async Task<IEnumerable<ManifestStatusDto>> GetValidationStatusByIdAsync(string videoId)
+        public async Task<IEnumerable<VideoManifestStatusDto>> GetValidationStatusByIdAsync(string videoId)
         {
             var manifest = await indexDbContext.Videos.FindOneAsync(i => i.Id == videoId);
 
             return manifest.VideoManifests
-            .Select(i => new ManifestStatusDto(i));
+                .Select(i => new VideoManifestStatusDto(i));
         }
 
         public async Task<PaginatedEnumerableDto<CommentDto>> GetVideoCommentsAsync(string id, int page, int take)

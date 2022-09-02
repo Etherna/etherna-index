@@ -15,6 +15,7 @@
 using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg;
 using Etherna.MongoDB.Bson;
+using Etherna.MongoDB.Bson.Serialization.Options;
 using Etherna.MongoDB.Bson.Serialization.Serializers;
 using Etherna.MongODM.Core;
 using Etherna.MongODM.Core.Serialization;
@@ -28,22 +29,45 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
         public void Register(IDbContext dbContext)
         {
             dbContext.SchemaRegistry.AddModelMapsSchema<ManifestBase>(
-                "013c3e29-764c-4bc8-941c-631d8d94adec"); //dev (pre v0.3.0), published for WAM event
+                "1499312a-6447-437b-888e-8163d0a5b933") //v0.3.4
+                .AddSecondaryMap(new ModelMap<ManifestBase>(
+                    "013c3e29-764c-4bc8-941c-631d8d94adec", //dev (pre v0.3.0), published for WAM event
+                    new MongoDB.Bson.Serialization.BsonClassMap<ManifestBase>(mm =>
+                    {
+                        mm.AutoMap();
+
+                        // Set renamed members.
+                        mm.GetMemberMap(m => m.ValidationErrors).SetElementName("ErrorValidationResults");
+                    })));
 
             dbContext.SchemaRegistry.AddModelMapsSchema<VideoManifest>(
-                "dc33442b-ae1e-428b-8b63-5dafbf192ba8", mm => //v0.3.0
-                {
-                    mm.AutoMap();
-
-                    // Set members to ignore if null.
-                    mm.GetMemberMap(m => m.Description).SetIgnoreIfNull(true);
-                    mm.GetMemberMap(m => m.Duration).SetIgnoreIfNull(true);
-                    mm.GetMemberMap(m => m.OriginalQuality).SetIgnoreIfNull(true);
-                    mm.GetMemberMap(m => m.Thumbnail).SetIgnoreIfNull(true);
-                    mm.GetMemberMap(m => m.Title).SetIgnoreIfNull(true);
-                }) //v0.3.0
+                "a48b92d6-c02d-4b1e-b1b0-0526c4bcaa6e") //v0.3.4
                 .AddSecondaryMap(new ModelMap<VideoManifest>(
-                    "ec578080-ccd2-4d49-8a76-555b10a5dad5")); //dev (pre v0.3.0), published for WAM event
+                    "dc33442b-ae1e-428b-8b63-5dafbf192ba8", //v0.3.0
+                    new MongoDB.Bson.Serialization.BsonClassMap<VideoManifest>(mm =>
+                    {
+                        mm.AutoMap();
+
+                        // Set members with conversions.
+                        //duration was float
+                        mm.GetMemberMap(m => m.Duration).SetSerializer(
+                            new NullableSerializer<long>(
+                                new Int64Serializer(BsonType.Int64, new RepresentationConverter(false, true))));
+                    }),
+                    baseModelMapId: "013c3e29-764c-4bc8-941c-631d8d94adec"))
+                .AddSecondaryMap(new ModelMap<VideoManifest>(
+                    "ec578080-ccd2-4d49-8a76-555b10a5dad5",  //dev (pre v0.3.0), published for WAM event
+                    new MongoDB.Bson.Serialization.BsonClassMap<VideoManifest>(mm =>
+                    {
+                        mm.AutoMap();
+
+                        // Set members with conversions.
+                        //duration was float
+                        mm.GetMemberMap(m => m.Duration).SetSerializer(
+                            new NullableSerializer<long>(
+                                new Int64Serializer(BsonType.Int64, new RepresentationConverter(false, true))));
+                    }),
+                    baseModelMapId: "013c3e29-764c-4bc8-941c-631d8d94adec"));
 
             dbContext.SchemaRegistry.AddModelMapsSchema<ErrorDetail>(
                 "f555eaa8-d8e1-4f23-a402-8b9ac5930832"); //v0.3.0
@@ -88,7 +112,9 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                 });
                 config.AddModelMapsSchema<VideoManifest>("f7966611-14aa-4f18-92f4-8697b4927fb6", mm =>
                 {
-                    mm.MapMember(m => m.Duration);
+                    mm.MapMember(m => m.Duration).SetSerializer( //could be float in old documents
+                        new NullableSerializer<long>(
+                            new Int64Serializer(BsonType.Int64, new RepresentationConverter(false, true))));
                     mm.MapMember(m => m.Thumbnail);
                     mm.MapMember(m => m.Title);
                 });

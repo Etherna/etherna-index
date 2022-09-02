@@ -18,30 +18,29 @@ using System;
 
 namespace Etherna.EthernaIndex.Areas.Api.DtoModels
 {
-    public class CommentDto
+    public class CurrentUserDto
     {
-        public CommentDto(Comment comment, UserSharedInfo userSharedInfo)
+        // Constructors.
+        public CurrentUserDto(
+            User user,
+            UserSharedInfo userSharedInfo,
+            bool isSuperModerator)
         {
-            if (comment is null)
-                throw new ArgumentNullException(nameof(comment));
+            if (user is null)
+                throw new ArgumentNullException(nameof(user));
             if (userSharedInfo is null)
                 throw new ArgumentNullException(nameof(userSharedInfo));
 
-            Id = comment.Id;
-            CreationDateTime = comment.CreationDateTime;
-            IsFrozen = comment.IsFrozen;
-            LastUpdateDateTime = comment.LastUpdateDateTime;
-            OwnerAddress = userSharedInfo.EtherAddress;
-            Text = comment.Text;
-            VideoId = comment.Video.Id;
+            Id = user.Id;
+            Address = userSharedInfo.EtherAddress;
+            CreationDateTime = user.CreationDateTime;
+            IsSuperModerator = isSuperModerator;
         }
 
+        // Properties.
         public string Id { get; }
+        public string Address { get; }
         public DateTime CreationDateTime { get; }
-        public bool IsFrozen { get; }
-        public DateTime LastUpdateDateTime { get; }
-        public string OwnerAddress { get; }
-        public string Text { get; }
-        public string VideoId { get; }
+        public bool IsSuperModerator { get; }
     }
 }

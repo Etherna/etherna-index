@@ -46,7 +46,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
                 CreationDateTime = videoManifest.CreationDateTime;
                 Description = videoManifest.Description;
                 Duration = videoManifest.Duration;
-                ErrorsDetails = videoManifest.ErrorValidationResults.Select(i => $"[{i.ErrorType}]: {i.ErrorMessage}");
+                ErrorsDetails = videoManifest.ValidationErrors.Select(i => $"[{i.ErrorType}]: {i.ErrorMessage}");
                 IsValid = videoManifest.IsValid;
                 ManifestHash = videoManifest.Manifest.Hash;
                 OriginalQuality = videoManifest.OriginalQuality;

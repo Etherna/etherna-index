@@ -22,6 +22,10 @@ namespace Etherna.EthernaIndex.Domain.Models
 {
     public class Video : EntityModelBase<string>
     {
+        // Consts.
+        public const int DescriptionMaxLength = 5000;
+        public const int TitleMaxLength = 100;
+
         // Fields.
         private List<VideoManifest> _videoManifests = new();
 
@@ -127,12 +131,13 @@ namespace Etherna.EthernaIndex.Domain.Models
         [PropertyAlterer(nameof(LastValidManifest))]
         public virtual void SucceededManifestValidation(
             VideoManifest manifest,
-            string? description,
-            float duration,
+            string? batchId,
+            string description,
+            long duration,
             string originalQuality,
+            IEnumerable<VideoSource> sources,
             SwarmImageRaw? thumbnail,
-            string title,
-            IEnumerable<VideoSource> videoSources)
+            string title)
         {
             if (manifest is null)
                 throw new ArgumentNullException(nameof(manifest));
@@ -144,7 +149,14 @@ namespace Etherna.EthernaIndex.Domain.Models
                 throw ex;
             }
 
-            manifest.SucceededValidation(description, duration, originalQuality, title, thumbnail, videoSources);
+            manifest.SucceededValidation(
+                batchId,
+                description,
+                duration,
+                originalQuality,
+                sources,
+                thumbnail,
+                title);
 
             UpdateLastValidManifest();
         }

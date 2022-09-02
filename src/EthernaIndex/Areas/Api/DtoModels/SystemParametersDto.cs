@@ -12,9 +12,14 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-using System;
-using System.Runtime.CompilerServices;
+using Etherna.EthernaIndex.Domain.Models;
 
-[assembly: CLSCompliant(false)]
-[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
-[assembly: InternalsVisibleTo("EthernaIndex.Domain.Tests")]
+namespace Etherna.EthernaIndex.Areas.Api.DtoModels
+{
+    public class SystemParametersDto
+    {
+        public int CommentMaxLength => Comment.MaxLength;
+        public int VideoDescriptionMaxLength => Video.DescriptionMaxLength;
+        public int VideoTitleMaxLength => Video.TitleMaxLength;
+    }
+}

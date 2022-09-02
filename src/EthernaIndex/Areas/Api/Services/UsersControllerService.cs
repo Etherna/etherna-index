@@ -14,11 +14,13 @@
 
 using Etherna.Authentication.Extensions;
 using Etherna.EthernaIndex.Areas.Api.DtoModels;
+using Etherna.EthernaIndex.Configs;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Services.Domain;
 using Etherna.MongoDB.Driver;
 using Etherna.MongoDB.Driver.Linq;
 using Etherna.MongODM.Core.Extensions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Nethereum.Util;
 using System;
@@ -32,6 +34,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
     internal class UsersControllerService : IUsersControllerService
     {
         // Fields.
+        private readonly IAuthorizationService authorizationService;
         private readonly IHttpContextAccessor httpContextAccessor;
         private readonly IIndexDbContext indexDbContext;
         private readonly ISharedDbContext sharedDbContext;
@@ -39,11 +42,13 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
 
         // Constructors.
         public UsersControllerService(
+            IAuthorizationService authorizationService,
             IHttpContextAccessor httpContextAccessor,
             IIndexDbContext indexDbContext,
             ISharedDbContext sharedDbContext,
             IUserService userService)
         {
+            this.authorizationService = authorizationService;
             this.httpContextAccessor = httpContextAccessor;
             this.indexDbContext = indexDbContext;
             this.sharedDbContext = sharedDbContext;
@@ -63,13 +68,15 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             return new UserDto(user, sharedInfo);
         }
 
-        public async Task<UserDto> GetCurrentUserAsync()
+        public async Task<CurrentUserDto> GetCurrentUserAsync()
         {
             var address = httpContextAccessor.HttpContext!.User.GetEtherAddress();
-
             var (user, sharedInfo) = await userService.FindUserAsync(address);
 
-            return new UserDto(user, sharedInfo);
+            var isSuperModeratorResult = await authorizationService.AuthorizeAsync(
+                httpContextAccessor.HttpContext.User, CommonConsts.RequireSuperModeratorClaimPolicy);
+
+            return new CurrentUserDto(user, sharedInfo, isSuperModeratorResult.Succeeded);
         }
 
         public async Task<PaginatedEnumerableDto<UserDto>> GetUsersAsync(
@@ -85,7 +92,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             var userDtos = new List<UserDto>();
             foreach (var user in paginatedUsers.Elements)
             {
-                var sharedInfo = await sharedDbContext.UsersInfo.FindOneAsync(user.SharedInfoId);
+                var sharedInfo = await sharedDbContext.UsersInfo.TryFindOneAsync(user.SharedInfoId);
                 userDtos.Add(new UserDto(user, sharedInfo));
             }
 

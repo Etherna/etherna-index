@@ -22,10 +22,10 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
         // Constructors.
         public ErrorDetail(
             ValidationErrorType errorType,
-            string errorMessage)
+            string? errorMessage = null)
         {
             ErrorType = errorType;
-            ErrorMessage = errorMessage;
+            ErrorMessage = errorMessage ?? errorType.ToString();
         }
 #pragma warning disable CS8618 //Used only by EthernaIndex.Persistence
         protected ErrorDetail() { }

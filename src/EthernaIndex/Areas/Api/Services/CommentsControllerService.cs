@@ -12,39 +12,47 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
+using Etherna.Authentication.Extensions;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Services.Domain;
+using System;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Areas.Api.Services
 {
-    public class ModerationControllerService : IModerationControllerService
+    public class CommentsControllerService : ICommentsControllerService
     {
         // Fields.
         private readonly IIndexDbContext dbContext;
-        private readonly IVideoService videoService;
+        private readonly IUserService userService;
 
         // Constructor.
-        public ModerationControllerService(
+        public CommentsControllerService(
             IIndexDbContext dbContext,
-            IVideoService videoService)
+            IUserService userService)
         {
             this.dbContext = dbContext;
-            this.videoService = videoService;
+            this.userService = userService;
         }
 
         // Methods.
-        public async Task ModerateCommentAsync(string id)
+        public async Task DeleteOwnedCommentAsync(string id, ClaimsPrincipal currentUserClaims)
         {
-            var comment = await dbContext.Comments.FindOneAsync(id);
-            comment.SetAsDeletedByModerator();
-            await dbContext.SaveChangesAsync();
-        }
+            // Get data.
+            var address = currentUserClaims.GetEtherAddress();
+            var (currentUser, _) = await userService.FindUserAsync(address);
 
-        public async Task ModerateVideoAsync(string id)
-        {
-            var video = await dbContext.Videos.FindOneAsync(id);
-            await videoService.ModerateUnsuitableVideoAsync(video);
+            var comment = await dbContext.Comments.FindOneAsync(id);
+
+            // Verify authorization.
+            if (comment.Author.Id != currentUser.Id)
+                throw new UnauthorizedAccessException("User is not owner of the comment");
+
+            // Action.
+            comment.SetAsDeletedByAuthor();
+
+            await dbContext.SaveChangesAsync();
         }
     }
 }

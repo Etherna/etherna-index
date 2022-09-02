@@ -22,6 +22,7 @@ namespace Etherna.EthernaIndex.Swarm.Models
     {
         // Constructors.
         public MetadataVideo(
+            string? batchId,
             string description,
             long duration,
             long createdAt,
@@ -29,8 +30,10 @@ namespace Etherna.EthernaIndex.Swarm.Models
             string ownerAddress,
             IEnumerable<MetadataVideoSource> sources,
             SwarmImageRaw? thumbnail,
-            string title)
+            string title,
+            long? updatedAt)
         {
+            BatchId = batchId;
             Description = description;
             Duration = duration;
             CreatedAt = createdAt;
@@ -39,19 +42,23 @@ namespace Etherna.EthernaIndex.Swarm.Models
             Sources = sources;
             Thumbnail = thumbnail;
             Title = title;
+            UpdatedAt = updatedAt;
         }
-        internal MetadataVideo(MetadataVideoSchema1 metadataVideo) :
-            this(metadataVideo.Description,
-                metadataVideo.Duration,
-                metadataVideo.CreatedAt,
-                metadataVideo.OriginalQuality,
-                metadataVideo.OwnerAddress,
-                metadataVideo.Sources.Select(s => new MetadataVideoSource(s)),
-                metadataVideo.Thumbnail is null ? null : new SwarmImageRaw(metadataVideo.Thumbnail),
-                metadataVideo.Title)
+        internal MetadataVideo(MetadataVideoSchema1 metadataVideo) : this(
+            metadataVideo.BatchId,
+            metadataVideo.Description,
+            metadataVideo.Duration,
+            metadataVideo.CreatedAt,
+            metadataVideo.OriginalQuality,
+            metadataVideo.OwnerAddress,
+            metadataVideo.Sources.Select(s => new MetadataVideoSource(s)),
+            metadataVideo.Thumbnail is null ? null : new SwarmImageRaw(metadataVideo.Thumbnail),
+            metadataVideo.Title,
+            metadataVideo.UpdatedAt)
         { }
 
         // Properties.
+        public string? BatchId { get; }
         public string Description { get; }
         public long Duration { get; }
         public long CreatedAt { get; }
@@ -60,5 +67,6 @@ namespace Etherna.EthernaIndex.Swarm.Models
         public IEnumerable<MetadataVideoSource> Sources { get; }
         public SwarmImageRaw? Thumbnail { get; }
         public string Title { get; }
+        public long? UpdatedAt { get; }
     }
 }

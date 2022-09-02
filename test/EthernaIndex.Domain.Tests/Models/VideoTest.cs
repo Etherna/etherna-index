@@ -44,11 +44,11 @@ namespace Etherna.EthernaIndex.Domain.Models
         [Fact]
         public void Create_Video()
         {
-            //Arrange
+            // Arrange.
 
-            //Act
+            // Action.
 
-            //Assert
+            // Assert.
             Assert.Equal(0, video.TotDownvotes);
             Assert.Equal(0, video.TotDownvotes);
             Assert.NotNull(video.Owner);
@@ -62,22 +62,22 @@ namespace Etherna.EthernaIndex.Domain.Models
             var duplicatedVideoManifest = CreateManifest(secondManifestHash, true);
             video.AddManifest(videoManifest);
 
-            //Act
+            // Action.
             Assert.Throws<InvalidOperationException>(() => video.AddManifest(duplicatedVideoManifest));
         }
 
         [Fact]
         public void AddVideo_WhenIsValidated()
         {
-            //Arrange
+            // Arrange.
             var videoManifestValid = CreateManifest(manifestHash, true);
             var videoManifestNotValid = CreateManifest(secondManifestHash, false);
 
-            //Act
+            // Action.
             video.AddManifest(videoManifestValid);
             video.AddManifest(videoManifestNotValid);
 
-            //Assert
+            // Assert.
             Assert.Equal(2, video.VideoManifests.Count());
             Assert.Contains(video.VideoManifests,
                 i => i.Manifest.Hash == manifestHash);
@@ -85,8 +85,7 @@ namespace Etherna.EthernaIndex.Domain.Models
                 i => i.Manifest.Hash == secondManifestHash);
         }
 
-        
-
+        // Helpers.
         private VideoManifest CreateManifest(string hash, bool valid)
         {
             var videoManifest = new VideoManifest(hash);
@@ -100,12 +99,13 @@ namespace Etherna.EthernaIndex.Domain.Models
 
             if (valid)
                 videoManifest.SucceededValidation(
+                    null,
                     desc,
                     duration,
                     original,
-                    title,
+                    videoSources,
                     null,
-                    videoSources);
+                    title);
             else
                 videoManifest.FailedValidation(new List<ErrorDetail> { new ErrorDetail(ValidationErrorType.Unknown, "test") });
 
