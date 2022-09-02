@@ -5,11 +5,11 @@ namespace Etherna.EthernaIndex.Domain.Events
 {
     public class VideoUnsuitabledEvent : IDomainEvent
     {
-        public VideoUnsuitabledEvent(Video entity)
+        public VideoUnsuitabledEvent(Video video)
         {
-            Entity = entity;
+            Video = video;
         }
 
-        public Video Entity { get; }
+        public Video Video { get; }
     }
 }

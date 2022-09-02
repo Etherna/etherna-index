@@ -158,6 +158,7 @@ namespace Etherna.EthernaIndex.Domain.Models
 
             UpdateLastValidManifest();
 
+            // Raise event.
             AddEvent(new ManifestSuccessfulValidatedEvent(this, manifest));
         }
 

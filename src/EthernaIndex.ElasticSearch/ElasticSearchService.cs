@@ -15,7 +15,7 @@ namespace Etherna.EthernaIndex.ElasticSearch
             this.elasticClient = elasticClient;
         }
 
-        // Public methods
+        // Public methods.
         public async Task IndexVideoAsync(Video video)
         {
             if (video.LastValidManifest is null)
