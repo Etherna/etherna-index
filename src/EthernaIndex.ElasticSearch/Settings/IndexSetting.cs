@@ -2,6 +2,6 @@
 {
     public class IndexSetting
     {
-        public string Video { get; set; } = default!;
+        
     }
 }

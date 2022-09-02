@@ -66,8 +66,6 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
             Sources = sources;
             Thumbnail = thumbnail;
             Title = title;
-
-            AddEvent(new ManifestSuccessfulValidatedEvent(this, videoId));
         }
     }
 }

@@ -1,17 +1,18 @@
 ﻿using Etherna.DomainEvents;
+using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg;
 
 namespace Etherna.EthernaIndex.Domain.Events
 {
     public class ManifestSuccessfulValidatedEvent : IDomainEvent
     {
-        public ManifestSuccessfulValidatedEvent(VideoManifest entity, string videoId)
+        public ManifestSuccessfulValidatedEvent(Video video, VideoManifest videoManifest)
         {
-            Entity = entity;
-            VideoId = videoId;
+            Video = video;
+            VideoManifest = videoManifest;
         }
 
-        public VideoManifest Entity { get; }
-        public string VideoId { get; }
+        public Video Video { get; }
+        public VideoManifest VideoManifest { get; }
     }
 }

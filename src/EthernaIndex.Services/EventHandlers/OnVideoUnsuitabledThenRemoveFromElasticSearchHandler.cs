@@ -5,13 +5,13 @@ using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Services.EventHandlers
 {
-    class OnVideoUnsuitabledThenRemoveIndexElasticSearchHandler : EventHandlerBase<VideoUnsuitabledEvent>
+    class OnVideoUnsuitabledThenRemoveFromElasticSearchHandler : EventHandlerBase<VideoUnsuitabledEvent>
     {
         // Fields.
         private readonly IElasticSearchService elasticSearchService;
 
         // Constructor.
-        public OnVideoUnsuitabledThenRemoveIndexElasticSearchHandler(
+        public OnVideoUnsuitabledThenRemoveFromElasticSearchHandler(
             IElasticSearchService elasticSearchService)
         {
             this.elasticSearchService = elasticSearchService;
