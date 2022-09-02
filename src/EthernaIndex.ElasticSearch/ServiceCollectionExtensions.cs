@@ -1,8 +1,10 @@
-﻿using Etherna.EthernaIndex.ElasticSearch.Documents;
+﻿using Elasticsearch.Net;
+using Etherna.EthernaIndex.ElasticSearch.Documents;
 using Etherna.EthernaIndex.ElasticSearch.Settings;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Nest;
+using System;
 
 namespace Etherna.EthernaIndex.ElasticSearch
 {
@@ -22,8 +24,8 @@ namespace Etherna.EthernaIndex.ElasticSearch
 
             var elasticSearchsSetting = elasticSearchsSettingSection.Get<ElasticSearchsSetting>();
 
-            var settings = new ConnectionSettings(//TODO multi Urls
-                new Uri(elasticSearchsSetting.Urls.First()))
+            var pool = new StickyConnectionPool(elasticSearchsSetting.Urls.Select(i => new Uri(i)));
+            var settings = new ConnectionSettings(pool)
                 .DefaultIndex(elasticSearchsSetting.IndexVideo)
                 .DefaultMappingFor<VideoManifestDocument>(vm => vm.IdProperty(p => p.VideoId)
             );
