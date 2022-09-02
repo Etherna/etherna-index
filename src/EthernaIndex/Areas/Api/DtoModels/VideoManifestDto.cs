@@ -28,32 +28,35 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
             if (videoManifest is null)
                 throw new ArgumentNullException(nameof(videoManifest));
 
-            Hash = videoManifest.Manifest.Hash;
+            BatchId = videoManifest.BatchId;
             Description = videoManifest.Description;
             Duration = videoManifest.Duration;
+            Hash = videoManifest.Manifest.Hash;
             OriginalQuality = videoManifest.OriginalQuality;
-            Sources = videoManifest.Sources?
+            Sources = videoManifest.Sources
                 .Select(i => new SourceDto(
                     i.Bitrate,
                     i.Quality,
                     i.Reference,
                     i.Size));
-            Title = videoManifest.Title;
 
             if (videoManifest.Thumbnail is not null)
                 Thumbnail = new ImageDto(
                     videoManifest.Thumbnail.AspectRatio,
                     videoManifest.Thumbnail.Blurhash,
                     videoManifest.Thumbnail.Sources);
+
+            Title = videoManifest.Title;
         }
 
         // Properties.
-        public string Hash { get; set; }
-        public string? Title { get; set; }
-        public string? Description { get; set; }
-        public string? OriginalQuality { get; set; }
-        public float? Duration { get; set; }
-        public ImageDto? Thumbnail { get; set; }
-        public IEnumerable<SourceDto>? Sources { get; set; }
+        public string? BatchId { get; }
+        public string? Description { get; }
+        public long? Duration { get; }
+        public string Hash { get; }
+        public string? OriginalQuality { get; }
+        public IEnumerable<SourceDto> Sources { get; }
+        public ImageDto? Thumbnail { get; }
+        public string? Title { get; }
     }
 }

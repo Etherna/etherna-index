@@ -40,7 +40,7 @@ namespace Etherna.EthernaIndex.Domain.Models
         [Fact]
         public void Create_Manifest_WithDefaultValue()
         {
-            //Assert
+            // Assert.
             Assert.Equal(hash, manifest.Manifest.Hash);
             Assert.Null(manifest.IsValid);
             Assert.Null(manifest.ValidationTime);
@@ -49,19 +49,19 @@ namespace Etherna.EthernaIndex.Domain.Models
         [Fact]
         public void FailedValidation_SetValidationFields()
         {
-            //Act
+            // Action.
             manifest.FailedValidation(new List<ErrorDetail> {
                 { new ErrorDetail(ValidationErrorType.Unknown, "Unknown Error") },
                 { new ErrorDetail(ValidationErrorType.InvalidVideoSource, "Invalid Source Video") }
             });
 
 
-            //Assert
+            // Assert.
             Assert.False(manifest.IsValid);
-            Assert.Contains(manifest.ErrorValidationResults,
+            Assert.Contains(manifest.ValidationErrors,
                 i => i.ErrorType == ValidationErrorType.Unknown &&
                     i.ErrorMessage.Equals("Unknown Error", StringComparison.Ordinal));
-            Assert.Contains(manifest.ErrorValidationResults,
+            Assert.Contains(manifest.ValidationErrors,
                 i => i.ErrorType == ValidationErrorType.InvalidVideoSource &&
                     i.ErrorMessage.Equals("Invalid Source Video", StringComparison.Ordinal));
             Assert.NotNull(manifest.ValidationTime);
@@ -70,29 +70,29 @@ namespace Etherna.EthernaIndex.Domain.Models
         [Fact]
         public void SuccessfulValidation_SetValidationFields()
         {
-            //Act
+            // Action.
             manifest.SucceededValidation(
+                null,
                 "DescTest",
                 1,
                 "OriginalTest",
-                "TitleTest",
+                new List<VideoSource>(),
                 new SwarmImageRaw(
                     1,
                     "BlurTst",
                     new Dictionary<string, string> { { "1080", "Test1" }, { "720", "Test2" } }),
-                new List<VideoSource>());
+                "TitleTest");
 
-
-            //Assert
+            // Assert.
             Assert.True(manifest.IsValid);
-            Assert.Empty(manifest.ErrorValidationResults);
+            Assert.Empty(manifest.ValidationErrors);
             Assert.NotNull(manifest.ValidationTime);
         }
 
         [Fact]
         public void SuccessfulValidation_SetMetadataFields()
         {
-            //Arrange
+            // Arrange.
             var title = "FeddTopicTest";
             var desc = "DescTest";
             var original = "OriginalTest";
@@ -104,17 +104,17 @@ namespace Etherna.EthernaIndex.Domain.Models
             var aspectRatio = 1;
             var source = new Dictionary<string, string> { { "1080", "Test1" }, { "720", "Test2" } };
 
-            //Act
+            // Action.
             manifest.SucceededValidation(
+                null,
                 desc,
                 duration,
                 original,
-                title,
+                videoSources,
                 new SwarmImageRaw(aspectRatio, blur, source),
-                videoSources);
+                title);
 
-
-            //Assert
+            // Assert.
             Assert.Equal(title, manifest.Title);
             Assert.Equal(desc, manifest.Description);
             Assert.Equal(duration, manifest.Duration);
@@ -144,7 +144,7 @@ namespace Etherna.EthernaIndex.Domain.Models
         [Fact]
         public void SuccessfulValidation_SetNullSwarmImageRaw()
         {
-            //Arrange
+            // Arrange.
             var title = "FeddTopicTest";
             var desc = "DescTest";
             var original = "OriginalTest";
@@ -153,16 +153,17 @@ namespace Etherna.EthernaIndex.Domain.Models
                 new VideoSource(1, "10801", "reff1", 4),
                 new VideoSource(2, "321", "reff2", 100) };
 
-            //Act
+            // Action.
             manifest.SucceededValidation(
+                null,
                 desc,
                 duration,
                 original,
-                title,
+                videoSources,
                 null,
-                videoSources);
+                title);
 
-            //Assert
+            // Assert.
             Assert.Null(manifest.Thumbnail);
         }
     }

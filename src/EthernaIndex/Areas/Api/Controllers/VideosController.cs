@@ -102,7 +102,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public Task<IEnumerable<ManifestStatusDto>> ValidationsStatusByIdAsync(
+        public Task<IEnumerable<VideoManifestStatusDto>> ValidationsStatusByIdAsync(
             [Required] string id) =>
             service.GetValidationStatusByIdAsync(id);
 
@@ -159,7 +159,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public Task<ManifestStatusDto> ValidationStatusByHashAsync(
+        public Task<VideoManifestStatusDto> ValidationStatusByHashAsync(
             [Required] string hash) =>
             service.GetValidationStatusByHashAsync(hash);
 

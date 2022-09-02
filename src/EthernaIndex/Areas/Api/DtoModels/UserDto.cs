@@ -21,19 +21,19 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
     public class UserDto
     {
         // Constructors.
-        public UserDto(User user, UserSharedInfo userSharedInfo)
+        public UserDto(User user, UserSharedInfo? userSharedInfo)
         {
             if (user is null)
                 throw new ArgumentNullException(nameof(user));
-            if (userSharedInfo is null)
-                throw new ArgumentNullException(nameof(userSharedInfo));
 
-            Address = userSharedInfo.EtherAddress;
+            Id = user.Id;
+            Address = userSharedInfo?.EtherAddress;
             CreationDateTime = user.CreationDateTime;
         }
 
         // Properties.
-        public string Address { get; }
+        public string Id { get; }
+        public string? Address { get; }
         public DateTime CreationDateTime { get; }
     }
 }

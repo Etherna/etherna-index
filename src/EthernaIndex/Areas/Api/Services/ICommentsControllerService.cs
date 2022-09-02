@@ -12,9 +12,13 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-using System;
-using System.Runtime.CompilerServices;
+using System.Security.Claims;
+using System.Threading.Tasks;
 
-[assembly: CLSCompliant(false)]
-[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
-[assembly: InternalsVisibleTo("EthernaIndex.Domain.Tests")]
+namespace Etherna.EthernaIndex.Areas.Api.Services
+{
+    public interface ICommentsControllerService
+    {
+        Task DeleteOwnedCommentAsync(string id, ClaimsPrincipal currentUserClaims);
+    }
+}

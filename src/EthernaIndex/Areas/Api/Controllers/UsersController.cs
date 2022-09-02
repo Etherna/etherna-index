@@ -132,7 +132,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         [Authorize]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public Task<UserDto> GetCurrentUserAsync() =>
+        public Task<CurrentUserDto> GetCurrentUserAsync() =>
             controllerService.GetCurrentUserAsync();
     }
 }
