@@ -26,7 +26,6 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
 {
     [ApiController]
     [ApiVersion("0.3")]
-    [Authorize]
     [Route("api/v{api-version:apiVersion}/[controller]")]
     public class SearchController : ControllerBase
     {
@@ -42,20 +41,19 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// <summary>
         /// Search videos.
         /// </summary>
-        /// <param name="searchData">Data to search in title and description</param>
+        /// <param name="query">Query to search in title and description</param>
         /// <param name="page">Current page of results</param>
         /// <param name="take">Number of items to retrieve. Max 100</param>
         /// <response code="200">Videos</response>
         [HttpGet("Search")]
-        [Authorize]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public Task<IEnumerable<VideoDto>> SearchVideoAsync(
-            string searchData,
+            string query,
             [Range(0, int.MaxValue)] int page,
             [Range(1, 100)] int take = 25) =>
-            service.SearchVideoAsync(searchData, page, take);
+            service.SearchVideoAsync(query, page, take);
     }
 }

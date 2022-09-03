@@ -40,7 +40,6 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
     {
         // Fields.
         private readonly IBackgroundJobClient backgroundJobClient;
-        private readonly IElasticSearchService elasticSearchService;
         private readonly IIndexDbContext indexDbContext;
         private readonly ILogger<VideosControllerService> logger;
         private readonly ISharedDbContext sharedDbContext;
@@ -50,7 +49,6 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         // Constructors.
         public VideosControllerService(
             IBackgroundJobClient backgroundJobClient,
-            IElasticSearchService elasticSearchService,
             IIndexDbContext indexContext,
             ILogger<VideosControllerService> logger,
             ISharedDbContext sharedDbContext,
@@ -58,7 +56,6 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             IVideoService videoService)
         {
             this.backgroundJobClient = backgroundJobClient;
-            this.elasticSearchService = elasticSearchService;
             this.indexDbContext = indexContext;
             this.logger = logger;
             this.sharedDbContext = sharedDbContext;

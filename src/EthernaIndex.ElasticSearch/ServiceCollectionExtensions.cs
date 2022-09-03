@@ -3,6 +3,7 @@ using Etherna.EthernaIndex.ElasticSearch.Documents;
 using Etherna.EthernaIndex.ElasticSearch.Settings;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Nest;
 using System;
 
@@ -26,22 +27,22 @@ namespace Etherna.EthernaIndex.ElasticSearch
 
             var pool = new StickyConnectionPool(elasticSearchsSetting.Urls.Select(i => new Uri(i)));
             var settings = new ConnectionSettings(pool)
-                .DefaultIndex(elasticSearchsSetting.IndexVideo)
-                .DefaultMappingFor<VideoManifestDocument>(vm => vm.IdProperty(p => p.VideoId)
+                .DefaultIndex("video")
+                .DefaultMappingFor<VideoDocument>(vm => vm.IdProperty(p => p.Id)
             );
 
             var client = new ElasticClient(settings);
 
-            services.AddSingleton<IElasticClient>(client);
-            services.AddScoped<IElasticSearchService, ElasticSearchService>();
+            services.TryAddSingleton<IElasticClient>(client);
+            services.TryAddScoped<IElasticSearchService, ElasticSearchService>();
 
-            CreateVideoIndex(client, elasticSearchsSetting.IndexVideo);
+            CreateIndexs(client);
         }
 
-        private static void CreateVideoIndex(IElasticClient client, string indexVideoName)
+        private static void CreateIndexs(IElasticClient client)
         {
-            var createIndexResponse = client.Indices.Create(indexVideoName,
-                index => index.Map<VideoManifestDocument>(x => x.AutoMap())
+            var createIndexResponse = client.Indices.Create("video",
+                index => index.Map<VideoDocument>(x => x.AutoMap())
             );
         }
     }

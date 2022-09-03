@@ -21,49 +21,36 @@ namespace Etherna.EthernaIndex.ElasticSearch
             if (video.LastValidManifest is null)
                 throw new NullReferenceException(nameof(video.LastValidManifest));
 
-            var document = new VideoManifestDocument(video, video.LastValidManifest);
+            var document = new VideoDocument(video);
 
             await elasticClient.IndexDocumentAsync(document);
         }
 
-        public async Task RemoveVideoIndexAsync(Video video)
-        {
+        public async Task RemoveVideoIndexAsync(Video video) =>
             await RemoveVideoIndexAsync(video.Id);
-        }
 
-        public async Task RemoveVideoIndexAsync(string videoId)
-        {
-            await elasticClient.DeleteAsync<VideoManifestDocument>(videoId);
-        }
+        public async Task RemoveVideoIndexAsync(string videoId) =>
+            await elasticClient.DeleteAsync<VideoDocument>(videoId);
 
-        public async Task<IEnumerable<VideoManifestDocument>> SearchVideoAsync(string searchData, int page, int take)
+        public async Task<IEnumerable<VideoDocument>> SearchVideoAsync(string query, int page, int take)
         {
-            if (string.IsNullOrWhiteSpace(searchData))
-                throw new ArgumentNullException(searchData);
-            if (page <= 0)
+            if (string.IsNullOrWhiteSpace(query))
+                throw new ArgumentNullException(query);
+            if (page < 0)
                 throw new ArgumentOutOfRangeException(nameof(page));
             if (take <= 0)
                 throw new ArgumentOutOfRangeException(nameof(take));
 
-            var searchResponse = await elasticClient.SearchAsync<VideoManifestDocument>(s =>
+            var searchResponse = await elasticClient.SearchAsync<VideoDocument>(s =>
                 s.Query(q => q.Bool(b =>
-                    Filter(b, searchData))
-                )
+                    b.Must(mu =>
+                    mu.Wildcard(f => f.Title, '*' + query.ToLowerInvariant() + '*') ||
+                    mu.Wildcard(f => f.Description, '*' + query.ToLowerInvariant() + '*'))
+                ))
                 .From(page * take)
                 .Size(take));
 
             return searchResponse.Documents;
-        }
-
-        // Private methods.
-        private static BoolQueryDescriptor<VideoManifestDocument> Filter(
-            BoolQueryDescriptor<VideoManifestDocument> b,
-            string searchData)
-        {
-            return b.Must(mu => 
-                mu.Wildcard(f => f.Title, '*' + searchData.ToLowerInvariant() + '*') ||
-                mu.Wildcard(f => f.Description, '*' + searchData.ToLowerInvariant() + '*')
-            );
         }
 
     }

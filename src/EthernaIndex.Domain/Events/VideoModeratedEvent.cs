@@ -3,9 +3,9 @@ using Etherna.EthernaIndex.Domain.Models;
 
 namespace Etherna.EthernaIndex.Domain.Events
 {
-    public class VideoUnsuitabledEvent : IDomainEvent
+    public class VideoModeratedEvent : IDomainEvent
     {
-        public VideoUnsuitabledEvent(Video video)
+        public VideoModeratedEvent(Video video)
         {
             Video = video;
         }

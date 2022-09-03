@@ -5,22 +5,22 @@ using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Services.EventHandlers
 {
-    class OnVideoUnsuitabledThenRemoveFromElasticSearchHandler : EventHandlerBase<VideoUnsuitabledEvent>
+    class OnVideoModeratedThenRemoveFromElasticSearchHandler : EventHandlerBase<VideoModeratedEvent>
     {
         // Fields.
         private readonly IElasticSearchService elasticSearchService;
 
         // Constructor.
-        public OnVideoUnsuitabledThenRemoveFromElasticSearchHandler(
+        public OnVideoModeratedThenRemoveFromElasticSearchHandler(
             IElasticSearchService elasticSearchService)
         {
             this.elasticSearchService = elasticSearchService;
         }
 
         // Methods.
-        public override async Task HandleAsync(VideoUnsuitabledEvent @event)
+        public override async Task HandleAsync(VideoModeratedEvent @event)
         {
-            await elasticSearchService.RemoveVideoIndexAsync(@event.Video.Id);
+            await elasticSearchService.RemoveVideoIndexAsync(@event.Video);
         }
     }
 }

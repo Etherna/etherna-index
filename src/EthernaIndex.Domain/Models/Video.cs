@@ -123,7 +123,7 @@ namespace Etherna.EthernaIndex.Domain.Models
             IsFrozen = true;
             LastValidManifest = null;
             _videoManifests.Clear();
-            AddEvent(new VideoUnsuitabledEvent(this));
+            AddEvent(new VideoModeratedEvent(this));
         }
 
         [PropertyAlterer(nameof(LastValidManifest))]
