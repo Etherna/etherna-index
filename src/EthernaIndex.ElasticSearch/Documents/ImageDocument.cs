@@ -1,4 +1,6 @@
-﻿namespace EthernaIndex.ElasticSearch.Documents
+﻿using System.Collections.Generic;
+
+namespace Etherna.EthernaIndex.ElasticSearch.Documents
 {
     public class ImageDocument
     {

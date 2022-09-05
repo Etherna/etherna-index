@@ -1,4 +1,4 @@
-﻿namespace EthernaIndex.ElasticSearch.Documents
+﻿namespace Etherna.EthernaIndex.ElasticSearch.Documents
 {
     public class SourceDocument
     {

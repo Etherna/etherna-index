@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Nest;
 using System;
+using System.Linq;
 
 namespace Etherna.EthernaIndex.ElasticSearch
 {
@@ -25,23 +26,24 @@ namespace Etherna.EthernaIndex.ElasticSearch
 
             var elasticSearchsSetting = elasticSearchsSettingSection.Get<ElasticSearchsSetting>();
 
+#pragma warning disable CA2000 // Can't dispose registration service 
             var pool = new StickyConnectionPool(elasticSearchsSetting.Urls.Select(i => new Uri(i)));
             var settings = new ConnectionSettings(pool)
                 .DefaultIndex("video")
                 .DefaultMappingFor<VideoDocument>(vm => vm.IdProperty(p => p.Id)
             );
-
+#pragma warning restore CA2000
             var client = new ElasticClient(settings);
 
+            // Add services.
             services.TryAddSingleton<IElasticClient>(client);
             services.TryAddScoped<IElasticSearchService, ElasticSearchService>();
 
-            CreateIndexs(client);
-        }
-
-        private static void CreateIndexs(IElasticClient client)
-        {
-            var createIndexResponse = client.Indices.Create("video",
+            // Create indexes.
+            client.Indices.Create("comment",
+                index => index.Map<CommentDocument>(x => x.AutoMap())
+            );
+            client.Indices.Create("video",
                 index => index.Map<VideoDocument>(x => x.AutoMap())
             );
         }

@@ -1,6 +1,7 @@
 ﻿using Etherna.EthernaIndex.Domain.Models;
-using Etherna.EthernaIndex.Domain.Models.VideoAgg;
-using EthernaIndex.ElasticSearch.Documents;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Etherna.EthernaIndex.ElasticSearch.Documents
 {
@@ -9,7 +10,11 @@ namespace Etherna.EthernaIndex.ElasticSearch.Documents
         // Constructors.
         public VideoDocument(
             Video video)
-        {
+        { 
+            if (video is null)
+            {
+                throw new ArgumentNullException(nameof(video));
+            }
             if (video.LastValidManifest is null)
             {
                 var ex = new InvalidOperationException("Null valid manifest");

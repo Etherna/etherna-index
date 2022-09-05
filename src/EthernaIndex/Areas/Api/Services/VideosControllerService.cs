@@ -18,7 +18,6 @@ using Etherna.EthernaIndex.Areas.Api.InputModels;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg;
-using Etherna.EthernaIndex.ElasticSearch;
 using Etherna.EthernaIndex.Extensions;
 using Etherna.EthernaIndex.Services.Domain;
 using Etherna.EthernaIndex.Services.Exceptions;
