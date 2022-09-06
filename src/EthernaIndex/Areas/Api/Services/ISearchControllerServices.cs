@@ -6,6 +6,6 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
 {
     public interface ISearchControllerServices
     {
-        Task<IEnumerable<VideoDto>> SearchVideoAsync(string searchData, int page, int take);
+        Task<IEnumerable<VideoDto>> SearchVideoAsync(string query, int page, int take);
     }
 }
