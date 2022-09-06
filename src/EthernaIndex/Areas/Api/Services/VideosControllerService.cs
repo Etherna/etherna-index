@@ -24,7 +24,6 @@ using Etherna.EthernaIndex.Services.Exceptions;
 using Etherna.EthernaIndex.Services.Tasks;
 using Etherna.MongoDB.Driver;
 using Etherna.MongoDB.Driver.Linq;
-using Etherna.MongODM.Core.Extensions;
 using Hangfire;
 using Hangfire.States;
 using Microsoft.Extensions.Logging;

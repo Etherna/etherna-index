@@ -15,6 +15,7 @@
 using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.Domain.Models.UserAgg;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg;
+using Etherna.EthernaIndex.ElasticSearch.Documents;
 using System;
 using System.Linq;
 
@@ -57,6 +58,30 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
             OwnerAddress = ownerSharedInfo.EtherAddress;
             TotDownvotes = video.TotDownvotes;
             TotUpvotes = video.TotUpvotes;
+        }
+
+        public VideoDto(
+            VideoDocument videoDocument,
+            UserSharedInfo ownerSharedInfo,
+            VideoVote? currentUserVideoVote)
+        {
+            if (videoDocument is null)
+                throw new ArgumentNullException(nameof(videoDocument));
+            if (ownerSharedInfo is null)
+                throw new ArgumentNullException(nameof(ownerSharedInfo));
+
+            Id = videoDocument.Id;
+            CreationDateTime = videoDocument.CreationDateTime;
+            if (currentUserVideoVote is not null &&
+                currentUserVideoVote.Value != VoteValue.Neutral)
+            {
+                CurrentVoteValue = currentUserVideoVote.Value;
+            }
+
+            LastValidManifest = new VideoManifestDto(videoDocument);
+            OwnerAddress = ownerSharedInfo.EtherAddress;
+            TotDownvotes = videoDocument.TotDownvotes;
+            TotUpvotes = videoDocument.TotUpvotes;
         }
 
         // Properties.

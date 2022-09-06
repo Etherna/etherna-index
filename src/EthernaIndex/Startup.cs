@@ -18,6 +18,7 @@ using Etherna.EthernaIndex.Configs;
 using Etherna.EthernaIndex.Configs.Authorization;
 using Etherna.EthernaIndex.Configs.Hangfire;
 using Etherna.EthernaIndex.Domain;
+using Etherna.EthernaIndex.ElasticSearch;
 using Etherna.EthernaIndex.Extensions;
 using Etherna.EthernaIndex.Persistence;
 using Etherna.EthernaIndex.Services;
@@ -302,8 +303,9 @@ namespace Etherna.EthernaIndex
                 BasePath = CommonConsts.DatabaseAdminPath
             });
 
-            // Configure Swarm.
+            // Configure infrastructure.
             services.AddSwarmServices(Configuration);
+            services.AddElasticSearchServices(Configuration);
 
             // Configure domain services.
             services.AddDomainServices();
