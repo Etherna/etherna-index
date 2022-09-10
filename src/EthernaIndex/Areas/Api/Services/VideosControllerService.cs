@@ -162,6 +162,8 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
                                                                                        v.Owner.Id == currentUser.Id);
             }
 
+            logger.VideoFindById(id);
+
             return new VideoDto(video, lastValidManifest, ownerSharedInfo, currentUserVideoVote);
         }
 
@@ -185,6 +187,8 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
                 currentUserVideoVote = await indexDbContext.Votes.TryFindOneAsync(v => v.Video.Id == video.Id &&
                                                                                        v.Owner.Id == currentUser.Id);
             }
+
+            logger.ManifestFindByHash(hash);
 
             return new VideoDto(video, videoManifest, ownerSharedInfo, currentUserVideoVote);
         }
@@ -210,6 +214,8 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
                     ownerSharedInfo,
                     null));
             }
+
+            logger.LastUploadedVideos(page, take);
 
             return new PaginatedEnumerableDto<VideoDto>(
                 paginatedVideos.CurrentPage,
@@ -251,6 +257,8 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
                 commentDtos.Add(new CommentDto(comment, authorSharedInfo));
             }
 
+            logger.VideoGetComments(id, page, take);
+
             return new PaginatedEnumerableDto<CommentDto>(
                 paginatedComments.CurrentPage,
                 commentDtos,
@@ -278,12 +286,15 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
                 // Create.
                 var videoReported = new UnsuitableVideoReport(video, manifest, user, description);
                 await indexDbContext.UnsuitableVideoReports.CreateAsync(videoReported);
+                logger.ReportVideoCreate(videoId, manifestHash);
             }
             else
             {
                 // Edit.
                 videoReport.ChangeDescription(description);
                 await indexDbContext.SaveChangesAsync();
+
+                logger.ReportVideoChangeDescription(videoId, manifestHash);
             }
         }
 
