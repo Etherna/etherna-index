@@ -12,12 +12,21 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-using System.Threading.Tasks;
+using Etherna.DomainEvents;
+using Etherna.EthernaIndex.Domain.Models;
+using Etherna.EthernaIndex.Domain.Models.VideoAgg;
 
-namespace Etherna.EthernaIndex.Areas.Api.Services
+namespace Etherna.EthernaIndex.Domain.Events
 {
-    public interface ICommentsControllerService
+    public class ManifestSuccessfulValidatedEvent : IDomainEvent
     {
-        Task DeleteOwnedCommentAsync(string id);
+        public ManifestSuccessfulValidatedEvent(Video video, VideoManifest videoManifest)
+        {
+            Video = video;
+            VideoManifest = videoManifest;
+        }
+
+        public Video Video { get; }
+        public VideoManifest VideoManifest { get; }
     }
 }

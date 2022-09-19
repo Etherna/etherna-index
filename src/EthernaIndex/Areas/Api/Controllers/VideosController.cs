@@ -54,7 +54,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public Task<VideoDto> FindByIdAsync(
             [Required] string id) =>
-            service.FindByIdAsync(id, User);
+            service.FindByIdAsync(id);
 
         /// <summary>
         /// Get paginated video comments by id
@@ -148,7 +148,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public Task<VideoDto> FindByManifestHashAsync(
             [Required] string hash) =>
-            service.FindByManifestHashAsync(hash, User);
+            service.FindByManifestHashAsync(hash);
 
         /// <summary>
         /// Get validation info by manifest hash.
@@ -177,7 +177,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public Task<string> CreateAsync(
             [Required] VideoCreateInput videoInput) =>
-            service.CreateAsync(videoInput, User);
+            service.CreateAsync(videoInput);
 
         /// <summary>
         /// Create a new comment on a video with current user.
@@ -193,7 +193,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         public Task<CommentDto> CreateCommentAsync(
             [Required] string id,
             [Required][FromBody] string text) =>
-            service.CreateCommentAsync(id, text, User);
+            service.CreateCommentAsync(id, text);
 
         /// <summary>
         /// Report a video content with current user.
@@ -211,7 +211,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
             [Required] string id,
             [Required] string hash,
             [Required] string description) =>
-            service.ReportVideoAsync(id, hash, description, User);
+            service.ReportVideoAsync(id, hash, description);
 
         /// <summary>
         /// Vote a video content with current user.
@@ -227,7 +227,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         public Task VoteVideAsync(
             [Required] string id,
             [Required] VoteValue value) =>
-            service.VoteVideAsync(id, value, User);
+            service.VoteVideAsync(id, value);
 
         // Put.
 
@@ -246,7 +246,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         public Task<VideoManifestDto> UpdateAsync(
             [Required] string id,
             [Required] string newHash) =>
-            service.UpdateAsync(id, newHash, User);
+            service.UpdateAsync(id, newHash);
 
         // Delete.
 
@@ -263,6 +263,6 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public Task AuthorDeleteAsync(
             [Required] string id) =>
-            service.AuthorDeleteAsync(id, User);
+            service.AuthorDeleteAsync(id);
     }
 }

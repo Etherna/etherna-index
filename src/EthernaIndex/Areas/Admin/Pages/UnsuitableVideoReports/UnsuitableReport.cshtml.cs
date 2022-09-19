@@ -12,11 +12,10 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-using Etherna.Authentication.Extensions;
+using Etherna.Authentication;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.Services.Domain;
-using Etherna.MongoDB.Driver;
 using Etherna.MongoDB.Driver.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -87,17 +86,19 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports
         private const int PageSize = 20;
 
         // Fields.
+        private readonly IEthernaOpenIdConnectClient ethernaOidcClient;
         private readonly IIndexDbContext indexDbContext;
         private readonly IUserService userService;
 
         // Constructor.
         public UnsuitableReportModel(
+            IEthernaOpenIdConnectClient ethernaOidcClient,
             IIndexDbContext indexDbContext,
             IUserService userService)
         {
             if (indexDbContext is null)
                 throw new ArgumentNullException(nameof(indexDbContext));
-
+            this.ethernaOidcClient = ethernaOidcClient;
             this.indexDbContext = indexDbContext;
             this.userService = userService;
         }
@@ -157,7 +158,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports
 
         private async Task CreateReviewAsync(string videoId, bool isValid)
         {
-            var address = HttpContext!.User.GetEtherAddress();
+            var address = await ethernaOidcClient.GetEtherAddressAsync();
             var (user, _) = await userService.FindUserAsync(address);
             var video = await indexDbContext.Videos.FindOneAsync(videoId);
 

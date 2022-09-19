@@ -12,7 +12,7 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-using Etherna.Authentication.Extensions;
+using Etherna.Authentication;
 using Etherna.EthernaIndex.Areas.Api.DtoModels;
 using Etherna.EthernaIndex.Configs;
 using Etherna.EthernaIndex.Domain;
@@ -26,7 +26,6 @@ using Nethereum.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Areas.Api.Services
@@ -35,6 +34,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
     {
         // Fields.
         private readonly IAuthorizationService authorizationService;
+        private readonly IEthernaOpenIdConnectClient ethernaOidcClient;
         private readonly IHttpContextAccessor httpContextAccessor;
         private readonly IIndexDbContext indexDbContext;
         private readonly ISharedDbContext sharedDbContext;
@@ -43,12 +43,14 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         // Constructors.
         public UsersControllerService(
             IAuthorizationService authorizationService,
+            IEthernaOpenIdConnectClient ethernaOidcClient,
             IHttpContextAccessor httpContextAccessor,
             IIndexDbContext indexDbContext,
             ISharedDbContext sharedDbContext,
             IUserService userService)
         {
             this.authorizationService = authorizationService;
+            this.ethernaOidcClient = ethernaOidcClient;
             this.httpContextAccessor = httpContextAccessor;
             this.indexDbContext = indexDbContext;
             this.sharedDbContext = sharedDbContext;
@@ -70,11 +72,11 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
 
         public async Task<CurrentUserDto> GetCurrentUserAsync()
         {
-            var address = httpContextAccessor.HttpContext!.User.GetEtherAddress();
+            var address = await ethernaOidcClient.GetEtherAddressAsync();
             var (user, sharedInfo) = await userService.FindUserAsync(address);
 
             var isSuperModeratorResult = await authorizationService.AuthorizeAsync(
-                httpContextAccessor.HttpContext.User, CommonConsts.RequireSuperModeratorClaimPolicy);
+                httpContextAccessor.HttpContext!.User, CommonConsts.RequireSuperModeratorClaimPolicy);
 
             return new CurrentUserDto(user, sharedInfo, isSuperModeratorResult.Succeeded);
         }
@@ -103,9 +105,9 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
                 paginatedUsers.TotalElements);
         }
 
-        public async Task<PaginatedEnumerableDto<VideoDto>> GetVideosAsync(string address, int page, int take, ClaimsPrincipal currentUserClaims)
+        public async Task<PaginatedEnumerableDto<VideoDto>> GetVideosAsync(string address, int page, int take)
         {
-            var currentUserAddress = currentUserClaims.TryGetEtherAddress();
+            var currentUserAddress = await ethernaOidcClient.TryGetEtherAddressAsync();
             var requestByVideoOwner = address == currentUserAddress;
 
             var (user, sharedInfo) = await userService.FindUserAsync(address);

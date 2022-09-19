@@ -12,12 +12,26 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-using System.Threading.Tasks;
+using System.Collections.Generic;
 
-namespace Etherna.EthernaIndex.Areas.Api.Services
+namespace Etherna.EthernaIndex.ElasticSearch.Documents
 {
-    public interface ICommentsControllerService
+    public class ImageDocument
     {
-        Task DeleteOwnedCommentAsync(string id);
+        // Constructors.
+        public ImageDocument(
+            float aspectRatio,
+            string blurhash,
+            IReadOnlyDictionary<string, string> sources)
+        {
+            AspectRatio = aspectRatio;
+            Blurhash = blurhash;
+            Sources = sources;
+        }
+
+        // Properties.
+        public float AspectRatio { get; private set; }
+        public string Blurhash { get; private set; }
+        public IReadOnlyDictionary<string, string> Sources { get; private set; }
     }
 }

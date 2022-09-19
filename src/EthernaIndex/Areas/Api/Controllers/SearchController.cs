@@ -12,11 +12,14 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
+using Etherna.EthernaIndex.Areas.Api.DtoModels;
 using Etherna.EthernaIndex.Areas.Api.Services;
 using Etherna.EthernaIndex.Attributes;
+using Etherna.EthernaIndex.Configs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 
@@ -25,32 +28,43 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
     [ApiController]
     [ApiVersion("0.3")]
     [Route("api/v{api-version:apiVersion}/[controller]")]
-    public class CommentsController : ControllerBase
+    public class SearchController : ControllerBase
     {
         // Fields.
-        private readonly ICommentsControllerService service;
+        private readonly ISearchControllerServices service;
 
         // Constructor.
-        public CommentsController(
-            ICommentsControllerService service)
+        public SearchController(ISearchControllerServices service)
         {
             this.service = service;
         }
 
-        // Delete.
+        // Get.
 
         /// <summary>
-        /// Delete a comment owned by current user.
+        /// Search videos.
         /// </summary>
-        /// <param name="id">Comment id</param>
-        [HttpDelete("{id}")]
-        [Authorize]
+        /// <param name="query">Query to search in title and description</param>
+        /// <param name="page">Current page of results</param>
+        /// <param name="take">Number of items to retrieve. Max 100</param>
+        /// <response code="200">Videos</response>
+        [HttpGet("query")]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public Task DeleteOwnedCommentAsync(
-            [Required] string id) =>
-            service.DeleteOwnedCommentAsync(id);
+        public Task<IEnumerable<VideoDto>> SearchVideoAsync(
+            string query,
+            [Range(0, int.MaxValue)] int page,
+            [Range(1, 100)] int take = 25) =>
+            service.SearchVideoAsync(query, page, take);
+
+        // Post.
+        [HttpPost("videos/reindex")]
+        [Authorize(CommonConsts.RequireAdministratorClaimPolicy)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public void ReindexAllVideos() =>
+            service.ReindexAllVideos();
     }
 }

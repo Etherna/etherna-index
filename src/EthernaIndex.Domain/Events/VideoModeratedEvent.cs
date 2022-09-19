@@ -12,12 +12,18 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-using System.Threading.Tasks;
+using Etherna.DomainEvents;
+using Etherna.EthernaIndex.Domain.Models;
 
-namespace Etherna.EthernaIndex.Areas.Api.Services
+namespace Etherna.EthernaIndex.Domain.Events
 {
-    public interface ICommentsControllerService
+    public class VideoModeratedEvent : IDomainEvent
     {
-        Task DeleteOwnedCommentAsync(string id);
+        public VideoModeratedEvent(Video video)
+        {
+            Video = video;
+        }
+
+        public Video Video { get; }
     }
 }
