@@ -12,12 +12,14 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
+using Hangfire;
 using System.Threading.Tasks;
 
-namespace Etherna.EthernaIndex.Areas.Api.Services
+namespace Etherna.EthernaIndex.Services.Tasks
 {
-    public interface ICommentsControllerService
+    public interface IFullVideoReindexTask
     {
-        Task DeleteOwnedCommentAsync(string id);
+        [Queue(Queues.ELASTIC_SEARCH_MAINTENANCE)]
+        Task RunAsync();
     }
 }

@@ -12,12 +12,15 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
+using Etherna.EthernaIndex.Areas.Api.DtoModels;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Areas.Api.Services
 {
-    public interface ICommentsControllerService
+    public interface ISearchControllerServices
     {
-        Task DeleteOwnedCommentAsync(string id);
+        void ReindexAllVideos();
+        Task<IEnumerable<VideoDto>> SearchVideoAsync(string query, int page, int take);
     }
 }

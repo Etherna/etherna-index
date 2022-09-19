@@ -12,12 +12,27 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-using System.Threading.Tasks;
-
-namespace Etherna.EthernaIndex.Areas.Api.Services
+namespace Etherna.EthernaIndex.ElasticSearch.Documents
 {
-    public interface ICommentsControllerService
+    public class SourceDocument
     {
-        Task DeleteOwnedCommentAsync(string id);
+        // Constructors.
+        public SourceDocument(
+            int? bitrate,
+            string quality,
+            string reference,
+            long size)
+        {
+            Bitrate = bitrate;
+            Quality = quality;
+            Reference = reference;
+            Size = size;
+        }
+
+        // Properties.
+        public int? Bitrate { get; private set; }
+        public string Quality { get; private set; }
+        public string Reference { get; private set; }
+        public long Size { get; private set; }
     }
 }

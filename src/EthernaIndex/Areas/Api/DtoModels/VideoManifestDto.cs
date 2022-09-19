@@ -13,6 +13,7 @@
 //   limitations under the License.
 
 using Etherna.EthernaIndex.Domain.Models.VideoAgg;
+using Etherna.EthernaIndex.ElasticSearch.Documents;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -47,6 +48,33 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
                     videoManifest.Thumbnail.Sources);
 
             Title = videoManifest.Title;
+        }
+
+        public VideoManifestDto(
+            VideoDocument videoDocument)
+        {
+            if (videoDocument is null)
+                throw new ArgumentNullException(nameof(videoDocument));
+
+            BatchId = videoDocument.BatchId;
+            Description = videoDocument.Description;
+            Duration = videoDocument.Duration;
+            Hash = videoDocument.ManifestHash;
+            OriginalQuality = videoDocument.OriginalQuality;
+            Sources = videoDocument.Sources
+                .Select(i => new SourceDto(
+                    i.Bitrate,
+                    i.Quality,
+                    i.Reference,
+                    i.Size));
+
+            if (videoDocument.Thumbnail is not null)
+                Thumbnail = new ImageDto(
+                    videoDocument.Thumbnail.AspectRatio,
+                    videoDocument.Thumbnail.Blurhash,
+                    videoDocument.Thumbnail.Sources);
+
+            Title = videoDocument.Title;
         }
 
         // Properties.

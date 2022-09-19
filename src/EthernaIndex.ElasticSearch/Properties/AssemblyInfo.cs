@@ -12,12 +12,6 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-using System.Threading.Tasks;
+using System;
 
-namespace Etherna.EthernaIndex.Areas.Api.Services
-{
-    public interface ICommentsControllerService
-    {
-        Task DeleteOwnedCommentAsync(string id);
-    }
-}
+[assembly: CLSCompliant(false)]

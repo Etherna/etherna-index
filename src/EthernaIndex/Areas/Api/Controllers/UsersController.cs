@@ -107,7 +107,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
             [Required] string address,
             [Range(0, int.MaxValue)] int page,
             [Range(1, 100)] int take = 25) =>
-            (await controllerService.GetVideosAsync(address, page, take, User)).Elements;
+            (await controllerService.GetVideosAsync(address, page, take)).Elements;
 
         /// <summary>
         /// Get list of videos uploaded by an user.
@@ -126,7 +126,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
             [Required] string address,
             [Range(0, int.MaxValue)] int page,
             [Range(1, 100)] int take = 25) =>
-            controllerService.GetVideosAsync(address, page, take, User);
+            controllerService.GetVideosAsync(address, page, take);
 
         [HttpGet("current")]
         [Authorize]

@@ -12,12 +12,12 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-using System.Threading.Tasks;
+using System.Collections.Generic;
 
-namespace Etherna.EthernaIndex.Areas.Api.Services
+namespace Etherna.EthernaIndex.ElasticSearch.Settings
 {
-    public interface ICommentsControllerService
+    public class ElasticSearchsSetting
     {
-        Task DeleteOwnedCommentAsync(string id);
+        public IReadOnlyCollection<string> Urls { get; set; } = default!;
     }
 }

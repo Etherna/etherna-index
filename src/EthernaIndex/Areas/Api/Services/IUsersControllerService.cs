@@ -13,7 +13,6 @@
 //   limitations under the License.
 
 using Etherna.EthernaIndex.Areas.Api.DtoModels;
-using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Areas.Api.Services
@@ -23,6 +22,6 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         Task<UserDto> FindByAddressAsync(string address);
         Task<CurrentUserDto> GetCurrentUserAsync();
         Task<PaginatedEnumerableDto<UserDto>> GetUsersAsync(bool onlyWithVideo, int page, int take);
-        Task<PaginatedEnumerableDto<VideoDto>> GetVideosAsync(string address, int page, int take, ClaimsPrincipal currentUserClaims);
+        Task<PaginatedEnumerableDto<VideoDto>> GetVideosAsync(string address, int page, int take);
     }
 }
