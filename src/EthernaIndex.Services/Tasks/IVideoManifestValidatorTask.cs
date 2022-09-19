@@ -12,14 +12,12 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-using Hangfire;
 using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Services.Tasks
 {
     public interface IVideoManifestValidatorTask
     {
-        [Queue(Queues.ELASTIC_SEARCH_MAINTENANCE)]
         Task RunAsync(string videoId, string manifestHash);
     }
 }
