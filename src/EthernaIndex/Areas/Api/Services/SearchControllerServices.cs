@@ -2,6 +2,8 @@
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models.UserAgg;
 using Etherna.EthernaIndex.ElasticSearch;
+using Etherna.EthernaIndex.Services.Tasks;
+using Hangfire;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -10,19 +12,25 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
     internal class SearchControllerServices : ISearchControllerServices
     {
         // Fields.
+        private readonly IBackgroundJobClient backgroundJobClient;
         private readonly IElasticSearchService elasticSearchService;
         private readonly ISharedDbContext sharedDbContext;
 
         // Constructors.
         public SearchControllerServices(
+            IBackgroundJobClient backgroundJobClient,
             IElasticSearchService elasticSearchService,
             ISharedDbContext sharedDbContext)
         {
+            this.backgroundJobClient = backgroundJobClient;
             this.elasticSearchService = elasticSearchService;
             this.sharedDbContext = sharedDbContext;
         }
 
         // Methods.
+        public void ReindexAllVideos() =>
+            backgroundJobClient.Enqueue<IFullVideoReindexTask>(t => t.RunAsync());
+
         public async Task<IEnumerable<VideoDto>> SearchVideoAsync(string query, int page, int take)
         {
             var videoDocuments = await elasticSearchService.SearchVideoAsync(query, page, take);

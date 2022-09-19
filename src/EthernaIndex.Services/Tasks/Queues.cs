@@ -17,6 +17,7 @@ namespace Etherna.EthernaIndex.Services.Tasks
     public static class Queues
     {
         public const string DB_MAINTENANCE = "db_maintenance";
+        public const string ELASTIC_SEARCH_MAINTENANCE = "elastic_search_maintenance";
         public const string METADATA_VIDEO_VALIDATOR = "metadata_video_validator";
     }
 }

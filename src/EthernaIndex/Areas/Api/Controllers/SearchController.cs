@@ -15,6 +15,7 @@
 using Etherna.EthernaIndex.Areas.Api.DtoModels;
 using Etherna.EthernaIndex.Areas.Api.Services;
 using Etherna.EthernaIndex.Attributes;
+using Etherna.EthernaIndex.Configs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -38,6 +39,8 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
             this.service = service;
         }
 
+        // Get.
+
         /// <summary>
         /// Search videos.
         /// </summary>
@@ -45,7 +48,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// <param name="page">Current page of results</param>
         /// <param name="take">Number of items to retrieve. Max 100</param>
         /// <response code="200">Videos</response>
-        [HttpGet("Search")]
+        [HttpGet("query")]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -55,5 +58,13 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
             [Range(0, int.MaxValue)] int page,
             [Range(1, 100)] int take = 25) =>
             service.SearchVideoAsync(query, page, take);
+
+        // Post.
+        [HttpPost("videos/reindex")]
+        [Authorize(CommonConsts.RequireAdministratorClaimPolicy)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public void ReindexAllVideos() =>
+            service.ReindexAllVideos();
     }
 }
