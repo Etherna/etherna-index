@@ -12,13 +12,12 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Areas.Api.Services
 {
     public interface ICommentsControllerService
     {
-        Task DeleteOwnedCommentAsync(string id, ClaimsPrincipal currentUserClaims);
+        Task DeleteOwnedCommentAsync(string id);
     }
 }

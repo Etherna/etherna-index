@@ -26,6 +26,10 @@ namespace Etherna.EthernaIndex.Configs
 
         public const string AdministratorRoleName = "ADMINISTRATOR";
 
+        public const string UserAuthenticationPolicyScheme = "userAuthnPolicyScheme";
+        public const string UserAuthenticationCookieScheme = "userAuthnCookieScheme";
+        public const string UserAuthenticationJwtScheme = "userAuthnJwtScheme";
+
         public const string SharedCookieApplicationName = "ethernaSharedCookie";
     }
 }

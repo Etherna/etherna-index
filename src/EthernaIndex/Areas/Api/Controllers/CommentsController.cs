@@ -51,6 +51,6 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public Task DeleteOwnedCommentAsync(
             [Required] string id) =>
-            service.DeleteOwnedCommentAsync(id, User);
+            service.DeleteOwnedCommentAsync(id);
     }
 }
