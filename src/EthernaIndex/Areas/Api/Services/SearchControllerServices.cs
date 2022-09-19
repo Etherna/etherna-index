@@ -2,7 +2,6 @@
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models.UserAgg;
 using Etherna.EthernaIndex.ElasticSearch;
-using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -12,17 +11,14 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
     {
         // Fields.
         private readonly IElasticSearchService elasticSearchService;
-        private readonly ILogger<SearchControllerServices> logger;
         private readonly ISharedDbContext sharedDbContext;
 
         // Constructors.
         public SearchControllerServices(
             IElasticSearchService elasticSearchService,
-            ILogger<SearchControllerServices> logger,
             ISharedDbContext sharedDbContext)
         {
             this.elasticSearchService = elasticSearchService;
-            this.logger = logger;
             this.sharedDbContext = sharedDbContext;
         }
 
