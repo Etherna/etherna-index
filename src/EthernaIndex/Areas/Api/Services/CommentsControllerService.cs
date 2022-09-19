@@ -12,11 +12,10 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-using Etherna.Authentication.Extensions;
+using Etherna.Authentication;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Services.Domain;
 using System;
-using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Areas.Api.Services
@@ -25,22 +24,25 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
     {
         // Fields.
         private readonly IIndexDbContext dbContext;
+        private readonly IEthernaOpenIdConnectClient ethernaOidcClient;
         private readonly IUserService userService;
 
         // Constructor.
         public CommentsControllerService(
             IIndexDbContext dbContext,
+            IEthernaOpenIdConnectClient ethernaOidcClient,
             IUserService userService)
         {
             this.dbContext = dbContext;
+            this.ethernaOidcClient = ethernaOidcClient;
             this.userService = userService;
         }
 
         // Methods.
-        public async Task DeleteOwnedCommentAsync(string id, ClaimsPrincipal currentUserClaims)
+        public async Task DeleteOwnedCommentAsync(string id)
         {
             // Get data.
-            var address = currentUserClaims.GetEtherAddress();
+            var address = await ethernaOidcClient.GetEtherAddressAsync();
             var (currentUser, _) = await userService.FindUserAsync(address);
 
             var comment = await dbContext.Comments.FindOneAsync(id);
