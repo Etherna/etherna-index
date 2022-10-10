@@ -15,11 +15,11 @@
 using Microsoft.Extensions.Logging;
 using System;
 
-namespace Etherna.EthernaIndex.Extensions
+namespace Etherna.EthernaIndex.Services.Extensions
 {
     /*
      * Always group similar log delegates by type, always use incremental event ids.
-     * Last event id is: 5
+     * Last event id is: 10
      */
     public static class LoggerExtensions
     {
@@ -48,8 +48,26 @@ namespace Etherna.EthernaIndex.Extensions
         private static readonly Action<ILogger, string, string, Exception> _updatedVideo =
             LoggerMessage.Define<string, string>(
                 LogLevel.Information,
-                new EventId(5, nameof(CreatedVideo)),
+                new EventId(5, nameof(UpdatedVideo)),
                 "Video Id {VideoId} updated with {NewHash} by author");
+
+        private static readonly Action<ILogger, string, string, Exception> _videoManifestValidationRetrievedManifest =
+            LoggerMessage.Define<string, string>(
+                LogLevel.Information,
+                new EventId(7, nameof(VideoManifestValidationRetrievedManifest)),
+                "Validation of video Id {VideoId} with manifest {ManifestHash} retrieved manifest");
+
+        private static readonly Action<ILogger, string, string, Exception> _videoManifestValidationStarted =
+            LoggerMessage.Define<string, string>(
+                LogLevel.Information,
+                new EventId(6, nameof(VideoManifestValidationStarted)),
+                "Validation of video Id {VideoId} with manifest {ManifestHash} started");
+
+        private static readonly Action<ILogger, string, string, Exception> _videoManifestValidationSucceeded =
+            LoggerMessage.Define<string, string>(
+                LogLevel.Information,
+                new EventId(10, nameof(VideoManifestValidationSucceeded)),
+                "Validation of video Id {VideoId} with manifest {ManifestHash} succeeded");
 
         private static readonly Action<ILogger, string, string, Exception> _votedVideo =
             LoggerMessage.Define<string, string>(
@@ -66,6 +84,18 @@ namespace Etherna.EthernaIndex.Extensions
                 new EventId(0, nameof(RequestThrowedError)),
                 "Request {RequestId} throwed error");
 
+        private static readonly Action<ILogger, string, string, Exception> _videoManifestValidationCantRetrieveManifest =
+            LoggerMessage.Define<string, string>(
+                LogLevel.Error,
+                new EventId(8, nameof(VideoManifestValidationCantRetrieveManifest)),
+                "Validation of video Id {VideoId} with manifest {ManifestHash} can't retrie manifest");
+
+        private static readonly Action<ILogger, string, string, Exception> _videoManifestValidationFailedWithErrors =
+            LoggerMessage.Define<string, string>(
+                LogLevel.Error,
+                new EventId(9, nameof(VideoManifestValidationFailedWithErrors)),
+                "Validation of video Id {VideoId} with manifest {ManifestHash} failed with errors");
+
         // Methods.
         public static void AuthorDeletedVideo(this ILogger logger, string videoId) =>
             _authorDeletedVideo(logger, videoId, null!);
@@ -81,6 +111,21 @@ namespace Etherna.EthernaIndex.Extensions
 
         public static void UpdatedVideo(this ILogger logger, string videoId, string newHash) =>
             _updatedVideo(logger, videoId, newHash, null!);
+
+        public static void VideoManifestValidationCantRetrieveManifest(this ILogger logger, string videoId, string manifestHash, Exception? exception) =>
+            _videoManifestValidationCantRetrieveManifest(logger, videoId, manifestHash, exception!);
+
+        public static void VideoManifestValidationFailedWithErrors(this ILogger logger, string videoId, string manifestHash, Exception? exception) =>
+            _videoManifestValidationFailedWithErrors(logger, videoId, manifestHash, exception!);
+
+        public static void VideoManifestValidationRetrievedManifest(this ILogger logger, string videoId, string manifestHash) =>
+            _videoManifestValidationRetrievedManifest(logger, videoId, manifestHash, null!);
+
+        public static void VideoManifestValidationStarted(this ILogger logger, string videoId, string manifestHash) =>
+            _videoManifestValidationStarted(logger, videoId, manifestHash, null!);
+
+        public static void VideoManifestValidationSucceeded(this ILogger logger, string videoId, string manifestHash) =>
+            _videoManifestValidationSucceeded(logger, videoId, manifestHash, null!);
 
         public static void VotedVideo(this ILogger logger, string userId, string videoId) =>
             _votedVideo(logger, userId, videoId, null!);

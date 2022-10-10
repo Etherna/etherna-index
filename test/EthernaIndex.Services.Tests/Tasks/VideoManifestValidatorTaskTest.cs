@@ -18,15 +18,14 @@ using Etherna.EthernaIndex.Domain.Models.UserAgg;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg;
 using Etherna.EthernaIndex.Services.Tasks;
 using Etherna.EthernaIndex.Swarm;
-using Etherna.EthernaIndex.Swarm.Models;
 using Etherna.EthernaIndex.Swarm.Exceptions;
+using Etherna.EthernaIndex.Swarm.Models;
+using Microsoft.Extensions.Logging;
 using Moq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -44,6 +43,7 @@ namespace EthernaIndex.Services.Tests.Tasks
         private readonly Video video;
         private readonly VideoManifest videoManifest;
         private readonly Mock<IIndexDbContext> indexContext;
+        private readonly Mock<ILogger<VideoManifestValidatorTask>> loggerMock;
         private readonly Mock<ISwarmService> swarmService;
 
         // Constructor.
@@ -55,6 +55,7 @@ namespace EthernaIndex.Services.Tests.Tasks
             videoManifest = new VideoManifest(manifestHash);
             video.AddManifest(videoManifest);
 
+            loggerMock = new Mock<ILogger<VideoManifestValidatorTask>>();
             swarmService = new Mock<ISwarmService>();
 
             // Mock Db Data.
@@ -65,7 +66,7 @@ namespace EthernaIndex.Services.Tests.Tasks
                 .ReturnsAsync(video);
 
             // Inizialize.
-            videoManifestValidatorTask = new VideoManifestValidatorTask(indexContext.Object, swarmService.Object);
+            videoManifestValidatorTask = new VideoManifestValidatorTask(indexContext.Object, loggerMock.Object, swarmService.Object);
         }
 
         // Tests.
@@ -120,7 +121,7 @@ namespace EthernaIndex.Services.Tests.Tasks
             secondSwarmService
                 .Setup(x => x.GetMetadataVideoAsync(secondManifestHash))
                 .ReturnsAsync(secondMetadataVideoDto);
-            var secondMetadataVideoValidatorTask = new VideoManifestValidatorTask(secondIndexContext.Object, secondSwarmService.Object);
+            var secondMetadataVideoValidatorTask = new VideoManifestValidatorTask(secondIndexContext.Object, loggerMock.Object, secondSwarmService.Object);
 
             // Action.
             await secondMetadataVideoValidatorTask.RunAsync(videoId, secondManifestHash);
