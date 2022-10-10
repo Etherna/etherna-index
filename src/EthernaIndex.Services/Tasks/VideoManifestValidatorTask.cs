@@ -17,11 +17,13 @@ using Etherna.EthernaIndex.Domain.Models.VideoAgg;
 using Etherna.EthernaIndex.Swarm;
 using Etherna.EthernaIndex.Swarm.Models;
 using Etherna.EthernaIndex.Swarm.Exceptions;
+using Etherna.EthernaIndex.Services.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Etherna.EthernaIndex.Domain.Models;
+using Microsoft.Extensions.Logging;
 
 namespace Etherna.EthernaIndex.Services.Tasks
 {
@@ -29,20 +31,25 @@ namespace Etherna.EthernaIndex.Services.Tasks
     {
         // Fields.
         private readonly IIndexDbContext indexDbContext;
+        private readonly ILogger<VideoManifestValidatorTask> logger;
         private readonly ISwarmService swarmService;
 
         // Constructors.
         public VideoManifestValidatorTask(
             IIndexDbContext indexDbContext,
+            ILogger<VideoManifestValidatorTask> logger,
             ISwarmService swarmService)
         {
             this.indexDbContext = indexDbContext;
+            this.logger = logger;
             this.swarmService = swarmService;
         }
 
         // Methods.
         public async Task RunAsync(string videoId, string manifestHash)
         {
+            logger.VideoManifestValidationStarted(videoId, manifestHash);
+
             var video = await indexDbContext.Videos.FindOneAsync(videoId);
 
             MetadataVideo metadataDto;
@@ -58,6 +65,8 @@ namespace Etherna.EthernaIndex.Services.Tasks
                 swarmService.SetupNewMetadataVideoMockup(manifestHash);
 #endif
                 metadataDto = await swarmService.GetMetadataVideoAsync(manifestHash);
+
+                logger.VideoManifestValidationRetrievedManifest(videoId, manifestHash);
             }
             catch (MetadataVideoException ex)
             {
@@ -65,6 +74,9 @@ namespace Etherna.EthernaIndex.Services.Tasks
 
                 video.FailedManifestValidation(videoManifest, validationErrors);
                 await indexDbContext.SaveChangesAsync().ConfigureAwait(false);
+
+                logger.VideoManifestValidationCantRetrieveManifest(videoId, manifestHash, ex);
+
                 return;
             }
 
@@ -110,6 +122,8 @@ namespace Etherna.EthernaIndex.Services.Tasks
             if (validationErrors.Any())
             {
                 video.FailedManifestValidation(videoManifest, validationErrors);
+
+                logger.VideoManifestValidationFailedWithErrors(videoId, manifestHash, null);
             }
             else
             {
@@ -125,6 +139,8 @@ namespace Etherna.EthernaIndex.Services.Tasks
                     videoSources,
                     swarmImageRaw,
                     metadataDto.Title);
+
+                logger.VideoManifestValidationSucceeded(videoId, manifestHash);
             }
 
             // Complete task.
