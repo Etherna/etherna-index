@@ -25,7 +25,7 @@ namespace Etherna.EthernaIndex.Domain.Models
     {
         // Consts.
         public const int DescriptionMaxLength = 5000;
-        public const int TitleMaxLength = 100;
+        public const int TitleMaxLength = 200;
 
         // Fields.
         private List<VideoManifest> _videoManifests = new();
