@@ -81,11 +81,10 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             return new CurrentUserDto(user, sharedInfo, isSuperModeratorResult.Succeeded);
         }
 
-        public async Task<PaginatedEnumerableDto<UserDto>> GetUsersAsync(
-            bool onlyWithVideo, int page, int take)
+        public async Task<PaginatedEnumerableDto<UserDto>> GetUsersAsync(int page, int take)
         {
             var paginatedUsers = await indexDbContext.Users.QueryPaginatedElementsAsync(
-                elements => elements.Where(u => !onlyWithVideo || u.Videos.Any(v => v.LastValidManifest != null)),
+                elements => elements,
                 u => u.CreationDateTime,
                 page,
                 take,
@@ -111,14 +110,19 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             var requestByVideoOwner = address == currentUserAddress;
 
             var (user, sharedInfo) = await userService.FindUserAsync(address);
+            var paginatedVideos = await indexDbContext.Videos.QueryPaginatedElementsAsync(
+                elements => elements.Where(v => v.Owner.Id == user.Id)
+                                    .Where(v => requestByVideoOwner || v.LastValidManifest != null),
+                v => v.CreationDateTime,
+                page,
+                take,
+                true);
 
             return new PaginatedEnumerableDto<VideoDto>(
-                page,
-                user.Videos.Where(v => requestByVideoOwner || v.LastValidManifest != null)
-                           .PaginateDescending(v => v.CreationDateTime, page, take)
-                           .Select(v => new VideoDto(v, v.LastValidManifest, sharedInfo, null)),
-                take,
-                user.Videos.Where(v => requestByVideoOwner || v.LastValidManifest != null).Count());
+                paginatedVideos.CurrentPage,
+                paginatedVideos.Elements.Select(v => new VideoDto(v, v.LastValidManifest, sharedInfo, null)),
+                paginatedVideos.PageSize,
+                paginatedVideos.TotalElements);
         }
     }
 }
