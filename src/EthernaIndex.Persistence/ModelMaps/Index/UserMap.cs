@@ -31,22 +31,12 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                 mm =>
                 {
                     mm.AutoMap();
-
-                    // Set members with custom serializers.
-                    mm.SetMemberSerializer(c => c.Videos,
-                        new EnumerableSerializer<Video>(
-                            VideoMap.PreviewInfoSerializer(dbContext)));
                 })
                 .AddSecondaryMap(new MongODM.Core.Serialization.Mapping.ModelMap<User>(
                     "a547abdc-420c-41f9-b496-e6cf704a3844", //dev (pre v0.3.0), published for WAM event
                     new MongoDB.Bson.Serialization.BsonClassMap<User>(mm =>
                     {
                         mm.AutoMap();
-
-                        // Set members with custom serializers.
-                        mm.SetMemberSerializer(c => c.Videos,
-                            new EnumerableSerializer<Video>(
-                                VideoMap.ReferenceSerializer(dbContext)));
                     })));
         }
 

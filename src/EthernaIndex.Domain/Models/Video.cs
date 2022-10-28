@@ -34,17 +34,8 @@ namespace Etherna.EthernaIndex.Domain.Models
         public Video(User owner)
         {
             Owner = owner ?? throw new ArgumentNullException(nameof(owner));
-            Owner.AddVideo(this);
         }
         protected Video() { }
-
-        public override void DisposeForDelete()
-        {
-            //owner channel
-            Owner.RemoveVideo(this);
-
-            base.DisposeForDelete();
-        }
 
         // Properties.
         public virtual bool IsFrozen { get; set; }
