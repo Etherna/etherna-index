@@ -66,9 +66,9 @@ namespace Etherna.EthernaIndex.Swarm
         public MetadataVideo DeserializeMetadataVideo(JsonElement jsonElementManifest)
         {
             // Find version.
-            var version = jsonElementManifest.GetProperty("v").GetString();
-            if (version is null)
-                throw new MetadataVideoException("Version must exists");
+            var version = jsonElementManifest.TryGetProperty("v", out var jsonVersion) ?
+                jsonVersion.GetString()! :
+                "1.0"; //first version didn't have an identifier
             var majorVersion = version.Split('.')[0];
 
             // Deserialize document.
