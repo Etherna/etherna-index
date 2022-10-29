@@ -16,6 +16,7 @@ using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.ElasticSearch;
 using Etherna.MongoDB.Driver;
+using Etherna.MongODM.Core.Utility;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -39,6 +40,7 @@ namespace Etherna.EthernaIndex.Services.Tasks
         // Methods.
         public async Task RunAsync()
         {
+            using var dbExecutionContext = new DbExecutionContextHandler(dbContext); //run into a db execution context
             var videosCursor = await dbContext.Videos.FindAsync<Video>(Builders<Video>.Filter.Empty, new() { NoCursorTimeout = true });
             while (await videosCursor.MoveNextAsync())
                 foreach (var element in videosCursor.Current.Where(v => v.LastValidManifest != null))
