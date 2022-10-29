@@ -256,6 +256,7 @@ namespace Etherna.EthernaIndex
                     {
                         Queues.DB_MAINTENANCE,
                         Queues.METADATA_VIDEO_VALIDATOR,
+                        Queues.ELASTIC_SEARCH_MAINTENANCE,
                         "default"
                     };
                     options.WorkerCount = System.Environment.ProcessorCount * 2;
