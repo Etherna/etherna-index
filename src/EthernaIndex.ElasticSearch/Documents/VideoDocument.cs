@@ -54,21 +54,24 @@ namespace Etherna.EthernaIndex.ElasticSearch.Documents
                     video.LastValidManifest.Thumbnail.Blurhash,
                     video.LastValidManifest.Thumbnail.Sources);
         }
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        public VideoDocument() { }
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         // Properties.
-        public string Id { get; }
-        public DateTime CreationDateTime { get; }
-        public string? BatchId { get; }
-        public string Description { get; }
-        public long? Duration { get; }
-        public bool IsFrozen { get; }
-        public string ManifestHash { get; }
-        public string? OriginalQuality { get; }
-        public string OwnerSharedInfoId { get; }
-        public IEnumerable<SourceDocument> Sources { get; }
-        public ImageDocument? Thumbnail { get; }
-        public string Title { get; }
-        public long TotDownvotes { get; }
-        public long TotUpvotes { get; }
+        public string Id { get; set; }
+        public DateTime CreationDateTime { get; set; }
+        public string? BatchId { get; set; }
+        public string Description { get; set; }
+        public long? Duration { get; set; }
+        public bool IsFrozen { get; set; }
+        public string ManifestHash { get; set; }
+        public string? OriginalQuality { get; set; }
+        public string OwnerSharedInfoId { get; set; }
+        public IEnumerable<SourceDocument> Sources { get; set; }
+        public ImageDocument? Thumbnail { get; set; }
+        public string Title { get; set; }
+        public long TotDownvotes { get; set; }
+        public long TotUpvotes { get; set; }
     }
 }
