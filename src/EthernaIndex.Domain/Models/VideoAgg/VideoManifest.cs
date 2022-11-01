@@ -19,6 +19,11 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
 {
     public class VideoManifest : ManifestBase
     {
+        // Consts.
+        public const int DescriptionMaxLength = 5000;
+        public const int PersonalDataMaxLength = 200;
+        public const int TitleMaxLength = 200;
+
         // Fields.
         private List<VideoSource> _sources = new();
 
