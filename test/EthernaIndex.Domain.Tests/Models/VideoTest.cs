@@ -92,6 +92,7 @@ namespace Etherna.EthernaIndex.Domain.Models
             var title = "FeddTopicTest";
             var desc = "DescTest";
             var original = "OriginalTest";
+            var personalData = "{}";
             var duration = 1;
             var videoSources = new List<VideoSource> {
                 new VideoSource(1, "10801", "reff1", 4),
@@ -103,6 +104,7 @@ namespace Etherna.EthernaIndex.Domain.Models
                     desc,
                     duration,
                     original,
+                    personalData,
                     videoSources,
                     null,
                     title);

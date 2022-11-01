@@ -136,6 +136,7 @@ namespace Etherna.EthernaIndex.Services.Tasks
                     metadataDto.Description!,
                     metadataDto.Duration,
                     metadataDto.OriginalQuality,
+                    metadataDto.PersonalData,
                     videoSources,
                     swarmImageRaw,
                     metadataDto.Title);

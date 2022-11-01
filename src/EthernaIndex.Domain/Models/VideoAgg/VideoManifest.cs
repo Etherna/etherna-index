@@ -32,6 +32,7 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
         public virtual string? Description { get; protected set; }
         public virtual long? Duration { get; protected set; }
         public virtual string? OriginalQuality { get; protected set; }
+        public virtual string? PersonalData { get; protected set; }
         public virtual IEnumerable<VideoSource> Sources
         {
             get => _sources;
@@ -45,6 +46,7 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
         [PropertyAlterer(nameof(Description))]
         [PropertyAlterer(nameof(Duration))]
         [PropertyAlterer(nameof(OriginalQuality))]
+        [PropertyAlterer(nameof(PersonalData))]
         [PropertyAlterer(nameof(Sources))]
         [PropertyAlterer(nameof(Thumbnail))]
         [PropertyAlterer(nameof(Title))]
@@ -53,6 +55,7 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
             string description,
             long duration,
             string originalQuality,
+            string? personalData,
             IEnumerable<VideoSource> sources,
             SwarmImageRaw? thumbnail,
             string title)
@@ -62,6 +65,7 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
             Description = description;
             Duration = duration;
             OriginalQuality = originalQuality;
+            PersonalData = personalData;
             Sources = sources;
             Thumbnail = thumbnail;
             Title = title;
