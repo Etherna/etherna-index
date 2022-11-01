@@ -15,6 +15,8 @@
 using Etherna.Authentication;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Services.Domain;
+using Etherna.EthernaIndex.Services.Extensions;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 
@@ -25,16 +27,19 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         // Fields.
         private readonly IIndexDbContext dbContext;
         private readonly IEthernaOpenIdConnectClient ethernaOidcClient;
+        private readonly ILogger<CommentsControllerService> logger;
         private readonly IUserService userService;
 
         // Constructor.
         public CommentsControllerService(
             IIndexDbContext dbContext,
             IEthernaOpenIdConnectClient ethernaOidcClient,
+            ILogger<CommentsControllerService> logger,
             IUserService userService)
         {
             this.dbContext = dbContext;
             this.ethernaOidcClient = ethernaOidcClient;
+            this.logger = logger;
             this.userService = userService;
         }
 
@@ -55,6 +60,8 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             comment.SetAsDeletedByAuthor();
 
             await dbContext.SaveChangesAsync();
+
+            logger.OwnerDeleteVideoComment(id);
         }
     }
 }
