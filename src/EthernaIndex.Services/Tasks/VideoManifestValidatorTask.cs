@@ -84,7 +84,7 @@ namespace Etherna.EthernaIndex.Services.Tasks
             //description
             if (metadataDto.Description is null)
                 validationErrors.Add(new ErrorDetail(ValidationErrorType.MissingDescription));
-            else if (metadataDto.Description.Length > Video.DescriptionMaxLength)
+            else if (metadataDto.Description.Length > VideoManifest.DescriptionMaxLength)
                 validationErrors.Add(new ErrorDetail(ValidationErrorType.InvalidDescription, "Description is too long"));
 
             //duration
@@ -111,12 +111,17 @@ namespace Etherna.EthernaIndex.Services.Tasks
             //title
             if (string.IsNullOrWhiteSpace(metadataDto.Title))
                 validationErrors.Add(new ErrorDetail(ValidationErrorType.MissingTitle));
-            else if (metadataDto.Title.Length > Video.TitleMaxLength)
+            else if (metadataDto.Title.Length > VideoManifest.TitleMaxLength)
                 validationErrors.Add(new ErrorDetail(ValidationErrorType.InvalidTitle, "Title is too long"));
 
             //video sources
             var videoSourcesErrors = CheckVideoSources(metadataDto.Sources);
             validationErrors.AddRange(videoSourcesErrors);
+
+            //personal data
+            if (metadataDto.PersonalData is not null &&
+                metadataDto.PersonalData.Length > VideoManifest.PersonalDataMaxLength)
+                validationErrors.Add(new ErrorDetail(ValidationErrorType.InvalidPersonalData, "Personal Data is too long"));
 
             // Set result of validation.
             if (validationErrors.Any())
@@ -136,6 +141,7 @@ namespace Etherna.EthernaIndex.Services.Tasks
                     metadataDto.Description!,
                     metadataDto.Duration,
                     metadataDto.OriginalQuality,
+                    metadataDto.PersonalData,
                     videoSources,
                     swarmImageRaw,
                     metadataDto.Title);

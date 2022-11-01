@@ -82,6 +82,7 @@ namespace EthernaIndex.Services.Tests.Tasks
                 1234,
                 "123",
                 address,
+                "{}",
                 new List<MetadataVideoSource>
                 {
                     new MetadataVideoSource(1, "1080", "Ref1080", 32),
@@ -103,6 +104,7 @@ namespace EthernaIndex.Services.Tests.Tasks
                 1234,
                 "456",
                 address,
+                "{}",
                 new List<MetadataVideoSource>
                 {
                     new MetadataVideoSource(2, "10802", "Ref10802", 98)
@@ -148,6 +150,7 @@ namespace EthernaIndex.Services.Tests.Tasks
                 1234,
                 "123",
                 address,
+                "{}",
                 new List<MetadataVideoSource>(),
                 null,
                 "Titletest",
@@ -181,6 +184,7 @@ namespace EthernaIndex.Services.Tests.Tasks
                 1234,
                 "123",
                 address,
+                "{}",
                 new List<MetadataVideoSource>
                 {
                     new MetadataVideoSource(1, "1080", "Ref1080", 32)
@@ -216,6 +220,7 @@ namespace EthernaIndex.Services.Tests.Tasks
                 1234,
                 "123",
                 address,
+                "{}",
                 null!,
                 null,
                 "Titletest",
@@ -271,6 +276,7 @@ namespace EthernaIndex.Services.Tests.Tasks
                 1234,
                 "123",
                 address,
+                "{}",
                 new List<MetadataVideoSource>
                 {
                     new MetadataVideoSource(1, "", "Ref1080", 32),
@@ -308,6 +314,7 @@ namespace EthernaIndex.Services.Tests.Tasks
                 1234,
                 "123",
                 address,
+                "{}",
                 new List<MetadataVideoSource>
                 {
                     new MetadataVideoSource(1, "1080", "Ref1080", 32),
@@ -345,6 +352,7 @@ namespace EthernaIndex.Services.Tests.Tasks
                 1234,
                 "123",
                 address,
+                "{}",
                 new List<MetadataVideoSource>
                 {
                     new MetadataVideoSource(1, "1080", "Ref1080", 32),
@@ -382,6 +390,7 @@ namespace EthernaIndex.Services.Tests.Tasks
                 1234,
                 "123",
                 address,
+                "{}",
                 new List<MetadataVideoSource>
                 {
                     new MetadataVideoSource(1, "", "Ref1080", 32),
@@ -416,6 +425,7 @@ namespace EthernaIndex.Services.Tests.Tasks
                 1234,
                 "123",
                 address,
+                "{}",
                 new List<MetadataVideoSource>
                 {
                     new MetadataVideoSource(1, "1080", "Ref1080", 32),
@@ -450,6 +460,7 @@ namespace EthernaIndex.Services.Tests.Tasks
                 1234,
                 "123",
                 "",
+                "{}",
                 new List<MetadataVideoSource>
                 {
                     new MetadataVideoSource(1, "1080", "Ref1080", 32),

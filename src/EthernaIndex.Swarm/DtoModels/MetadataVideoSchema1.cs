@@ -29,6 +29,7 @@ namespace Etherna.EthernaIndex.Swarm.DtoModels
         public long CreatedAt { get; set; }
         public string OriginalQuality { get; set; }
         public string OwnerAddress { get; set; }
+        public string? PersonalData { get; set; } //added with v1.2
         public IEnumerable<MetadataVideoSourceSchema1> Sources { get; set; }
         public SwarmImageRawSchema1? Thumbnail { get; set; }
         public string Title { get; set; }
