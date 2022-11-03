@@ -23,10 +23,6 @@ namespace Etherna.EthernaIndex.Domain.Models
 {
     public class Video : EntityModelBase<string>
     {
-        // Consts.
-        public const int DescriptionMaxLength = 5000;
-        public const int TitleMaxLength = 200;
-
         // Fields.
         private List<VideoManifest> _videoManifests = new();
 
@@ -128,6 +124,7 @@ namespace Etherna.EthernaIndex.Domain.Models
             string description,
             long duration,
             string originalQuality,
+            string? personalData,
             IEnumerable<VideoSource> sources,
             SwarmImageRaw? thumbnail,
             string title)
@@ -147,6 +144,7 @@ namespace Etherna.EthernaIndex.Domain.Models
                 description,
                 duration,
                 originalQuality,
+                personalData,
                 sources,
                 thumbnail,
                 title);
