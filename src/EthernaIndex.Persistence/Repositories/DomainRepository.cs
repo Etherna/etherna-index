@@ -14,10 +14,8 @@
 
 using Etherna.DomainEvents;
 using Etherna.EthernaIndex.Domain.Events;
-using Etherna.MongODM.Core;
-using Etherna.MongODM.Core.Domain.Models;
+using Etherna.EthernaIndex.Domain.Models;
 using Etherna.MongODM.Core.Repositories;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -25,29 +23,21 @@ using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Persistence.Repositories
 {
-    public class DomainGridFSRepository<TModel> :
-        GridFSRepository<TModel>
-        where TModel : class, IFileModel
+    public class DomainRepository<TModel, TKey> :
+        Repository<TModel, TKey>
+        where TModel : EntityModelBase<TKey>
     {
         // Constructors and initialization.
-        public DomainGridFSRepository(string name)
+        public DomainRepository(string name)
             : base(name)
         { }
 
-        public DomainGridFSRepository(GridFSRepositoryOptions<TModel> options)
+        public DomainRepository(RepositoryOptions<TModel> options)
             : base(options)
         { }
 
-        public override void Initialize(IDbContext dbContext)
-        {
-            if (dbContext is not IEventDispatcherDbContext)
-                throw new InvalidOperationException($"DbContext needs to implement {nameof(IEventDispatcherDbContext)}");
-
-            base.Initialize(dbContext);
-        }
-
         // Properties.
-        public IEventDispatcher EventDispatcher => ((IEventDispatcherDbContext)DbContext).EventDispatcher;
+        public IEventDispatcher? EventDispatcher => (DbContext as IEventDispatcherDbContext)?.EventDispatcher;
 
         // Methods.
         public override async Task CreateAsync(IEnumerable<TModel> models, CancellationToken cancellationToken = default)
@@ -55,8 +45,9 @@ namespace Etherna.EthernaIndex.Persistence.Repositories
             await base.CreateAsync(models, cancellationToken);
 
             // Dispatch created events.
-            await EventDispatcher.DispatchAsync(
-                models.Select(m => new EntityCreatedEvent<TModel>(m)));
+            if (EventDispatcher != null)
+                await EventDispatcher.DispatchAsync(
+                    models.Select(m => new EntityCreatedEvent<TModel>(m)));
         }
 
         public override async Task CreateAsync(TModel model, CancellationToken cancellationToken = default)
@@ -64,8 +55,9 @@ namespace Etherna.EthernaIndex.Persistence.Repositories
             await base.CreateAsync(model, cancellationToken);
 
             // Dispatch created event.
-            await EventDispatcher.DispatchAsync(
-                new EntityCreatedEvent<TModel>(model));
+            if (EventDispatcher != null)
+                await EventDispatcher.DispatchAsync(
+                    new EntityCreatedEvent<TModel>(model));
         }
 
         public override async Task DeleteAsync(TModel model, CancellationToken cancellationToken = default)
@@ -73,8 +65,9 @@ namespace Etherna.EthernaIndex.Persistence.Repositories
             await base.DeleteAsync(model, cancellationToken);
 
             // Dispatch deleted event.
-            await EventDispatcher.DispatchAsync(
-                new EntityDeletedEvent<TModel>(model));
+            if (EventDispatcher != null)
+                await EventDispatcher.DispatchAsync(
+                    new EntityDeletedEvent<TModel>(model));
         }
     }
 }

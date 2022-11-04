@@ -45,28 +45,28 @@ namespace Etherna.EthernaIndex.Persistence
 
         // Properties.
         //repositories
-        public ICollectionRepository<Comment, string> Comments { get; } = new DomainCollectionRepository<Comment, string>(
-            new CollectionRepositoryOptions<Comment>("comments")
+        public IRepository<Comment, string> Comments { get; } = new DomainRepository<Comment, string>(
+            new RepositoryOptions<Comment>("comments")
             {
                 IndexBuilders = new[]
                 {
                     (Builders<Comment>.IndexKeys.Ascending(c => c.Video.Id), new CreateIndexOptions<Comment>())
                 }
             });
-        public ICollectionRepository<ManualVideoReview, string> ManualVideoReviews { get; } =
-            new DomainCollectionRepository<ManualVideoReview, string>("manualVideoReviews");
-        public ICollectionRepository<UnsuitableVideoReport, string> UnsuitableVideoReports { get; } =
-            new DomainCollectionRepository<UnsuitableVideoReport, string>("unsuitableVideoReports");
-        public ICollectionRepository<User, string> Users { get; } = new DomainCollectionRepository<User, string>(
-            new CollectionRepositoryOptions<User>("users")
+        public IRepository<ManualVideoReview, string> ManualVideoReviews { get; } =
+            new DomainRepository<ManualVideoReview, string>("manualVideoReviews");
+        public IRepository<UnsuitableVideoReport, string> UnsuitableVideoReports { get; } =
+            new DomainRepository<UnsuitableVideoReport, string>("unsuitableVideoReports");
+        public IRepository<User, string> Users { get; } = new DomainRepository<User, string>(
+            new RepositoryOptions<User>("users")
             {
                 IndexBuilders = new[]
                 {
                     (Builders<User>.IndexKeys.Ascending(u => u.SharedInfoId), new CreateIndexOptions<User> { Unique = true })
                 }
             });
-        public ICollectionRepository<VideoManifest, string> VideoManifests { get; } = new DomainCollectionRepository<VideoManifest, string>(
-            new CollectionRepositoryOptions<VideoManifest>("videoManifests")
+        public IRepository<VideoManifest, string> VideoManifests { get; } = new DomainRepository<VideoManifest, string>(
+            new RepositoryOptions<VideoManifest>("videoManifests")
             {
                 IndexBuilders = new[]
                 {
@@ -75,16 +75,16 @@ namespace Etherna.EthernaIndex.Persistence
                     (Builders<VideoManifest>.IndexKeys.Ascending(c => c.IsValid), new CreateIndexOptions<VideoManifest>())
                 }
             });
-        public ICollectionRepository<Video, string> Videos { get; } = new DomainCollectionRepository<Video, string>(
-            new CollectionRepositoryOptions<Video>("videos")
+        public IRepository<Video, string> Videos { get; } = new DomainRepository<Video, string>(
+            new RepositoryOptions<Video>("videos")
             {
                 IndexBuilders = new[]
                 {
                     (Builders<Video>.IndexKeys.Descending(c => c.Owner.Id), new CreateIndexOptions<Video>()),
                 }
             });
-        public ICollectionRepository<VideoVote, string> Votes { get; } = new DomainCollectionRepository<VideoVote, string>(
-            new CollectionRepositoryOptions<VideoVote>("votes")
+        public IRepository<VideoVote, string> Votes { get; } = new DomainRepository<VideoVote, string>(
+            new RepositoryOptions<VideoVote>("votes")
             {
                 IndexBuilders = new[]
                 {

@@ -81,7 +81,7 @@ namespace Etherna.EthernaIndex.Persistence.Helpers
 
         public static Mock<IMongoCollection<TModel>> SetupCollectionMock<TModel, TKey>(
             Mock<IMongoDatabase> mongoDatabaseMock,
-            ICollectionRepository<TModel, TKey> collection)
+            IRepository<TModel, TKey> collection)
              where TModel : class, IEntityModel<TKey>
         {
             if (mongoDatabaseMock is null)
