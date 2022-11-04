@@ -22,6 +22,7 @@ using Etherna.MongODM.Core;
 using Etherna.MongODM.Core.Migration;
 using Etherna.MongODM.Core.Repositories;
 using Etherna.MongODM.Core.Serialization;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,7 +39,9 @@ namespace Etherna.EthernaIndex.Persistence
 
         // Constructor.
         public IndexDbContext(
-            IEventDispatcher eventDispatcher)
+            IEventDispatcher eventDispatcher,
+            ILogger<IndexDbContext> logger)
+            : base(logger)
         {
             EventDispatcher = eventDispatcher;
         }

@@ -23,6 +23,7 @@ using Etherna.MongoDB.Bson.Serialization;
 using Etherna.MongoDB.Driver;
 using Etherna.MongODM.Core.Serialization.Serializers;
 using Etherna.MongODM.Core.Utility;
+using Microsoft.Extensions.Logging;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -42,7 +43,8 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
         {
             // Setup dbContext.
             var eventDispatcherMock = new Mock<IEventDispatcher>();
-            dbContext = new IndexDbContext(eventDispatcherMock.Object);
+            var loggerMock = new Mock<ILogger<IndexDbContext>>();
+            dbContext = new IndexDbContext(eventDispatcherMock.Object, loggerMock.Object);
 
             DbContextMockHelper.InitializeDbContextMock(dbContext, mongoDatabaseMock);
         }
