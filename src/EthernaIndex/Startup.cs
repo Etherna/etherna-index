@@ -33,7 +33,6 @@ using Hangfire;
 using Hangfire.Mongo;
 using Hangfire.Mongo.Migration.Strategies;
 using Hangfire.Mongo.Migration.Strategies.Backup;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization.Infrastructure;
@@ -327,7 +326,10 @@ namespace Etherna.EthernaIndex
 
             // Configure infrastructure.
             services.AddSwarmServices(Configuration);
-            services.AddElasticSearchServices(Configuration);
+            services.AddElasticSearchServices(Configuration.GetSection("Elastic:Urls").Get<string[]>(), opts =>
+            {
+                opts.IndexesPrefix = "etherna-mainindex-";
+            });
 
             // Configure domain services.
             services.AddDomainServices();

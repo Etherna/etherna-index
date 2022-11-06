@@ -55,7 +55,7 @@ namespace Etherna.EthernaIndex.ElasticSearch
             if (video is null)
                 throw new ArgumentNullException(nameof(video));
             if (video.LastValidManifest is null)
-                throw new InvalidOperationException($"Null value fo {nameof(video.LastValidManifest)}");
+                throw new InvalidOperationException($"{nameof(video.LastValidManifest)} can't be null");
 
             var document = new VideoDocument(video);
 
