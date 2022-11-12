@@ -45,6 +45,7 @@ namespace Etherna.EthernaIndex.ElasticSearch.Documents
             ManifestHash = video.LastValidManifest.Manifest.Hash;
             OriginalQuality = video.LastValidManifest.OriginalQuality;
             OwnerSharedInfoId = video.Owner.SharedInfoId;
+            PersonalData = video.LastValidManifest.PersonalData;
             Sources = video.LastValidManifest.Sources.Select(i => new SourceDocument(i.Bitrate, i.Quality, i.Reference, i.Size));
             Title = video.LastValidManifest.Title ?? "";
 
@@ -68,6 +69,7 @@ namespace Etherna.EthernaIndex.ElasticSearch.Documents
         public string ManifestHash { get; set; }
         public string? OriginalQuality { get; set; }
         public string OwnerSharedInfoId { get; set; }
+        public string? PersonalData { get; set; }
         public IEnumerable<SourceDocument> Sources { get; set; }
         public ImageDocument? Thumbnail { get; set; }
         public string Title { get; set; }
