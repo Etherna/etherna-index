@@ -50,12 +50,6 @@ namespace Etherna.EthernaIndex.Services.Extensions
                 new EventId(24, nameof(ChangeVideoReportDescription)),
                 "Change reported description for video id {VideoId} with Manifest Hash {ManifestHash}");
 
-        private static readonly Action<ILogger, string, string, Exception> _createVideo =
-            LoggerMessage.Define<string, string>(
-                LogLevel.Information,
-                new EventId(2, nameof(CreateVideo)),
-                "User Id '{UserId}' created new video with Id {VideoId}");
-
         private static readonly Action<ILogger, string, string, Exception> _createVideoComment =
             LoggerMessage.Define<string, string>(
                 LogLevel.Information,
@@ -152,6 +146,12 @@ namespace Etherna.EthernaIndex.Services.Extensions
                 new EventId(5, nameof(UpdateVideo)),
                 "Video Id {VideoId} updated with manifest {NewHash} by author");
 
+        private static readonly Action<ILogger, string, string, Exception> _videoCreated =
+            LoggerMessage.Define<string, string>(
+                LogLevel.Information,
+                new EventId(2, nameof(VideoCreated)),
+                "User Id '{UserId}' created new video with Id {VideoId}");
+
         private static readonly Action<ILogger, string, string, Exception> _videoManifestValidationSucceeded =
             LoggerMessage.Define<string, string>(
                 LogLevel.Information,
@@ -191,9 +191,6 @@ namespace Etherna.EthernaIndex.Services.Extensions
 
         public static void ChangeVideoReportDescription(this ILogger logger, string videoId, string manifestHash) =>
             _changeVideoReportDescription(logger, videoId, manifestHash, null!);
-
-        public static void CreateVideo(this ILogger logger, string userId, string videoId) =>
-            _createVideo(logger, userId, videoId, null!);
 
         public static void CreateVideoComment(this ILogger logger, string userId, string videoId) =>
             _createVideoComment(logger, userId, videoId, null!);
@@ -245,6 +242,9 @@ namespace Etherna.EthernaIndex.Services.Extensions
 
         public static void UpdateVideo(this ILogger logger, string videoId, string newHash) =>
             _updateVideo(logger, videoId, newHash, null!);
+
+        public static void VideoCreated(this ILogger logger, string userId, string videoId) =>
+            _videoCreated(logger, userId, videoId, null!);
 
         public static void VideoManifestValidationCantRetrieveManifest(this ILogger logger, string videoId, string manifestHash, Exception? exception) =>
             _videoManifestValidationCantRetrieveManifest(logger, videoId, manifestHash, exception!);

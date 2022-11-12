@@ -113,7 +113,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             await indexDbContext.VideoManifests.CreateAsync(videoManifest);
 
             // Add manifest to video.
-            video = await indexDbContext.Videos.FindOneAsync(video.Id); //find again because needs to be a proxy for update
+            video = await indexDbContext.Videos.FindOneAsync(video.Id); //find again because needs to be a proxy for update (see: MODM-83)
             video.AddManifest(videoManifest);
             await indexDbContext.SaveChangesAsync();
 
@@ -122,7 +122,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
                 task => task.RunAsync(video.Id, videoInput.ManifestHash),
                 new EnqueuedState(Queues.METADATA_VIDEO_VALIDATOR));
 
-            logger.CreateVideo(currentUser.Id, videoInput.ManifestHash);
+            logger.VideoCreated(currentUser.Id, videoInput.ManifestHash);
 
             return video.Id;
         }
