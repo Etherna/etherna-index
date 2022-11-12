@@ -27,14 +27,12 @@ using Etherna.MongODM.Core.Utility;
 using Moq;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 
 namespace Etherna.EthernaIndex.Persistence.Helpers
 {
     public static class DbContextMockHelper
     {
-        [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "Need to keep objects after test construction")]
         public static void InitializeDbContextMock(DbContext dbContext, Mock<IMongoDatabase>? mongoDatabaseMock = null)
         {
             if (dbContext is null)

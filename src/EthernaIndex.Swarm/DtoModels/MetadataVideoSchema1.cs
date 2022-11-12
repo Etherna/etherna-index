@@ -13,7 +13,6 @@
 //   limitations under the License.
 
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -37,7 +36,6 @@ namespace Etherna.EthernaIndex.Swarm.DtoModels
         public string V { get; set; }
 
         [JsonExtensionData]
-        [SuppressMessage("Usage", "CA2227:Collection properties should be read only", Justification = "Needed for deserialization")]
         public Dictionary<string, JsonElement>? ExtraElements { get; set; }
     }
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.

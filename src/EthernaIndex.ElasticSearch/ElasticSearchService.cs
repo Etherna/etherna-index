@@ -96,11 +96,8 @@ namespace Etherna.EthernaIndex.ElasticSearch
 
             var searchResponse = await elasticClient.SearchAsync<VideoDocument>(s =>
                 s.Query(q => q.Bool(b =>
-                    b.Must(mu =>
-#pragma warning disable CA1308 // Require lovercase for search in elastich
-                    mu.Wildcard(f => f.Title, $"*{query.ToLowerInvariant()}*") ||
+                    b.Must(mu => mu.Wildcard(f => f.Title, $"*{query.ToLowerInvariant()}*") ||
                     mu.Wildcard(f => f.Description, $"*{query.ToLowerInvariant()}*"))
-#pragma warning restore CA1308
                 ))
                 .From(page * take)
                 .Size(take));

@@ -16,7 +16,6 @@ using Etherna.EthernaIndex.Areas.Api.DtoModels;
 using Etherna.EthernaIndex.Attributes;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Etherna.EthernaIndex.Areas.Api.Controllers
 {
@@ -34,7 +33,6 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         [HttpGet("parameters")]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [SuppressMessage("Design", "CA1024:Use properties where appropriate", Justification = "Api requires a method")]
         public SystemParametersDto GetParameters() => new();
     }
 }
