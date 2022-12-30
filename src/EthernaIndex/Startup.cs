@@ -386,6 +386,8 @@ namespace Etherna.EthernaIndex
             app.UseSwagger();
             app.UseSwaggerUI(options =>
             {
+                options.DocumentTitle = "Etherna Index API";
+
                 // build a swagger endpoint for each discovered API version
                 foreach (var description in apiProvider.ApiVersionDescriptions)
                 {
