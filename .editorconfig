@@ -42,6 +42,3 @@ dotnet_diagnostic.CA2007.severity = none    # Not needed with .Net Core. More in
 
 # CS1591: Missing XML comment for publicly visible type or member
 dotnet_diagnostic.CS1591.severity = none
-
-# CA1305: Specify IFormatProvider
-dotnet_diagnostic.CA1305.severity = none
