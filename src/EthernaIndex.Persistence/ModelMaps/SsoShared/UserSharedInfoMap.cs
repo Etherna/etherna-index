@@ -22,7 +22,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.SsoShared
     {
         public void Register(IDbContext dbContext)
         {
-            dbContext.SchemaRegistry.AddModelMapsSchema<UserSharedInfo>(
+            dbContext.MapRegistry.AddModelMap<UserSharedInfo>(
                 "6d0d2ee1-6aa3-42ea-9833-ac592bfc6613", //from sso v0.3.0
                 mm =>
                 {
