@@ -35,16 +35,6 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
             if (ownerSharedInfo is null)
                 throw new ArgumentNullException(nameof(ownerSharedInfo));
 
-            if (videoManifest is not null &&
-                !video.VideoManifests.Contains(videoManifest))
-            {
-                var ex = new InvalidOperationException("Video not compatible with current Manifest");
-                ex.Data.Add("VideoId", video.Id);
-                ex.Data.Add("ManifestHash", videoManifest.Manifest.Hash);
-                ex.Data.Add("ManifestId", videoManifest.Id);
-                throw ex;
-            }
-
             Id = video.Id;
             CreationDateTime = video.CreationDateTime;
             if (currentUserVideoVote is not null &&
