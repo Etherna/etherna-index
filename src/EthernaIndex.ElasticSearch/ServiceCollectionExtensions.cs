@@ -21,11 +21,13 @@ using Nest;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Etherna.EthernaIndex.ElasticSearch
 {
     public static class ServiceCollectionExtensions
     {
+        [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "They can't be disposed")]
         public static void AddElasticSearchServices(
             this IServiceCollection services,
             IEnumerable<string> urls,
@@ -34,13 +36,11 @@ namespace Etherna.EthernaIndex.ElasticSearch
             var options = new ElasticSearchOptions(urls);
             elasticSearchOptionsConfig?.Invoke(options);
 
-#pragma warning disable CA2000 // Can't dispose registration service 
             var pool = new StickyConnectionPool(options.Urls.Select(i => new Uri(i)));
             var settings = new ConnectionSettings(pool)
                 .DefaultIndex(options.VideosIndexName)
                 .DefaultMappingFor<VideoDocument>(vm => vm.IdProperty(p => p.Id)
             );
-#pragma warning restore CA2000
             var client = new ElasticClient(settings);
 
             // Add services.

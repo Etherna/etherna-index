@@ -19,7 +19,7 @@ using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Services.Domain
 {
-    class VideoService : IVideoService
+    internal sealed class VideoService : IVideoService
     {
         // Fields.
         private readonly IIndexDbContext dbContext;

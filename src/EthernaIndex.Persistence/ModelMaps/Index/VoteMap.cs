@@ -19,7 +19,7 @@ using Etherna.MongODM.Core.Serialization;
 
 namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
 {
-    class VoteMap : IModelMapsCollector
+    internal sealed class VoteMap : IModelMapsCollector
     {
         public void Register(IDbContext dbContext)
         {

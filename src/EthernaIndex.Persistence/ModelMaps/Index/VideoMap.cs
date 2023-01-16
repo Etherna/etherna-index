@@ -27,7 +27,7 @@ using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
 {
-    class VideoMap : IModelMapsCollector
+    internal sealed class VideoMap : IModelMapsCollector
     {
         public void Register(IDbContext dbContext)
         {

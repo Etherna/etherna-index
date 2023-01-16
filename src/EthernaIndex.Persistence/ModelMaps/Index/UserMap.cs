@@ -22,7 +22,7 @@ using Etherna.MongODM.Core.Serialization.Serializers;
 
 namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
 {
-    class UserMap : IModelMapsCollector
+    internal sealed class UserMap : IModelMapsCollector
     {
         public void Register(IDbContext dbContext)
         {

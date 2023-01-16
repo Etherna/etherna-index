@@ -24,7 +24,7 @@ using Etherna.MongODM.Core.Serialization.Serializers;
 
 namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
 {
-    class VideoManifestMap : IModelMapsCollector
+    internal sealed class VideoManifestMap : IModelMapsCollector
     {
         public void Register(IDbContext dbContext)
         {

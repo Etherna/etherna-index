@@ -34,7 +34,7 @@ using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Areas.Api.Services
 {
-    internal class VideosControllerService : IVideosControllerService
+    internal sealed class VideosControllerService : IVideosControllerService
     {
         // Fields.
         private readonly IBackgroundJobClient backgroundJobClient;

@@ -22,7 +22,7 @@ using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Services.EventHandlers
 {
-    class OnManualVideoReviewCreatedThenArchiveRelatedVideoReportsHandler : EventHandlerBase<EntityCreatedEvent<ManualVideoReview>>
+    internal sealed class OnManualVideoReviewCreatedThenArchiveRelatedVideoReportsHandler : EventHandlerBase<EntityCreatedEvent<ManualVideoReview>>
     {
         // Fields.
         private readonly IIndexDbContext indexDbContext;

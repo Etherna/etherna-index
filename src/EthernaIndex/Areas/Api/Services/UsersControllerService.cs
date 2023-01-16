@@ -30,7 +30,7 @@ using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Areas.Api.Services
 {
-    internal class UsersControllerService : IUsersControllerService
+    internal sealed class UsersControllerService : IUsersControllerService
     {
         // Fields.
         private readonly IAuthorizationService authorizationService;
