@@ -18,7 +18,7 @@ using Etherna.MongODM.Core.Serialization;
 
 namespace Etherna.EthernaIndex.Persistence.ModelMaps.SsoShared
 {
-    class UserSharedInfoMap : IModelMapsCollector
+    internal sealed class UserSharedInfoMap : IModelMapsCollector
     {
         public void Register(IDbContext dbContext)
         {

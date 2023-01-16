@@ -61,7 +61,7 @@ using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex
 {
-    public class Program
+    public static class Program
     {
         public static void Main(string[] args)
         {
@@ -113,8 +113,8 @@ namespace Etherna.EthernaIndex
                 .Enrich.FromLogContext()
                 .Enrich.WithExceptionDetails()
                 .Enrich.WithMachineName()
-                .WriteTo.Debug()
-                .WriteTo.Console()
+                .WriteTo.Debug(formatProvider: CultureInfo.InvariantCulture)
+                .WriteTo.Console(formatProvider: CultureInfo.InvariantCulture)
                 .WriteTo.Elasticsearch(ConfigureElasticSink(configuration, env))
                 .Enrich.WithProperty("Environment", env)
                 .ReadFrom.Configuration(configuration)
@@ -400,11 +400,6 @@ namespace Etherna.EthernaIndex
         {
             var env = app.Environment;
             var apiProvider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
-
-            app.UseDeveloperExceptionPage();
-            app.UseStaticFiles();
-            app.UseRouting();
-            app.UseAuthorization();
 
             if (env.IsDevelopment())
             {

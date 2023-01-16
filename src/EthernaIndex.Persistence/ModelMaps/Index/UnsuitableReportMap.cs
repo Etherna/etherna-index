@@ -23,7 +23,7 @@ using System.Linq;
 
 namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
 {
-    class UnsuitableReportMap : IModelMapsCollector
+    internal sealed class UnsuitableReportMap : IModelMapsCollector
     {
         public void Register(IDbContext dbContext)
         {

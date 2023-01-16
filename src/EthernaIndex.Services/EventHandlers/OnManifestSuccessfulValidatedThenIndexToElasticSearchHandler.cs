@@ -19,7 +19,7 @@ using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Services.EventHandlers
 {
-    class OnManifestSuccessfulValidatedThenIndexToElasticSearchHandler : EventHandlerBase<ManifestSuccessfulValidatedEvent>
+    internal sealed class OnManifestSuccessfulValidatedThenIndexToElasticSearchHandler : EventHandlerBase<ManifestSuccessfulValidatedEvent>
     {
         // Fields.
         private readonly IElasticSearchService elasticSearchService;

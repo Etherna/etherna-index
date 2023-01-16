@@ -18,7 +18,7 @@ using Etherna.MongODM.Core.Serialization;
 
 namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
 {
-    class SwarmHashMap : IModelMapsCollector
+    internal sealed class SwarmHashMap : IModelMapsCollector
     {
         public void Register(IDbContext dbContext)
         {

@@ -21,11 +21,13 @@ using Nest;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Etherna.EthernaIndex.ElasticSearch
 {
     public static class ServiceCollectionExtensions
     {
+        [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "They can't be disposed")]
         public static void AddElasticSearchServices(
             this IServiceCollection services,
             IEnumerable<string> urls,

@@ -19,6 +19,8 @@ namespace Etherna.EthernaIndex.Domain.Models
 {
     public abstract class ModelBase : IModel
     {
+#pragma warning disable CA2227 // Collection properties should be read only
         public virtual IDictionary<string, object>? ExtraElements { get; protected set; }
+#pragma warning restore CA2227 // Collection properties should be read only
     }
 }

@@ -23,7 +23,7 @@ using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Areas.Api.Services
 {
-    internal class SearchControllerServices : ISearchControllerServices
+    internal sealed class SearchControllerServices : ISearchControllerServices
     {
         // Fields.
         private readonly IBackgroundJobClient backgroundJobClient;

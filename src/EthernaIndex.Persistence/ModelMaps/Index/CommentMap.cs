@@ -19,7 +19,7 @@ using Etherna.MongODM.Core.Serialization;
 
 namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
 {
-    class CommentMap : IModelMapsCollector
+    internal sealed class CommentMap : IModelMapsCollector
     {
         public void Register(IDbContext dbContext)
         {

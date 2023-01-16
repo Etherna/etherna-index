@@ -22,7 +22,7 @@ using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Services.Tasks
 {
-    internal class FullVideoReindexTask : IFullVideoReindexTask
+    internal sealed class FullVideoReindexTask : IFullVideoReindexTask
     {
         // Fields.
         private readonly IIndexDbContext dbContext;
