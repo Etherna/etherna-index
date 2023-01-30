@@ -279,12 +279,6 @@ namespace Etherna.EthernaIndex
             });
 
             // Configure setting.
-            var assemblyVersion = new AssemblyVersion(GetType().GetTypeInfo().Assembly);
-            services.Configure<ApplicationSettings>(Configuration.GetSection("Application"));
-            services.PostConfigure<ApplicationSettings>(options =>
-            {
-                options.AssemblyVersion = assemblyVersion.Version;
-            });
             services.Configure<SsoServerSettings>(Configuration.GetSection("SsoServer"));
 
             // Configure persistence.

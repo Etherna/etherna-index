@@ -33,7 +33,6 @@ using System.IO;
 #endif
 
 #if DEBUG_MOCKUP_SWARM
-#pragma warning disable CA1823 // Avoid unused private fields
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
 #endif
 
@@ -142,5 +141,4 @@ namespace Etherna.EthernaIndex.Swarm
 
 #if DEBUG_MOCKUP_SWARM
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
-#pragma warning restore CA1823 // Avoid unused private fields
 #endif
