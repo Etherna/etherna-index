@@ -34,6 +34,7 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
             Duration = videoManifest.Duration;
             Hash = videoManifest.Manifest.Hash;
             OriginalQuality = videoManifest.OriginalQuality;
+            PersonalData = videoManifest.PersonalData;
             Sources = videoManifest.Sources
                 .Select(i => new SourceDto(
                     i.Bitrate,
@@ -60,6 +61,7 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
             Description = videoDocument.Description;
             Duration = videoDocument.Duration;
             Hash = videoDocument.ManifestHash;
+            PersonalData = videoDocument.PersonalData;
             OriginalQuality = videoDocument.OriginalQuality;
             Sources = videoDocument.Sources
                 .Select(i => new SourceDto(
@@ -83,6 +85,7 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
         public long? Duration { get; }
         public string Hash { get; }
         public string? OriginalQuality { get; }
+        public string? PersonalData { get; }
         public IEnumerable<SourceDto> Sources { get; }
         public ImageDto? Thumbnail { get; }
         public string? Title { get; }

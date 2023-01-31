@@ -20,7 +20,7 @@ using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Services.EventHandlers
 {
-    class OnVideoDeletedThenRemoveFromElasticSearchHandler : EventHandlerBase<EntityDeletedEvent<Video>>
+    internal sealed class OnVideoDeletedThenRemoveFromElasticSearchHandler : EventHandlerBase<EntityDeletedEvent<Video>>
     {
         // Fields.
         private readonly IElasticSearchService elasticSearchService;

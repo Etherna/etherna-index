@@ -19,11 +19,11 @@ using Etherna.MongODM.Core.Serialization;
 
 namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
 {
-    class VoteMap : IModelMapsCollector
+    internal sealed class VoteMap : IModelMapsCollector
     {
         public void Register(IDbContext dbContext)
         {
-            dbContext.SchemaRegistry.AddModelMapsSchema<VideoVote>(
+            dbContext.MapRegistry.AddModelMap<VideoVote>(
                 "624955bf-8c09-427f-93da-fc6ddb9668a6", //dev (pre v0.3.0), published for WAM event
                 mm =>
                 {

@@ -19,12 +19,12 @@ using Etherna.MongODM.Core.Serialization;
 
 namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
 {
-    class ManualReviewMap : IModelMapsCollector
+    internal sealed class ManualReviewMap : IModelMapsCollector
     {
         public void Register(IDbContext dbContext)
         {
             // register class maps.
-            dbContext.SchemaRegistry.AddModelMapsSchema<ManualReviewBase>(
+            dbContext.MapRegistry.AddModelMap<ManualReviewBase>(
                 "9f72b89d-ce18-417f-a2c2-bc05de28ef79", //v0.3.0
                 mm =>
                 {
@@ -34,7 +34,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                     mm.SetMemberSerializer(r => r.Author, UserMap.InformationSerializer(dbContext));
                 });
 
-            dbContext.SchemaRegistry.AddModelMapsSchema<ManualVideoReview>(
+            dbContext.MapRegistry.AddModelMap<ManualVideoReview>(
                 "e3e734ab-d845-4ec2-8920-68956eba950d", //v0.3.0
                 mm =>
                 {

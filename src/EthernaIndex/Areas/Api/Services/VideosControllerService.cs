@@ -34,7 +34,7 @@ using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Areas.Api.Services
 {
-    internal class VideosControllerService : IVideosControllerService
+    internal sealed class VideosControllerService : IVideosControllerService
     {
         // Fields.
         private readonly IBackgroundJobClient backgroundJobClient;
@@ -80,7 +80,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             // Action.
             await videoService.DeleteVideoAsync(video);
 
-            logger.AuthorDeletedVideo(id);
+            logger.AuthorDeleteVideo(id);
         }
 
         public async Task<string> CreateAsync(VideoCreateInput videoInput)
@@ -113,7 +113,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             await indexDbContext.VideoManifests.CreateAsync(videoManifest);
 
             // Add manifest to video.
-            video = await indexDbContext.Videos.FindOneAsync(video.Id); //find again because needs to be a proxy for update
+            video = await indexDbContext.Videos.FindOneAsync(video.Id); //find again because needs to be a proxy for update (see: MODM-83)
             video.AddManifest(videoManifest);
             await indexDbContext.SaveChangesAsync();
 
@@ -122,7 +122,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
                 task => task.RunAsync(video.Id, videoInput.ManifestHash),
                 new EnqueuedState(Queues.METADATA_VIDEO_VALIDATOR));
 
-            logger.CreatedVideo(currentUser.Id, videoInput.ManifestHash);
+            logger.VideoCreated(currentUser.Id, videoInput.ManifestHash);
 
             return video.Id;
         }
@@ -137,7 +137,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
 
             await indexDbContext.Comments.CreateAsync(comment);
 
-            logger.CreatedCommentVideo(user.Id, id);
+            logger.CreateVideoComment(user.Id, id);
 
             return new CommentDto(comment, userSharedInfo);
         }
@@ -163,6 +163,8 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
                                                                                        v.Owner.Id == currentUser.Id);
             }
 
+            logger.FindVideoById(id);
+
             return new VideoDto(video, lastValidManifest, ownerSharedInfo, currentUserVideoVote);
         }
 
@@ -186,6 +188,8 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
                 currentUserVideoVote = await indexDbContext.Votes.TryFindOneAsync(v => v.Video.Id == video.Id &&
                                                                                        v.Owner.Id == currentUser.Id);
             }
+
+            logger.FindManifestByHash(hash);
 
             return new VideoDto(video, videoManifest, ownerSharedInfo, currentUserVideoVote);
         }
@@ -211,6 +215,8 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
                     ownerSharedInfo,
                     null));
             }
+
+            logger.GetLastUploadedVideos(page, take);
 
             return new PaginatedEnumerableDto<VideoDto>(
                 paginatedVideos.CurrentPage,
@@ -252,6 +258,8 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
                 commentDtos.Add(new CommentDto(comment, authorSharedInfo));
             }
 
+            logger.GetVideoComments(id, page, take);
+
             return new PaginatedEnumerableDto<CommentDto>(
                 paginatedComments.CurrentPage,
                 commentDtos,
@@ -279,12 +287,15 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
                 // Create.
                 var videoReported = new UnsuitableVideoReport(video, manifest, user, description);
                 await indexDbContext.UnsuitableVideoReports.CreateAsync(videoReported);
+                logger.CreateVideoReport(videoId, manifestHash);
             }
             else
             {
                 // Edit.
                 videoReport.ChangeDescription(description);
                 await indexDbContext.SaveChangesAsync();
+
+                logger.ChangeVideoReportDescription(videoId, manifestHash);
             }
         }
 
@@ -313,7 +324,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
                 task => task.RunAsync(video.Id, newHash),
                 new EnqueuedState(Queues.METADATA_VIDEO_VALIDATOR));
 
-            logger.UpdatedVideo(id, newHash);
+            logger.UpdateVideo(id, newHash);
 
             return new VideoManifestDto(videoManifest);
         }
@@ -352,7 +363,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
 
             await indexDbContext.SaveChangesAsync();
 
-            logger.VotedVideo(user.Id, id);
+            logger.VideoVoted(user.Id, id);
         }
     }
 }

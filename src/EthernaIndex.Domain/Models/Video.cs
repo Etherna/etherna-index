@@ -23,10 +23,6 @@ namespace Etherna.EthernaIndex.Domain.Models
 {
     public class Video : EntityModelBase<string>
     {
-        // Consts.
-        public const int DescriptionMaxLength = 5000;
-        public const int TitleMaxLength = 200;
-
         // Fields.
         private List<VideoManifest> _videoManifests = new();
 
@@ -34,17 +30,8 @@ namespace Etherna.EthernaIndex.Domain.Models
         public Video(User owner)
         {
             Owner = owner ?? throw new ArgumentNullException(nameof(owner));
-            Owner.AddVideo(this);
         }
         protected Video() { }
-
-        public override void DisposeForDelete()
-        {
-            //owner channel
-            Owner.RemoveVideo(this);
-
-            base.DisposeForDelete();
-        }
 
         // Properties.
         public virtual bool IsFrozen { get; set; }
@@ -137,6 +124,7 @@ namespace Etherna.EthernaIndex.Domain.Models
             string description,
             long duration,
             string originalQuality,
+            string? personalData,
             IEnumerable<VideoSource> sources,
             SwarmImageRaw? thumbnail,
             string title)
@@ -156,6 +144,7 @@ namespace Etherna.EthernaIndex.Domain.Models
                 description,
                 duration,
                 originalQuality,
+                personalData,
                 sources,
                 thumbnail,
                 title);

@@ -33,7 +33,6 @@ using System.IO;
 #endif
 
 #if DEBUG_MOCKUP_SWARM
-#pragma warning disable CA1823 // Avoid unused private fields
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
 #endif
 
@@ -59,16 +58,16 @@ namespace Etherna.EthernaIndex.Swarm
             SwarmSettings = swarmSettings.Value;
             BeeNodeClient = new BeeNodeClient(
                 SwarmSettings.GatewayUrl,
-                gatewayApiVersion: GatewayApiVersion.v3_0_2);
+                gatewayApiVersion: GatewayApiVersion.v4_0_0);
         }
 
         // Methods.
         public MetadataVideo DeserializeMetadataVideo(JsonElement jsonElementManifest)
         {
             // Find version.
-            var version = jsonElementManifest.GetProperty("v").GetString();
-            if (version is null)
-                throw new MetadataVideoException("Version must exists");
+            var version = jsonElementManifest.TryGetProperty("v", out var jsonVersion) ?
+                jsonVersion.GetString()! :
+                "1.0"; //first version didn't have an identifier
             var majorVersion = version.Split('.')[0];
 
             // Deserialize document.
@@ -142,5 +141,4 @@ namespace Etherna.EthernaIndex.Swarm
 
 #if DEBUG_MOCKUP_SWARM
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
-#pragma warning restore CA1823 // Avoid unused private fields
 #endif

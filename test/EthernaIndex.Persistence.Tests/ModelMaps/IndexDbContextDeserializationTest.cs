@@ -23,6 +23,7 @@ using Etherna.MongoDB.Bson.Serialization;
 using Etherna.MongoDB.Driver;
 using Etherna.MongODM.Core.Serialization.Serializers;
 using Etherna.MongODM.Core.Utility;
+using Microsoft.Extensions.Logging;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -42,7 +43,8 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
         {
             // Setup dbContext.
             var eventDispatcherMock = new Mock<IEventDispatcher>();
-            dbContext = new IndexDbContext(eventDispatcherMock.Object);
+            var loggerMock = new Mock<ILogger<IndexDbContext>>();
+            dbContext = new IndexDbContext(eventDispatcherMock.Object, loggerMock.Object);
 
             DbContextMockHelper.InitializeDbContextMock(dbContext, mongoDatabaseMock);
         }
@@ -314,11 +316,6 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                     expectedUserMock.Setup(u => u.Id).Returns("625df43c74679c25b6c157eb");
                     expectedUserMock.Setup(u => u.CreationDateTime).Returns(new DateTime(2022, 04, 18, 23, 29, 00, 718));
                     expectedUserMock.Setup(u => u.SharedInfoId).Returns("625da02c2752994b203d3681");
-                    {
-                        var video0Mock = new Mock<Video>();
-                        video0Mock.Setup(a => a.Id).Returns("625df43c74679c25b6c157ec");
-                        expectedUserMock.Setup(c => c.Videos).Returns(new[] { video0Mock.Object });
-                    }
 
                     tests.Add(new DeserializationTestElement<User>(sourceDocument, expectedUserMock.Object));
                 }
@@ -350,13 +347,6 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                     expectedUserMock.Setup(u => u.Id).Returns("6217ce3489618456527854e4");
                     expectedUserMock.Setup(u => u.CreationDateTime).Returns(new DateTime(2022, 02, 24, 18, 28, 04, 685));
                     expectedUserMock.Setup(u => u.SharedInfoId).Returns("61cdeb616b35d3455b9d68ce");
-                    {
-                        var video0Mock = new Mock<Video>();
-                        var video1Mock = new Mock<Video>();
-                        video0Mock.Setup(a => a.Id).Returns("6229f4e50a7a47231567c7af");
-                        video1Mock.Setup(a => a.Id).Returns("6233d1a2340695c8e564391a");
-                        expectedUserMock.Setup(c => c.Videos).Returns(new[] { video0Mock.Object, video1Mock.Object });
-                    }
 
                     tests.Add(new DeserializationTestElement<User>(sourceDocument, expectedUserMock.Object));
                 }
@@ -1071,10 +1061,8 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
             Assert.Equal(testElement.ExpectedModel.Id, result.Id);
             Assert.Equal(testElement.ExpectedModel.CreationDateTime, result.CreationDateTime);
             Assert.Equal(testElement.ExpectedModel.SharedInfoId, result.SharedInfoId);
-            Assert.Equal(testElement.ExpectedModel.Videos, result.Videos, EntityModelEqualityComparer.Instance);
             Assert.NotNull(result.Id);
             Assert.NotNull(result.SharedInfoId);
-            Assert.NotNull(result.Videos);
         }
 
         [Theory, MemberData(nameof(VideoDeserializationTests))]

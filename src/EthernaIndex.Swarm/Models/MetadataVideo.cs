@@ -28,6 +28,7 @@ namespace Etherna.EthernaIndex.Swarm.Models
             long createdAt,
             string originalQuality,
             string ownerAddress,
+            string? personalData,
             IEnumerable<MetadataVideoSource> sources,
             SwarmImageRaw? thumbnail,
             string title,
@@ -39,6 +40,7 @@ namespace Etherna.EthernaIndex.Swarm.Models
             CreatedAt = createdAt;
             OriginalQuality = originalQuality;
             OwnerAddress = ownerAddress;
+            PersonalData = personalData;
             Sources = sources;
             Thumbnail = thumbnail;
             Title = title;
@@ -51,6 +53,7 @@ namespace Etherna.EthernaIndex.Swarm.Models
             metadataVideo.CreatedAt,
             metadataVideo.OriginalQuality,
             metadataVideo.OwnerAddress,
+            metadataVideo.PersonalData,
             metadataVideo.Sources.Select(s => new MetadataVideoSource(s)),
             metadataVideo.Thumbnail is null ? null : new SwarmImageRaw(metadataVideo.Thumbnail),
             metadataVideo.Title,
@@ -63,6 +66,7 @@ namespace Etherna.EthernaIndex.Swarm.Models
         public long Duration { get; }
         public long CreatedAt { get; }
         public string OriginalQuality { get; }
+        public string? PersonalData { get; }
         public string OwnerAddress { get; }
         public IEnumerable<MetadataVideoSource> Sources { get; }
         public SwarmImageRaw? Thumbnail { get; }

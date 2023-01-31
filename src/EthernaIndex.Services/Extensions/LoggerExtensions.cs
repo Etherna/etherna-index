@@ -19,49 +19,138 @@ namespace Etherna.EthernaIndex.Services.Extensions
 {
     /*
      * Always group similar log delegates by type, always use incremental event ids.
-     * Last event id is: 10
+     * Last event id is: 25
      */
     public static class LoggerExtensions
     {
         // Fields.
         //*** DEBUG LOGS ***
-
-        //*** INFORMATION LOGS ***
-        private static readonly Action<ILogger, string, Exception> _authorDeletedVideo =
-            LoggerMessage.Define<string>(
-                LogLevel.Information,
-                new EventId(3, nameof(AuthorDeletedVideo)),
-                "Video with Id {VideoId} deleted by author");
-
-        private static readonly Action<ILogger, string, string, Exception> _createdCommentVideo =
-            LoggerMessage.Define<string, string>(
-                LogLevel.Information,
-                new EventId(1, nameof(CreatedCommentVideo)),
-                "User Id '{UserId}' created new comment for video with Id {VideoId}");
-
-        private static readonly Action<ILogger, string, string, Exception> _createdVideo =
-            LoggerMessage.Define<string, string>(
-                LogLevel.Information,
-                new EventId(2, nameof(CreatedVideo)),
-                "User Id '{UserId}' created new video with Id {VideoId}");
-
-        private static readonly Action<ILogger, string, string, Exception> _updatedVideo =
-            LoggerMessage.Define<string, string>(
-                LogLevel.Information,
-                new EventId(5, nameof(UpdatedVideo)),
-                "Video Id {VideoId} updated with {NewHash} by author");
-
         private static readonly Action<ILogger, string, string, Exception> _videoManifestValidationRetrievedManifest =
             LoggerMessage.Define<string, string>(
-                LogLevel.Information,
+                LogLevel.Debug,
                 new EventId(7, nameof(VideoManifestValidationRetrievedManifest)),
                 "Validation of video Id {VideoId} with manifest {ManifestHash} retrieved manifest");
 
         private static readonly Action<ILogger, string, string, Exception> _videoManifestValidationStarted =
             LoggerMessage.Define<string, string>(
-                LogLevel.Information,
+                LogLevel.Debug,
                 new EventId(6, nameof(VideoManifestValidationStarted)),
                 "Validation of video Id {VideoId} with manifest {ManifestHash} started");
+
+        //*** INFORMATION LOGS ***
+        private static readonly Action<ILogger, string, Exception> _authorDeleteVideo =
+            LoggerMessage.Define<string>(
+                LogLevel.Information,
+                new EventId(3, nameof(AuthorDeleteVideo)),
+                "Video with Id {VideoId} deleted by author");
+
+        private static readonly Action<ILogger, string, string, Exception> _changeVideoReportDescription =
+            LoggerMessage.Define<string, string>(
+                LogLevel.Information,
+                new EventId(24, nameof(ChangeVideoReportDescription)),
+                "Change reported description for video id {VideoId} with Manifest Hash {ManifestHash}");
+
+        private static readonly Action<ILogger, string, string, Exception> _createVideoComment =
+            LoggerMessage.Define<string, string>(
+                LogLevel.Information,
+                new EventId(1, nameof(CreateVideoComment)),
+                "User Id '{UserId}' created new comment for video with Id {VideoId}");
+
+        private static readonly Action<ILogger, string, string, Exception> _createVideoReport =
+            LoggerMessage.Define<string, string>(
+                LogLevel.Information,
+                new EventId(25, nameof(CreateVideoReport)),
+                "Reported video id {VideoId} with Manifest Hash {ManifestHash}");
+
+        private static readonly Action<ILogger, string, Exception> _findManifestByHash =
+            LoggerMessage.Define<string>(
+                LogLevel.Information,
+                new EventId(21, nameof(FindManifestByHash)),
+                "Find video by Manifest Hash {ManifestHash}");
+
+        private static readonly Action<ILogger, string, Exception> _findUserByAddress =
+            LoggerMessage.Define<string>(
+                LogLevel.Information,
+                new EventId(12, nameof(FindUserByAddress)),
+                "User find with address {Address}");
+
+        private static readonly Action<ILogger, string, Exception> _findVideoById =
+            LoggerMessage.Define<string>(
+                LogLevel.Information,
+                new EventId(15, nameof(FindVideoById)),
+                "Find video by Id {VideoId}");
+
+        private static readonly Action<ILogger, string, Exception> _getCurrentUser =
+            LoggerMessage.Define<string>(
+                LogLevel.Information,
+                new EventId(13, nameof(GetCurrentUser)),
+                "Get current user with address {Address}");
+
+        private static readonly Action<ILogger, int, int, Exception> _getLastUploadedVideos =
+            LoggerMessage.Define<int, int>(
+                LogLevel.Information,
+                new EventId(20, nameof(GetLastUploadedVideos)),
+                "Last uploaded video paginated Page: {Page} Take: {Take}");
+
+        private static readonly Action<ILogger, int, int, Exception> _getUserListPaginated =
+            LoggerMessage.Define<int, int>(
+                LogLevel.Information,
+                new EventId(11, nameof(GetUserListPaginated)),
+                "Get users paginated Page: {Page} Take: {Take}");
+
+        private static readonly Action<ILogger, string, int, int, Exception> _getUserVideosPaginated =
+            LoggerMessage.Define<string, int, int>(
+                LogLevel.Information,
+                new EventId(14, nameof(GetUserVideosPaginated)),
+                "Get video for user address {Address} paginated Page: {Page} Take: {Take}");
+
+        private static readonly Action<ILogger, string, int, int, Exception> _getVideoComments =
+            LoggerMessage.Define<string, int, int>(
+                LogLevel.Information,
+                new EventId(16, nameof(GetVideoComments)),
+                "Get comments from video id {VideoId} paginated Page: {Page} Take: {Take}");
+
+        private static readonly Action<ILogger, string, Exception> _getVideoValidationStatusByHash =
+            LoggerMessage.Define<string>(
+                LogLevel.Information,
+                new EventId(18, nameof(GetVideoValidationStatusByHash)),
+                "Get validation status by manifest hash {ManifestHash}");
+
+        private static readonly Action<ILogger, string, Exception> _getVideoValidationStatusById =
+            LoggerMessage.Define<string>(
+                LogLevel.Information,
+                new EventId(17, nameof(GetVideoValidationStatusById)),
+                "Get validation status by video id {VideoId}");
+
+        private static readonly Action<ILogger, string, Exception> _moderateComment =
+            LoggerMessage.Define<string>(
+                LogLevel.Information,
+                new EventId(22, nameof(ModerateComment)),
+                "Comment id: {CommentId} moderated");
+
+        private static readonly Action<ILogger, string, Exception> _moderateVideo =
+            LoggerMessage.Define<string>(
+                LogLevel.Information,
+                new EventId(23, nameof(ModerateVideo)),
+                "Video id: {CommentId} moderated");
+
+        private static readonly Action<ILogger, string, Exception> _ownerDeleteVideoComment =
+            LoggerMessage.Define<string>(
+                LogLevel.Information,
+                new EventId(19, nameof(OwnerDeleteVideoComment)),
+                "Comment Id {CommentId} deleted by owner");
+
+        private static readonly Action<ILogger, string, string, Exception> _updateVideo =
+            LoggerMessage.Define<string, string>(
+                LogLevel.Information,
+                new EventId(5, nameof(UpdateVideo)),
+                "Video Id {VideoId} updated with manifest {NewHash} by author");
+
+        private static readonly Action<ILogger, string, string, Exception> _videoCreated =
+            LoggerMessage.Define<string, string>(
+                LogLevel.Information,
+                new EventId(2, nameof(VideoCreated)),
+                "User Id '{UserId}' created new video with Id {VideoId}");
 
         private static readonly Action<ILogger, string, string, Exception> _videoManifestValidationSucceeded =
             LoggerMessage.Define<string, string>(
@@ -69,11 +158,11 @@ namespace Etherna.EthernaIndex.Services.Extensions
                 new EventId(10, nameof(VideoManifestValidationSucceeded)),
                 "Validation of video Id {VideoId} with manifest {ManifestHash} succeeded");
 
-        private static readonly Action<ILogger, string, string, Exception> _votedVideo =
+        private static readonly Action<ILogger, string, string, Exception> _videoVoted =
             LoggerMessage.Define<string, string>(
                 LogLevel.Information,
-                new EventId(4, nameof(CreatedCommentVideo)),
-                "User Id '{UserId}' voted video with hash {VideoId}");
+                new EventId(4, nameof(VideoVoted)),
+                "User Id '{UserId}' voted video with Id {VideoId}");
 
         //*** WARNING LOGS ***
 
@@ -97,20 +186,65 @@ namespace Etherna.EthernaIndex.Services.Extensions
                 "Validation of video Id {VideoId} with manifest {ManifestHash} failed with errors");
 
         // Methods.
-        public static void AuthorDeletedVideo(this ILogger logger, string videoId) =>
-            _authorDeletedVideo(logger, videoId, null!);
+        public static void AuthorDeleteVideo(this ILogger logger, string videoId) =>
+            _authorDeleteVideo(logger, videoId, null!);
 
-        public static void CreatedCommentVideo(this ILogger logger, string userId, string videoId) =>
-            _createdCommentVideo(logger, userId, videoId, null!);
+        public static void ChangeVideoReportDescription(this ILogger logger, string videoId, string manifestHash) =>
+            _changeVideoReportDescription(logger, videoId, manifestHash, null!);
 
-        public static void CreatedVideo(this ILogger logger, string userId, string videoId) =>
-            _createdVideo(logger, userId, videoId, null!);
+        public static void CreateVideoComment(this ILogger logger, string userId, string videoId) =>
+            _createVideoComment(logger, userId, videoId, null!);
+
+        public static void CreateVideoReport(this ILogger logger, string videoId, string manifestHash) =>
+            _createVideoReport(logger, videoId, manifestHash, null!);
+
+        public static void FindManifestByHash(this ILogger logger, string manifestHash) =>
+            _findManifestByHash(logger, manifestHash, null!);
+
+        public static void FindUserByAddress(this ILogger logger, string address) =>
+            _findUserByAddress(logger, address, null!);
+
+        public static void FindVideoById(this ILogger logger, string videoId) =>
+            _findVideoById(logger, videoId, null!);
+
+        public static void GetCurrentUser(this ILogger logger, string address) =>
+            _getCurrentUser(logger, address, null!);
+
+        public static void GetLastUploadedVideos(this ILogger logger, int page, int take) =>
+            _getLastUploadedVideos(logger, page, take, null!);
+
+        public static void GetUserListPaginated(this ILogger logger, int page, int take) =>
+            _getUserListPaginated(logger, page, take, null!);
+
+        public static void GetUserVideosPaginated(this ILogger logger, string address, int page, int take) =>
+            _getUserVideosPaginated(logger, address, page, take, null!);
+
+        public static void GetVideoComments(this ILogger logger, string videoId, int page, int take) =>
+            _getVideoComments(logger, videoId, page, take, null!);
+
+        public static void GetVideoValidationStatusByHash(this ILogger logger, string manifestHash) =>
+             _getVideoValidationStatusByHash(logger, manifestHash, null!);
+
+        public static void GetVideoValidationStatusById(this ILogger logger, string videoId) =>
+            _getVideoValidationStatusById(logger, videoId, null!);
+
+        public static void ModerateComment(this ILogger logger, string commentId) =>
+            _moderateComment(logger, commentId, null!);
+
+        public static void ModerateVideo(this ILogger logger, string videoId) =>
+            _moderateVideo(logger, videoId, null!);
+
+        public static void OwnerDeleteVideoComment(this ILogger logger, string commentId) =>
+            _ownerDeleteVideoComment(logger, commentId, null!);
 
         public static void RequestThrowedError(this ILogger logger, string requestId) =>
             _requestThrowedError(logger, requestId, null!);
 
-        public static void UpdatedVideo(this ILogger logger, string videoId, string newHash) =>
-            _updatedVideo(logger, videoId, newHash, null!);
+        public static void UpdateVideo(this ILogger logger, string videoId, string newHash) =>
+            _updateVideo(logger, videoId, newHash, null!);
+
+        public static void VideoCreated(this ILogger logger, string userId, string videoId) =>
+            _videoCreated(logger, userId, videoId, null!);
 
         public static void VideoManifestValidationCantRetrieveManifest(this ILogger logger, string videoId, string manifestHash, Exception? exception) =>
             _videoManifestValidationCantRetrieveManifest(logger, videoId, manifestHash, exception!);
@@ -127,8 +261,7 @@ namespace Etherna.EthernaIndex.Services.Extensions
         public static void VideoManifestValidationSucceeded(this ILogger logger, string videoId, string manifestHash) =>
             _videoManifestValidationSucceeded(logger, videoId, manifestHash, null!);
 
-        public static void VotedVideo(this ILogger logger, string userId, string videoId) =>
-            _votedVideo(logger, userId, videoId, null!);
-
+        public static void VideoVoted(this ILogger logger, string userId, string videoId) =>
+            _videoVoted(logger, userId, videoId, null!);
     }
 }

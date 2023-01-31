@@ -22,6 +22,7 @@ using Etherna.MongODM.Core;
 using Etherna.MongODM.Core.Migration;
 using Etherna.MongODM.Core.Repositories;
 using Etherna.MongODM.Core.Serialization;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,35 +39,37 @@ namespace Etherna.EthernaIndex.Persistence
 
         // Constructor.
         public IndexDbContext(
-            IEventDispatcher eventDispatcher)
+            IEventDispatcher eventDispatcher,
+            ILogger<IndexDbContext> logger)
+            : base(logger)
         {
             EventDispatcher = eventDispatcher;
         }
 
         // Properties.
         //repositories
-        public ICollectionRepository<Comment, string> Comments { get; } = new DomainCollectionRepository<Comment, string>(
-            new CollectionRepositoryOptions<Comment>("comments")
+        public IRepository<Comment, string> Comments { get; } = new DomainRepository<Comment, string>(
+            new RepositoryOptions<Comment>("comments")
             {
                 IndexBuilders = new[]
                 {
                     (Builders<Comment>.IndexKeys.Ascending(c => c.Video.Id), new CreateIndexOptions<Comment>())
                 }
             });
-        public ICollectionRepository<ManualVideoReview, string> ManualVideoReviews { get; } =
-            new DomainCollectionRepository<ManualVideoReview, string>("manualVideoReviews");
-        public ICollectionRepository<UnsuitableVideoReport, string> UnsuitableVideoReports { get; } =
-            new DomainCollectionRepository<UnsuitableVideoReport, string>("unsuitableVideoReports");
-        public ICollectionRepository<User, string> Users { get; } = new DomainCollectionRepository<User, string>(
-            new CollectionRepositoryOptions<User>("users")
+        public IRepository<ManualVideoReview, string> ManualVideoReviews { get; } =
+            new DomainRepository<ManualVideoReview, string>("manualVideoReviews");
+        public IRepository<UnsuitableVideoReport, string> UnsuitableVideoReports { get; } =
+            new DomainRepository<UnsuitableVideoReport, string>("unsuitableVideoReports");
+        public IRepository<User, string> Users { get; } = new DomainRepository<User, string>(
+            new RepositoryOptions<User>("users")
             {
                 IndexBuilders = new[]
                 {
                     (Builders<User>.IndexKeys.Ascending(u => u.SharedInfoId), new CreateIndexOptions<User> { Unique = true })
                 }
             });
-        public ICollectionRepository<VideoManifest, string> VideoManifests { get; } = new DomainCollectionRepository<VideoManifest, string>(
-            new CollectionRepositoryOptions<VideoManifest>("videoManifests")
+        public IRepository<VideoManifest, string> VideoManifests { get; } = new DomainRepository<VideoManifest, string>(
+            new RepositoryOptions<VideoManifest>("videoManifests")
             {
                 IndexBuilders = new[]
                 {
@@ -75,9 +78,16 @@ namespace Etherna.EthernaIndex.Persistence
                     (Builders<VideoManifest>.IndexKeys.Ascending(c => c.IsValid), new CreateIndexOptions<VideoManifest>())
                 }
             });
-        public ICollectionRepository<Video, string> Videos { get; } = new DomainCollectionRepository<Video, string>("videos");
-        public ICollectionRepository<VideoVote, string> Votes { get; } = new DomainCollectionRepository<VideoVote, string>(
-            new CollectionRepositoryOptions<VideoVote>("votes")
+        public IRepository<Video, string> Videos { get; } = new DomainRepository<Video, string>(
+            new RepositoryOptions<Video>("videos")
+            {
+                IndexBuilders = new[]
+                {
+                    (Builders<Video>.IndexKeys.Descending(c => c.Owner.Id), new CreateIndexOptions<Video>()),
+                }
+            });
+        public IRepository<VideoVote, string> Votes { get; } = new DomainRepository<VideoVote, string>(
+            new RepositoryOptions<VideoVote>("votes")
             {
                 IndexBuilders = new[]
                 {
@@ -102,17 +112,17 @@ namespace Etherna.EthernaIndex.Persistence
             select Activator.CreateInstance(t) as IModelMapsCollector;
 
         // Methods.
-        public override Task SaveChangesAsync(CancellationToken cancellationToken = default)
+        public override async Task SaveChangesAsync(CancellationToken cancellationToken = default)
         {
             // Dispatch events.
             foreach (var model in ChangedModelsList.Where(m => m is EntityModelBase)
                                                    .Select(m => (EntityModelBase)m))
             {
-                EventDispatcher.DispatchAsync(model.Events);
+                await EventDispatcher.DispatchAsync(model.Events);
                 model.ClearEvents();
             }
 
-            return base.SaveChangesAsync(cancellationToken);
+            await base.SaveChangesAsync(cancellationToken);
         }
     }
 }

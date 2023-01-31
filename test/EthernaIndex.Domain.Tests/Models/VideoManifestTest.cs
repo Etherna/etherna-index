@@ -76,6 +76,7 @@ namespace Etherna.EthernaIndex.Domain.Models
                 "DescTest",
                 1,
                 "OriginalTest",
+                "{}",
                 new List<VideoSource>(),
                 new SwarmImageRaw(
                     1,
@@ -96,6 +97,7 @@ namespace Etherna.EthernaIndex.Domain.Models
             var title = "FeddTopicTest";
             var desc = "DescTest";
             var original = "OriginalTest";
+            var personalData = "{}";
             var duration = 1;
             var videoSources = new List<VideoSource> {
                 new VideoSource(1, "10801", "reff1", 4),
@@ -110,6 +112,7 @@ namespace Etherna.EthernaIndex.Domain.Models
                 desc,
                 duration,
                 original,
+                personalData,
                 videoSources,
                 new SwarmImageRaw(aspectRatio, blur, source),
                 title);
@@ -119,6 +122,7 @@ namespace Etherna.EthernaIndex.Domain.Models
             Assert.Equal(desc, manifest.Description);
             Assert.Equal(duration, manifest.Duration);
             Assert.Equal(original, manifest.OriginalQuality);
+            Assert.Equal(personalData, manifest.PersonalData);
             Assert.Contains(manifest.Sources,
                i => i.Bitrate == 1 &&
                    i.Quality == "10801" &&
@@ -149,6 +153,7 @@ namespace Etherna.EthernaIndex.Domain.Models
             var desc = "DescTest";
             var original = "OriginalTest";
             var duration = 1;
+            var personalData = "{}";
             var videoSources = new List<VideoSource> {
                 new VideoSource(1, "10801", "reff1", 4),
                 new VideoSource(2, "321", "reff2", 100) };
@@ -159,12 +164,44 @@ namespace Etherna.EthernaIndex.Domain.Models
                 desc,
                 duration,
                 original,
+                personalData,
                 videoSources,
                 null,
                 title);
 
             // Assert.
             Assert.Null(manifest.Thumbnail);
+        }
+
+        [Fact]
+        public void SuccessfulValidation_WithNullPersonalData()
+        {
+            // Arrange.
+            var title = "FeddTopicTest";
+            var desc = "DescTest";
+            var original = "OriginalTest";
+            string? personalData = null;
+            var duration = 1;
+            var videoSources = new List<VideoSource> {
+                new VideoSource(1, "10801", "reff1", 4),
+                new VideoSource(2, "321", "reff2", 100) };
+            var blur = "BlurTst";
+            var aspectRatio = 1;
+            var source = new Dictionary<string, string> { { "1080", "Test1" }, { "720", "Test2" } };
+
+            // Action.
+            manifest.SucceededValidation(
+                null,
+                desc,
+                duration,
+                original,
+                personalData,
+                videoSources,
+                new SwarmImageRaw(aspectRatio, blur, source),
+                title);
+
+            // Assert.
+            Assert.Equal(personalData, manifest.PersonalData);
         }
     }
 }
