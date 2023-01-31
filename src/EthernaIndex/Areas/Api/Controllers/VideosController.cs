@@ -175,6 +175,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [Produces("application/json")] //force because of https://github.com/RicoSuter/NSwag/issues/4132
         public Task<string> CreateAsync(
             [Required] VideoCreateInput videoInput) =>
             service.CreateAsync(videoInput);

@@ -28,11 +28,14 @@ namespace Etherna.EthernaIndex.ElasticSearch.Documents
             Reference = reference;
             Size = size;
         }
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        public SourceDocument() { }
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         // Properties.
-        public int? Bitrate { get; private set; }
-        public string Quality { get; private set; }
-        public string Reference { get; private set; }
-        public long Size { get; private set; }
+        public int? Bitrate { get; set; }
+        public string Quality { get; set; }
+        public string Reference { get; set; }
+        public long Size { get; set; }
     }
 }

@@ -14,6 +14,8 @@
 
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Services.Domain;
+using Etherna.EthernaIndex.Services.Extensions;
+using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Areas.Api.Services
@@ -22,14 +24,17 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
     {
         // Fields.
         private readonly IIndexDbContext dbContext;
+        private readonly ILogger<ModerationControllerService> logger;
         private readonly IVideoService videoService;
 
         // Constructor.
         public ModerationControllerService(
             IIndexDbContext dbContext,
+            ILogger<ModerationControllerService> logger,
             IVideoService videoService)
         {
             this.dbContext = dbContext;
+            this.logger = logger;
             this.videoService = videoService;
         }
 
@@ -39,12 +44,16 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             var comment = await dbContext.Comments.FindOneAsync(id);
             comment.SetAsDeletedByModerator();
             await dbContext.SaveChangesAsync();
+
+            logger.ModerateComment(id);
         }
 
         public async Task ModerateVideoAsync(string id)
         {
             var video = await dbContext.Videos.FindOneAsync(id);
             await videoService.ModerateUnsuitableVideoAsync(video);
+
+            logger.ModerateVideo(id);
         }
     }
 }

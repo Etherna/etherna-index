@@ -17,11 +17,11 @@ using Etherna.EthernaIndex.Areas.Api.DtoModels;
 using Etherna.EthernaIndex.Configs;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Services.Domain;
-using Etherna.MongoDB.Driver;
+using Etherna.EthernaIndex.Services.Extensions;
 using Etherna.MongoDB.Driver.Linq;
-using Etherna.MongODM.Core.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Nethereum.Util;
 using System;
 using System.Collections.Generic;
@@ -30,13 +30,14 @@ using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Areas.Api.Services
 {
-    internal class UsersControllerService : IUsersControllerService
+    internal sealed class UsersControllerService : IUsersControllerService
     {
         // Fields.
         private readonly IAuthorizationService authorizationService;
         private readonly IEthernaOpenIdConnectClient ethernaOidcClient;
         private readonly IHttpContextAccessor httpContextAccessor;
         private readonly IIndexDbContext indexDbContext;
+        private readonly ILogger<UsersControllerService> logger;
         private readonly ISharedDbContext sharedDbContext;
         private readonly IUserService userService;
 
@@ -46,6 +47,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             IEthernaOpenIdConnectClient ethernaOidcClient,
             IHttpContextAccessor httpContextAccessor,
             IIndexDbContext indexDbContext,
+            ILogger<UsersControllerService> logger,
             ISharedDbContext sharedDbContext,
             IUserService userService)
         {
@@ -53,6 +55,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             this.ethernaOidcClient = ethernaOidcClient;
             this.httpContextAccessor = httpContextAccessor;
             this.indexDbContext = indexDbContext;
+            this.logger = logger;
             this.sharedDbContext = sharedDbContext;
             this.userService = userService;
         }
@@ -67,6 +70,8 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
 
             var (user, sharedInfo) = await userService.FindUserAsync(address);
 
+            logger.FindUserByAddress(address);
+
             return new UserDto(user, sharedInfo);
         }
 
@@ -78,14 +83,15 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             var isSuperModeratorResult = await authorizationService.AuthorizeAsync(
                 httpContextAccessor.HttpContext!.User, CommonConsts.RequireSuperModeratorClaimPolicy);
 
+            logger.GetCurrentUser(address);
+
             return new CurrentUserDto(user, sharedInfo, isSuperModeratorResult.Succeeded);
         }
 
-        public async Task<PaginatedEnumerableDto<UserDto>> GetUsersAsync(
-            bool onlyWithVideo, int page, int take)
+        public async Task<PaginatedEnumerableDto<UserDto>> GetUsersAsync(int page, int take)
         {
             var paginatedUsers = await indexDbContext.Users.QueryPaginatedElementsAsync(
-                elements => elements.Where(u => !onlyWithVideo || u.Videos.Any(v => v.LastValidManifest != null)),
+                elements => elements,
                 u => u.CreationDateTime,
                 page,
                 take,
@@ -97,6 +103,8 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
                 var sharedInfo = await sharedDbContext.UsersInfo.TryFindOneAsync(user.SharedInfoId);
                 userDtos.Add(new UserDto(user, sharedInfo));
             }
+
+            logger.GetUserListPaginated(page, take);
 
             return new PaginatedEnumerableDto<UserDto>(
                 paginatedUsers.CurrentPage,
@@ -111,14 +119,21 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             var requestByVideoOwner = address == currentUserAddress;
 
             var (user, sharedInfo) = await userService.FindUserAsync(address);
+            var paginatedVideos = await indexDbContext.Videos.QueryPaginatedElementsAsync(
+                elements => elements.Where(v => v.Owner.Id == user.Id)
+                                    .Where(v => requestByVideoOwner || v.LastValidManifest != null),
+                v => v.CreationDateTime,
+                page,
+                take,
+                true);
+
+            logger.GetUserVideosPaginated(address, page, take);
 
             return new PaginatedEnumerableDto<VideoDto>(
-                page,
-                user.Videos.Where(v => requestByVideoOwner || v.LastValidManifest != null)
-                           .PaginateDescending(v => v.CreationDateTime, page, take)
-                           .Select(v => new VideoDto(v, v.LastValidManifest, sharedInfo, null)),
-                take,
-                user.Videos.Where(v => requestByVideoOwner || v.LastValidManifest != null).Count());
+                paginatedVideos.CurrentPage,
+                paginatedVideos.Elements.Select(v => new VideoDto(v, v.LastValidManifest, sharedInfo, null)),
+                paginatedVideos.PageSize,
+                paginatedVideos.TotalElements);
         }
     }
 }

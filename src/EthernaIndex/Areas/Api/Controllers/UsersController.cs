@@ -44,7 +44,6 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// <summary>
         /// Get a complete list of users.
         /// </summary>
-        /// <param name="onlyWithVideo">Filter only users with published videos</param>
         /// <param name="page">Current page of results</param>
         /// <param name="take">Number of items to retrieve. Max 100</param>
         /// <response code="200">Current page on list</response>
@@ -54,15 +53,13 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IEnumerable<UserDto>> GetUsersAsync(
-            bool onlyWithVideo,
             [Range(0, int.MaxValue)] int page,
             [Range(1, 100)] int take = 25) =>
-            (await controllerService.GetUsersAsync(onlyWithVideo, page, take)).Elements;
+            (await controllerService.GetUsersAsync(page, take)).Elements;
 
         /// <summary>
         /// Get a complete list of users.
         /// </summary>
-        /// <param name="onlyWithVideo">Filter only users with published videos</param>
         /// <param name="page">Current page of results</param>
         /// <param name="take">Number of items to retrieve. Max 100</param>
         /// <response code="200">Current page on list</response>
@@ -71,10 +68,9 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public Task<PaginatedEnumerableDto<UserDto>> GetUsers2Async(
-            bool onlyWithVideo,
             [Range(0, int.MaxValue)] int page,
             [Range(1, 100)] int take = 25) =>
-            controllerService.GetUsersAsync(onlyWithVideo, page, take);
+            controllerService.GetUsersAsync(page, take);
 
         /// <summary>
         /// Get user info by address.

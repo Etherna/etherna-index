@@ -22,7 +22,7 @@ using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Services.EventHandlers
 {
-    class OnVideoDeletedThenRemoveVideoCommentsHandler : EventHandlerBase<EntityDeletedEvent<Video>>
+    internal sealed class OnVideoDeletedThenRemoveVideoCommentsHandler : EventHandlerBase<EntityDeletedEvent<Video>>
     {
         // Fields.
         private readonly IIndexDbContext indexDbContext;

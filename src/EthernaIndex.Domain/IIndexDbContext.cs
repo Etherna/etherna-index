@@ -22,13 +22,13 @@ namespace Etherna.EthernaIndex.Domain
 {
     public interface IIndexDbContext : IDbContext
     {
-        ICollectionRepository<Comment, string> Comments { get; }
-        ICollectionRepository<ManualVideoReview, string> ManualVideoReviews { get; }
-        ICollectionRepository<UnsuitableVideoReport, string> UnsuitableVideoReports { get; }
-        ICollectionRepository<User, string> Users { get; }
-        ICollectionRepository<VideoManifest, string> VideoManifests { get; }
-        ICollectionRepository<Video, string> Videos { get; }
-        ICollectionRepository<VideoVote, string> Votes { get; }
+        IRepository<Comment, string> Comments { get; }
+        IRepository<ManualVideoReview, string> ManualVideoReviews { get; }
+        IRepository<UnsuitableVideoReport, string> UnsuitableVideoReports { get; }
+        IRepository<User, string> Users { get; }
+        IRepository<VideoManifest, string> VideoManifests { get; }
+        IRepository<Video, string> Videos { get; }
+        IRepository<VideoVote, string> Votes { get; }
 
         IEventDispatcher EventDispatcher { get; }
     }

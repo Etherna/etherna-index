@@ -28,10 +28,13 @@ namespace Etherna.EthernaIndex.ElasticSearch.Documents
             Blurhash = blurhash;
             Sources = sources;
         }
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        public ImageDocument() { }
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         // Properties.
-        public float AspectRatio { get; private set; }
-        public string Blurhash { get; private set; }
-        public IReadOnlyDictionary<string, string> Sources { get; private set; }
+        public float AspectRatio { get; set; }
+        public string Blurhash { get; set; }
+        public IReadOnlyDictionary<string, string> Sources { get; set; }
     }
 }

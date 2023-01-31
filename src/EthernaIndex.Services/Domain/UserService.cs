@@ -23,7 +23,7 @@ using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Services.Domain
 {
-    class UserService : IUserService
+    internal sealed class UserService : IUserService
     {
         // Fields.
         private readonly IIndexDbContext indexDbContext;

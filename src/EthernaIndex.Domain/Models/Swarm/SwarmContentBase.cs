@@ -18,15 +18,19 @@ using System.Text.RegularExpressions;
 
 namespace Etherna.EthernaIndex.Domain.Models.Swarm
 {
-    public abstract class SwarmContentBase : ModelBase
+    public abstract partial class SwarmContentBase : ModelBase
     {
+        // Consts.
+        [GeneratedRegex("^[A-Fa-f0-9]{64}$")]
+        private static partial Regex SwarmHashRegex();
+
         // Constructors.
         protected SwarmContentBase(
             string hash)
         {
             if (hash is null)
                 throw new ArgumentNullException(nameof(hash));
-            if (!Regex.IsMatch(hash, "^[A-Fa-f0-9]{64}$"))
+            if (!SwarmHashRegex().IsMatch(hash))
                 throw new ArgumentException($"{hash} is not a valid swarm hash", nameof(hash));
 
             Hash = hash;

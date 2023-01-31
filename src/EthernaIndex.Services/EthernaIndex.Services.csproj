@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <RootNamespace>Etherna.EthernaIndex.Services</RootNamespace>
 
     <Authors>Etherna Sagl</Authors>
@@ -15,7 +15,7 @@
 
   <ItemGroup>
     <PackageReference Include="Etherna.DomainEvents.AspNetCore" Version="1.4.0" />
-    <PackageReference Include="MongODM.Hangfire" Version="0.24.0-alpha.16" />
+    <PackageReference Include="MongODM.Hangfire" Version="0.24.0-alpha.80" />
   </ItemGroup>
 
   <ItemGroup>

@@ -20,6 +20,7 @@ namespace Etherna.EthernaIndex.ElasticSearch.Documents
 {
     public class CommentDocument
     {
+        // Constructors.
         public CommentDocument(Comment comment, UserSharedInfo userSharedInfo)
         {
             if (comment is null)
@@ -35,13 +36,17 @@ namespace Etherna.EthernaIndex.ElasticSearch.Documents
             Text = comment.Text;
             VideoId = comment.Video.Id;
         }
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        public CommentDocument() { }
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
-        public string Id { get; }
-        public DateTime CreationDateTime { get; }
-        public bool IsFrozen { get; }
-        public DateTime LastUpdateDateTime { get; }
-        public string OwnerAddress { get; }
-        public string Text { get; }
-        public string VideoId { get; }
+        // Properties.
+        public string Id { get; set; }
+        public DateTime CreationDateTime { get; set; }
+        public bool IsFrozen { get; set; }
+        public DateTime LastUpdateDateTime { get; set; }
+        public string OwnerAddress { get; set; }
+        public string Text { get; set; }
+        public string VideoId { get; set; }
     }
 }

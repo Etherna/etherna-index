@@ -21,18 +21,18 @@ using Etherna.MongODM.Core.Serialization;
 
 namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
 {
-    class ModelBaseMap : IModelMapsCollector
+    internal sealed class ModelBaseMap : IModelMapsCollector
     {
         public void Register(IDbContext dbContext)
         {
             // register class maps.
-            dbContext.SchemaRegistry.AddModelMapsSchema<ModelBase>(
+            dbContext.MapRegistry.AddModelMap<ModelBase>(
                 "87302867-8134-4aea-a249-7d8d2239c8d2"); //dev (pre v0.3.0), published for WAM event
 
-            dbContext.SchemaRegistry.AddModelMapsSchema<EntityModelBase>(
+            dbContext.MapRegistry.AddModelMap<EntityModelBase>(
                 "7f442ce1-5964-4a2a-98f5-4e179cfe4d98"); //dev (pre v0.3.0), published for WAM event
 
-            dbContext.SchemaRegistry.AddModelMapsSchema<EntityModelBase<string>>(
+            dbContext.MapRegistry.AddModelMap<EntityModelBase<string>>(
                 "e710ad96-4b24-47fe-a214-a312d226d70b", //dev (pre v0.3.0), published for WAM event
                 mm =>
                 {
