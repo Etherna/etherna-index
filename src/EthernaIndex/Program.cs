@@ -43,6 +43,7 @@ using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
 using Serilog;
@@ -107,6 +108,7 @@ namespace Etherna.EthernaIndex
             var configuration = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                 .AddJsonFile($"appsettings.{env}.json", optional: true)
+                .AddEnvironmentVariables()
                 .Build();
 
             Log.Logger = new LoggerConfiguration()
@@ -340,12 +342,6 @@ namespace Etherna.EthernaIndex
             });
 
             // Configure setting.
-            var assemblyVersion = new AssemblyVersion(typeof(Program).GetTypeInfo().Assembly);
-            services.Configure<ApplicationSettings>(config.GetSection("Application"));
-            services.PostConfigure<ApplicationSettings>(options =>
-            {
-                options.AssemblyVersion = assemblyVersion.Version;
-            });
             services.Configure<SsoServerSettings>(config.GetSection("SsoServer"));
 
             // Configure persistence.
@@ -368,7 +364,8 @@ namespace Etherna.EthernaIndex
                 sp =>
                 {
                     var eventDispatcher = sp.GetRequiredService<IEventDispatcher>();
-                    return new IndexDbContext(eventDispatcher);
+                    var logger = sp.GetRequiredService<ILogger<IndexDbContext>>();
+                    return new IndexDbContext(eventDispatcher, logger);
                 },
                 options =>
                 {
