@@ -13,6 +13,7 @@
 //   limitations under the License.
 
 using Etherna.ACR.Exceptions;
+using Etherna.ACR.Middlewares.DebugPages;
 using Etherna.DomainEvents;
 using Etherna.EthernaIndex.Configs;
 using Etherna.EthernaIndex.Configs.Authorization;
@@ -403,6 +404,7 @@ namespace Etherna.EthernaIndex
             {
                 app.UseDeveloperExceptionPage();
                 app.UseForwardedHeaders();
+                app.UseEthernaAcrDebugPages();
             }
             else
             {
