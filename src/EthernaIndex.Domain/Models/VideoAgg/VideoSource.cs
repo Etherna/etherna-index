@@ -14,12 +14,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
 {
     public class VideoSource : ModelBase
     {
         // Constructors.
+        [Obsolete("Constructor v1 is deprecated")]
         public VideoSource(
             int bitrate,
             string quality,
@@ -31,16 +33,29 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
             Reference = reference;
             Size = size;
         }
+        public VideoSource(
+            string type,
+            string quality,
+            string path,
+            long size)
+        {
+            Type = type;
+            Quality = quality;
+            Path = path;
+            Size = size;
+        }
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         protected VideoSource() { }
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         // Properties.
-        public virtual int Bitrate { get; set; }
+        public virtual int Bitrate { get; set; } // only for v1.
         public virtual string Quality { get; set; }
-        public virtual string Reference { get; set; }
+        public virtual string? Path { get; set; } // from for v2.
+        public virtual string? Reference { get; set; }
         public virtual long Size { get; set; }
+        public virtual string? Type { get; set; } // from for v2.
 
         // Methods.
         public override bool Equals(object? obj)
@@ -48,16 +63,18 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
             if (ReferenceEquals(this, obj)) return true;
             if (obj is null) return false;
             return GetType() == obj.GetType() &&
-                EqualityComparer<int?>.Default.Equals(Bitrate, (obj as VideoSource)!.Bitrate) &&
+                EqualityComparer<string>.Default.Equals(Type, (obj as VideoSource)!.Type) &&
                 EqualityComparer<string>.Default.Equals(Quality, (obj as VideoSource)!.Quality) &&
+                EqualityComparer<string>.Default.Equals(Path, (obj as VideoSource)!.Path) &&
                 EqualityComparer<string>.Default.Equals(Reference, (obj as VideoSource)!.Reference) &&
                 Size.Equals((obj as VideoSource)?.Size);
         }
 
         public override int GetHashCode() =>
-            Bitrate.GetHashCode() ^
+            Type?.GetHashCode(StringComparison.Ordinal) ?? "".GetHashCode(StringComparison.Ordinal) ^
             Quality.GetHashCode(StringComparison.Ordinal) ^
-            Reference.GetHashCode(StringComparison.Ordinal) ^
+            Path?.GetHashCode(StringComparison.Ordinal) ?? "".GetHashCode(StringComparison.Ordinal) ^
+            Reference?.GetHashCode(StringComparison.Ordinal) ?? "".GetHashCode(StringComparison.Ordinal) ^
             Size.GetHashCode();
     }
 }

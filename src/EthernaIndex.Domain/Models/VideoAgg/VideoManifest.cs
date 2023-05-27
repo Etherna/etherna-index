@@ -33,10 +33,12 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
         protected VideoManifest() { }
 
         // Properties.
+        public virtual float AspectRatio { get; protected set; } // only V2
         public virtual string? BatchId { get; protected set; }
+        public virtual long? CreatedAt { get; protected set; } // only V2
+        public virtual long? UpdatedAt { get; protected set; } // only V2
         public virtual string? Description { get; protected set; }
         public virtual long? Duration { get; protected set; }
-        public virtual string? OriginalQuality { get; protected set; }
         public virtual string? PersonalData { get; protected set; }
         public virtual IEnumerable<VideoSource> Sources
         {
@@ -50,7 +52,6 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
         [PropertyAlterer(nameof(BatchId))]
         [PropertyAlterer(nameof(Description))]
         [PropertyAlterer(nameof(Duration))]
-        [PropertyAlterer(nameof(OriginalQuality))]
         [PropertyAlterer(nameof(PersonalData))]
         [PropertyAlterer(nameof(Sources))]
         [PropertyAlterer(nameof(Thumbnail))]
@@ -59,7 +60,6 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
             string? batchId,
             string description,
             long duration,
-            string originalQuality,
             string? personalData,
             IEnumerable<VideoSource> sources,
             SwarmImageRaw? thumbnail,
@@ -69,7 +69,6 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
             BatchId = batchId;
             Description = description;
             Duration = duration;
-            OriginalQuality = originalQuality;
             PersonalData = personalData;
             Sources = sources;
             Thumbnail = thumbnail;

@@ -22,6 +22,7 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
     {
         // Fields.
         private Dictionary<string, string> _sources = new();
+        private List<ImageSource> _sourcesV2 = new();
 
         // Constructors.
         public SwarmImageRaw(
@@ -32,6 +33,7 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
             AspectRatio = aspectRatio;
             Blurhash = blurhash;
             Sources = sources ?? new Dictionary<string, string>();
+            _sourcesV2 = new List<ImageSource>();
         }
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         protected SwarmImageRaw() { }
@@ -44,6 +46,11 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
         {
             get => _sources;
             protected set => _sources = new Dictionary<string, string>(value ?? new Dictionary<string, string>());
+        }
+        public virtual IReadOnlyCollection<ImageSource> SourcesV2
+        {
+            get => _sourcesV2;
+            protected set => _sourcesV2 = new List<ImageSource>(_sourcesV2 ?? new List<ImageSource>());
         }
 
         // Methods.
