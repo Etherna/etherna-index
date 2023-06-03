@@ -91,19 +91,17 @@ namespace Etherna.EthernaIndex.Domain.Models
             var videoManifest = new VideoManifest(hash);
             var title = "FeddTopicTest";
             var desc = "DescTest";
-            var original = "OriginalTest";
             var personalData = "{}";
             var duration = 1;
             var videoSources = new List<VideoSource> {
-                new VideoSource(1, "10801", "reff1", 4),
-                new VideoSource(2, "321", "reff2", 100) };
+                new VideoSource("10801", "path1", "reff1", 4, "type1"),
+                new VideoSource("321", "path2", "reff2", 100, "type2") };
 
             if (valid)
                 videoManifest.SucceededValidation(
                     null,
                     desc,
                     duration,
-                    original,
                     personalData,
                     videoSources,
                     null,

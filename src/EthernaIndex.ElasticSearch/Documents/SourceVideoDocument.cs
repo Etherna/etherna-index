@@ -14,28 +14,31 @@
 
 namespace Etherna.EthernaIndex.ElasticSearch.Documents
 {
-    public class SourceDocument
+    public class SourceVideoDocument
     {
         // Constructors.
-        public SourceDocument(
-            int? bitrate,
+        public SourceVideoDocument(
             string quality,
-            string reference,
-            long size)
+            string? path,
+            string? reference,
+            long size,
+            string type)
         {
-            Bitrate = bitrate;
             Quality = quality;
+            Path = path;
             Reference = reference;
             Size = size;
+            Type = type;
         }
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-        public SourceDocument() { }
+        public SourceVideoDocument() { }
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         // Properties.
-        public int? Bitrate { get; set; }
         public string Quality { get; set; }
-        public string Reference { get; set; }
+        public string? Path { get; set; }
+        public string? Reference { get; set; }
         public long Size { get; set; }
+        public string Type { get; set; }
     }
 }

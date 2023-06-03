@@ -105,7 +105,7 @@ namespace Etherna.EthernaIndex.Services.Tasks
                 swarmImageRaw = new EthernaIndex.Domain.Models.VideoAgg.SwarmImageRaw(
                     metadataDto.Thumbnail.AspectRatio,
                     metadataDto.Thumbnail.Blurhash,
-                    metadataDto.Thumbnail.Sources);
+                    metadataDto.Thumbnail.Sources.Select(s => new ImageSource(s.Width, s.Type, s.Path, s.Reference)));
             }
 
             //title
@@ -133,7 +133,7 @@ namespace Etherna.EthernaIndex.Services.Tasks
             else
             {
                 var videoSources = (metadataDto.Sources ?? Array.Empty<MetadataVideoSource>())
-                    .Select(i => new VideoSource(i.Bitrate, i.Quality, i.Reference, i.Size));
+                    .Select(i => new VideoSource(i.Quality, i.Path, i.Reference, i.Size, i.Type));
 
                 video.SucceededManifestValidation(
                     videoManifest,
@@ -154,7 +154,7 @@ namespace Etherna.EthernaIndex.Services.Tasks
         }
 
         // Helpers.
-        private IEnumerable<ErrorDetail> CheckThumbnailSources(IReadOnlyDictionary<string, string> sources)
+        private IEnumerable<ErrorDetail> CheckThumbnailSources(IEnumerable<MetadataImageSource> sources)
         {
             if (sources is null ||
                 !sources.Any())
@@ -165,8 +165,8 @@ namespace Etherna.EthernaIndex.Services.Tasks
             var errorDetails = new List<ErrorDetail>();
             foreach (var item in sources)
             {
-                if (string.IsNullOrWhiteSpace(item.Value))
-                    errorDetails.Add(new ErrorDetail(ValidationErrorType.InvalidVideoSource, $"[{item.Key}] empty source"));
+                if (string.IsNullOrWhiteSpace(item.Type))
+                    errorDetails.Add(new ErrorDetail(ValidationErrorType.InvalidVideoSource, $"[{item.Type}] empty source"));
             }
 
             return errorDetails;

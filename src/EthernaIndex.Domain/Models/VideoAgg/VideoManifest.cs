@@ -33,10 +33,10 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
         protected VideoManifest() { }
 
         // Properties.
-        public virtual float AspectRatio { get; protected set; } // only V2
+        public virtual float? AspectRatio { get; protected set; } // only V2
         public virtual string? BatchId { get; protected set; }
-        public virtual long? CreatedAt { get; protected set; } // only V2
-        public virtual long? UpdatedAt { get; protected set; } // only V2
+        public virtual long? ManifestCreatedAt { get; protected set; } // only V2
+        public virtual long? ManifestUpdatedAt { get; protected set; } // only V2
         public virtual string? Description { get; protected set; }
         public virtual long? Duration { get; protected set; }
         public virtual string? PersonalData { get; protected set; }

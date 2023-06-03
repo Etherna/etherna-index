@@ -16,42 +16,31 @@ using Etherna.EthernaIndex.Swarm.DtoModels;
 
 namespace Etherna.EthernaIndex.Swarm.Models
 {
-    public class MetadataVideoSource
+    public class MetadataImageSource
     {
         // Constructors.
-        public MetadataVideoSource(
-            string quality,
+        public MetadataImageSource(
+            int width,
             string? path,
             string? reference,
-            long size,
             string? type)
         {
-            Quality = quality;
+            Width = width;
             Path = path;
             Reference = reference;
-            Size = size;
             Type = type;
         }
-        internal MetadataVideoSource(MetadataVideoSourceSchema1 metadataVideoSource) :
-            this(metadataVideoSource.Quality,
-                null,
-                metadataVideoSource.Reference,
-                metadataVideoSource.Size,
-                null)
-        { }
-        internal MetadataVideoSource(MetadataVideoSourceSchema2 metadataVideoSource) :
-            this(metadataVideoSource.Quality,
-                metadataVideoSource.Path,
-                metadataVideoSource.Reference,
-                metadataVideoSource.Size,
-                metadataVideoSource.Type)
+        internal MetadataImageSource(MetadataImageSourceSchema2 metadataImageSource) :
+            this(metadataImageSource.Width,
+                metadataImageSource.Path,
+                metadataImageSource.Reference,
+                metadataImageSource.Type)
         { }
 
         // Properties.
-        public string Quality { get; set; }
         public string? Path { get; set; }
         public string? Reference { get; set; }
-        public long Size { get; set; }
         public string? Type { get; set; }
+        public int Width { get; set; }
     }
 }

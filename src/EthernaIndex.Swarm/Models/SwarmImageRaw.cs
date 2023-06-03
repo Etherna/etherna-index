@@ -13,7 +13,9 @@
 //   limitations under the License.
 
 using Etherna.EthernaIndex.Swarm.DtoModels;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Etherna.EthernaIndex.Swarm.Models
 {
@@ -23,21 +25,28 @@ namespace Etherna.EthernaIndex.Swarm.Models
         public SwarmImageRaw(
             float aspectRatio,
             string blurhash,
-            IReadOnlyDictionary<string, string> sources)
+            IEnumerable<MetadataImageSource> sources)
         {
             AspectRatio = aspectRatio;
             Blurhash = blurhash;
             Sources = sources;
         }
+#pragma warning disable CA1305
         internal SwarmImageRaw(SwarmImageRawSchema1 swarmImageRaw) :
             this(swarmImageRaw.AspectRatio,
                 swarmImageRaw.Blurhash,
-                swarmImageRaw.Sources)
+                swarmImageRaw.Sources.Select(s => new MetadataImageSource(Convert.ToInt32(s.Key.Replace("w", "", StringComparison.OrdinalIgnoreCase)), null, s.Value, null)))
+        { }
+#pragma warning restore CA1305
+        internal SwarmImageRaw(SwarmImageRawSchema2 swarmImageRaw) :
+            this(swarmImageRaw.AspectRatio,
+                swarmImageRaw.Blurhash,
+                swarmImageRaw.Sources.Select(s => new MetadataImageSource(s.Width, s.Path, s.Reference, s.Type)))
         { }
 
         // Properties.
         public float AspectRatio { get; }
         public string Blurhash { get; }
-        public IReadOnlyDictionary<string, string> Sources { get; }
+        public IEnumerable<MetadataImageSource> Sources { get; }
     }
 }

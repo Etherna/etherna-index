@@ -8,7 +8,7 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
         // Constructors.
         public ImageSource(
             int width,
-            string type,
+            string? type,
             string? path,
             string? reference)
         {
@@ -23,10 +23,10 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         // Properties.
-        public virtual int Width { get; set; }
-        public virtual string Type { get; set; }
         public virtual string? Path { get; set; }
         public virtual string? Reference { get; set; }
+        public virtual string? Type { get; set; }
+        public virtual int Width { get; set; }
 
         // Methods.
         public override bool Equals(object? obj)
@@ -41,7 +41,9 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
         }
 
         public override int GetHashCode() =>
-            Width.GetHashCode() ^
-            Type.GetHashCode(StringComparison.Ordinal); //TODO add Path and Reference
+            Path?.GetHashCode(StringComparison.Ordinal) ?? "".GetHashCode(StringComparison.Ordinal) ^
+            Reference?.GetHashCode(StringComparison.Ordinal) ?? "".GetHashCode(StringComparison.Ordinal) ^
+            Type?.GetHashCode(StringComparison.Ordinal) ?? "".GetHashCode(StringComparison.Ordinal) ^
+            Width.GetHashCode();
     }
 }

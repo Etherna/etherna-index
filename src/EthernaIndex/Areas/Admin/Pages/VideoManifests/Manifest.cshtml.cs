@@ -47,7 +47,6 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
                 ErrorsDetails = videoManifest.ValidationErrors.Select(i => $"[{i.ErrorType}]: {i.ErrorMessage}");
                 IsValid = videoManifest.IsValid;
                 ManifestHash = videoManifest.Manifest.Hash;
-                OriginalQuality = videoManifest.OriginalQuality;
                 OwnerAddress = videoManifest.Id;
                 Title = videoManifest.Title ?? videoManifest.Id;
                 VideoInfo = video is null ? null : new VideoInfoDto(video);
@@ -55,15 +54,14 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
 
                 Sources = videoManifest.Sources != null ?
                     videoManifest.Sources.Select(i => new MetadataVideoSourceDto(
-                        i.Bitrate,
-                        i.Reference,
+                        i.Reference ?? "",
                         i.Size,
                         i.Quality)) : new List<MetadataVideoSourceDto>();
                 Thumbnail = videoManifest.Thumbnail != null ? new SwarmImageRawDto
                     (
                         videoManifest.Thumbnail.AspectRatio,
                         videoManifest.Thumbnail.Blurhash,
-                        videoManifest.Thumbnail.Sources.ToDictionary(i => i.Key, i => i.Value)
+                        videoManifest.Thumbnail.SourcesV2.ToDictionary(i => i.Path ?? "", i => i.Reference ?? "")
                     ) : null;
             }
 
@@ -87,18 +85,15 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
             public class MetadataVideoSourceDto
             {
                 public MetadataVideoSourceDto(
-                    int? bitrate,
                     string reference,
                     long size,
                     string quality)
                 {
-                    Bitrate = bitrate;
                     Reference = reference;
                     Size = size;
                     Quality = quality;
                 }
 
-                public int? Bitrate { get; set; }
                 public string Reference { get; set; } = default!;
                 public long Size { get; set; }
                 public string Quality { get; set; } = default!;

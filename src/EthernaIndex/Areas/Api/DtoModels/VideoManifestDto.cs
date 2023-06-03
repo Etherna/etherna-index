@@ -33,12 +33,11 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
             Description = videoManifest.Description;
             Duration = videoManifest.Duration;
             Hash = videoManifest.Manifest.Hash;
-            OriginalQuality = videoManifest.OriginalQuality;
             PersonalData = videoManifest.PersonalData;
             Sources = videoManifest.Sources
                 .Select(i => new SourceDto(
-                    i.Bitrate,
                     i.Quality,
+                    i.Path,
                     i.Reference,
                     i.Size));
 
@@ -46,7 +45,7 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
                 Thumbnail = new ImageDto(
                     videoManifest.Thumbnail.AspectRatio,
                     videoManifest.Thumbnail.Blurhash,
-                    videoManifest.Thumbnail.Sources);
+                    videoManifest.Thumbnail.SourcesV2.ToDictionary(s => s.Path ?? "", s => s.Reference ?? ""));
 
             Title = videoManifest.Title;
         }
@@ -65,8 +64,8 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
             OriginalQuality = videoDocument.OriginalQuality;
             Sources = videoDocument.Sources
                 .Select(i => new SourceDto(
-                    i.Bitrate,
                     i.Quality,
+                    i.Path,
                     i.Reference,
                     i.Size));
 
@@ -74,7 +73,7 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
                 Thumbnail = new ImageDto(
                     videoDocument.Thumbnail.AspectRatio,
                     videoDocument.Thumbnail.Blurhash,
-                    videoDocument.Thumbnail.Sources);
+                    videoDocument.Thumbnail.Sources.ToDictionary(s => s.Path ?? "", s => s.Reference ?? ""));
 
             Title = videoDocument.Title;
         }

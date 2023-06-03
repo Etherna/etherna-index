@@ -60,6 +60,20 @@ namespace Etherna.EthernaIndex.Swarm.Models
             metadataVideo.UpdatedAt)
         { }
 
+        internal MetadataVideo(MetadataVideoSchema2 metadataVideo) : this(
+            metadataVideo.BatchId,
+            metadataVideo.Description,
+            metadataVideo.Duration,
+            metadataVideo.CreatedAt,
+            metadataVideo.OriginalQuality,
+            metadataVideo.OwnerAddress,
+            metadataVideo.PersonalData,
+            metadataVideo.Sources.Select(s => new MetadataVideoSource(s)),
+            metadataVideo.Thumbnail is null ? null : new SwarmImageRaw(metadataVideo.Thumbnail),
+            metadataVideo.Title,
+            metadataVideo.UpdatedAt)
+        { }
+
         // Properties.
         public string? BatchId { get; }
         public string Description { get; }

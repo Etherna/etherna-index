@@ -18,21 +18,21 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
     {
         // Constructors.
         public SourceDto(
-            int? bitrate,
             string quality,
-            string reference,
+            string? path,
+            string? reference,
             long size)
         {
-            Bitrate = bitrate;
             Quality = quality;
+            Path = path;
             Reference = reference;
             Size = size;
         }
 
         // Properties.
-        public int? Bitrate { get; private set; }
         public string Quality { get; private set; }
-        public string Reference { get; private set; }
+        public string? Path { get; private set; }
+        public string? Reference { get; private set; }
         public long Size { get; private set; }
     }
 }

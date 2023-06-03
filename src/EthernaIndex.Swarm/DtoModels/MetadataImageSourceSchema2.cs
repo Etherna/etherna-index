@@ -13,28 +13,22 @@
 //   limitations under the License.
 
 using System.Collections.Generic;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
-namespace Etherna.EthernaIndex.ElasticSearch.Documents
+namespace Etherna.EthernaIndex.Swarm.DtoModels
 {
-    public class ImageDocument
-    {
-        // Constructors.
-        public ImageDocument(
-            float aspectRatio,
-            string blurhash,
-            IEnumerable<SourceImageDocument> sources)
-        {
-            AspectRatio = aspectRatio;
-            Blurhash = blurhash;
-            Sources = sources;
-        }
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-        public ImageDocument() { }
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-
+    public class MetadataImageSourceSchema2
+    {
         // Properties.
-        public float AspectRatio { get; set; }
-        public string Blurhash { get; set; }
-        public IEnumerable<SourceImageDocument> Sources { get; set; }
+        public string? Path { get; set; }
+        public string? Reference { get; set; }
+        public string Type { get; set; }
+        public int Width { get; set; }
+
+        [JsonExtensionData]
+        public Dictionary<string, JsonElement>? ExtraElements { get; set; }
     }
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 }

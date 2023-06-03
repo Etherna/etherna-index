@@ -85,8 +85,8 @@ namespace EthernaIndex.Services.Tests.Tasks
                 "{}",
                 new List<MetadataVideoSource>
                 {
-                    new MetadataVideoSource(1, "1080", "Ref1080", 32),
-                    new MetadataVideoSource(2, "720", "Ref720", 32)
+                    new MetadataVideoSource("1080", null, "Ref1080", 32, "video"),
+                    new MetadataVideoSource("720", null, "Ref720", 32, "video")
                 },
                 null,
                 "Titletest",
@@ -107,7 +107,7 @@ namespace EthernaIndex.Services.Tests.Tasks
                 "{}",
                 new List<MetadataVideoSource>
                 {
-                    new MetadataVideoSource(2, "10802", "Ref10802", 98)
+                    new MetadataVideoSource("10802", null, "Ref10802", 98, "video")
                 },
                 null,
                 "Titletest",
@@ -187,7 +187,7 @@ namespace EthernaIndex.Services.Tests.Tasks
                 "{}",
                 new List<MetadataVideoSource>
                 {
-                    new MetadataVideoSource(1, "1080", "Ref1080", 32)
+                    new MetadataVideoSource("1080", null, "Ref1080", 32, "video")
                 },
                 null,
                 "Titletest",
@@ -279,8 +279,8 @@ namespace EthernaIndex.Services.Tests.Tasks
                 "{}",
                 new List<MetadataVideoSource>
                 {
-                    new MetadataVideoSource(1, "", "Ref1080", 32),
-                    new MetadataVideoSource(2, "720", "Ref720", 32)
+                    new MetadataVideoSource("", null, "Ref1080", 32, "video"),
+                    new MetadataVideoSource("720", null, "Ref720", 32, "video")
                 },
                 null,
                 "Titletest",
@@ -317,8 +317,8 @@ namespace EthernaIndex.Services.Tests.Tasks
                 "{}",
                 new List<MetadataVideoSource>
                 {
-                    new MetadataVideoSource(1, "1080", "Ref1080", 32),
-                    new MetadataVideoSource(2, "720", "", 32)
+                    new MetadataVideoSource("1080", null, "Ref1080", 32, "video"),
+                    new MetadataVideoSource("720", null, "", 32, "video")
                 },
                 null,
                 "Titletest",
@@ -355,8 +355,8 @@ namespace EthernaIndex.Services.Tests.Tasks
                 "{}",
                 new List<MetadataVideoSource>
                 {
-                    new MetadataVideoSource(1, "1080", "Ref1080", 32),
-                    new MetadataVideoSource(2, "720", "Ref720", 32)
+                    new MetadataVideoSource("1080", null,  "Ref1080", 32, "video"),
+                    new MetadataVideoSource("720", null, "Ref720", 32, "video")
                 },
                 null,
                 null!,
@@ -393,8 +393,8 @@ namespace EthernaIndex.Services.Tests.Tasks
                 "{}",
                 new List<MetadataVideoSource>
                 {
-                    new MetadataVideoSource(1, "", "Ref1080", 32),
-                    new MetadataVideoSource(2, "720", "Ref720", 32)
+                    new MetadataVideoSource("", null, "Ref1080", 32, "video"),
+                    new MetadataVideoSource("720", null, "Ref720", 32, "video")
                 },
                 null,
                 "Titletest",
@@ -428,8 +428,8 @@ namespace EthernaIndex.Services.Tests.Tasks
                 "{}",
                 new List<MetadataVideoSource>
                 {
-                    new MetadataVideoSource(1, "1080", "Ref1080", 32),
-                    new MetadataVideoSource(2, "720", "Ref720", 32)
+                    new MetadataVideoSource("1080", null, "Ref1080", 32, "video"),
+                    new MetadataVideoSource("720", null, "Ref720", 32, "video")
                 },
                 null,
                 "Titletest",
@@ -463,8 +463,8 @@ namespace EthernaIndex.Services.Tests.Tasks
                 "{}",
                 new List<MetadataVideoSource>
                 {
-                    new MetadataVideoSource(1, "1080", "Ref1080", 32),
-                    new MetadataVideoSource(2, "720", "Ref720", 32)
+                    new MetadataVideoSource("1080", null, "Ref1080", 32, "video"),
+                    new MetadataVideoSource("720", null, "Ref720", 32, "video")
                 },
                 null,
                 "Titletest",
@@ -481,17 +481,14 @@ namespace EthernaIndex.Services.Tests.Tasks
             Assert.NotNull(videoManifest.ValidationTime);
             Assert.Equal(metadataVideoDto.Description, videoManifest.Description);
             Assert.Equal(metadataVideoDto.Duration, videoManifest.Duration);
-            Assert.Equal(metadataVideoDto.OriginalQuality, videoManifest.OriginalQuality);
             Assert.Equal(metadataVideoDto.Title, videoManifest.Title);
             Assert.Empty(videoManifest.ValidationErrors);
             Assert.Contains(videoManifest.Sources,
-                i => i.Bitrate == 1 &&
-                    i.Quality == "1080" &&
+                i => i.Quality == "1080" &&
                     i.Reference == "Ref1080" &&
                     i.Size == 32);
             Assert.Contains(videoManifest.Sources,
-                i => i.Bitrate == 2 &&
-                    i.Quality == "720" &&
+                i => i.Quality == "720" &&
                     i.Reference == "Ref720" &&
                     i.Size == 32);
             Assert.Equal(manifestHash, video.LastValidManifest!.Manifest.Hash);

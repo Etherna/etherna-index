@@ -21,28 +21,18 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
     public class VideoSource : ModelBase
     {
         // Constructors.
-        [Obsolete("Constructor v1 is deprecated")]
         public VideoSource(
-            int bitrate,
             string quality,
-            string reference,
-            long size)
+            string? path,
+            string? reference,
+            long size,
+            string? type)
         {
-            Bitrate = bitrate;
-            Quality = quality;
-            Reference = reference;
-            Size = size;
-        }
-        public VideoSource(
-            string type,
-            string quality,
-            string path,
-            long size)
-        {
-            Type = type;
             Quality = quality;
             Path = path;
+            Reference = reference;
             Size = size;
+            Type = type;
         }
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
@@ -50,7 +40,6 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         // Properties.
-        public virtual int Bitrate { get; set; } // only for v1.
         public virtual string Quality { get; set; }
         public virtual string? Path { get; set; } // from for v2.
         public virtual string? Reference { get; set; }

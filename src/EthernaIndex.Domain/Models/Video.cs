@@ -143,7 +143,6 @@ namespace Etherna.EthernaIndex.Domain.Models
                 batchId,
                 description,
                 duration,
-                originalQuality,
                 personalData,
                 sources,
                 thumbnail,
