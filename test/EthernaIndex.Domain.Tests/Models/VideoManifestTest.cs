@@ -132,11 +132,15 @@ namespace Etherna.EthernaIndex.Domain.Models
             Assert.Equal(aspectRatio, manifest.Thumbnail.AspectRatio);
             Assert.NotNull(manifest.Thumbnail.SourcesV2);
             Assert.Contains(manifest.Thumbnail.SourcesV2,
-                i => i.Path == "1080" &&
-                    i.Reference == "Test1");
+                i => i.Reference == "ref1" &&
+                    i.Type == "image" &&
+                    i.Width == 1080 &&
+                    i.Path == "Test1");
             Assert.Contains(manifest.Thumbnail.SourcesV2,
-                i => i.Path == "720" &&
-                    i.Reference == "Test2");
+                i => i.Reference == "ref2" &&
+                    i.Type == "image" &&
+                    i.Width == 720 &&
+                    i.Path == "Test2");
         }
 
         [Fact]

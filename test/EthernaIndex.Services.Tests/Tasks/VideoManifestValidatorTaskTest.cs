@@ -80,7 +80,6 @@ namespace EthernaIndex.Services.Tests.Tasks
                 "Description",
                 10,
                 1234,
-                "123",
                 address,
                 "{}",
                 new List<MetadataVideoSource>
@@ -90,7 +89,8 @@ namespace EthernaIndex.Services.Tests.Tasks
                 },
                 null,
                 "Titletest",
-                null);
+                null,
+                new Version(2, 0));
             swarmService
                 .Setup(x => x.GetMetadataVideoAsync(manifestHash))
                 .ReturnsAsync(firstMetadataVideoDto);
@@ -102,7 +102,6 @@ namespace EthernaIndex.Services.Tests.Tasks
                 "Description2",
                 20,
                 1234,
-                "456",
                 address,
                 "{}",
                 new List<MetadataVideoSource>
@@ -111,7 +110,8 @@ namespace EthernaIndex.Services.Tests.Tasks
                 },
                 null,
                 "Titletest",
-                null);
+                null,
+                new Version(2, 0));
             var secondVideoManifest = new VideoManifest(secondManifestHash);
             video.AddManifest(secondVideoManifest);
             var secondIndexContext = new Mock<IIndexDbContext>();
@@ -148,13 +148,13 @@ namespace EthernaIndex.Services.Tests.Tasks
                 "Description",
                 10,
                 1234,
-                "123",
                 address,
                 "{}",
                 new List<MetadataVideoSource>(),
                 null,
                 "Titletest",
-                null);
+                null,
+                new Version(2, 0));
             swarmService
                 .Setup(x => x.GetMetadataVideoAsync(manifestHash))
                 .ReturnsAsync(metadataVideoDto);
@@ -182,7 +182,6 @@ namespace EthernaIndex.Services.Tests.Tasks
                 null!,
                 10,
                 1234,
-                "123",
                 address,
                 "{}",
                 new List<MetadataVideoSource>
@@ -191,7 +190,8 @@ namespace EthernaIndex.Services.Tests.Tasks
                 },
                 null,
                 "Titletest",
-                null);
+                null,
+                new Version(2, 0));
             swarmService
                 .Setup(x => x.GetMetadataVideoAsync(manifestHash))
                 .ReturnsAsync(metadataVideoDto);
@@ -218,13 +218,13 @@ namespace EthernaIndex.Services.Tests.Tasks
                 "Description",
                 10,
                 1234,
-                "123",
                 address,
                 "{}",
                 null!,
                 null,
                 "Titletest",
-                null);
+                null,
+                new Version(2, 0));
             swarmService
                 .Setup(x => x.GetMetadataVideoAsync(manifestHash))
                 .ReturnsAsync(metadataVideoDto);
@@ -274,7 +274,6 @@ namespace EthernaIndex.Services.Tests.Tasks
                 "Description",
                 10,
                 1234,
-                "123",
                 address,
                 "{}",
                 new List<MetadataVideoSource>
@@ -284,7 +283,8 @@ namespace EthernaIndex.Services.Tests.Tasks
                 },
                 null,
                 "Titletest",
-                null);
+                null,
+                new Version(2, 0));
             swarmService
                 .Setup(x => x.GetMetadataVideoAsync(manifestHash))
                 .ReturnsAsync(metadataVideoDto);
@@ -312,7 +312,6 @@ namespace EthernaIndex.Services.Tests.Tasks
                 "Description",
                 10,
                 1234,
-                "123",
                 address,
                 "{}",
                 new List<MetadataVideoSource>
@@ -322,7 +321,8 @@ namespace EthernaIndex.Services.Tests.Tasks
                 },
                 null,
                 "Titletest",
-                null);
+                null,
+                new Version(2, 0));
             swarmService
                 .Setup(x => x.GetMetadataVideoAsync(manifestHash))
                 .ReturnsAsync(metadataVideoDto);
@@ -350,7 +350,6 @@ namespace EthernaIndex.Services.Tests.Tasks
                 "Description",
                 10,
                 1234,
-                "123",
                 address,
                 "{}",
                 new List<MetadataVideoSource>
@@ -360,7 +359,8 @@ namespace EthernaIndex.Services.Tests.Tasks
                 },
                 null,
                 null!,
-                null);
+                null,
+                new Version(2, 0));
             swarmService
                 .Setup(x => x.GetMetadataVideoAsync(manifestHash))
                 .ReturnsAsync(metadataVideoDto);
@@ -388,7 +388,6 @@ namespace EthernaIndex.Services.Tests.Tasks
                 "Description",
                 10,
                 1234,
-                "123",
                 address,
                 "{}",
                 new List<MetadataVideoSource>
@@ -398,7 +397,8 @@ namespace EthernaIndex.Services.Tests.Tasks
                 },
                 null,
                 "Titletest",
-                null);
+                null,
+                new Version(2, 0));
             swarmService
                 .Setup(x => x.GetMetadataVideoAsync(manifestHash))
                 .ReturnsAsync(metadataVideoDto);
@@ -423,7 +423,6 @@ namespace EthernaIndex.Services.Tests.Tasks
                 "Description",
                 10,
                 1234,
-                "123",
                 address,
                 "{}",
                 new List<MetadataVideoSource>
@@ -433,7 +432,8 @@ namespace EthernaIndex.Services.Tests.Tasks
                 },
                 null,
                 "Titletest",
-                null);
+                null,
+                new Version(2, 0));
             swarmService
                 .Setup(x => x.GetMetadataVideoAsync(manifestHash))
                 .ReturnsAsync(metadataVideoDto);
@@ -458,7 +458,6 @@ namespace EthernaIndex.Services.Tests.Tasks
                 "Description",
                 10,
                 1234,
-                "123",
                 "",
                 "{}",
                 new List<MetadataVideoSource>
@@ -468,7 +467,8 @@ namespace EthernaIndex.Services.Tests.Tasks
                 },
                 null,
                 "Titletest",
-                null);
+                null,
+                new Version(2, 0));
             swarmService
                 .Setup(x => x.GetMetadataVideoAsync(manifestHash))
                 .ReturnsAsync(metadataVideoDto);

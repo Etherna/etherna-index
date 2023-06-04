@@ -24,6 +24,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Etherna.EthernaIndex.Domain.Models;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Primitives;
 
 namespace Etherna.EthernaIndex.Services.Tasks
 {
@@ -91,10 +92,6 @@ namespace Etherna.EthernaIndex.Services.Tasks
             if (metadataDto.Duration == 0)
                 validationErrors.Add(new ErrorDetail(ValidationErrorType.MissingDuration));
 
-            //original quality
-            if (string.IsNullOrWhiteSpace(metadataDto.OriginalQuality))
-                validationErrors.Add(new ErrorDetail(ValidationErrorType.MissingOriginalQuality));
-
             //thumbnail
             EthernaIndex.Domain.Models.VideoAgg.SwarmImageRaw? swarmImageRaw = null;
             if (metadataDto.Thumbnail is not null)
@@ -140,7 +137,6 @@ namespace Etherna.EthernaIndex.Services.Tasks
                     metadataDto.BatchId,
                     metadataDto.Description!,
                     metadataDto.Duration,
-                    metadataDto.OriginalQuality,
                     metadataDto.PersonalData,
                     videoSources,
                     swarmImageRaw,

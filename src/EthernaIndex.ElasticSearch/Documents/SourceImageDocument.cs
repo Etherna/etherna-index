@@ -21,7 +21,7 @@ namespace Etherna.EthernaIndex.ElasticSearch.Documents
             int width,
             string? path,
             string? reference,
-            string type)
+            string? type)
         {
             Width = width;
             Path = path;
@@ -36,6 +36,6 @@ namespace Etherna.EthernaIndex.ElasticSearch.Documents
         public int Width { get; set; }
         public string? Path { get; set; }
         public string? Reference { get; set; }
-        public string Type { get; set; }
+        public string? Type { get; set; }
     }
 }

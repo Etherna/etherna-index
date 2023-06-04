@@ -123,7 +123,6 @@ namespace Etherna.EthernaIndex.Domain.Models
             string? batchId,
             string description,
             long duration,
-            string originalQuality,
             string? personalData,
             IEnumerable<VideoSource> sources,
             SwarmImageRaw? thumbnail,
