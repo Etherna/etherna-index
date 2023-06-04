@@ -502,9 +502,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
             {
                 var tests = new List<DeserializationTestElement<VideoManifest>>();
 
-
-
-                // "a48b92d6-c02d-4b1e-b1b0-0526c4bcaa6e" - v0.3.4 - SwarmImageRaw 36966654-d85c-455b-b870-7b49e1124e6d v0.3.9
+                // "a48b92d6-c02d-4b1e-b1b0-0526c4bcaa6e" - v0.3.4 - SwarmImageRaw && VideoSource v0.3.9
                 //invalid manifest
                 {
                     var sourceDocument =
@@ -527,14 +525,13 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                             ""BatchId"" : ""36b7efd913ca4cf880b8eeac5093fa27b0825906c600685b6abdd6566e6cfe8f"",
                             ""Description"" : ""Test description"",
                             ""Duration"" : NumberLong(420),
-                            ""OriginalQuality"" : ""720p"",
                             ""Sources"" : [
                                 {
                                     ""_m"" : ""ca9caff9-df18-4101-a362-f8f449bb2aac"",
-                                    ""Bitrate"" : NumberInt(560000),
                                     ""Quality"" : ""720p"",
-                                    ""Reference"" : ""5370D45B2CA38F480B53334163FEF3BEECD4D048B398852B33DD4F568C329956"",
-                                    ""Size"" : NumberLong(100000000)
+                                    ""Path"" : ""5370D45B2CA38F480B53334163FEF3BEECD4D048B398852B33DD4F568C329956"",
+                                    ""Size"" : NumberLong(100000000),
+                                    ""Type"" : ""mp4""
                                 }
                             ],
                             ""Thumbnail"" : {
@@ -542,10 +539,9 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                                 ""AspectRatio"" : 1.7699999809265137,
                                 ""Blurhash"" : ""LEHV6nWB2yk8pyo0adR*.7kCMdnj"",
                                 ""SourcesV2"" : [{
-                                    ""Width"" : ""480"",
+                                    ""Width"" : NumberInt(480),
                                     ""Type"" : ""png"",
-                                    ""Path"" : ""textPath"",
-                                    ""Reference"" : ""a015d8923a777bf8230291318274a5f9795b4bb9445ad41a2667d06df1ea3008""
+                                    ""Path"" : ""textPath""
                                 }]
                             }
                         }";
@@ -561,11 +557,11 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                     expectedManifestMock.Setup(m => m.Description).Returns("Test description");
                     expectedManifestMock.Setup(m => m.Duration).Returns(420);
                     expectedManifestMock.Setup(m => m.Sources).Returns(new[]{
-                        new VideoSource("720p", null, "5370D45B2CA38F480B53334163FEF3BEECD4D048B398852B33DD4F568C329956", 100000000, null)
+                        new VideoSource("720p", "5370D45B2CA38F480B53334163FEF3BEECD4D048B398852B33DD4F568C329956", 100000000, "mp4")
                     });
                     expectedManifestMock.Setup(m => m.Thumbnail).Returns(new SwarmImageRaw(1.7699999809265137f, "LEHV6nWB2yk8pyo0adR*.7kCMdnj", new List<ImageSource>
                     {
-                       new ImageSource(480, "png", "textPath", "a015d8923a777bf8230291318274a5f9795b4bb9445ad41a2667d06df1ea3008"),
+                       new ImageSource(480, "png", "textPath"),
                     }));
                     expectedManifestMock.Setup(m => m.Title).Returns<string?>(null);
 
@@ -573,7 +569,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                 }
 
 
-                // "a48b92d6-c02d-4b1e-b1b0-0526c4bcaa6e" - v0.3.4 - SwarmImageRaw 36966654-d85c-455b-b870-7b49e1124e6d v0.3.9
+                // "a48b92d6-c02d-4b1e-b1b0-0526c4bcaa6e" - v0.3.4 - SwarmImageRaw && VideoSource v0.3.9
                 //valid manifest
                 {
                     var sourceDocument =
@@ -593,14 +589,13 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                             ""BatchId"" : ""36b7efd913ca4cf880b8eeac5093fa27b0825906c600685b6abdd6566e6cfe8f"",
                             ""Description"" : ""Test description"",
                             ""Duration"" : NumberLong(420),
-                            ""OriginalQuality"" : ""720p"",
                             ""Sources"" : [
                                 {
                                     ""_m"" : ""ca9caff9-df18-4101-a362-f8f449bb2aac"",
-                                    ""Bitrate"" : NumberInt(560000),
                                     ""Quality"" : ""720p"",
-                                    ""Reference"" : ""5370D45B2CA38F480B53334163FEF3BEECD4D048B398852B33DD4F568C329956"",
-                                    ""Size"" : NumberLong(100000000)
+                                    ""Path"" : ""5370D45B2CA38F480B53334163FEF3BEECD4D048B398852B33DD4F568C329956"",
+                                    ""Size"" : NumberLong(100000000),
+                                    ""Type"" : ""mp4""
                                 }
                             ],
                             ""Thumbnail"" : {
@@ -608,10 +603,9 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                                 ""AspectRatio"" : 1.7699999809265137,
                                 ""Blurhash"" : ""LEHV6nWB2yk8pyo0adR*.7kCMdnj"",
                                 ""SourcesV2"" : [{
-                                    ""Width"" : ""480"",
+                                    ""Width"" : NumberInt(480),
                                     ""Type"" : ""png"",
-                                    ""Path"" : ""textPath"",
-                                    ""Reference"" : ""a015d8923a777bf8230291318274a5f9795b4bb9445ad41a2667d06df1ea3008""
+                                    ""Path"" : ""textPath""
                                 }]
                             },
                             ""Title"" : ""Mocked sample video""
@@ -628,11 +622,11 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                     expectedManifestMock.Setup(m => m.Description).Returns("Test description");
                     expectedManifestMock.Setup(m => m.Duration).Returns(420);
                     expectedManifestMock.Setup(m => m.Sources).Returns(new[]{
-                        new VideoSource("720p", null, "5370D45B2CA38F480B53334163FEF3BEECD4D048B398852B33DD4F568C329956", 100000000, null)
+                        new VideoSource("720p", "5370D45B2CA38F480B53334163FEF3BEECD4D048B398852B33DD4F568C329956", 100000000, "mp4")
                     });
                     expectedManifestMock.Setup(m => m.Thumbnail).Returns(new SwarmImageRaw(1.7699999809265137f, "LEHV6nWB2yk8pyo0adR*.7kCMdnj", new List<ImageSource>
                     {
-                       new ImageSource(480, "png", "textPath", "a015d8923a777bf8230291318274a5f9795b4bb9445ad41a2667d06df1ea3008"),
+                       new ImageSource(480, "png", "textPath"),
                     }));
                     expectedManifestMock.Setup(m => m.Title).Returns("Mocked sample video");
 
@@ -693,11 +687,11 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                     expectedManifestMock.Setup(m => m.Description).Returns("Test description");
                     expectedManifestMock.Setup(m => m.Duration).Returns(420);
                     expectedManifestMock.Setup(m => m.Sources).Returns(new[]{
-                        new VideoSource("720p", null, "5370D45B2CA38F480B53334163FEF3BEECD4D048B398852B33DD4F568C329956", 100000000, null)
+                        new VideoSource("720p", "5370D45B2CA38F480B53334163FEF3BEECD4D048B398852B33DD4F568C329956", 100000000, null)
                     });
                     expectedManifestMock.Setup(m => m.Thumbnail).Returns(new SwarmImageRaw(1.7699999809265137f, "LEHV6nWB2yk8pyo0adR*.7kCMdnj", new List<ImageSource>
                     {
-                       new ImageSource(480, null, null, "a015d8923a777bf8230291318274a5f9795b4bb9445ad41a2667d06df1ea3008"),
+                       new ImageSource(480, null, "a015d8923a777bf8230291318274a5f9795b4bb9445ad41a2667d06df1ea3008"),
                     }));
                     expectedManifestMock.Setup(m => m.Title).Returns<string?>(null);
 
@@ -756,11 +750,11 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                     expectedManifestMock.Setup(m => m.Description).Returns("Test description");
                     expectedManifestMock.Setup(m => m.Duration).Returns(420);
                     expectedManifestMock.Setup(m => m.Sources).Returns(new[]{
-                        new VideoSource("720p", null, "5370D45B2CA38F480B53334163FEF3BEECD4D048B398852B33DD4F568C329956", 100000000, null)
+                        new VideoSource("720p", "5370D45B2CA38F480B53334163FEF3BEECD4D048B398852B33DD4F568C329956", 100000000, null)
                     });
                     expectedManifestMock.Setup(m => m.Thumbnail).Returns(new SwarmImageRaw(1.7699999809265137f, "LEHV6nWB2yk8pyo0adR*.7kCMdnj", new List<ImageSource>
                     {
-                       new ImageSource(480, null, null, "a015d8923a777bf8230291318274a5f9795b4bb9445ad41a2667d06df1ea3008"),
+                       new ImageSource(480, null, "a015d8923a777bf8230291318274a5f9795b4bb9445ad41a2667d06df1ea3008"),
                     }));
                     expectedManifestMock.Setup(m => m.Title).Returns("Mocked sample video");
 
@@ -818,12 +812,12 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                     expectedManifestMock.Setup(m => m.Description).Returns("Test description");
                     expectedManifestMock.Setup(m => m.Duration).Returns(420);
                     expectedManifestMock.Setup(m => m.Sources).Returns(new[]{
-                        new VideoSource("720p", null, "5FDAC6FCBBBC3CA5DBEAACFA0CF8F5777DB36793931E177D870C45E0D70CE637", 100000000, null)
+                        new VideoSource("720p", "5FDAC6FCBBBC3CA5DBEAACFA0CF8F5777DB36793931E177D870C45E0D70CE637", 100000000, null)
                     });
                     expectedManifestMock.Setup(m => m.Title).Returns<string?>(null);
                     expectedManifestMock.Setup(m => m.Thumbnail).Returns(new SwarmImageRaw(1.7777777910232544f, "LEHV6nWB2yk8pyo0adR*.7kCMdnj", new List<ImageSource>
                     {
-                       new ImageSource(480, null, null, "a015d8923a777bf8230291318274a5f9795b4bb9445ad41a2667d06df1ea3008"),
+                       new ImageSource(480, null, "a015d8923a777bf8230291318274a5f9795b4bb9445ad41a2667d06df1ea3008"),
                     }));
 
                     tests.Add(new DeserializationTestElement<VideoManifest>(sourceDocument, expectedManifestMock.Object));
@@ -878,12 +872,12 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                     expectedManifestMock.Setup(m => m.Description).Returns("Test description");
                     expectedManifestMock.Setup(m => m.Duration).Returns(420);
                     expectedManifestMock.Setup(m => m.Sources).Returns(new[]{
-                        new VideoSource("720p", null, "5FDAC6FCBBBC3CA5DBEAACFA0CF8F5777DB36793931E177D870C45E0D70CE637", 100000000, null)
+                        new VideoSource("720p", "5FDAC6FCBBBC3CA5DBEAACFA0CF8F5777DB36793931E177D870C45E0D70CE637", 100000000, null)
                     });
                     expectedManifestMock.Setup(m => m.Title).Returns("Mocked sample video");
                     expectedManifestMock.Setup(m => m.Thumbnail).Returns(new SwarmImageRaw(1.7777777910232544f, "LEHV6nWB2yk8pyo0adR*.7kCMdnj", new List<ImageSource>
                     {
-                       new ImageSource(480, null, null, "a015d8923a777bf8230291318274a5f9795b4bb9445ad41a2667d06df1ea3008"),
+                       new ImageSource(480, null, "a015d8923a777bf8230291318274a5f9795b4bb9445ad41a2667d06df1ea3008"),
                     }));
 
                     tests.Add(new DeserializationTestElement<VideoManifest>(sourceDocument, expectedManifestMock.Object));
@@ -945,15 +939,15 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                     expectedManifestMock.Setup(m => m.Description).Returns("Test description");
                     expectedManifestMock.Setup(m => m.Duration).Returns(900);
                     expectedManifestMock.Setup(m => m.Sources).Returns(new[]{
-                        new VideoSource("720p", null, "d88f68aa5b157ce6bda355d8bd54179df264a899c03bf5bdf0d4569f20a6933b", 62735710, null)
+                        new VideoSource("720p", "d88f68aa5b157ce6bda355d8bd54179df264a899c03bf5bdf0d4569f20a6933b", 62735710, null)
                     });
                     expectedManifestMock.Setup(m => m.Title).Returns<string?>(null);
                     expectedManifestMock.Setup(m => m.Thumbnail).Returns(new SwarmImageRaw(1.7777777910232544f, "LEHV6nWB2yk8pyo0adR*.7kCMdnj", new List<ImageSource>
                     {
-                       new ImageSource(1920, null, null, "5d2a835a77269dc7bb1fb6be7b12407326cf6dcde4bd14f41b92be9d82414421"),
-                       new ImageSource(480, null, null, "a015d8923a777bf8230291318274a5f9795b4bb9445ad41a2667d06df1ea3008"),
-                       new ImageSource(960, null, null, "60f8f4b17cdae08da8d03f7fa3476f47d7d29517351ffe7bd9f171b929680009"),
-                       new ImageSource(1440, null, null, "7eb77f7d0c2d17d9e05036f154b4d26091ba3e7d0ccfe8ebda49cda2bb94cd9b"),
+                       new ImageSource(1920, null, "5d2a835a77269dc7bb1fb6be7b12407326cf6dcde4bd14f41b92be9d82414421"),
+                       new ImageSource(480, null, "a015d8923a777bf8230291318274a5f9795b4bb9445ad41a2667d06df1ea3008"),
+                       new ImageSource(960, null, "60f8f4b17cdae08da8d03f7fa3476f47d7d29517351ffe7bd9f171b929680009"),
+                       new ImageSource(1440, null, "7eb77f7d0c2d17d9e05036f154b4d26091ba3e7d0ccfe8ebda49cda2bb94cd9b"),
                     }));
 
                     tests.Add(new DeserializationTestElement<VideoManifest>(sourceDocument, expectedManifestMock.Object));
@@ -1013,15 +1007,15 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                     expectedManifestMock.Setup(m => m.Description).Returns("Test description");
                     expectedManifestMock.Setup(m => m.Duration).Returns(900);
                     expectedManifestMock.Setup(m => m.Sources).Returns(new[]{
-                        new VideoSource("720p", null, "d88f68aa5b157ce6bda355d8bd54179df264a899c03bf5bdf0d4569f20a6933b", 62735710, null)
+                        new VideoSource("720p", "d88f68aa5b157ce6bda355d8bd54179df264a899c03bf5bdf0d4569f20a6933b", 62735710, null)
                     });
                     expectedManifestMock.Setup(m => m.Title).Returns("Etherna WAM presentation");
                     expectedManifestMock.Setup(m => m.Thumbnail).Returns(new SwarmImageRaw(1.7777777910232544f, "LEHV6nWB2yk8pyo0adR*.7kCMdnj", new List<ImageSource>
                     {
-                       new ImageSource(1920, "video", null, "5d2a835a77269dc7bb1fb6be7b12407326cf6dcde4bd14f41b92be9d82414421"),
-                       new ImageSource(480, "video", null, "a015d8923a777bf8230291318274a5f9795b4bb9445ad41a2667d06df1ea3008"),
-                       new ImageSource(960, "video", null, "60f8f4b17cdae08da8d03f7fa3476f47d7d29517351ffe7bd9f171b929680009"),
-                       new ImageSource(1440, "video", null, "7eb77f7d0c2d17d9e05036f154b4d26091ba3e7d0ccfe8ebda49cda2bb94cd9b"),
+                       new ImageSource(1920, null, "5d2a835a77269dc7bb1fb6be7b12407326cf6dcde4bd14f41b92be9d82414421"),
+                       new ImageSource(480, null, "a015d8923a777bf8230291318274a5f9795b4bb9445ad41a2667d06df1ea3008"),
+                       new ImageSource(960, null, "60f8f4b17cdae08da8d03f7fa3476f47d7d29517351ffe7bd9f171b929680009"),
+                       new ImageSource(1440, null, "7eb77f7d0c2d17d9e05036f154b4d26091ba3e7d0ccfe8ebda49cda2bb94cd9b"),
                     }));
 
                     tests.Add(new DeserializationTestElement<VideoManifest>(sourceDocument, expectedManifestMock.Object));

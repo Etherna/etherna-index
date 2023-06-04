@@ -23,14 +23,12 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
         // Constructors.
         public VideoSource(
             string quality,
-            string? path,
-            string? reference,
+            string path,
             long size,
             string? type)
         {
             Quality = quality;
             Path = path;
-            Reference = reference;
             Size = size;
             Type = type;
         }
@@ -41,8 +39,7 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
 
         // Properties.
         public virtual string Quality { get; set; }
-        public virtual string? Path { get; set; } // from for v2.
-        public virtual string? Reference { get; set; }
+        public virtual string Path { get; set; } // from for v2.
         public virtual long Size { get; set; }
         public virtual string? Type { get; set; } // from for v2.
 
@@ -55,7 +52,6 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
                 EqualityComparer<string>.Default.Equals(Type, (obj as VideoSource)!.Type) &&
                 EqualityComparer<string>.Default.Equals(Quality, (obj as VideoSource)!.Quality) &&
                 EqualityComparer<string>.Default.Equals(Path, (obj as VideoSource)!.Path) &&
-                EqualityComparer<string>.Default.Equals(Reference, (obj as VideoSource)!.Reference) &&
                 Size.Equals((obj as VideoSource)?.Size);
         }
 
@@ -63,7 +59,6 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
             Type?.GetHashCode(StringComparison.Ordinal) ?? "".GetHashCode(StringComparison.Ordinal) ^
             Quality.GetHashCode(StringComparison.Ordinal) ^
             Path?.GetHashCode(StringComparison.Ordinal) ?? "".GetHashCode(StringComparison.Ordinal) ^
-            Reference?.GetHashCode(StringComparison.Ordinal) ?? "".GetHashCode(StringComparison.Ordinal) ^
             Size.GetHashCode();
     }
 }

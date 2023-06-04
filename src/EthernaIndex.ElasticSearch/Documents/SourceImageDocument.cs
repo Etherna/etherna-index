@@ -19,13 +19,11 @@ namespace Etherna.EthernaIndex.ElasticSearch.Documents
         // Constructors.
         public SourceImageDocument(
             int width,
-            string? path,
-            string? reference,
+            string path,
             string? type)
         {
             Width = width;
             Path = path;
-            Reference = reference;
             Type = type;
         }
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
@@ -34,8 +32,7 @@ namespace Etherna.EthernaIndex.ElasticSearch.Documents
 
         // Properties.
         public int Width { get; set; }
-        public string? Path { get; set; }
-        public string? Reference { get; set; }
+        public string Path { get; set; }
         public string? Type { get; set; }
     }
 }

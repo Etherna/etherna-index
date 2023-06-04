@@ -21,25 +21,21 @@ namespace Etherna.EthernaIndex.Swarm.Models
         // Constructors.
         public MetadataImageSource(
             int width,
-            string? path,
-            string? reference,
+            string path,
             string? type)
         {
             Width = width;
             Path = path;
-            Reference = reference;
             Type = type;
         }
         internal MetadataImageSource(MetadataImageSourceSchema2 metadataImageSource) :
             this(metadataImageSource.Width,
                 metadataImageSource.Path,
-                metadataImageSource.Reference,
                 metadataImageSource.Type)
         { }
 
         // Properties.
-        public string? Path { get; set; }
-        public string? Reference { get; set; }
+        public string Path { get; set; }
         public string? Type { get; set; }
         public int Width { get; set; }
     }

@@ -19,14 +19,12 @@ namespace Etherna.EthernaIndex.ElasticSearch.Documents
         // Constructors.
         public SourceVideoDocument(
             string quality,
-            string? path,
-            string? reference,
+            string path,
             long size,
             string type)
         {
             Quality = quality;
             Path = path;
-            Reference = reference;
             Size = size;
             Type = type;
         }
@@ -36,8 +34,7 @@ namespace Etherna.EthernaIndex.ElasticSearch.Documents
 
         // Properties.
         public string Quality { get; set; }
-        public string? Path { get; set; }
-        public string? Reference { get; set; }
+        public string Path { get; set; }
         public long Size { get; set; }
         public string Type { get; set; }
     }

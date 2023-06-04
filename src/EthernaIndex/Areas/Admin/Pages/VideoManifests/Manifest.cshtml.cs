@@ -24,6 +24,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -54,14 +55,14 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
 
                 Sources = videoManifest.Sources != null ?
                     videoManifest.Sources.Select(i => new MetadataVideoSourceDto(
-                        i.Reference ?? "",
+                        i.Path ?? "",
                         i.Size,
                         i.Quality)) : new List<MetadataVideoSourceDto>();
                 Thumbnail = videoManifest.Thumbnail != null ? new SwarmImageRawDto
                     (
                         videoManifest.Thumbnail.AspectRatio,
                         videoManifest.Thumbnail.Blurhash,
-                        videoManifest.Thumbnail.SourcesV2.ToDictionary(i => i.Path ?? "", i => i.Reference ?? "")
+                        videoManifest.Thumbnail.SourcesV2.ToDictionary(i => i.Width.ToString(CultureInfo.InvariantCulture), i => i.Path ?? "")
                     ) : null;
             }
 

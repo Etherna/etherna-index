@@ -120,14 +120,15 @@ namespace Etherna.EthernaIndex.Swarm
         public MetadataVideo SetupNewMetadataVideoMockup(string manifestHash)
         {
             var manifest = new MetadataVideo(
+                1.78f,
                 "36b7efd913ca4cf880b8eeac5093fa27b0825906c600685b6abdd6566e6cfe8f",
                 "Test description",
                 420,
                 DateTime.UtcNow.Ticks,
                 "0x5E70C176b03BFe5113E78e920C1C60639E2A1696",
                 "{}",
-                new[] { new MetadataVideoSource("720", GenerateNewHash(), null, 100000000, "video") },
-                new SwarmImageRaw(1.77f, "LEHV6nWB2yk8pyo0adR*.7kCMdnj", new List<MetadataImageSource> { new MetadataImageSource(480, null, "a015d8923a777bf8230291318274a5f9795b4bb9445ad41a2667d06df1ea3008", "type") }),
+                new[] { new MetadataVideoSource("720", GenerateNewHash(), 100000000, "video") },
+                new SwarmImageRaw(1.77f, "LEHV6nWB2yk8pyo0adR*.7kCMdnj", new List<MetadataImageSource> { new MetadataImageSource(480, "pathUrl", "type") }),
                 "Mocked sample video",
                 DateTime.UtcNow.Ticks,
                 new Version(2, 0));

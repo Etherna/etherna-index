@@ -21,20 +21,17 @@ namespace Etherna.EthernaIndex.Swarm.Models
         // Constructors.
         public MetadataVideoSource(
             string quality,
-            string? path,
-            string? reference,
+            string path,
             long size,
             string? type)
         {
             Quality = quality;
             Path = path;
-            Reference = reference;
             Size = size;
             Type = type;
         }
         internal MetadataVideoSource(MetadataVideoSourceSchema1 metadataVideoSource) :
             this(metadataVideoSource.Quality,
-                null,
                 metadataVideoSource.Reference,
                 metadataVideoSource.Size,
                 null)
@@ -42,15 +39,13 @@ namespace Etherna.EthernaIndex.Swarm.Models
         internal MetadataVideoSource(MetadataVideoSourceSchema2 metadataVideoSource) :
             this(metadataVideoSource.Quality,
                 metadataVideoSource.Path,
-                metadataVideoSource.Reference,
                 metadataVideoSource.Size,
                 metadataVideoSource.Type)
         { }
 
         // Properties.
         public string Quality { get; set; }
-        public string? Path { get; set; }
-        public string? Reference { get; set; }
+        public string Path { get; set; }
         public long Size { get; set; }
         public string? Type { get; set; }
     }

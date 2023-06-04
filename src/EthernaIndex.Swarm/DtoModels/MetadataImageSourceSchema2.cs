@@ -22,8 +22,7 @@ namespace Etherna.EthernaIndex.Swarm.DtoModels
     public class MetadataImageSourceSchema2
     {
         // Properties.
-        public string? Path { get; set; }
-        public string? Reference { get; set; }
+        public string Path { get; set; }
         public string Type { get; set; }
         public int Width { get; set; }
 

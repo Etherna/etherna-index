@@ -9,22 +9,18 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
         public ImageSource(
             int width,
             string? type,
-            string? path,
-            string? reference)
+            string path)
         {
             Width = width;
             Type = type;
             Path = path;
-            Reference = reference;
         }
-
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         protected ImageSource() { }
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         // Properties.
-        public virtual string? Path { get; set; }
-        public virtual string? Reference { get; set; }
+        public virtual string Path { get; set; }
         public virtual string? Type { get; set; }
         public virtual int Width { get; set; }
 
@@ -36,13 +32,11 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
             return GetType() == obj.GetType() &&
                 EqualityComparer<int?>.Default.Equals(Width, (obj as ImageSource)!.Width) &&
                 EqualityComparer<string>.Default.Equals(Type, (obj as ImageSource)!.Type) &&
-                EqualityComparer<string>.Default.Equals(Path, (obj as ImageSource)!.Path) &&
-                EqualityComparer<string>.Default.Equals(Reference, (obj as ImageSource)!.Reference);
+                EqualityComparer<string>.Default.Equals(Path, (obj as ImageSource)!.Path);
         }
 
         public override int GetHashCode() =>
             Path?.GetHashCode(StringComparison.Ordinal) ?? "".GetHashCode(StringComparison.Ordinal) ^
-            Reference?.GetHashCode(StringComparison.Ordinal) ?? "".GetHashCode(StringComparison.Ordinal) ^
             Type?.GetHashCode(StringComparison.Ordinal) ?? "".GetHashCode(StringComparison.Ordinal) ^
             Width.GetHashCode();
     }

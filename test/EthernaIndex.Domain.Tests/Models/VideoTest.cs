@@ -94,8 +94,8 @@ namespace Etherna.EthernaIndex.Domain.Models
             var personalData = "{}";
             var duration = 1;
             var videoSources = new List<VideoSource> {
-                new VideoSource("10801", "path1", "reff1", 4, "type1"),
-                new VideoSource("321", "path2", "reff2", 100, "type2") };
+                new VideoSource("10801", "path1", 4, "type1"),
+                new VideoSource("321", "path2", 100, "type2") };
 
             if (valid)
                 videoManifest.SucceededValidation(

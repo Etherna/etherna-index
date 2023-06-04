@@ -80,7 +80,7 @@ namespace Etherna.EthernaIndex.Domain.Models
                 new SwarmImageRaw(
                     1,
                     "BlurTst",
-                    new List<ImageSource> { new ImageSource(1080, "image", "Test1", "ref1"), new ImageSource(720, "image", "Test2", "ref2") }),
+                    new List<ImageSource> { new ImageSource(1080, "image", "Test1"), new ImageSource(720, "image", "Test2") }),
                 "TitleTest");
 
             // Assert.
@@ -98,11 +98,11 @@ namespace Etherna.EthernaIndex.Domain.Models
             var personalData = "{}";
             var duration = 1;
             var videoSources = new List<VideoSource> {
-                new VideoSource("10801", "path1", "reff1", 4, "type1"),
-                new VideoSource("321", "path2", "reff2", 100, "type2") };
+                new VideoSource("10801", "path1", 4, "type1"),
+                new VideoSource("321", "path2", 100, "type2") };
             var blur = "BlurTst";
             var aspectRatio = 1;
-            var source = new List<ImageSource> { new ImageSource(1080, "image", "Test1", "ref1"), new ImageSource(720, "image", "Test2", "ref2") };
+            var source = new List<ImageSource> { new ImageSource(1080, "image", "Test1"), new ImageSource(720, "image", "Test2") };
 
             // Action.
             manifest.SucceededValidation(
@@ -121,24 +121,22 @@ namespace Etherna.EthernaIndex.Domain.Models
             Assert.Equal(personalData, manifest.PersonalData);
             Assert.Contains(manifest.Sources,
                i => i.Quality == "10801" &&
-                   i.Reference == "reff1" &&
+                   i.Path == "reff1" &&
                    i.Size == 4);
             Assert.Contains(manifest.Sources,
                i => i.Quality == "321" &&
-                   i.Reference == "reff2" &&
+                   i.Path == "reff2" &&
                    i.Size == 100);
             Assert.NotNull(manifest.Thumbnail);
             Assert.Equal(blur, manifest.Thumbnail.Blurhash);
             Assert.Equal(aspectRatio, manifest.Thumbnail.AspectRatio);
             Assert.NotNull(manifest.Thumbnail.SourcesV2);
             Assert.Contains(manifest.Thumbnail.SourcesV2,
-                i => i.Reference == "ref1" &&
-                    i.Type == "image" &&
+                i => i.Type == "image" &&
                     i.Width == 1080 &&
                     i.Path == "Test1");
             Assert.Contains(manifest.Thumbnail.SourcesV2,
-                i => i.Reference == "ref2" &&
-                    i.Type == "image" &&
+                i => i.Type == "image" &&
                     i.Width == 720 &&
                     i.Path == "Test2");
         }
@@ -152,8 +150,8 @@ namespace Etherna.EthernaIndex.Domain.Models
             var duration = 1;
             var personalData = "{}";
             var videoSources = new List<VideoSource> {
-                new VideoSource("10801", "path1", "reff1", 4, "type2"),
-                new VideoSource("321", "path2", "reff2", 100, "type1") };
+                new VideoSource("10801", "path1", 4, "type2"),
+                new VideoSource("321", "path2", 100, "type1") };
 
             // Action.
             manifest.SucceededValidation(
@@ -178,11 +176,11 @@ namespace Etherna.EthernaIndex.Domain.Models
             string? personalData = null;
             var duration = 1;
             var videoSources = new List<VideoSource> {
-                new VideoSource("10801", "path1", "reff1", 4, "type1"),
-                new VideoSource("321", "path2", "reff2", 100, "type2") };
+                new VideoSource("10801", "path1", 4, "type1"),
+                new VideoSource("321", "path2", 100, "type2") };
             var blur = "BlurTst";
             var aspectRatio = 1;
-            var source = new List<ImageSource> { new ImageSource(1080, "image", "Test1", "ref1"), new ImageSource(720, "image", "Test2", "ref2") };
+            var source = new List<ImageSource> { new ImageSource(1080, "image", "Test1"), new ImageSource(720, "image", "Test2") };
 
             // Action.
             manifest.SucceededValidation(

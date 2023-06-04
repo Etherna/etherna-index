@@ -15,6 +15,7 @@
 using Etherna.EthernaIndex.Swarm.DtoModels;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 
 namespace Etherna.EthernaIndex.Swarm.Models
@@ -31,17 +32,20 @@ namespace Etherna.EthernaIndex.Swarm.Models
             Blurhash = blurhash;
             Sources = sources;
         }
-#pragma warning disable CA1305
         internal SwarmImageRaw(SwarmImageRawSchema1 swarmImageRaw) :
             this(swarmImageRaw.AspectRatio,
                 swarmImageRaw.Blurhash,
-                swarmImageRaw.Sources.Select(s => new MetadataImageSource(Convert.ToInt32(s.Key.Replace("w", "", StringComparison.OrdinalIgnoreCase)), null, s.Value, null)))
+                swarmImageRaw.Sources.Select(s => new MetadataImageSource(Convert.ToInt32(s.Key.Replace("w", 
+                                                                                                        "", 
+                                                                                                        StringComparison.OrdinalIgnoreCase), 
+                                                                                          CultureInfo.InvariantCulture), 
+                                                                          s.Value, 
+                                                                          null)))
         { }
-#pragma warning restore CA1305
         internal SwarmImageRaw(SwarmImageRawSchema2 swarmImageRaw) :
             this(swarmImageRaw.AspectRatio,
                 swarmImageRaw.Blurhash,
-                swarmImageRaw.Sources.Select(s => new MetadataImageSource(s.Width, s.Path, s.Reference, s.Type)))
+                swarmImageRaw.Sources.Select(s => new MetadataImageSource(s.Width, s.Path, s.Type)))
         { }
 
         // Properties.

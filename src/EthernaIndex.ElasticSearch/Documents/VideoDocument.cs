@@ -45,14 +45,14 @@ namespace Etherna.EthernaIndex.ElasticSearch.Documents
             ManifestHash = video.LastValidManifest.Manifest.Hash;
             OwnerSharedInfoId = video.Owner.SharedInfoId;
             PersonalData = video.LastValidManifest.PersonalData;
-            Sources = video.LastValidManifest.Sources.Select(i => new SourceVideoDocument(i.Quality, i.Path, i.Reference, i.Size, i.Type ?? ""));
+            Sources = video.LastValidManifest.Sources.Select(i => new SourceVideoDocument(i.Quality, i.Path, i.Size, i.Type ?? ""));
             Title = video.LastValidManifest.Title ?? "";
 
             if (video.LastValidManifest.Thumbnail is not null)
                 Thumbnail = new ImageDocument(
                     video.LastValidManifest.Thumbnail.AspectRatio,
                     video.LastValidManifest.Thumbnail.Blurhash,
-                    video.LastValidManifest.Thumbnail.SourcesV2.Select(s => new SourceImageDocument(s.Width, s.Path, s.Reference, s.Type)));
+                    video.LastValidManifest.Thumbnail.SourcesV2.Select(s => new SourceImageDocument(s.Width, s.Path, s.Type)));
         }
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         public VideoDocument() { }

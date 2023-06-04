@@ -23,8 +23,7 @@ namespace Etherna.EthernaIndex.Swarm.DtoModels
     {
         // Properties.
         public string Quality { get; set; }
-        public string? Path { get; set; }
-        public string? Reference { get; set; }
+        public string Path { get; set; }
         public long Size { get; set; }
         public string Type { get; set; }
 

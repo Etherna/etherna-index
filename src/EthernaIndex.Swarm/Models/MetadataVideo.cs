@@ -23,6 +23,7 @@ namespace Etherna.EthernaIndex.Swarm.Models
     {
         // Constructors.
         public MetadataVideo(
+            float? aspectRatio,
             string? batchId,
             string description,
             long duration,
@@ -35,6 +36,7 @@ namespace Etherna.EthernaIndex.Swarm.Models
             long? updatedAt,
             Version version)
         {
+            AspectRatio = aspectRatio;
             BatchId = batchId;
             Description = description;
             Duration = duration;
@@ -48,6 +50,7 @@ namespace Etherna.EthernaIndex.Swarm.Models
             Version = version;
         }
         internal MetadataVideo(MetadataVideoSchema1 metadataVideo) : this(
+            null,
             metadataVideo.BatchId,
             metadataVideo.Description,
             metadataVideo.Duration,
@@ -65,6 +68,7 @@ namespace Etherna.EthernaIndex.Swarm.Models
             MetadataVideoPreviewSchema2 metadataVideoPreviewSchema2, 
             MetadataVideoDetailSchema2 metadataVideoDetailSchema2) 
             : this(
+            metadataVideoDetailSchema2.AspectRatio,
             metadataVideoDetailSchema2.BatchId,
             metadataVideoDetailSchema2.Description,
             metadataVideoPreviewSchema2.Duration,
@@ -79,6 +83,7 @@ namespace Etherna.EthernaIndex.Swarm.Models
         { }
 
         // Properties.
+        public float? AspectRatio { get; }
         public string? BatchId { get; }
         public string Description { get; }
         public long Duration { get; }

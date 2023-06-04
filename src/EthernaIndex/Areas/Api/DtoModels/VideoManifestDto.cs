@@ -16,6 +16,7 @@ using Etherna.EthernaIndex.Domain.Models.VideoAgg;
 using Etherna.EthernaIndex.ElasticSearch.Documents;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 
 namespace Etherna.EthernaIndex.Areas.Api.DtoModels
@@ -38,14 +39,13 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
                 .Select(i => new SourceDto(
                     i.Quality,
                     i.Path,
-                    i.Reference,
                     i.Size));
 
             if (videoManifest.Thumbnail is not null)
                 Thumbnail = new ImageDto(
                     videoManifest.Thumbnail.AspectRatio,
                     videoManifest.Thumbnail.Blurhash,
-                    videoManifest.Thumbnail.SourcesV2.ToDictionary(s => s.Path ?? "", s => s.Reference ?? ""));
+                    videoManifest.Thumbnail.SourcesV2.ToDictionary(s => s.Width.ToString(CultureInfo.InvariantCulture), s => s.Path));
 
             Title = videoManifest.Title;
         }
@@ -66,14 +66,13 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
                 .Select(i => new SourceDto(
                     i.Quality,
                     i.Path,
-                    i.Reference,
                     i.Size));
 
             if (videoDocument.Thumbnail is not null)
                 Thumbnail = new ImageDto(
                     videoDocument.Thumbnail.AspectRatio,
                     videoDocument.Thumbnail.Blurhash,
-                    videoDocument.Thumbnail.Sources.ToDictionary(s => s.Path ?? "", s => s.Reference ?? ""));
+                    videoDocument.Thumbnail.Sources.ToDictionary(s => s.Width.ToString(CultureInfo.InvariantCulture), s => s.Path));
 
             Title = videoDocument.Title;
         }
