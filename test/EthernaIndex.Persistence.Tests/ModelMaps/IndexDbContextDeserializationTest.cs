@@ -502,7 +502,144 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
             {
                 var tests = new List<DeserializationTestElement<VideoManifest>>();
 
-                // "a48b92d6-c02d-4b1e-b1b0-0526c4bcaa6e" - v0.3.4
+
+
+                // "a48b92d6-c02d-4b1e-b1b0-0526c4bcaa6e" - v0.3.4 - SwarmImageRaw 36966654-d85c-455b-b870-7b49e1124e6d v0.3.9
+                //invalid manifest
+                {
+                    var sourceDocument =
+                        @"{
+                            ""_id"" : ObjectId(""630fad72a93c1417a162417e""),
+                            ""_m"" : ""a48b92d6-c02d-4b1e-b1b0-0526c4bcaa6e"",
+                            ""CreationDateTime"" : ISODate(""2022-08-31T18:50:26.067+0000""),
+                            ""IsValid"" : false,
+                            ""Manifest"" : {
+                                ""_m"" : ""27edd50c-dd67-44d8-84ea-1eedcfe481e8"",
+                                ""Hash"" : ""765a93649a58db3a4a85d800aa8111b13c7082e081b5ea186885d95cdd232dcb""
+                            },
+                            ""ValidationErrors"" : [
+                                {
+                                    ""ErrorMessage"": ""MissingTitle"",
+                                    ""ErrorType"": ""MissingTitle""
+                                }
+                            ],
+                            ""ValidationTime"" : ISODate(""2022-08-31T18:50:26.473+0000""),
+                            ""BatchId"" : ""36b7efd913ca4cf880b8eeac5093fa27b0825906c600685b6abdd6566e6cfe8f"",
+                            ""Description"" : ""Test description"",
+                            ""Duration"" : NumberLong(420),
+                            ""OriginalQuality"" : ""720p"",
+                            ""Sources"" : [
+                                {
+                                    ""_m"" : ""ca9caff9-df18-4101-a362-f8f449bb2aac"",
+                                    ""Bitrate"" : NumberInt(560000),
+                                    ""Quality"" : ""720p"",
+                                    ""Reference"" : ""5370D45B2CA38F480B53334163FEF3BEECD4D048B398852B33DD4F568C329956"",
+                                    ""Size"" : NumberLong(100000000)
+                                }
+                            ],
+                            ""Thumbnail"" : {
+                                ""_m"" : ""91ce6fdc-b59a-46bc-9ad0-7a8608cdfa1c"",
+                                ""AspectRatio"" : 1.7699999809265137,
+                                ""Blurhash"" : ""LEHV6nWB2yk8pyo0adR*.7kCMdnj"",
+                                ""SourcesV2"" : [{
+                                    ""Width"" : ""480"",
+                                    ""Type"" : ""png"",
+                                    ""Path"" : ""textPath"",
+                                    ""Reference"" : ""a015d8923a777bf8230291318274a5f9795b4bb9445ad41a2667d06df1ea3008""
+                                }]
+                            }
+                        }";
+
+                    var expectedManifestMock = new Mock<VideoManifest>();
+                    expectedManifestMock.Setup(m => m.Id).Returns("630fad72a93c1417a162417e");
+                    expectedManifestMock.Setup(m => m.CreationDateTime).Returns(new DateTime(2022, 08, 31, 18, 50, 26, 067));
+                    expectedManifestMock.Setup(m => m.IsValid).Returns(false);
+                    expectedManifestMock.Setup(m => m.Manifest).Returns(new SwarmBzz("765a93649a58db3a4a85d800aa8111b13c7082e081b5ea186885d95cdd232dcb"));
+                    expectedManifestMock.Setup(m => m.ValidationErrors).Returns(new[] { new ErrorDetail(ValidationErrorType.MissingTitle) });
+                    expectedManifestMock.Setup(m => m.ValidationTime).Returns(new DateTime(2022, 08, 31, 18, 50, 26, 473));
+                    expectedManifestMock.Setup(m => m.BatchId).Returns("36b7efd913ca4cf880b8eeac5093fa27b0825906c600685b6abdd6566e6cfe8f");
+                    expectedManifestMock.Setup(m => m.Description).Returns("Test description");
+                    expectedManifestMock.Setup(m => m.Duration).Returns(420);
+                    expectedManifestMock.Setup(m => m.Sources).Returns(new[]{
+                        new VideoSource("720p", null, "5370D45B2CA38F480B53334163FEF3BEECD4D048B398852B33DD4F568C329956", 100000000, null)
+                    });
+                    expectedManifestMock.Setup(m => m.Thumbnail).Returns(new SwarmImageRaw(1.7699999809265137f, "LEHV6nWB2yk8pyo0adR*.7kCMdnj", new List<ImageSource>
+                    {
+                       new ImageSource(480, "png", "textPath", "a015d8923a777bf8230291318274a5f9795b4bb9445ad41a2667d06df1ea3008"),
+                    }));
+                    expectedManifestMock.Setup(m => m.Title).Returns<string?>(null);
+
+                    tests.Add(new DeserializationTestElement<VideoManifest>(sourceDocument, expectedManifestMock.Object));
+                }
+
+
+                // "a48b92d6-c02d-4b1e-b1b0-0526c4bcaa6e" - v0.3.4 - SwarmImageRaw 36966654-d85c-455b-b870-7b49e1124e6d v0.3.9
+                //valid manifest
+                {
+                    var sourceDocument =
+                        @"{
+                            ""_id"" : ObjectId(""630fad72a93c1417a162417e""),
+                            ""_m"" : ""a48b92d6-c02d-4b1e-b1b0-0526c4bcaa6e"",
+                            ""CreationDateTime"" : ISODate(""2022-08-31T18:50:26.067+0000""),
+                            ""IsValid"" : true,
+                            ""Manifest"" : {
+                                ""_m"" : ""27edd50c-dd67-44d8-84ea-1eedcfe481e8"",
+                                ""Hash"" : ""765a93649a58db3a4a85d800aa8111b13c7082e081b5ea186885d95cdd232dcb""
+                            },
+                            ""ValidationErrors"" : [
+
+                            ],
+                            ""ValidationTime"" : ISODate(""2022-08-31T18:50:26.473+0000""),
+                            ""BatchId"" : ""36b7efd913ca4cf880b8eeac5093fa27b0825906c600685b6abdd6566e6cfe8f"",
+                            ""Description"" : ""Test description"",
+                            ""Duration"" : NumberLong(420),
+                            ""OriginalQuality"" : ""720p"",
+                            ""Sources"" : [
+                                {
+                                    ""_m"" : ""ca9caff9-df18-4101-a362-f8f449bb2aac"",
+                                    ""Bitrate"" : NumberInt(560000),
+                                    ""Quality"" : ""720p"",
+                                    ""Reference"" : ""5370D45B2CA38F480B53334163FEF3BEECD4D048B398852B33DD4F568C329956"",
+                                    ""Size"" : NumberLong(100000000)
+                                }
+                            ],
+                            ""Thumbnail"" : {
+                                ""_m"" : ""91ce6fdc-b59a-46bc-9ad0-7a8608cdfa1c"",
+                                ""AspectRatio"" : 1.7699999809265137,
+                                ""Blurhash"" : ""LEHV6nWB2yk8pyo0adR*.7kCMdnj"",
+                                ""SourcesV2"" : [{
+                                    ""Width"" : ""480"",
+                                    ""Type"" : ""png"",
+                                    ""Path"" : ""textPath"",
+                                    ""Reference"" : ""a015d8923a777bf8230291318274a5f9795b4bb9445ad41a2667d06df1ea3008""
+                                }]
+                            },
+                            ""Title"" : ""Mocked sample video""
+                        }";
+
+                    var expectedManifestMock = new Mock<VideoManifest>();
+                    expectedManifestMock.Setup(m => m.Id).Returns("630fad72a93c1417a162417e");
+                    expectedManifestMock.Setup(m => m.CreationDateTime).Returns(new DateTime(2022, 08, 31, 18, 50, 26, 067));
+                    expectedManifestMock.Setup(m => m.IsValid).Returns(true);
+                    expectedManifestMock.Setup(m => m.Manifest).Returns(new SwarmBzz("765a93649a58db3a4a85d800aa8111b13c7082e081b5ea186885d95cdd232dcb"));
+                    expectedManifestMock.Setup(m => m.ValidationErrors).Returns(Array.Empty<ErrorDetail>());
+                    expectedManifestMock.Setup(m => m.ValidationTime).Returns(new DateTime(2022, 08, 31, 18, 50, 26, 473));
+                    expectedManifestMock.Setup(m => m.BatchId).Returns("36b7efd913ca4cf880b8eeac5093fa27b0825906c600685b6abdd6566e6cfe8f");
+                    expectedManifestMock.Setup(m => m.Description).Returns("Test description");
+                    expectedManifestMock.Setup(m => m.Duration).Returns(420);
+                    expectedManifestMock.Setup(m => m.Sources).Returns(new[]{
+                        new VideoSource("720p", null, "5370D45B2CA38F480B53334163FEF3BEECD4D048B398852B33DD4F568C329956", 100000000, null)
+                    });
+                    expectedManifestMock.Setup(m => m.Thumbnail).Returns(new SwarmImageRaw(1.7699999809265137f, "LEHV6nWB2yk8pyo0adR*.7kCMdnj", new List<ImageSource>
+                    {
+                       new ImageSource(480, "png", "textPath", "a015d8923a777bf8230291318274a5f9795b4bb9445ad41a2667d06df1ea3008"),
+                    }));
+                    expectedManifestMock.Setup(m => m.Title).Returns("Mocked sample video");
+
+                    tests.Add(new DeserializationTestElement<VideoManifest>(sourceDocument, expectedManifestMock.Object));
+                }
+
+                // "a48b92d6-c02d-4b1e-b1b0-0526c4bcaa6e" - v0.3.4 - SwarmImageRaw 91ce6fdc-b59a-46bc-9ad0-7a8608cdfa1c v0.3.0
                 //invalid manifest
                 {
                     var sourceDocument =
@@ -567,7 +704,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                     tests.Add(new DeserializationTestElement<VideoManifest>(sourceDocument, expectedManifestMock.Object));
                 }
 
-                // "a48b92d6-c02d-4b1e-b1b0-0526c4bcaa6e" - v0.3.4
+                // "a48b92d6-c02d-4b1e-b1b0-0526c4bcaa6e" - v0.3.4 - SwarmImageRaw 91ce6fdc-b59a-46bc-9ad0-7a8608cdfa1c v0.3.0
                 //valid manifest
                 {
                     var sourceDocument =
