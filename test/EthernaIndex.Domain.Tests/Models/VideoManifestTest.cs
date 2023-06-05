@@ -121,12 +121,14 @@ namespace Etherna.EthernaIndex.Domain.Models
             Assert.Equal(personalData, manifest.PersonalData);
             Assert.Contains(manifest.Sources,
                i => i.Quality == "10801" &&
-                   i.Path == "reff1" &&
-                   i.Size == 4);
+                   i.Path == "path1" &&
+                   i.Size == 4 &&
+                   i.Type == "type1");
             Assert.Contains(manifest.Sources,
                i => i.Quality == "321" &&
-                   i.Path == "reff2" &&
-                   i.Size == 100);
+                   i.Path == "path2" &&
+                   i.Size == 100 &&
+                   i.Type == "type2");
             Assert.NotNull(manifest.Thumbnail);
             Assert.Equal(blur, manifest.Thumbnail.Blurhash);
             Assert.Equal(aspectRatio, manifest.Thumbnail.AspectRatio);
