@@ -14,10 +14,10 @@
 
 namespace Etherna.EthernaIndex.Areas.Api.DtoModels
 {
-    public class SourceDto
+    public class VideoSourceDto
     {
         // Constructors.
-        public SourceDto(
+        public VideoSourceDto(
             string quality,
             string path,
             long size)

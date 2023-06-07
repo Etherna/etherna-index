@@ -22,7 +22,7 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
         public ImageDto(
             float aspectRatio,
             string blurhash,
-            IReadOnlyDictionary<string, string> sources)
+            IEnumerable<ImageSourceDto> sources)
         {
             AspectRatio = aspectRatio;
             Blurhash = blurhash;
@@ -32,6 +32,6 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
         // Properties.
         public float AspectRatio { get; private set; }
         public string Blurhash { get; private set; }
-        public IReadOnlyDictionary<string, string> Sources { get; private set; }
+        public IEnumerable<ImageSourceDto> Sources { get; private set; }
     }
 }
