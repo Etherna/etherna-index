@@ -13,7 +13,6 @@
 //   limitations under the License.
 
 using Etherna.DomainEvents;
-using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Events;
 using Etherna.EthernaIndex.Services.Domain;
 using System;
@@ -24,15 +23,11 @@ namespace Etherna.EthernaIndex.Services.EventHandlers
     internal sealed class OnManualVideoReviewRejectedThenRemoveVideoManifestsHandler : EventHandlerBase<ManualVideoReviewRejectedEvent>
     {
         // Fields.
-        private readonly IIndexDbContext dbContext;
         private readonly IVideoService videoService;
 
         // Constructor.
-        public OnManualVideoReviewRejectedThenRemoveVideoManifestsHandler(
-            IIndexDbContext dbContext,
-            IVideoService videoService)
+        public OnManualVideoReviewRejectedThenRemoveVideoManifestsHandler(IVideoService videoService)
         {
-            this.dbContext = dbContext;
             this.videoService = videoService;
         }
 
@@ -42,8 +37,7 @@ namespace Etherna.EthernaIndex.Services.EventHandlers
             if (@event is null)
                 throw new ArgumentNullException(nameof(@event));
 
-            var video = await dbContext.Videos.FindOneAsync(@event.Video.Id);
-            await videoService.ModerateUnsuitableVideoAsync(video);
+            await videoService.ModerateUnsuitableVideoAsync(@event.Video);
         }
     }
 }
