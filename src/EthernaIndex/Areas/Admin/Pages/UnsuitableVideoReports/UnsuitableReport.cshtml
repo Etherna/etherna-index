@@ -27,6 +27,16 @@
     </div>
 </div>
 
+<form id="client-form" Method="post">
+    <div class="form-row">
+        <div class="col-12 mb-3">
+            <input type="hidden" asp-for="VideoReport.VideoId" name="VideoId" />
+            <input type="submit" asp-page-handler="ApproveVideo" class="btn btn-primary" value="Approve Video" name="button" />
+            <input type="submit" asp-page-handler="RejectVideo" class="btn btn-primary" value="Reject Video" name="button" />
+        </div>
+    </div>
+</form>
+
 <div class="row">
     <div class="col-12">
         <div class="table-responsive">
@@ -60,12 +70,4 @@
     </div>
 </div>
 
-<form id="client-form" Method="post">
-    <div class="form-row">
-        <div class="col-12 mb-3">
-            <input type="hidden" asp-for="VideoReport.VideoId" name="VideoId" />
-            <input type="submit" asp-page-handler="ApproveVideo" class="btn btn-primary" value="Approve Video" name="button" />
-            <input type="submit" asp-page-handler="RejectVideo" class="btn btn-primary" value="Reject Video" name="button" />
-        </div>
-    </div>
-</form>
+<a class="btn btn-primary" asp-page="History" asp-route-videoId="@Model.VideoReport.VideoId">History</a>

@@ -14,11 +14,11 @@
  *@
 
 @page
-@model Etherna.EthernaIndex.Areas.Admin.Pages.ManualVideoReviews.HistoryModel
+@model Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports.HistoryModel
 @{
     ViewData["Title"] = Model.VideoReview.Title;
 
-    var pageSelectorModel = new PageSelectorModel(Model.CurrentPage, (int)Model.MaxPage);
+    var pageSelectorModel = new PageSelectorModel(Model.CurrentPage, (int)Model.MaxPage, routeData: Model.CustomRouteData);
 }
 
 <div class="row">
@@ -61,3 +61,5 @@
         <partial name="_PageSelector" model="pageSelectorModel" />
     </div>
 </div>
+
+<a class="btn btn-primary" asp-page="UnsuitableReport" asp-route-videoId="@Model.VideoReview.VideoId">Back</a>

@@ -19,9 +19,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using static Etherna.EthernaIndex.Areas.Admin.Pages.ManualVideoReviews.HistoryModel.VideoReviewDto;
+using static Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports.HistoryModel.VideoReviewDto;
 
-namespace Etherna.EthernaIndex.Areas.Admin.Pages.ManualVideoReviews
+namespace Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports
 {
     public class HistoryModel : PageModel
     {
@@ -90,17 +90,24 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.ManualVideoReviews
                 throw new ArgumentNullException(nameof(indexDbContext));
 
             this.indexDbContext = indexDbContext;
+            this.CustomRouteData = new Dictionary<string, string>();
         }
 
         // Properties.
         public int CurrentPage { get; private set; }
         public long MaxPage { get; private set; }
+        public Dictionary<string, string> CustomRouteData { get; private set; }
         public VideoReviewDto VideoReview { get; private set; } = default!;
         public IEnumerable<VideoReviewDetailDto> DetailReports { get; private set; } = default!;
 
         // Methods.
         public async Task OnGetAsync(string videoId, int? p)
         {
+            if (CustomRouteData.ContainsKey("videoId"))
+                CustomRouteData["videoId"] = videoId;
+            else
+                CustomRouteData.Add("videoId", videoId);
+
             // Video info.
             var video = await indexDbContext.Videos.FindOneAsync(i => i.Id == videoId);
 
