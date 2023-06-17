@@ -15,14 +15,13 @@
 using Etherna.DomainEvents;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Events;
-using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.Services.Domain;
 using System;
 using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Services.EventHandlers
 {
-    internal sealed class OnManualVideoReviewRejectedThenRemoveVideoManifestsHandler : EventHandlerBase<EntityCreatedEvent<ManualVideoReview>>
+    internal sealed class OnManualVideoReviewRejectedThenRemoveVideoManifestsHandler : EventHandlerBase<ManualVideoReviewRejectedEvent>
     {
         // Fields.
         private readonly IIndexDbContext dbContext;
@@ -38,16 +37,13 @@ namespace Etherna.EthernaIndex.Services.EventHandlers
         }
 
         // Methods.
-        public override async Task HandleAsync(EntityCreatedEvent<ManualVideoReview> @event)
+        public override async Task HandleAsync(ManualVideoReviewRejectedEvent @event)
         {
             if (@event is null)
                 throw new ArgumentNullException(nameof(@event));
-            
-            if (!@event.Entity.IsValidResult)
-            {
-                var video = await dbContext.Videos.FindOneAsync(@event.Entity.Video.Id);
-                await videoService.ModerateUnsuitableVideoAsync(video);
-            }
+
+            var video = await dbContext.Videos.FindOneAsync(@event.Video.Id);
+            await videoService.ModerateUnsuitableVideoAsync(video);
         }
     }
 }

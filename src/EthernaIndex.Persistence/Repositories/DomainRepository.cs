@@ -46,8 +46,15 @@ namespace Etherna.EthernaIndex.Persistence.Repositories
 
             // Dispatch created events.
             if (EventDispatcher != null)
+            {
                 await EventDispatcher.DispatchAsync(
                     models.Select(m => new EntityCreatedEvent<TModel>(m)));
+
+                var manualVideoReviewes = models.OfType<ManualVideoReview>().Where(mvr => !mvr.IsValidResult);
+                if (manualVideoReviewes.Any())
+                    await EventDispatcher.DispatchAsync(
+                        manualVideoReviewes.Select(mvr => new ManualVideoReviewRejectedEvent(mvr.Video)));
+            }
         }
 
         public override async Task CreateAsync(TModel model, CancellationToken cancellationToken = default)
@@ -56,8 +63,16 @@ namespace Etherna.EthernaIndex.Persistence.Repositories
 
             // Dispatch created event.
             if (EventDispatcher != null)
+            {
                 await EventDispatcher.DispatchAsync(
                     new EntityCreatedEvent<TModel>(model));
+                if (model is ManualVideoReview)
+                {
+                    var castedModel = model as ManualVideoReview;
+                    if (!castedModel!.IsValidResult)
+                        await EventDispatcher.DispatchAsync(new ManualVideoReviewRejectedEvent(castedModel.Video));
+                }
+            }
         }
 
         public override async Task DeleteAsync(TModel model, CancellationToken cancellationToken = default)
