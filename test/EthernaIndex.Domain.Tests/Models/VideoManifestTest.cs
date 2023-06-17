@@ -100,6 +100,9 @@ namespace Etherna.EthernaIndex.Domain.Models
             var desc = "DescTest";
             var personalData = "{}";
             var duration = 1;
+            var manifestAspectRatio = 1.78f;
+            var manifestCreatedAt = 12345;
+            var manifestUpdatedAt = 54321;
             var videoSources = new List<VideoSource> {
                 new VideoSource("10801", "path1", 4, "type1"),
                 new VideoSource("321", "path2", 100, "type2") };
@@ -109,12 +112,12 @@ namespace Etherna.EthernaIndex.Domain.Models
 
             // Action.
             manifest.SucceededValidation(
-                1.78f,
+                manifestAspectRatio,
                 null,
                 desc,
                 duration,
-                12345,
-                54321,
+                manifestCreatedAt,
+                manifestUpdatedAt,
                 personalData,
                 videoSources,
                 new SwarmImageRaw(aspectRatio, blur, source),
@@ -124,6 +127,9 @@ namespace Etherna.EthernaIndex.Domain.Models
             Assert.Equal(title, manifest.Title);
             Assert.Equal(desc, manifest.Description);
             Assert.Equal(duration, manifest.Duration);
+            Assert.Equal(manifestAspectRatio, manifest.AspectRatio);
+            Assert.Equal(manifestCreatedAt, manifest.ManifestCreatedAt);
+            Assert.Equal(manifestUpdatedAt, manifest.ManifestUpdatedAt);
             Assert.Equal(personalData, manifest.PersonalData);
             Assert.Contains(manifest.Sources,
                i => i.Quality == "10801" &&
@@ -157,18 +163,21 @@ namespace Etherna.EthernaIndex.Domain.Models
             var desc = "DescTest";
             var duration = 1;
             var personalData = "{}";
+            var manifestAspectRatio = 1.78f;
+            var manifestCreatedAt = 12345;
+            var manifestUpdatedAt = 54321;
             var videoSources = new List<VideoSource> {
                 new VideoSource("10801", "path1", 4, "type2"),
                 new VideoSource("321", "path2", 100, "type1") };
 
             // Action.
             manifest.SucceededValidation(
-                1.78f,
+                manifestAspectRatio,
                 null,
                 desc,
                 duration,
-                12345,
-                54321,
+                manifestCreatedAt,
+                manifestUpdatedAt,
                 personalData,
                 videoSources,
                 null,
@@ -186,6 +195,9 @@ namespace Etherna.EthernaIndex.Domain.Models
             var desc = "DescTest";
             string? personalData = null;
             var duration = 1;
+            var manifestAspectRatio = 1.78f;
+            var manifestCreatedAt = 12345;
+            var manifestUpdatedAt = 54321;
             var videoSources = new List<VideoSource> {
                 new VideoSource("10801", "path1", 4, "type1"),
                 new VideoSource("321", "path2", 100, "type2") };
@@ -195,12 +207,12 @@ namespace Etherna.EthernaIndex.Domain.Models
 
             // Action.
             manifest.SucceededValidation(
-                1.78f,
+                manifestAspectRatio,
                 null,
                 desc,
                 duration,
-                12345,
-                54321,
+                manifestCreatedAt,
+                manifestUpdatedAt,
                 personalData,
                 videoSources,
                 new SwarmImageRaw(aspectRatio, blur, source),
