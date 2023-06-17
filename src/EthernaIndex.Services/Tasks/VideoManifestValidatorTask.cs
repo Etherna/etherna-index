@@ -144,9 +144,12 @@ namespace Etherna.EthernaIndex.Services.Tasks
 
                 video.SucceededManifestValidation(
                     videoManifest,
+                    metadataDto.AspectRatio,
                     metadataDto.BatchId,
                     metadataDto.Description!,
                     metadataDto.Duration,
+                    metadataDto.CreatedAt,
+                    metadataDto.UpdatedAt,
                     metadataDto.PersonalData,
                     videoSources,
                     swarmImageRaw,

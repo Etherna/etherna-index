@@ -72,9 +72,12 @@ namespace Etherna.EthernaIndex.Domain.Models
         {
             // Action.
             manifest.SucceededValidation(
+                1.78f,
                 null,
                 "DescTest",
                 1,
+                12345,
+                54321,
                 "{}",
                 new List<VideoSource>(),
                 new SwarmImageRaw(
@@ -106,9 +109,12 @@ namespace Etherna.EthernaIndex.Domain.Models
 
             // Action.
             manifest.SucceededValidation(
+                1.78f,
                 null,
                 desc,
                 duration,
+                12345,
+                54321,
                 personalData,
                 videoSources,
                 new SwarmImageRaw(aspectRatio, blur, source),
@@ -157,9 +163,12 @@ namespace Etherna.EthernaIndex.Domain.Models
 
             // Action.
             manifest.SucceededValidation(
+                1.78f,
                 null,
                 desc,
                 duration,
+                12345,
+                54321,
                 personalData,
                 videoSources,
                 null,
@@ -186,9 +195,12 @@ namespace Etherna.EthernaIndex.Domain.Models
 
             // Action.
             manifest.SucceededValidation(
+                1.78f,
                 null,
                 desc,
                 duration,
+                12345,
+                54321,
                 personalData,
                 videoSources,
                 new SwarmImageRaw(aspectRatio, blur, source),

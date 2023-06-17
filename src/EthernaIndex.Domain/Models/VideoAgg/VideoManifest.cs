@@ -49,26 +49,35 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
         public virtual string? Title { get; protected set; }
 
         // Methods.
+        [PropertyAlterer(nameof(AspectRatio))]
         [PropertyAlterer(nameof(BatchId))]
         [PropertyAlterer(nameof(Description))]
         [PropertyAlterer(nameof(Duration))]
+        [PropertyAlterer(nameof(ManifestCreatedAt))]
+        [PropertyAlterer(nameof(ManifestUpdatedAt))]
         [PropertyAlterer(nameof(PersonalData))]
         [PropertyAlterer(nameof(Sources))]
         [PropertyAlterer(nameof(Thumbnail))]
         [PropertyAlterer(nameof(Title))]
         internal virtual void SucceededValidation(
+            float? aspectRatio,
             string? batchId,
             string description,
             long duration,
+            long? manifestCreatedAt,
+            long? manifestUpdatedAt,
             string? personalData,
             IEnumerable<VideoSource> sources,
             SwarmImageRaw? thumbnail,
             string title)
         {
             base.SucceededValidation();
+            AspectRatio = aspectRatio;
             BatchId = batchId;
             Description = description;
             Duration = duration;
+            ManifestCreatedAt = manifestCreatedAt;
+            ManifestUpdatedAt = manifestUpdatedAt;
             PersonalData = personalData;
             Sources = sources;
             Thumbnail = thumbnail;

@@ -99,9 +99,12 @@ namespace Etherna.EthernaIndex.Domain.Models
 
             if (valid)
                 videoManifest.SucceededValidation(
+                    1.78f,
                     null,
                     desc,
                     duration,
+                    12345,
+                    54321,
                     personalData,
                     videoSources,
                     null,
