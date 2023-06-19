@@ -235,7 +235,6 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             return new VideoManifestStatusDto(manifest);
         }
 
-
         public async Task<IEnumerable<VideoManifestStatusDto>> GetValidationStatusByIdAsync(string videoId)
         {
             var manifest = await indexDbContext.Videos.FindOneAsync(i => i.Id == videoId);
