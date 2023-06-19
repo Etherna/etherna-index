@@ -19,7 +19,7 @@ namespace Etherna.EthernaIndex.Services.Extensions
 {
     /*
      * Always group similar log delegates by type, always use incremental event ids.
-     * Last event id is: 25
+     * Last event id is: 26
      */
     public static class LoggerExtensions
     {
@@ -140,6 +140,12 @@ namespace Etherna.EthernaIndex.Services.Extensions
                 new EventId(19, nameof(OwnerDeleteVideoComment)),
                 "Comment Id {CommentId} deleted by owner");
 
+        private static readonly Action<ILogger, string, Exception> _updateComment =
+            LoggerMessage.Define<string>(
+                LogLevel.Information,
+                new EventId(26, nameof(UpdateComment)),
+                "Comment Id {CommentId} updated  by author");
+
         private static readonly Action<ILogger, string, string, Exception> _updateVideo =
             LoggerMessage.Define<string, string>(
                 LogLevel.Information,
@@ -239,6 +245,9 @@ namespace Etherna.EthernaIndex.Services.Extensions
 
         public static void RequestThrowedError(this ILogger logger, string requestId) =>
             _requestThrowedError(logger, requestId, null!);
+
+        public static void UpdateComment(this ILogger logger, string commentId) =>
+            _updateComment(logger, commentId, null!);
 
         public static void UpdateVideo(this ILogger logger, string videoId, string newHash) =>
             _updateVideo(logger, videoId, newHash, null!);

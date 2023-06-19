@@ -299,6 +299,22 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             }
         }
 
+        public async Task UpdateCommentAsync(string commentId, string text)
+        {
+            // Get data.
+            var address = await ethernaOidcClient.GetEtherAddressAsync();
+            var (currentUser, _) = await userService.FindUserAsync(address);
+
+            var comment = await indexDbContext.Comments.FindOneAsync(commentId);
+
+            if (comment.Author.SharedInfoId != currentUser.SharedInfoId)
+                throw new UnauthorizedAccessException("Only the owner of comment can update the content");
+
+            comment.UpdateComment(text);
+            await indexDbContext.SaveChangesAsync();
+            logger.UpdateComment(commentId);
+        }
+
         public async Task<VideoManifestDto> UpdateAsync(string id, string newHash)
         {
             // Get data.

@@ -233,6 +233,22 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         // Put.
 
         /// <summary>
+        /// Update a comment on a video with current user.
+        /// </summary>
+        /// <param name="commentId">Comment id</param>
+        /// <param name="text">Comment text</param>
+        [HttpPost("{commentId}/comments")]
+        [Authorize]
+        [SimpleExceptionFilter]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public Task UpdateCommentAsync(
+            [Required] string commentId,
+            [Required][FromBody] string text) =>
+            service.UpdateCommentAsync(commentId, text);
+
+        /// <summary>
         /// Update video manifest.
         /// </summary>
         /// <param name="id">The video id</param>

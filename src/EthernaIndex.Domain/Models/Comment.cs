@@ -73,5 +73,16 @@ namespace Etherna.EthernaIndex.Domain.Models
             LastUpdateDateTime = DateTime.UtcNow;
             Text = "(removed by moderator)";
         }
+
+        [PropertyAlterer(nameof(LastUpdateDateTime))]
+        [PropertyAlterer(nameof(Text))]
+        public virtual void UpdateComment(string text)
+        {
+            if (IsFrozen)
+                throw new InvalidOperationException();
+
+            LastUpdateDateTime = DateTime.UtcNow;
+            Text = "text";
+        }
     }
 }
