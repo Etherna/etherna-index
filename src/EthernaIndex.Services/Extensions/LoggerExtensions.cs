@@ -19,7 +19,7 @@ namespace Etherna.EthernaIndex.Services.Extensions
 {
     /*
      * Always group similar log delegates by type, always use incremental event ids.
-     * Last event id is: 25
+     * Last event id is: 27
      */
     public static class LoggerExtensions
     {
@@ -79,6 +79,12 @@ namespace Etherna.EthernaIndex.Services.Extensions
                 LogLevel.Information,
                 new EventId(15, nameof(FindVideoById)),
                 "Find video by Id {VideoId}");
+
+        private static readonly Action<ILogger, string, string, Exception> _forceManifestValidation =
+            LoggerMessage.Define<string, string>(
+                LogLevel.Information,
+                new EventId(27, nameof(FindVideoById)),
+                "Force manifest validation VideoId {VideoId} Hash {Hash}");
 
         private static readonly Action<ILogger, string, Exception> _getCurrentUser =
             LoggerMessage.Define<string>(
@@ -207,6 +213,9 @@ namespace Etherna.EthernaIndex.Services.Extensions
         public static void FindVideoById(this ILogger logger, string videoId) =>
             _findVideoById(logger, videoId, null!);
 
+        public static void ForceManifestValidation(this ILogger logger, string videoId, string hash) =>
+            _forceManifestValidation(logger, videoId, hash, null!);
+        
         public static void GetCurrentUser(this ILogger logger, string address) =>
             _getCurrentUser(logger, address, null!);
 

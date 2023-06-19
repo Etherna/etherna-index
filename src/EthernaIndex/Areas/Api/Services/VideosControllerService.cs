@@ -27,6 +27,7 @@ using Etherna.MongoDB.Driver.Linq;
 using Hangfire;
 using Hangfire.States;
 using Microsoft.Extensions.Logging;
+using Nest;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -204,6 +205,8 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             backgroundJobClient.Create<IVideoManifestValidatorTask>(
                     task => task.RunAsync(video.Id, videoManifest.Manifest.Hash),
                     new EnqueuedState(Queues.METADATA_VIDEO_VALIDATOR));
+
+            logger.ForceManifestValidation(video.Id, videoManifest.Manifest.Hash);
         }
 
         public async Task ForceValidationManifestVideoIdAsync(string id, bool lastvalid)
