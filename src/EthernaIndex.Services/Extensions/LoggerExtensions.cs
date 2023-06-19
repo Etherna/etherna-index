@@ -19,7 +19,7 @@ namespace Etherna.EthernaIndex.Services.Extensions
 {
     /*
      * Always group similar log delegates by type, always use incremental event ids.
-     * Last event id is: 25
+     * Last event id is: 29
      */
     public static class LoggerExtensions
     {
