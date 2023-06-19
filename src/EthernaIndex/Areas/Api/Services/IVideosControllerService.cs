@@ -31,6 +31,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         Task<PaginatedEnumerableDto<VideoDto>> GetLastUploadedVideosAsync(int page, int take);
         Task<VideoManifestStatusDto> GetValidationStatusByHashAsync(string manifestHash);
         Task<IEnumerable<VideoManifestStatusDto>> GetValidationStatusByIdAsync(string id);
+        Task<IEnumerable<VideoStatusDto>> GetValidationStatusByIdsAsync(IEnumerable<string> ids);
         Task<PaginatedEnumerableDto<CommentDto>> GetVideoCommentsAsync(string id, int page, int take);
         Task ReportVideoAsync(string videoId, string manifestHash, string description);
         Task<VideoManifestDto> UpdateAsync(string id, string newHash);

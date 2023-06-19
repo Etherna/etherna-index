@@ -27,6 +27,7 @@ using Etherna.MongoDB.Driver.Linq;
 using Hangfire;
 using Hangfire.States;
 using Microsoft.Extensions.Logging;
+using Nest;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -229,6 +230,8 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         {
             var manifest = await indexDbContext.VideoManifests.FindOneAsync(i => i.Manifest.Hash == hash);
 
+            logger.GetValidationStatusByHash(hash);
+
             return new VideoManifestStatusDto(manifest);
         }
 
@@ -237,8 +240,21 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         {
             var manifest = await indexDbContext.Videos.FindOneAsync(i => i.Id == videoId);
 
+            logger.GetVideoValidationStatusById(videoId);
+
             return manifest.VideoManifests
-                .Select(i => new VideoManifestStatusDto(i));
+                .Select(vm => new VideoManifestStatusDto(vm));
+        }
+
+        public async Task<IEnumerable<VideoStatusDto>> GetValidationStatusByIdsAsync(IEnumerable<string> videoIds)
+        {
+            var videos = await indexDbContext.Videos.QueryElementsAsync(elements =>
+                                                                elements.Where(v => videoIds.Contains(v.Id))
+                                                                        .ToListAsync());
+
+            logger.GetVideoValidationStatusByIds();
+
+            return videos.Select(v => new VideoStatusDto(v));
         }
 
         public async Task<PaginatedEnumerableDto<CommentDto>> GetVideoCommentsAsync(string id, int page, int take)

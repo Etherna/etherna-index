@@ -104,6 +104,12 @@ namespace Etherna.EthernaIndex.Services.Extensions
                 new EventId(14, nameof(GetUserVideosPaginated)),
                 "Get video for user address {Address} paginated Page: {Page} Take: {Take}");
 
+        private static readonly Action<ILogger, string, Exception> _getValidationStatusByHash =
+            LoggerMessage.Define<string>(
+                LogLevel.Information,
+                new EventId(28, nameof(GetValidationStatusByHash)),
+                "Get validation status for hash {Hash}");
+
         private static readonly Action<ILogger, string, int, int, Exception> _getVideoComments =
             LoggerMessage.Define<string, int, int>(
                 LogLevel.Information,
@@ -121,6 +127,12 @@ namespace Etherna.EthernaIndex.Services.Extensions
                 LogLevel.Information,
                 new EventId(17, nameof(GetVideoValidationStatusById)),
                 "Get validation status by video id {VideoId}");
+
+        private static readonly Action<ILogger, Exception> _getVideoValidationStatusByIds =
+            LoggerMessage.Define(
+                LogLevel.Information,
+                new EventId(29, nameof(GetVideoValidationStatusByIds)),
+                "Get validation status by videos id");
 
         private static readonly Action<ILogger, string, Exception> _moderateComment =
             LoggerMessage.Define<string>(
@@ -219,6 +231,9 @@ namespace Etherna.EthernaIndex.Services.Extensions
         public static void GetUserVideosPaginated(this ILogger logger, string address, int page, int take) =>
             _getUserVideosPaginated(logger, address, page, take, null!);
 
+        public static void GetValidationStatusByHash(this ILogger logger, string hash) =>
+            _getValidationStatusByHash(logger, hash, null!);
+
         public static void GetVideoComments(this ILogger logger, string videoId, int page, int take) =>
             _getVideoComments(logger, videoId, page, take, null!);
 
@@ -227,6 +242,9 @@ namespace Etherna.EthernaIndex.Services.Extensions
 
         public static void GetVideoValidationStatusById(this ILogger logger, string videoId) =>
             _getVideoValidationStatusById(logger, videoId, null!);
+
+        public static void GetVideoValidationStatusByIds(this ILogger logger) =>
+            _getVideoValidationStatusByIds(logger, null!);
 
         public static void ModerateComment(this ILogger logger, string commentId) =>
             _moderateComment(logger, commentId, null!);

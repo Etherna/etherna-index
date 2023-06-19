@@ -233,6 +233,21 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         // Put.
 
         /// <summary>
+        /// Check status of multiples video.
+        /// </summary>
+        /// <param name="ids">The list of video id</param>
+        [HttpPut("{id}")]
+        [Authorize]
+        [SimpleExceptionFilter]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public Task<IEnumerable<VideoStatusDto>> GetValidationStatusByIdsAsync(
+            [Required][FromBody] IEnumerable<string> ids) =>
+            service.GetValidationStatusByIdsAsync(ids);
+
+        /// <summary>
         /// Update video manifest.
         /// </summary>
         /// <param name="id">The video id</param>
