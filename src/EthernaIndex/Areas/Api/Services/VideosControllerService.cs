@@ -194,6 +194,31 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             return new VideoDto(video, videoManifest, ownerSharedInfo, currentUserVideoVote);
         }
 
+        public async Task ForceValidationManifestHashAsync(string hash)
+        {
+            // Get Manifest & Video data.
+            var videoManifest = await indexDbContext.VideoManifests.FindOneAsync(c => c.Manifest.Hash == hash);
+            var video = await indexDbContext.Videos.FindOneAsync(v => v.VideoManifests.Any(vm => vm.Id == videoManifest.Id));
+
+            // Background Validator.
+            backgroundJobClient.Create<IVideoManifestValidatorTask>(
+                    task => task.RunAsync(video.Id, videoManifest.Manifest.Hash),
+                    new EnqueuedState(Queues.METADATA_VIDEO_VALIDATOR));
+        }
+
+        public async Task ForceValidationManifestVideoIdAsync(string id, bool lastvalid)
+        {
+            var video = await indexDbContext.Videos.FindOneAsync(v => v.Id == id);
+            var hash = lastvalid ?
+                       video?.LastValidManifest?.Manifest.Hash :
+                       video.VideoManifests.OrderByDescending(vm => vm.CreationDateTime).First().Manifest.Hash;
+
+            if (string.IsNullOrWhiteSpace(hash))
+                throw new InvalidOperationException("Manifest to force not found");
+
+            await ForceValidationManifestHashAsync(hash);
+        }
+
         public async Task<PaginatedEnumerableDto<VideoDto>> GetLastUploadedVideosAsync(int page, int take)
         {
             // Get videos with valid manifest.

@@ -197,6 +197,36 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
             service.CreateCommentAsync(id, text);
 
         /// <summary>
+        /// Force new validation of manifest.
+        /// </summary>
+        /// <param name="hash">Hash manifest</param>
+        [HttpPost("forcevalidation/manifest/{hash}")]
+        [Authorize]
+        [SimpleExceptionFilter]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public Task ForceValidationManifestHashAsync(
+            [Required] string hash) =>
+            service.ForceValidationManifestHashAsync(hash);
+
+        /// <summary>
+        /// Force new validation of manifest.
+        /// </summary>
+        /// <param name="id">Video id</param>
+        /// <param name="lastvalid">Force last valid manifest if true, else force last created</param>
+        [HttpPost("forcevalidation/video/{id}/{lastvalid}")]
+        [Authorize]
+        [SimpleExceptionFilter]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public Task ForceValidationManifestVideoIdAsync(
+            [Required] string id,
+            bool lastvalid = false) =>
+            service.ForceValidationManifestVideoIdAsync(id, lastvalid);
+
+        /// <summary>
         /// Report a video content with current user.
         /// </summary>
         /// <param name="id">Video id</param>
