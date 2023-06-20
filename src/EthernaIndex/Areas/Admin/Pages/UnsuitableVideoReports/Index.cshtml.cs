@@ -22,11 +22,12 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports
 {
-    public class ReportModel : PageModel
+    public partial class ReportModel : PageModel
     {
 
         // Models.
@@ -63,6 +64,9 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports
 
         // Consts.
         private const int PageSize = 20;
+
+        [GeneratedRegex("^[A-Fa-f0-9]{64}$")]
+        private static partial Regex VideoIdRegex();
 
         // Fields.
         private readonly IIndexDbContext indexDbContext;
@@ -108,6 +112,13 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports
             string? videoId,
             int? p)
         {
+            if (!string.IsNullOrWhiteSpace(videoId) &&
+                !VideoIdRegex().IsMatch(videoId))
+            {
+                VideoUnsuitableReports = new List<VideoUnsuitableReportDto>();
+                return;
+            }
+
             CurrentPage = p ?? 0;
 
             var paginatedUnsuitableReports = await indexDbContext.UnsuitableVideoReports.QueryPaginatedElementsAsync(
