@@ -118,7 +118,8 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports
                 vr => vr.Where(i => i.Video.Id == videoId),
                 vr => vr.CreationDateTime,
                 CurrentPage,
-                PageSize);
+                PageSize,
+                useDescendingOrder: true);
 
             MaxPage = paginatedVideoManifests.MaxPage;
 

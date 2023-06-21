@@ -34,6 +34,9 @@
             <input type="submit" asp-page-handler="ApproveVideo" class="btn btn-primary" value="Approve Video" name="button" />
             <input type="submit" asp-page-handler="RejectVideo" class="btn btn-primary" value="Reject Video" name="button" />
         </div>
+        <div class="col-12 mb-3">
+            <input asp-for="VideoReport.Reason" type="text" name="Reason" placeholder="Reason" class="form-control" />
+        </div>
     </div>
 </form>
 

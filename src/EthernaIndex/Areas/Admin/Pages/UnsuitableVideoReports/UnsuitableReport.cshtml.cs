@@ -51,6 +51,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports
                 ManifestId = manifestId;
                 Title = title;
                 VideoId = videoId;
+                Reason = "";
             }
 
             public IEnumerable<VideoReportDetailDto> DetailReports { get; }
@@ -58,6 +59,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports
             public string ManifestId { get; set; } = default!;
             public string Title { get; set; } = default!;
             public string VideoId { get; set; }
+            public string Reason { get; set; }
             public class VideoReportDetailDto
             {
                 public VideoReportDetailDto(
@@ -115,17 +117,17 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports
         }
 
         public async Task<IActionResult> OnPostApproveVideo(
-            string videoId)
+            string videoId, string reason)
         {
-            await CreateReviewAsync(videoId, true);
+            await CreateReviewAsync(videoId, reason, true);
 
             return RedirectToPage("Index");
         }
 
         public async Task<IActionResult> OnPostRejectVideo(
-            string videoId)
+            string videoId, string reason)
         {
-            await CreateReviewAsync(videoId, false);
+            await CreateReviewAsync(videoId, reason, false);
 
             return RedirectToPage("Index");
         }
@@ -156,14 +158,14 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports
                 video.Id);
         }
 
-        private async Task CreateReviewAsync(string videoId, bool isValid)
+        private async Task CreateReviewAsync(string videoId, string reason, bool isValid)
         {
             var address = await ethernaOidcClient.GetEtherAddressAsync();
             var (user, _) = await userService.FindUserAsync(address);
             var video = await indexDbContext.Videos.FindOneAsync(videoId);
 
             // Create ManualReview.
-            await indexDbContext.ManualVideoReviews.CreateAsync(new ManualVideoReview(user, "", isValid, video));
+            await indexDbContext.ManualVideoReviews.CreateAsync(new ManualVideoReview(user, reason, isValid, video));
         }
     }
 }

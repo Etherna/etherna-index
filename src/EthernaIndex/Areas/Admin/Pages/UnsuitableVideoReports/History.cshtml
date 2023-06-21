@@ -35,8 +35,8 @@
                     <tr>
                         <th>Content Review</th>
                         <th>Description</th>
-                        <th>Reporter Address</th>
-                        <th>Report Date</th>
+                        <th>Review Address</th>
+                        <th>Review Date</th>
                     </tr>
                 </thead>
 
@@ -44,7 +44,7 @@
                     @foreach (var videoReport in Model.DetailReports)
                     {
                     <tr>
-                        <td class="align-middle">@videoReport.IsValid</td>
+                        <td class="align-middle">@(videoReport.IsValid ? "Report Archived" : "Content Frozen")</td>
                         <td class="align-middle">@videoReport.Description</td>
                         <td class="align-middle">@videoReport.ReviewAddress</td>
                         <td class="align-middle">@videoReport.ReviewDate</td>
