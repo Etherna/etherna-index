@@ -29,6 +29,7 @@ namespace Etherna.EthernaIndex.Services.Domain
         /// Remove video manifests, and keep video model as a trace
         /// </summary>
         /// <param name="video">The video</param>
-        Task ModerateUnsuitableVideoAsync(Video video);
+        /// <param name="manualReview">Review entity</param>
+        Task ModerateUnsuitableVideoAsync(Video video, ManualVideoReview manualVideoReview);
     }
 }

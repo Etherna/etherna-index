@@ -36,6 +36,7 @@ namespace Etherna.EthernaIndex.Domain.Models
         // Properties.
         public virtual bool IsFrozen { get; set; }
         public virtual VideoManifest? LastValidManifest { get; set; }
+        public virtual ManualVideoReview? Moderated { get; set; }
         public virtual User Owner { get; protected set; } = default!;
         public virtual long TotDownvotes { get; set; }
         public virtual long TotUpvotes { get; set; }
@@ -108,11 +109,13 @@ namespace Etherna.EthernaIndex.Domain.Models
 
         [PropertyAlterer(nameof(IsFrozen))]
         [PropertyAlterer(nameof(LastValidManifest))]
+        [PropertyAlterer(nameof(Moderated))]
         [PropertyAlterer(nameof(VideoManifests))]
-        public virtual void SetAsUnsuitable()
+        public virtual void SetAsUnsuitable(ManualVideoReview manualVideoReview)
         {
             IsFrozen = true;
             LastValidManifest = null;
+            Moderated = manualVideoReview;
             _videoManifests.Clear();
             AddEvent(new VideoModeratedEvent(this));
         }

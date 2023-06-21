@@ -41,14 +41,14 @@ namespace Etherna.EthernaIndex.Services.Domain
             await dbContext.Videos.DeleteAsync(video);
         }
 
-        public async Task ModerateUnsuitableVideoAsync(Video video)
+        public async Task ModerateUnsuitableVideoAsync(Video video, ManualVideoReview manualVideoReview)
         {
             // Delete unsitable manifests.
             //save manifest list
             var videoManifests = video.VideoManifests.ToList();
 
             //set video as unsuitable
-            video.SetAsUnsuitable();
+            video.SetAsUnsuitable(manualVideoReview);
             await dbContext.SaveChangesAsync();
 
             //remove all VideoManifests from database

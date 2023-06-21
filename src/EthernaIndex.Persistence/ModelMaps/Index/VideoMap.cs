@@ -30,18 +30,32 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
         public void Register(IDbContext dbContext)
         {
             dbContext.MapRegistry.AddModelMap<Video>(
-                "d0c48dd8-0887-4ac5-80e5-9b08c5dc77f1", //v0.3.0
+                "a25631af-fb94-44a3-b0e4-365fe5b4dfae", //v0.3.10
                 mm =>
                 {
                     mm.AutoMap();
 
                     // Set members with custom serializers.
                     mm.SetMemberSerializer(v => v.LastValidManifest!, VideoManifestMap.PreviewInfoSerializer(dbContext));
+                    mm.SetMemberSerializer(v => v.Moderated!, ManualReviewMap.PreviewInfoSerializer(dbContext));
                     mm.SetMemberSerializer(v => v.Owner, UserMap.InformationSerializer(dbContext));
                     mm.SetMemberSerializer(c => c.VideoManifests,
                         new EnumerableSerializer<VideoManifest>(
                             VideoManifestMap.ReferenceSerializer(dbContext)));
                 }
+                ).AddSecondarySchema(
+                    "d0c48dd8-0887-4ac5-80e5-9b08c5dc77f1", //v0.3.0
+                    mm =>
+                    {
+                        mm.AutoMap();
+
+                        // Set members with custom serializers.
+                        mm.SetMemberSerializer(v => v.LastValidManifest!, VideoManifestMap.PreviewInfoSerializer(dbContext));
+                        mm.SetMemberSerializer(v => v.Owner, UserMap.InformationSerializer(dbContext));
+                        mm.SetMemberSerializer(c => c.VideoManifests,
+                            new EnumerableSerializer<VideoManifest>(
+                                VideoManifestMap.ReferenceSerializer(dbContext)));
+                    }
                 ).AddSecondarySchema(
                     "abfbd104-35ff-4429-9afc-79304a11efc0", //dev (pre v0.3.0), published for WAM event
                     mm =>

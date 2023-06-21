@@ -57,13 +57,15 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// Moderate video as unsittable for the index
         /// </summary>
         /// <param name="id">Id of the video</param>
+        /// <param name="description">Moderation reason</param>
         [HttpDelete("videos/{id}")]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public Task ModerateVideoAsync(
-            [Required] string id) =>
-            service.ModerateVideoAsync(id);
+            [Required] string id,
+            [Required] [FromBody] string description) =>
+            service.ModerateVideoAsync(id, description);
     }
 }

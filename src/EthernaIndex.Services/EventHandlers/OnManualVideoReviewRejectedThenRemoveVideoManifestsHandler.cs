@@ -46,7 +46,7 @@ namespace Etherna.EthernaIndex.Services.EventHandlers
             if (!@event.Entity.IsValidResult)
             {
                 var video = await dbContext.Videos.FindOneAsync(@event.Entity.Video.Id);
-                await videoService.ModerateUnsuitableVideoAsync(video);
+                await videoService.ModerateUnsuitableVideoAsync(video, @event.Entity);
             }
         }
     }

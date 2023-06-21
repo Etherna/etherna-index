@@ -12,7 +12,11 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
+using Etherna.Authentication;
 using Etherna.EthernaIndex.Domain;
+using Etherna.EthernaIndex.Domain.Models;
+using Etherna.EthernaIndex.Domain.Models.VideoAgg;
+using Etherna.EthernaIndex.Persistence;
 using Etherna.EthernaIndex.Services.Domain;
 using Etherna.EthernaIndex.Services.Extensions;
 using Microsoft.Extensions.Logging;
@@ -24,18 +28,24 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
     {
         // Fields.
         private readonly IIndexDbContext dbContext;
+        private readonly IEthernaOpenIdConnectClient ethernaOidcClient;
         private readonly ILogger<ModerationControllerService> logger;
         private readonly IVideoService videoService;
+        private readonly IUserService userService;
 
         // Constructor.
         public ModerationControllerService(
             IIndexDbContext dbContext,
+            IEthernaOpenIdConnectClient ethernaOidcClient,
             ILogger<ModerationControllerService> logger,
-            IVideoService videoService)
+            IVideoService videoService,
+            IUserService userService)
         {
             this.dbContext = dbContext;
+            this.ethernaOidcClient = ethernaOidcClient;
             this.logger = logger;
             this.videoService = videoService;
+            this.userService = userService;
         }
 
         // Methods.
@@ -48,10 +58,22 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             logger.ModerateComment(id);
         }
 
-        public async Task ModerateVideoAsync(string id)
+        public async Task ModerateVideoAsync(string id, string description)
         {
+            // Get current user.
+            var address = await ethernaOidcClient.GetEtherAddressAsync();
+            var (user, sharedInfo) = await userService.FindUserAsync(address);
+
+            // Getvideo to moderate.
             var video = await dbContext.Videos.FindOneAsync(id);
-            await videoService.ModerateUnsuitableVideoAsync(video);
+
+            // Create review.
+            var manualVideoReview = new ManualVideoReview(user, description, false, video);
+            await dbContext.ManualVideoReviews.CreateAsync(manualVideoReview);
+
+            // Moderate and save.
+            await videoService.ModerateUnsuitableVideoAsync(video, manualVideoReview);
+            await dbContext.SaveChangesAsync();
 
             logger.ModerateVideo(id);
         }
