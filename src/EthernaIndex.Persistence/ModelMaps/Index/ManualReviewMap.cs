@@ -41,7 +41,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                 "e3e734ab-d845-4ec2-8920-68956eba950d", //v0.3.0
                 mm =>
                 {
-                    mm.AutoMap();
+                    
 
                     // Set members with custom serializers.
                     mm.SetMemberSerializer(r => r.Video, VideoMap.ReferenceSerializer(dbContext));
@@ -51,7 +51,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
         /// <summary>
         /// Preview information serializer
         /// </summary>
-        public static ReferenceSerializer<ManualVideoReview, string> PreviewInfoSerializer(IDbContext dbContext) =>
+        public static ReferenceSerializer<ManualVideoReview, string> InformationSerializer(IDbContext dbContext) =>
             new(dbContext, config =>
             {
                 config.AddModelMap<ModelBase>("1afd141e-7f00-4a28-ae3c-d12ef72757be");
@@ -68,6 +68,10 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                 {
                     mm.MapMember(m => m.Author).SetSerializer(UserMap.InformationSerializer(dbContext));
                     mm.MapMember(m => m.Description);
+                });
+                config.AddModelMap<ManualVideoReview>("2e723efe-07eb-43a5-bf0e-fa74775a677f", mm =>
+                {
+                    
                 });
             });
     }
