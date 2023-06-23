@@ -65,7 +65,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports
         // Consts.
         private const int PageSize = 20;
 
-        [GeneratedRegex("^[A-Fa-f0-9]{64}$")]
+        [GeneratedRegex("^[A-Fa-f0-9]{24}$")]
         private static partial Regex VideoIdRegex();
 
         // Fields.
@@ -157,7 +157,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports
             if (!string.IsNullOrWhiteSpace(videoId))
                 querable = querable.Where(vur => vur.Video.Id == videoId);
             if (!includeArchived)
-                querable = querable.Where(vur => !vur.IsArchived);
+                querable = querable.Where(vur => vur.IsArchived == false);
 
             return querable;
         }
