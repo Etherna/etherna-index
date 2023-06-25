@@ -13,6 +13,7 @@
 //   limitations under the License.
 
 using Etherna.ACR.Exceptions;
+using Etherna.Authentication;
 using Etherna.DomainEvents;
 using Etherna.EthernaIndex.Configs;
 using Etherna.EthernaIndex.Configs.Authorization;
@@ -33,6 +34,7 @@ using Hangfire;
 using Hangfire.Mongo;
 using Hangfire.Mongo.Migration.Strategies;
 using Hangfire.Mongo.Migration.Strategies.Backup;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization.Infrastructure;
@@ -232,6 +234,28 @@ namespace Etherna.EthernaIndex
                     options.Authority = config["SsoServer:BaseUrl"] ?? throw new ServiceConfigurationException();
 
                     options.RequireHttpsMetadata = !allowUnsafeAuthorityConnection;
+
+                    options.Events = new JwtBearerEvents
+                    {
+                        OnTokenValidated = context =>
+                        {
+                            // Use service to the info.
+                            context.HttpContext.RequestServices.GetRequiredService<IEthernaOpenIdConnectClient>();
+
+
+                            // By claim.
+                            ClaimsPrincipal currentUser = context.HttpContext.User;
+                            var apiKeyClaim = currentUser.Claims?.FirstOrDefault(x => x.Type.Equals("UserName", StringComparison.OrdinalIgnoreCase))?.Value;
+                            if (apiKeyClaim == null ||
+                                !apiKeyClaim.Contains("apikey.index", StringComparison.OrdinalIgnoreCase))
+                            {
+                                // return unauthorized if user no longer exists
+                                context.Fail("Unauthorized");
+                            }
+
+                            return Task.CompletedTask;
+                        }
+                    };
                 })
                 .AddPolicyScheme(CommonConsts.UserAuthenticationPolicyScheme, CommonConsts.UserAuthenticationPolicyScheme, options =>
                 {
