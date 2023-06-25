@@ -247,7 +247,7 @@ namespace Etherna.EthernaIndex
                             ClaimsPrincipal currentUser = context.HttpContext.User;
                             var apiKeyClaim = currentUser.Claims?.FirstOrDefault(x => x.Type.Equals("UserName", StringComparison.OrdinalIgnoreCase))?.Value;
                             if (apiKeyClaim == null ||
-                                !apiKeyClaim.Contains("apikey.index", StringComparison.OrdinalIgnoreCase))
+                                !apiKeyClaim.Contains("userApi.index", StringComparison.OrdinalIgnoreCase))
                             {
                                 // return unauthorized if user no longer exists
                                 context.Fail("Unauthorized");
