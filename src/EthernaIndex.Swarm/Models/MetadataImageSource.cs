@@ -12,27 +12,31 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-namespace Etherna.EthernaIndex.Areas.Api.DtoModels
+using Etherna.EthernaIndex.Swarm.DtoModels;
+
+namespace Etherna.EthernaIndex.Swarm.Models
 {
-    public class SourceDto
+    public class MetadataImageSource
     {
         // Constructors.
-        public SourceDto(
-            int? bitrate,
-            string quality,
-            string reference,
-            long size)
+        public MetadataImageSource(
+            int width,
+            string path,
+            string? type)
         {
-            Bitrate = bitrate;
-            Quality = quality;
-            Reference = reference;
-            Size = size;
+            Width = width;
+            Path = path;
+            Type = type;
         }
+        internal MetadataImageSource(MetadataImageSourceSchema2 metadataImageSource) :
+            this(metadataImageSource.Width,
+                metadataImageSource.Path,
+                metadataImageSource.Type)
+        { }
 
         // Properties.
-        public int? Bitrate { get; private set; }
-        public string Quality { get; private set; }
-        public string Reference { get; private set; }
-        public long Size { get; private set; }
+        public string Path { get; set; }
+        public string? Type { get; set; }
+        public int Width { get; set; }
     }
 }

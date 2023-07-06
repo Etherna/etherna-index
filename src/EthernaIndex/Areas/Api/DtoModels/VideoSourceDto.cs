@@ -12,26 +12,24 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-using System.Collections.Generic;
-
 namespace Etherna.EthernaIndex.Areas.Api.DtoModels
 {
-    public class ImageDto
+    public class VideoSourceDto
     {
         // Constructors.
-        public ImageDto(
-            float aspectRatio,
-            string blurhash,
-            IEnumerable<ImageSourceDto> sources)
+        public VideoSourceDto(
+            string quality,
+            string path,
+            long size)
         {
-            AspectRatio = aspectRatio;
-            Blurhash = blurhash;
-            Sources = sources;
+            Quality = quality;
+            Path = path;
+            Size = size;
         }
 
         // Properties.
-        public float AspectRatio { get; private set; }
-        public string Blurhash { get; private set; }
-        public IEnumerable<ImageSourceDto> Sources { get; private set; }
+        public string Quality { get; private set; }
+        public string Path { get; private set; }
+        public long Size { get; private set; }
     }
 }

@@ -12,30 +12,22 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-namespace Etherna.EthernaIndex.ElasticSearch.Documents
-{
-    public class SourceDocument
-    {
-        // Constructors.
-        public SourceDocument(
-            int? bitrate,
-            string quality,
-            string reference,
-            long size)
-        {
-            Bitrate = bitrate;
-            Quality = quality;
-            Reference = reference;
-            Size = size;
-        }
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-        public SourceDocument() { }
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+using System.Collections.Generic;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
+namespace Etherna.EthernaIndex.Swarm.DtoModels
+{
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+    public class MetadataImageSourceSchema2
+    {
         // Properties.
-        public int? Bitrate { get; set; }
-        public string Quality { get; set; }
-        public string Reference { get; set; }
-        public long Size { get; set; }
+        public string Path { get; set; }
+        public string Type { get; set; }
+        public int Width { get; set; }
+
+        [JsonExtensionData]
+        public Dictionary<string, JsonElement>? ExtraElements { get; set; }
     }
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 }

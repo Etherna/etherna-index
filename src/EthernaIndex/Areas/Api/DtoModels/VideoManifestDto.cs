@@ -33,20 +33,18 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
             Description = videoManifest.Description;
             Duration = videoManifest.Duration;
             Hash = videoManifest.Manifest.Hash;
-            OriginalQuality = videoManifest.OriginalQuality;
             PersonalData = videoManifest.PersonalData;
             Sources = videoManifest.Sources
-                .Select(i => new SourceDto(
-                    i.Bitrate,
+                .Select(i => new VideoSourceDto(
                     i.Quality,
-                    i.Reference,
+                    i.Path,
                     i.Size));
 
             if (videoManifest.Thumbnail is not null)
                 Thumbnail = new ImageDto(
                     videoManifest.Thumbnail.AspectRatio,
                     videoManifest.Thumbnail.Blurhash,
-                    videoManifest.Thumbnail.Sources);
+                    videoManifest.Thumbnail.SourcesV2.Select(s => new ImageSourceDto(s.Type, s.Path, s.Width)));
 
             Title = videoManifest.Title;
         }
@@ -64,17 +62,16 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
             PersonalData = videoDocument.PersonalData;
             OriginalQuality = videoDocument.OriginalQuality;
             Sources = videoDocument.Sources
-                .Select(i => new SourceDto(
-                    i.Bitrate,
+                .Select(i => new VideoSourceDto(
                     i.Quality,
-                    i.Reference,
+                    i.Path,
                     i.Size));
 
             if (videoDocument.Thumbnail is not null)
                 Thumbnail = new ImageDto(
                     videoDocument.Thumbnail.AspectRatio,
                     videoDocument.Thumbnail.Blurhash,
-                    videoDocument.Thumbnail.Sources);
+                    videoDocument.Thumbnail.Sources.Select(s => new ImageSourceDto(s.Type, s.Path, s.Width)));
 
             Title = videoDocument.Title;
         }
@@ -86,7 +83,7 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
         public string Hash { get; }
         public string? OriginalQuality { get; }
         public string? PersonalData { get; }
-        public IEnumerable<SourceDto> Sources { get; }
+        public IEnumerable<VideoSourceDto> Sources { get; }
         public ImageDto? Thumbnail { get; }
         public string? Title { get; }
     }

@@ -72,16 +72,18 @@ namespace Etherna.EthernaIndex.Domain.Models
         {
             // Action.
             manifest.SucceededValidation(
+                1.78f,
                 null,
                 "DescTest",
                 1,
-                "OriginalTest",
+                12345,
+                54321,
                 "{}",
                 new List<VideoSource>(),
                 new SwarmImageRaw(
                     1,
                     "BlurTst",
-                    new Dictionary<string, string> { { "1080", "Test1" }, { "720", "Test2" } }),
+                    new List<ImageSource> { new ImageSource(1080, "image", "Test1"), new ImageSource(720, "image", "Test2") }),
                 "TitleTest");
 
             // Assert.
@@ -96,22 +98,26 @@ namespace Etherna.EthernaIndex.Domain.Models
             // Arrange.
             var title = "FeddTopicTest";
             var desc = "DescTest";
-            var original = "OriginalTest";
             var personalData = "{}";
             var duration = 1;
+            var manifestAspectRatio = 1.78f;
+            var manifestCreatedAt = 12345;
+            var manifestUpdatedAt = 54321;
             var videoSources = new List<VideoSource> {
-                new VideoSource(1, "10801", "reff1", 4),
-                new VideoSource(2, "321", "reff2", 100) };
+                new VideoSource("path1", "10801", 4, "type1"),
+                new VideoSource("path2", "321", 100, "type2") };
             var blur = "BlurTst";
             var aspectRatio = 1;
-            var source = new Dictionary<string, string> { { "1080", "Test1" }, { "720", "Test2" } };
+            var source = new List<ImageSource> { new ImageSource(1080, "image", "Test1"), new ImageSource(720, "image", "Test2") };
 
             // Action.
             manifest.SucceededValidation(
+                manifestAspectRatio,
                 null,
                 desc,
                 duration,
-                original,
+                manifestCreatedAt,
+                manifestUpdatedAt,
                 personalData,
                 videoSources,
                 new SwarmImageRaw(aspectRatio, blur, source),
@@ -121,28 +127,32 @@ namespace Etherna.EthernaIndex.Domain.Models
             Assert.Equal(title, manifest.Title);
             Assert.Equal(desc, manifest.Description);
             Assert.Equal(duration, manifest.Duration);
-            Assert.Equal(original, manifest.OriginalQuality);
+            Assert.Equal(manifestAspectRatio, manifest.AspectRatio);
+            Assert.Equal(manifestCreatedAt, manifest.ManifestCreatedAt);
+            Assert.Equal(manifestUpdatedAt, manifest.ManifestUpdatedAt);
             Assert.Equal(personalData, manifest.PersonalData);
             Assert.Contains(manifest.Sources,
-               i => i.Bitrate == 1 &&
+               i => i.Path == "path1" &&
                    i.Quality == "10801" &&
-                   i.Reference == "reff1" &&
-                   i.Size == 4);
+                   i.Size == 4 &&
+                   i.Type == "type1");
             Assert.Contains(manifest.Sources,
-               i => i.Bitrate == 2 &&
+               i => i.Path == "path2" &&
                    i.Quality == "321" &&
-                   i.Reference == "reff2" &&
-                   i.Size == 100);
+                   i.Size == 100 &&
+                   i.Type == "type2");
             Assert.NotNull(manifest.Thumbnail);
             Assert.Equal(blur, manifest.Thumbnail.Blurhash);
             Assert.Equal(aspectRatio, manifest.Thumbnail.AspectRatio);
-            Assert.NotNull(manifest.Thumbnail.Sources);
-            Assert.Contains(manifest.Thumbnail.Sources,
-                i => i.Key == "1080" &&
-                    i.Value == "Test1");
-            Assert.Contains(manifest.Thumbnail.Sources,
-                i => i.Key == "720" &&
-                    i.Value == "Test2");
+            Assert.NotNull(manifest.Thumbnail.SourcesV2);
+            Assert.Contains(manifest.Thumbnail.SourcesV2,
+                i => i.Type == "image" &&
+                    i.Width == 1080 &&
+                    i.Path == "Test1");
+            Assert.Contains(manifest.Thumbnail.SourcesV2,
+                i => i.Type == "image" &&
+                    i.Width == 720 &&
+                    i.Path == "Test2");
         }
 
         [Fact]
@@ -151,19 +161,23 @@ namespace Etherna.EthernaIndex.Domain.Models
             // Arrange.
             var title = "FeddTopicTest";
             var desc = "DescTest";
-            var original = "OriginalTest";
             var duration = 1;
             var personalData = "{}";
+            var manifestAspectRatio = 1.78f;
+            var manifestCreatedAt = 12345;
+            var manifestUpdatedAt = 54321;
             var videoSources = new List<VideoSource> {
-                new VideoSource(1, "10801", "reff1", 4),
-                new VideoSource(2, "321", "reff2", 100) };
+                new VideoSource("path1", "10801", 4, "type2"),
+                new VideoSource("path2", "321", 100, "type1") };
 
             // Action.
             manifest.SucceededValidation(
+                manifestAspectRatio,
                 null,
                 desc,
                 duration,
-                original,
+                manifestCreatedAt,
+                manifestUpdatedAt,
                 personalData,
                 videoSources,
                 null,
@@ -179,22 +193,26 @@ namespace Etherna.EthernaIndex.Domain.Models
             // Arrange.
             var title = "FeddTopicTest";
             var desc = "DescTest";
-            var original = "OriginalTest";
             string? personalData = null;
             var duration = 1;
+            var manifestAspectRatio = 1.78f;
+            var manifestCreatedAt = 12345;
+            var manifestUpdatedAt = 54321;
             var videoSources = new List<VideoSource> {
-                new VideoSource(1, "10801", "reff1", 4),
-                new VideoSource(2, "321", "reff2", 100) };
+                new VideoSource("path1", "10801", 4, "type1"),
+                new VideoSource("path2", "321", 100, "type2") };
             var blur = "BlurTst";
             var aspectRatio = 1;
-            var source = new Dictionary<string, string> { { "1080", "Test1" }, { "720", "Test2" } };
+            var source = new List<ImageSource> { new ImageSource(1080, "image", "Test1"), new ImageSource(720, "image", "Test2") };
 
             // Action.
             manifest.SucceededValidation(
+                manifestAspectRatio,
                 null,
                 desc,
                 duration,
-                original,
+                manifestCreatedAt,
+                manifestUpdatedAt,
                 personalData,
                 videoSources,
                 new SwarmImageRaw(aspectRatio, blur, source),

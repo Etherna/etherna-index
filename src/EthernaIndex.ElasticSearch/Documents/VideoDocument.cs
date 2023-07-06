@@ -43,17 +43,16 @@ namespace Etherna.EthernaIndex.ElasticSearch.Documents
             Duration = video.LastValidManifest.Duration;
             IsFrozen = video.IsFrozen;
             ManifestHash = video.LastValidManifest.Manifest.Hash;
-            OriginalQuality = video.LastValidManifest.OriginalQuality;
             OwnerSharedInfoId = video.Owner.SharedInfoId;
             PersonalData = video.LastValidManifest.PersonalData;
-            Sources = video.LastValidManifest.Sources.Select(i => new SourceDocument(i.Bitrate, i.Quality, i.Reference, i.Size));
+            Sources = video.LastValidManifest.Sources.Select(i => new SourceVideoDocument(i.Path, i.Quality, i.Size, i.Type));
             Title = video.LastValidManifest.Title ?? "";
 
             if (video.LastValidManifest.Thumbnail is not null)
                 Thumbnail = new ImageDocument(
                     video.LastValidManifest.Thumbnail.AspectRatio,
                     video.LastValidManifest.Thumbnail.Blurhash,
-                    video.LastValidManifest.Thumbnail.Sources);
+                    video.LastValidManifest.Thumbnail.SourcesV2.Select(s => new SourceImageDocument(s.Width, s.Path, s.Type)));
         }
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         public VideoDocument() { }
@@ -70,7 +69,7 @@ namespace Etherna.EthernaIndex.ElasticSearch.Documents
         public string? OriginalQuality { get; set; }
         public string OwnerSharedInfoId { get; set; }
         public string? PersonalData { get; set; }
-        public IEnumerable<SourceDocument> Sources { get; set; }
+        public IEnumerable<SourceVideoDocument> Sources { get; set; }
         public ImageDocument? Thumbnail { get; set; }
         public string Title { get; set; }
         public long TotDownvotes { get; set; }

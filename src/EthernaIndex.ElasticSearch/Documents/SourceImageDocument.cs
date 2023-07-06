@@ -12,29 +12,27 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-using System.Collections.Generic;
-
 namespace Etherna.EthernaIndex.ElasticSearch.Documents
 {
-    public class ImageDocument
+    public class SourceImageDocument
     {
         // Constructors.
-        public ImageDocument(
-            float aspectRatio,
-            string blurhash,
-            IEnumerable<SourceImageDocument> sources)
+        public SourceImageDocument(
+            int width,
+            string path,
+            string? type)
         {
-            AspectRatio = aspectRatio;
-            Blurhash = blurhash;
-            Sources = sources;
+            Width = width;
+            Path = path;
+            Type = type;
         }
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-        public ImageDocument() { }
+        public SourceImageDocument() { }
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         // Properties.
-        public float AspectRatio { get; set; }
-        public string Blurhash { get; set; }
-        public IEnumerable<SourceImageDocument> Sources { get; set; }
+        public int Width { get; set; }
+        public string Path { get; set; }
+        public string? Type { get; set; }
     }
 }

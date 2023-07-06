@@ -14,16 +14,15 @@
 
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg;
-using Etherna.EthernaIndex.Swarm;
-using Etherna.EthernaIndex.Swarm.Models;
-using Etherna.EthernaIndex.Swarm.Exceptions;
 using Etherna.EthernaIndex.Services.Extensions;
+using Etherna.EthernaIndex.Swarm;
+using Etherna.EthernaIndex.Swarm.Exceptions;
+using Etherna.EthernaIndex.Swarm.Models;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Etherna.EthernaIndex.Domain.Models;
-using Microsoft.Extensions.Logging;
 
 namespace Etherna.EthernaIndex.Services.Tasks
 {
@@ -91,21 +90,17 @@ namespace Etherna.EthernaIndex.Services.Tasks
             if (metadataDto.Duration == 0)
                 validationErrors.Add(new ErrorDetail(ValidationErrorType.MissingDuration));
 
-            //original quality
-            if (string.IsNullOrWhiteSpace(metadataDto.OriginalQuality))
-                validationErrors.Add(new ErrorDetail(ValidationErrorType.MissingOriginalQuality));
-
             //thumbnail
             EthernaIndex.Domain.Models.VideoAgg.SwarmImageRaw? swarmImageRaw = null;
             if (metadataDto.Thumbnail is not null)
             {
-                var validationVideoError = CheckThumbnailSources(metadataDto.Thumbnail.Sources);
+                var validationVideoError = CheckThumbnailSources(metadataDto.Thumbnail.Sources, metadataDto.Version);
                 validationErrors.AddRange(validationVideoError);
 
                 swarmImageRaw = new EthernaIndex.Domain.Models.VideoAgg.SwarmImageRaw(
                     metadataDto.Thumbnail.AspectRatio,
                     metadataDto.Thumbnail.Blurhash,
-                    metadataDto.Thumbnail.Sources);
+                    metadataDto.Thumbnail.Sources.Select(s => new ImageSource(s.Width, s.Type, s.Path)));
             }
 
             //title
@@ -114,8 +109,18 @@ namespace Etherna.EthernaIndex.Services.Tasks
             else if (metadataDto.Title.Length > VideoManifest.TitleMaxLength)
                 validationErrors.Add(new ErrorDetail(ValidationErrorType.InvalidTitle, "Title is too long"));
 
+            //aspect ratio
+            if (metadataDto.Version.Major > 1 &&
+                !metadataDto.AspectRatio.HasValue)
+                validationErrors.Add(new ErrorDetail(ValidationErrorType.MissingAspectRatio));
+
+            //manifest creation time
+            if (metadataDto.Version.Major > 1 &&
+                metadataDto.CreatedAt <= 0)
+                validationErrors.Add(new ErrorDetail(ValidationErrorType.MissingManifestCreationTime));
+
             //video sources
-            var videoSourcesErrors = CheckVideoSources(metadataDto.Sources);
+            var videoSourcesErrors = CheckVideoSources(metadataDto.Sources, metadataDto.Version);
             validationErrors.AddRange(videoSourcesErrors);
 
             //personal data
@@ -133,14 +138,16 @@ namespace Etherna.EthernaIndex.Services.Tasks
             else
             {
                 var videoSources = (metadataDto.Sources ?? Array.Empty<MetadataVideoSource>())
-                    .Select(i => new VideoSource(i.Bitrate, i.Quality, i.Reference, i.Size));
+                    .Select(i => new VideoSource(i.Path, i.Quality, i.Size, i.Type));
 
                 video.SucceededManifestValidation(
                     videoManifest,
+                    metadataDto.AspectRatio,
                     metadataDto.BatchId,
                     metadataDto.Description!,
                     metadataDto.Duration,
-                    metadataDto.OriginalQuality,
+                    metadataDto.CreatedAt,
+                    metadataDto.UpdatedAt,
                     metadataDto.PersonalData,
                     videoSources,
                     swarmImageRaw,
@@ -154,25 +161,32 @@ namespace Etherna.EthernaIndex.Services.Tasks
         }
 
         // Helpers.
-        private IEnumerable<ErrorDetail> CheckThumbnailSources(IReadOnlyDictionary<string, string> sources)
+        private IEnumerable<ErrorDetail> CheckThumbnailSources(IEnumerable<MetadataImageSource> sources, Version manifestVersion)
         {
             if (sources is null ||
                 !sources.Any())
             {
-                return new ErrorDetail[] { new ErrorDetail(ValidationErrorType.InvalidVideoSource, "Missing sources") };
+                return new ErrorDetail[] { new ErrorDetail(ValidationErrorType.InvalidThumbnailSource, "Missing sources") };
             }
 
             var errorDetails = new List<ErrorDetail>();
             foreach (var item in sources)
             {
-                if (string.IsNullOrWhiteSpace(item.Value))
-                    errorDetails.Add(new ErrorDetail(ValidationErrorType.InvalidVideoSource, $"[{item.Key}] empty source"));
+                if (manifestVersion.Major > 1)
+                {
+                    if (string.IsNullOrWhiteSpace(item.Path))
+                        errorDetails.Add(new ErrorDetail(ValidationErrorType.InvalidThumbnailSource, $"[{item.Width}] empty path"));
+                    if (string.IsNullOrWhiteSpace(item.Type))
+                        errorDetails.Add(new ErrorDetail(ValidationErrorType.InvalidThumbnailSource, $"[{item.Width}] empty type"));
+                }
+                else if (item.Width <= 0)
+                    errorDetails.Add(new ErrorDetail(ValidationErrorType.InvalidThumbnailSource, $"[{item.Width}] wrong width"));
             }
 
             return errorDetails;
         }
 
-        private IEnumerable<ErrorDetail> CheckVideoSources(IEnumerable<MetadataVideoSource>? videoSources)
+        private IEnumerable<ErrorDetail> CheckVideoSources(IEnumerable<MetadataVideoSource>? videoSources, Version manifestVersion)
         {
             if (videoSources is null ||
                 !videoSources.Any())
@@ -184,8 +198,21 @@ namespace Etherna.EthernaIndex.Services.Tasks
             foreach (var item in videoSources)
             {
                 if (string.IsNullOrWhiteSpace(item.Quality))
+                {
                     errorDetails.Add(new ErrorDetail(ValidationErrorType.InvalidVideoSource, $"empty quality"));
-                else if (string.IsNullOrWhiteSpace(item.Reference))
+                    continue;
+                }
+
+                if (manifestVersion.Major > 1)
+                {
+                    if (string.IsNullOrWhiteSpace(item.Path))
+                        errorDetails.Add(new ErrorDetail(ValidationErrorType.InvalidVideoSource, $"[{item.Quality}] empty path"));
+                    if (string.IsNullOrWhiteSpace(item.Type))
+                        errorDetails.Add(new ErrorDetail(ValidationErrorType.InvalidVideoSource, $"[{item.Quality}] empty type"));
+                    if (item.Size <= 0)
+                        errorDetails.Add(new ErrorDetail(ValidationErrorType.InvalidVideoSource, $"[{item.Quality}] empty size"));
+                }
+                else if (string.IsNullOrWhiteSpace(item.Path))
                     errorDetails.Add(new ErrorDetail(ValidationErrorType.InvalidVideoSource, $"[{item.Quality}] empty reference"));
             }
 

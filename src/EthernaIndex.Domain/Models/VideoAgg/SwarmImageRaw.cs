@@ -21,17 +21,17 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
     public class SwarmImageRaw : ModelBase
     {
         // Fields.
-        private Dictionary<string, string> _sources = new();
+        private List<ImageSource> _sources = new();
 
         // Constructors.
         public SwarmImageRaw(
             float aspectRatio,
             string blurhash,
-            IReadOnlyDictionary<string, string>? sources)
+            IEnumerable<ImageSource> sourcesV2)
         {
             AspectRatio = aspectRatio;
             Blurhash = blurhash;
-            Sources = sources ?? new Dictionary<string, string>();
+            _sources.AddRange(sourcesV2);
         }
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         protected SwarmImageRaw() { }
@@ -40,10 +40,10 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
         // Properties.
         public virtual float AspectRatio { get; set; }
         public virtual string Blurhash { get; set; }
-        public virtual IReadOnlyDictionary<string, string> Sources
+        public virtual IEnumerable<ImageSource> SourcesV2 //should return to be "Sources". Required by db migration, see: https://etherna.atlassian.net/browse/MODM-161
         {
             get => _sources;
-            protected set => _sources = new Dictionary<string, string>(value ?? new Dictionary<string, string>());
+            protected set => _sources = new List<ImageSource>(value ?? Array.Empty<ImageSource>());
         }
 
         // Methods.
@@ -54,12 +54,13 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
             return GetType() == obj.GetType() &&
                 AspectRatio.Equals((obj as SwarmImageRaw)?.AspectRatio) &&
                 EqualityComparer<string>.Default.Equals(Blurhash, (obj as SwarmImageRaw)!.Blurhash) &&
-                Sources.Count == (obj as SwarmImageRaw)?.Sources?.Count && !Sources.Except(((SwarmImageRaw)obj).Sources).Any();
+                SourcesV2.Count() == (obj as SwarmImageRaw)?.SourcesV2.Count() && 
+                !SourcesV2.Except(((SwarmImageRaw)obj).SourcesV2).Any();
         }
 
         public override int GetHashCode() =>
             AspectRatio.GetHashCode() ^
             Blurhash.GetHashCode(StringComparison.Ordinal) ^
-            Sources.GetHashCode();
+            SourcesV2.GetHashCode();
     }
 }

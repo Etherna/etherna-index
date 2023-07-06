@@ -120,10 +120,12 @@ namespace Etherna.EthernaIndex.Domain.Models
         [PropertyAlterer(nameof(LastValidManifest))]
         public virtual void SucceededManifestValidation(
             VideoManifest manifest,
+            float? aspectRatio,
             string? batchId,
             string description,
             long duration,
-            string originalQuality,
+            long? manifestCreatedAt,
+            long? manifestUpdatedAt,
             string? personalData,
             IEnumerable<VideoSource> sources,
             SwarmImageRaw? thumbnail,
@@ -140,10 +142,12 @@ namespace Etherna.EthernaIndex.Domain.Models
             }
 
             manifest.SucceededValidation(
+                aspectRatio,
                 batchId,
                 description,
                 duration,
-                originalQuality,
+                manifestCreatedAt,
+                manifestUpdatedAt,
                 personalData,
                 sources,
                 thumbnail,

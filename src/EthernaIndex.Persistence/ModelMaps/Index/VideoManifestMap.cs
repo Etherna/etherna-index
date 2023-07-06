@@ -20,6 +20,10 @@ using Etherna.MongoDB.Bson.Serialization.Serializers;
 using Etherna.MongODM.Core;
 using Etherna.MongODM.Core.Serialization;
 using Etherna.MongODM.Core.Serialization.Serializers;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
 {
@@ -72,17 +76,90 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                 "f555eaa8-d8e1-4f23-a402-8b9ac5930832"); //v0.3.0
 
             dbContext.MapRegistry.AddModelMap<SwarmImageRaw>(
-                "91ce6fdc-b59a-46bc-9ad0-7a8608cdfa1c") //v0.3.0
+                "36966654-d85c-455b-b870-7b49e1124e6d") //v0.3.9
+                .AddSecondarySchema("91ce6fdc-b59a-46bc-9ad0-7a8608cdfa1c", //v0.3.0
+                fixDeserializedModelFunc: m =>
+                {
+                    if (m.ExtraElements is not null &&
+                        m.ExtraElements.TryGetValue("Sources", out object? sources))
+                    {
+                        var castedSource = (Dictionary<string, object>)sources;
+                        var sourcesV2 = new List<ImageSource>();
+                        foreach (var item in castedSource)
+                        {
+                            var width = Convert.ToInt32(item.Key.Replace("w", 
+                                                                         "", 
+                                                                         StringComparison.OrdinalIgnoreCase),
+                                                        CultureInfo.InvariantCulture);
+                            sourcesV2.Add(new ImageSource(width,
+                                                          null,
+                                                          item.Value?.ToString() ?? ""));
+                        }
+                        ReflectionHelper.SetValue(m, m => m.SourcesV2, sourcesV2);
+                    }
+                    
+                    return Task.FromResult(m);
+                })
                 .AddFallbackSchema(mm => //dev (pre v0.3.0), published for WAM event
                 {
                     mm.AutoMap();
 
                     // Set members with custom name.
                     mm.GetMemberMap(i => i.Blurhash).SetElementName("BlurHash");
+                }, 
+                fixDeserializedModelFunc: m =>
+                {
+                    if (m.ExtraElements is not null &&
+                        m.ExtraElements.TryGetValue("Sources", out object? sources))
+                    {
+                        var sourcesV2 = new List<ImageSource>();
+                        foreach (var item in (Dictionary<string, object>)sources)
+                        {
+                            var width = Convert.ToInt32(item.Key.Replace("w",
+                                                                         "",
+                                                                         StringComparison.OrdinalIgnoreCase),
+                                                        CultureInfo.InvariantCulture);
+                            sourcesV2.Add(new ImageSource(width,
+                                                          null,
+                                                          item.Value?.ToString() ?? ""));
+                        }
+                        ReflectionHelper.SetValue(m, m => m.SourcesV2, sourcesV2);
+                    }
+
+                    return Task.FromResult(m);
                 });
 
             dbContext.MapRegistry.AddModelMap<VideoSource>(
-                "ca9caff9-df18-4101-a362-f8f449bb2aac"); //v0.3.0
+                "91231db0-aded-453e-8178-f28a0a19776a")//v0.3.9
+                .AddSecondarySchema("ca9caff9-df18-4101-a362-f8f449bb2aac", //v0.3.0
+                    fixDeserializedModelFunc: m =>
+                    {
+                        if (m.ExtraElements is not null &&
+                            m.ExtraElements.TryGetValue("Reference", out object? reference))
+                        {
+                            ReflectionHelper.SetValue(m, m => m.Path, reference.ToString());
+                        }
+
+                        return Task.FromResult(m);
+                    })
+                .AddFallbackSchema( //dev (pre v0.3.0), published for WAM event
+                    mm =>
+                    {
+                        mm.AutoMap();
+                    },
+                    fixDeserializedModelFunc: m =>
+                    {
+                        if (m.ExtraElements is not null &&
+                            m.ExtraElements.TryGetValue("Reference", out object? reference))
+                        {
+                            ReflectionHelper.SetValue(m, m => m.Path, reference.ToString());
+                        }
+
+                        return Task.FromResult(m);
+                    });
+
+            dbContext.MapRegistry.AddModelMap<ImageSource>(
+                "1fbae0a8-9ee0-40f0-a8ad-21a0083fcb66"); //v0.3.9
         }
 
         /// <summary>

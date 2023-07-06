@@ -33,10 +33,12 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
         protected VideoManifest() { }
 
         // Properties.
+        public virtual float? AspectRatio { get; protected set; } // only V2
         public virtual string? BatchId { get; protected set; }
+        public virtual long? ManifestCreatedAt { get; protected set; } // only V2
+        public virtual long? ManifestUpdatedAt { get; protected set; } // only V2
         public virtual string? Description { get; protected set; }
         public virtual long? Duration { get; protected set; }
-        public virtual string? OriginalQuality { get; protected set; }
         public virtual string? PersonalData { get; protected set; }
         public virtual IEnumerable<VideoSource> Sources
         {
@@ -47,29 +49,35 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
         public virtual string? Title { get; protected set; }
 
         // Methods.
+        [PropertyAlterer(nameof(AspectRatio))]
         [PropertyAlterer(nameof(BatchId))]
         [PropertyAlterer(nameof(Description))]
         [PropertyAlterer(nameof(Duration))]
-        [PropertyAlterer(nameof(OriginalQuality))]
+        [PropertyAlterer(nameof(ManifestCreatedAt))]
+        [PropertyAlterer(nameof(ManifestUpdatedAt))]
         [PropertyAlterer(nameof(PersonalData))]
         [PropertyAlterer(nameof(Sources))]
         [PropertyAlterer(nameof(Thumbnail))]
         [PropertyAlterer(nameof(Title))]
         internal virtual void SucceededValidation(
+            float? aspectRatio,
             string? batchId,
             string description,
             long duration,
-            string originalQuality,
+            long? manifestCreatedAt,
+            long? manifestUpdatedAt,
             string? personalData,
             IEnumerable<VideoSource> sources,
             SwarmImageRaw? thumbnail,
             string title)
         {
             base.SucceededValidation();
+            AspectRatio = aspectRatio;
             BatchId = batchId;
             Description = description;
             Duration = duration;
-            OriginalQuality = originalQuality;
+            ManifestCreatedAt = manifestCreatedAt;
+            ManifestUpdatedAt = manifestUpdatedAt;
             PersonalData = personalData;
             Sources = sources;
             Thumbnail = thumbnail;

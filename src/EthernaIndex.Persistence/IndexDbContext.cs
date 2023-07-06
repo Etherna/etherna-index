@@ -99,8 +99,10 @@ namespace Etherna.EthernaIndex.Persistence
             });
 
         //other properties
-        public override IEnumerable<DocumentMigration> DocumentMigrationList => new[] {
-            new DocumentMigration<Video, string>(Videos)
+        public override IEnumerable<DocumentMigration> DocumentMigrationList => new DocumentMigration[] {
+            //v0.3.9
+            new DocumentMigration<Video, string>(Videos),
+            new DocumentMigration<VideoManifest, string>(VideoManifests)
         };
         public IEventDispatcher EventDispatcher { get; }
 

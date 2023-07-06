@@ -94,7 +94,7 @@ namespace Etherna.EthernaIndex.Swarm
             using var manifestStream = await BeeNodeClient.GatewayClient.GetFileAsync(manifestHash);
             var jsonElementManifest = await JsonSerializer.DeserializeAsync<JsonElement>(manifestStream);
 
-            return DeserializeMetadataVideo(jsonElementManifest);
+            return await DeserializeMetadataVideoAsync(manifestHash, jsonElementManifest);
 #else
             return (MetadataVideo)SwarmObjectMockups[manifestHash];
 #endif
@@ -120,22 +120,76 @@ namespace Etherna.EthernaIndex.Swarm
         public MetadataVideo SetupNewMetadataVideoMockup(string manifestHash)
         {
             var manifest = new MetadataVideo(
+                1.78f,
                 "36b7efd913ca4cf880b8eeac5093fa27b0825906c600685b6abdd6566e6cfe8f",
                 "Test description",
                 420,
                 DateTime.UtcNow.Ticks,
-                "720p",
                 "0x5E70C176b03BFe5113E78e920C1C60639E2A1696",
-                new[] { new MetadataVideoSource(560000, "720p", GenerateNewHash(), 100000000) },
-                new SwarmImageRaw(1.77f, "LEHV6nWB2yk8pyo0adR*.7kCMdnj", new Dictionary<string, string> { { "480w", "a015d8923a777bf8230291318274a5f9795b4bb9445ad41a2667d06df1ea3008"} }),
+                $$"""{"test":"sample"}""",
+                new[] { new MetadataVideoSource("720", GenerateNewHash(), 100000000, "mp4") },
+                new SwarmImageRaw(1.77f, "LEHV6nWB2yk8pyo0adR*.7kCMdnj", new List<MetadataImageSource> { new MetadataImageSource(480, "pathUrl", ".jpeg") }),
                 "Mocked sample video",
-                DateTime.UtcNow.Ticks);
+                DateTime.UtcNow.Ticks,
+                new Version(2, 0));
 
             SetupHashMockup(manifestHash, manifest);
 
             return manifest;
         }
 #endif
+
+        // Private Method
+        private async Task<MetadataVideo> DeserializeMetadataVideoAsync(
+            string manifestHash,
+            JsonElement jsonElementManifest)
+        {
+            // Find version.
+            var version = jsonElementManifest.TryGetProperty("v", out var jsonVersion) ?
+                jsonVersion.GetString()! :
+                "1.0"; //first version didn't have an identifier
+            var majorVersion = new Version(version);
+
+            // Deserialize document.
+            var metadataVideoDto = majorVersion.Major switch
+            {
+                1 => new MetadataVideo(jsonElementManifest.Deserialize<MetadataVideoSchema1>(
+                    new JsonSerializerOptions
+                    {
+                        Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) },
+                        PropertyNameCaseInsensitive = true,
+                    }) ?? throw new MetadataVideoException("Empty json")),
+                2 => await DeserializeSchema2Async(manifestHash, jsonElementManifest),
+                _ => throw new MetadataVideoException("Invalid version")
+            };
+
+            return metadataVideoDto;
+        }
+
+        private async Task<MetadataVideo> DeserializeSchema2Async(
+            string manifestHash,
+            JsonElement jsonElementManifest)
+        {
+            if (BeeNodeClient.GatewayClient is null)
+                throw new InvalidOperationException(nameof(BeeNodeClient.GatewayClient));
+
+            // Get MetadataVideoPreviewSchema2.
+            var metadataVideoPreviewSchema2 = jsonElementManifest.Deserialize<MetadataVideoPreviewSchema2>(
+                new JsonSerializerOptions
+                {
+                    Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) },
+                    PropertyNameCaseInsensitive = true,
+                }) ?? throw new MetadataVideoException("Empty json preview");
+
+            // Get MetadataVideoDetailSchema2.
+            using var manifestDetailStream = await BeeNodeClient.GatewayClient.GetFileAsync($"{manifestHash}/detail");
+            var metadataVideoDetailSchema2 = await JsonSerializer.DeserializeAsync<MetadataVideoDetailSchema2>(manifestDetailStream) ?? throw new MetadataVideoException("Empty json detail");
+
+            // Get MetadataVideo.
+            var metadataVideoDto = new MetadataVideo(metadataVideoPreviewSchema2, metadataVideoDetailSchema2);
+
+            return metadataVideoDto;
+        }
     }
 }
 
