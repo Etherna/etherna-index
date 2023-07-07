@@ -1220,45 +1220,6 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
             Assert.NotNull(result.VideoManifests);
         }
 
-        /*
-         * This the require SET in property of Video
-        [Theory, MemberData(nameof(VideoManifestDeserializationTests))]
-        public void VideoManifestDeserialization(DeserializationTestElement<VideoManifest> testElement)
-        {
-            if (testElement is null)
-                throw new ArgumentNullException(nameof(testElement));
-
-            // Setup.
-            using var documentReader = new JsonReader(testElement.SourceDocument);
-            var modelMapSerializer = new ModelMapSerializer<VideoManifest>(dbContext);
-            var deserializationContext = BsonDeserializationContext.CreateRoot(documentReader);
-            testElement.SetupAction(mongoDatabaseMock, dbContext);
-
-            // Action.
-            using var dbExecutionContext = new DbExecutionContextHandler(dbContext); //run into a db execution context
-            var result = modelMapSerializer.Deserialize(deserializationContext);
-
-            // Assert.
-            Assert.Equal(testElement.ExpectedModel.Id, result.Id);
-            Assert.Equal(testElement.ExpectedModel.BatchId, result.BatchId);
-            Assert.Equal(testElement.ExpectedModel.CreationDateTime, result.CreationDateTime);
-            Assert.Equal(testElement.ExpectedModel.Description, result.Description);
-            Assert.Equal(testElement.ExpectedModel.Duration, result.Duration);
-            Assert.Equal(testElement.ExpectedModel.IsValid, result.IsValid);
-            Assert.Equal(testElement.ExpectedModel.Manifest, result.Manifest);
-            Assert.Equal(testElement.ExpectedModel.Sources, result.Sources);
-            Assert.Equal(testElement.ExpectedModel.Thumbnail, result.Thumbnail);
-            Assert.Equal(testElement.ExpectedModel.Title, result.Title);
-            Assert.Equal(testElement.ExpectedModel.ValidationErrors, result.ValidationErrors);
-            Assert.Equal(testElement.ExpectedModel.ValidationTime, result.ValidationTime);
-            Assert.NotNull(result.Id);
-            Assert.NotNull(result.IsValid);
-            Assert.NotNull(result.Manifest);
-            Assert.NotNull(result.Sources);
-            Assert.NotNull(result.ValidationErrors);
-            Assert.NotNull(result.ValidationTime);
-        }*/
-
         [Theory, MemberData(nameof(VideoVoteDeserializationTests))]
         public void VideoVoteDeserialization(DeserializationTestElement<VideoVote> testElement)
         {
