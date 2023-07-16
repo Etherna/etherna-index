@@ -13,6 +13,7 @@
 //   limitations under the License.
 
 using Etherna.EthernaIndex.Areas.Api.DtoModels;
+using System;
 using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Areas.Api.Services
@@ -22,6 +23,10 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         Task<UserDto> FindByAddressAsync(string address);
         Task<CurrentUserDto> GetCurrentUserAsync();
         Task<PaginatedEnumerableDto<UserDto>> GetUsersAsync(int page, int take);
-        Task<PaginatedEnumerableDto<VideoDto>> GetVideosAsync(string address, int page, int take);
+        Task<PaginatedEnumerableDto<Video2Dto>> GetVideosAsync(string address, int page, int take);
+
+        //deprecated
+        [Obsolete("Used only for API backwards compatibility")]
+        Task<PaginatedEnumerableDto<VideoDto>> GetVideosAsync_old(string address, int page, int take);
     }
 }

@@ -12,23 +12,26 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-using System;
+using System.Collections.Generic;
 
-namespace Etherna.EthernaIndex.Swarm.Exceptions
+namespace Etherna.EthernaIndex.Areas.Api.DtoModels
 {
-    public class MetadataVideoException : Exception
+    public class Image2Dto
     {
-        public MetadataVideoException()
+        // Constructors.
+        public Image2Dto(
+            float aspectRatio,
+            string blurhash,
+            IEnumerable<ImageSourceDto> sources)
         {
+            AspectRatio = aspectRatio;
+            Blurhash = blurhash;
+            Sources = sources;
         }
 
-        public MetadataVideoException(string message) : base(message)
-        {
-        }
-
-        public MetadataVideoException(string message, Exception innerException) : base(message, innerException)
-        {
-        }
-
+        // Properties.
+        public float AspectRatio { get; private set; }
+        public string Blurhash { get; private set; }
+        public IEnumerable<ImageSourceDto> Sources { get; private set; }
     }
 }

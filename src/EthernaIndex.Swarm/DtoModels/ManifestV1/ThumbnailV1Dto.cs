@@ -16,16 +16,15 @@ using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Etherna.EthernaIndex.Swarm.DtoModels
+namespace Etherna.EthernaIndex.Swarm.DtoModels.ManifestV1
 {
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-    public class MetadataVideoSourceSchema1
+    public class ThumbnailV1Dto
     {
         // Properties.
-        public int Bitrate { get; set; }
-        public string Quality { get; set; }
-        public string Reference { get; set; }
-        public long Size { get; set; }
+        public float AspectRatio { get; set; }
+        public string Blurhash { get; set; }
+        public IDictionary<string, string> Sources { get; set; }
 
         [JsonExtensionData]
         public Dictionary<string, JsonElement>? ExtraElements { get; set; }

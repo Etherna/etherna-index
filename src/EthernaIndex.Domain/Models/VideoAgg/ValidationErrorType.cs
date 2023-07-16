@@ -16,6 +16,8 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
 {
     public enum ValidationErrorType
     {
+        InvalidAspectRatio,
+        InvalidBatchId,
         InvalidDescription,
         InvalidPersonalData,
         InvalidThumbnailSource,
@@ -24,6 +26,7 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
         JsonConvert,
         MissingDescription,
         MissingDuration,
+        MissingManifestCreationTime,
         MissingOriginalQuality,
         MissingTitle,
         Unknown,

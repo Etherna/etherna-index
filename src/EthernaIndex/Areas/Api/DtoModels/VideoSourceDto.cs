@@ -12,30 +12,24 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-namespace Etherna.EthernaIndex.ElasticSearch.Documents
+namespace Etherna.EthernaIndex.Areas.Api.DtoModels
 {
-    public class SourceDocument
+    public class VideoSourceDto
     {
         // Constructors.
-        public SourceDocument(
-            int? bitrate,
-            string quality,
-            string reference,
+        public VideoSourceDto(
+            string? quality,
+            string path,
             long size)
         {
-            Bitrate = bitrate;
             Quality = quality;
-            Reference = reference;
+            Path = path;
             Size = size;
         }
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-        public SourceDocument() { }
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         // Properties.
-        public int? Bitrate { get; set; }
-        public string Quality { get; set; }
-        public string Reference { get; set; }
-        public long Size { get; set; }
+        public string? Quality { get; private set; }
+        public string Path { get; private set; }
+        public long Size { get; private set; }
     }
 }
