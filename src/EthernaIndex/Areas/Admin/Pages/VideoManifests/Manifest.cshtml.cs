@@ -15,6 +15,8 @@
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg;
+using Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV1;
+using Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2;
 using Etherna.EthernaIndex.Services.Tasks;
 using Etherna.MongoDB.Driver;
 using Etherna.MongoDB.Driver.Linq;
@@ -24,6 +26,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -31,8 +34,10 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
 {
     public class ManifestModel : PageModel
     {
+        // Models.
         public class VideoManifestDto
         {
+            // Constructor.
             public VideoManifestDto(
                 Video? video,
                 VideoManifest videoManifest)
@@ -42,29 +47,55 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
 
                 Id = videoManifest.Id;
                 CreationDateTime = videoManifest.CreationDateTime;
-                Description = videoManifest.Description;
-                Duration = videoManifest.Duration;
                 ErrorsDetails = videoManifest.ValidationErrors.Select(i => $"[{i.ErrorType}]: {i.ErrorMessage}");
                 IsValid = videoManifest.IsValid;
                 ManifestHash = videoManifest.Manifest.Hash;
-                OriginalQuality = videoManifest.OriginalQuality;
                 OwnerAddress = videoManifest.Id;
-                Title = videoManifest.Title ?? videoManifest.Id;
                 VideoInfo = video is null ? null : new VideoInfoDto(video);
                 ValidationTime = videoManifest.ValidationTime;
 
-                Sources = videoManifest.Sources != null ?
-                    videoManifest.Sources.Select(i => new MetadataVideoSourceDto(
-                        i.Bitrate,
-                        i.Reference,
-                        i.Size,
-                        i.Quality)) : new List<MetadataVideoSourceDto>();
-                Thumbnail = videoManifest.Thumbnail != null ? new SwarmImageRawDto
-                    (
-                        videoManifest.Thumbnail.AspectRatio,
-                        videoManifest.Thumbnail.Blurhash,
-                        videoManifest.Thumbnail.Sources.ToDictionary(i => i.Key, i => i.Value)
-                    ) : null;
+                switch (videoManifest.Metadata)
+                {
+                    case null:
+                        Title = videoManifest.Id;
+                        Sources = new List<MetadataVideoSourceDto>();
+                        break;
+
+                    case VideoManifestMetadataV1 metadataV1:
+                        Description = metadataV1.Description;
+                        Duration = metadataV1.Duration;
+                        Title = metadataV1.Title;
+                        Sources = metadataV1.Sources.Select(s => new MetadataVideoSourceDto(
+                            s.Reference,
+                            s.Size ?? 0,
+                            s.Quality));
+                        Thumbnail = metadataV1.Thumbnail != null ?
+                            new SwarmImageRawDto(
+                                metadataV1.Thumbnail.AspectRatio,
+                                metadataV1.Thumbnail.Blurhash,
+                                metadataV1.Thumbnail.Sources) :
+                            null;
+                        break;
+
+                    case VideoManifestMetadataV2 metadataV2:
+
+                        Description = metadataV2.Description;
+                        Duration = metadataV2.Duration;
+                        Title = metadataV2.Title;
+                        Sources = metadataV2.Sources.Select(i => new MetadataVideoSourceDto(
+                                i.Path,
+                                i.Size,
+                                i.Quality ?? ""));
+                        Thumbnail = metadataV2.Thumbnail != null ?
+                            new SwarmImageRawDto(
+                                metadataV2.Thumbnail.AspectRatio,
+                                metadataV2.Thumbnail.Blurhash,
+                                metadataV2.Thumbnail.Sources.ToDictionary(i => i.Width.ToString(CultureInfo.InvariantCulture), i => i.Path ?? "")) :
+                            null;
+                        break;
+
+                    default: throw new InvalidOperationException();
+                }
             }
 
             // Properties.
@@ -75,64 +106,59 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
             public IEnumerable<string> ErrorsDetails { get; set; } = default!;
             public bool? IsValid { get; set; }
             public string ManifestHash { get; set; } = default!;
-            public string? OriginalQuality { get; set; }
             public string OwnerAddress { get; set; } = default!;
             public IEnumerable<MetadataVideoSourceDto> Sources { get; set; }
             public SwarmImageRawDto? Thumbnail { get; set; }
             public string? Title { get; set; } = default!;
             public VideoInfoDto? VideoInfo { get; set; }
             public DateTime? ValidationTime { get; set; }
+        }
 
-            // Methods.
-            public class MetadataVideoSourceDto
+        public class MetadataVideoSourceDto
+        {
+            public MetadataVideoSourceDto(
+                string reference,
+                long size,
+                string quality)
             {
-                public MetadataVideoSourceDto(
-                    int? bitrate,
-                    string reference,
-                    long size,
-                    string quality)
-                {
-                    Bitrate = bitrate;
-                    Reference = reference;
-                    Size = size;
-                    Quality = quality;
-                }
-
-                public int? Bitrate { get; set; }
-                public string Reference { get; set; } = default!;
-                public long Size { get; set; }
-                public string Quality { get; set; } = default!;
+                Reference = reference;
+                Size = size;
+                Quality = quality;
             }
 
-            public class SwarmImageRawDto
-            {
-                public SwarmImageRawDto(
-                    float aspectRatio,
-                    string blurhash,
-                    IReadOnlyDictionary<string, string> sources)
-                {
-                    AspectRatio = aspectRatio;
-                    Blurhash = blurhash;
-                    Sources = sources;
-                }
+            public string Reference { get; set; } = default!;
+            public long Size { get; set; }
+            public string Quality { get; set; } = default!;
+        }
 
-                public float AspectRatio { get; set; }
-                public string Blurhash { get; set; } = default!;
-                public IReadOnlyDictionary<string, string> Sources { get; set; } = default!;
+        public class SwarmImageRawDto
+        {
+            public SwarmImageRawDto(
+                float aspectRatio,
+                string blurhash,
+                IReadOnlyDictionary<string, string> sources)
+            {
+                AspectRatio = aspectRatio;
+                Blurhash = blurhash;
+                Sources = sources;
             }
 
-            public class VideoInfoDto
+            public float AspectRatio { get; set; }
+            public string Blurhash { get; set; } = default!;
+            public IReadOnlyDictionary<string, string> Sources { get; set; } = default!;
+        }
+
+        public class VideoInfoDto
+        {
+            public VideoInfoDto(Video video)
             {
-                public VideoInfoDto(Video video)
-                {
-                    if (video is null)
-                        throw new ArgumentNullException(nameof(video));
+                if (video is null)
+                    throw new ArgumentNullException(nameof(video));
 
-                    VideoId = video.Id;
-                }
-
-                public string VideoId { get; set; }
+                VideoId = video.Id;
             }
+
+            public string VideoId { get; set; }
         }
 
         // Fields.

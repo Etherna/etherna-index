@@ -12,7 +12,7 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-using Etherna.EthernaIndex.Swarm.Models;
+using Etherna.EthernaIndex.Domain.Models.VideoAgg;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -20,13 +20,14 @@ namespace Etherna.EthernaIndex.Swarm
 {
     public interface ISwarmService
     {
-        MetadataVideo DeserializeMetadataVideo(JsonElement jsonElementManifest);
-        Task<MetadataVideo> GetMetadataVideoAsync(string manifestHash);
+        Task<VideoManifestMetadataBase> DeserializeVideoMetadataAsync(string manifestHash, JsonElement jsonElementManifest);
+        Task<VideoManifestMetadataBase> GetVideoMetadataAsync(string manifestHash);
 
 #if DEBUG_MOCKUP_SWARM
         string GenerateNewHash();
         void SetupHashMockup(string hash, object returnedObject);
-        MetadataVideo SetupNewMetadataVideoMockup(string manifestHash);
+        VideoManifestMetadataBase SetupNewMetadataV1VideoMockup(string manifestHash);
+        VideoManifestMetadataBase SetupNewMetadataV2VideoMockup(string manifestHash);
 #endif
     }
 }

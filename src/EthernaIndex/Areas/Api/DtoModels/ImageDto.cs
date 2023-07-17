@@ -12,10 +12,12 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
+using System;
 using System.Collections.Generic;
 
 namespace Etherna.EthernaIndex.Areas.Api.DtoModels
 {
+    [Obsolete("Used only for API backwards compatibility")]
     public class ImageDto
     {
         // Constructors.

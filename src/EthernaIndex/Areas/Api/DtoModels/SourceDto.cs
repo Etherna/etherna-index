@@ -12,14 +12,17 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
+using System;
+
 namespace Etherna.EthernaIndex.Areas.Api.DtoModels
 {
+    [Obsolete("Used only for API backwards compatibility")]
     public class SourceDto
     {
         // Constructors.
         public SourceDto(
             int? bitrate,
-            string quality,
+            string? quality,
             string reference,
             long size)
         {
@@ -31,7 +34,7 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
 
         // Properties.
         public int? Bitrate { get; private set; }
-        public string Quality { get; private set; }
+        public string? Quality { get; private set; }
         public string Reference { get; private set; }
         public long Size { get; private set; }
     }

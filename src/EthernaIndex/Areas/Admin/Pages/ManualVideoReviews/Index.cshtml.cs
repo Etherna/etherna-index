@@ -129,7 +129,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.ManualVideoReviews
             VideoReports = videos.Select(v =>
             {
                 var manifest = v.LastValidManifest;
-                return new VideoReviewDto(manifest?.Manifest?.Hash ?? "", manifest?.Title ?? "", v.Id);
+                return new VideoReviewDto(manifest?.Manifest?.Hash ?? "", manifest?.TryGetTitle() ?? "", v.Id);
             });
         }
 

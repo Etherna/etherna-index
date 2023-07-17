@@ -15,8 +15,8 @@
 using Etherna.EthernaIndex.Areas.Api.DtoModels;
 using Etherna.EthernaIndex.Areas.Api.InputModels;
 using Etherna.EthernaIndex.Domain.Models;
+using System;
 using System.Collections.Generic;
-using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Areas.Api.Services
@@ -26,15 +26,28 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         Task AuthorDeleteAsync(string id);
         Task<string> CreateAsync(VideoCreateInput videoInput);
         Task<CommentDto> CreateCommentAsync(string id, string text);
-        Task<VideoDto> FindByIdAsync(string id);
-        Task<VideoDto> FindByManifestHashAsync(string hash);
-        Task<PaginatedEnumerableDto<VideoDto>> GetLastUploadedVideosAsync(int page, int take);
+        Task<Video2Dto> FindByIdAsync(string id);
+        Task<Video2Dto> FindByManifestHashAsync(string hash);
+        Task<PaginatedEnumerableDto<Video2Dto>> GetLastUploadedVideosAsync(int page, int take);
         Task<VideoManifestStatusDto> GetValidationStatusByHashAsync(string manifestHash);
         Task<IEnumerable<VideoManifestStatusDto>> GetValidationStatusByIdAsync(string id);
         Task<IEnumerable<VideoStatusDto>> GetValidationStatusByIdsAsync(IEnumerable<string> ids);
         Task<PaginatedEnumerableDto<CommentDto>> GetVideoCommentsAsync(string id, int page, int take);
         Task ReportVideoAsync(string videoId, string manifestHash, string description);
-        Task<VideoManifestDto> UpdateAsync(string id, string newHash);
+        Task<VideoManifest2Dto> UpdateAsync(string id, string newHash);
         Task VoteVideAsync(string id, VoteValue value);
+
+        //deprecated
+        [Obsolete("Used only for API backwards compatibility")]
+        Task<VideoDto> FindByIdAsync_old(string id);
+
+        [Obsolete("Used only for API backwards compatibility")]
+        Task<VideoDto> FindByManifestHashAsync_old(string hash);
+
+        [Obsolete("Used only for API backwards compatibility")]
+        Task<PaginatedEnumerableDto<VideoDto>> GetLastUploadedVideosAsync_old(int page, int take);
+
+        [Obsolete("Used only for API backwards compatibility")]
+        Task<VideoManifestDto> UpdateAsync_old(string id, string newHash);
     }
 }

@@ -48,11 +48,25 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// </summary>
         /// <param name="id">The video id</param>
         [HttpGet("{id}")]
+        [Obsolete("Use \"find2\" instead")]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public Task<VideoDto> FindByIdAsync(
+        public Task<VideoDto> FindByIdAsync_old(
+            [Required] string id) =>
+            service.FindByIdAsync_old(id);
+
+        /// <summary>
+        /// Get video info by id.
+        /// </summary>
+        /// <param name="id">The video id</param>
+        [HttpGet("{id}/find2")]
+        [SimpleExceptionFilter]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public Task<Video2Dto> FindByIdAsync(
             [Required] string id) =>
             service.FindByIdAsync(id);
 
@@ -113,14 +127,14 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// <param name="take">Number of items to retrieve. Max 100</param>
         /// <response code="200">Current page on list</response>
         [HttpGet("latest")]
-        [Obsolete("Use \"latest2\" instead")]
+        [Obsolete("Use \"latest3\" instead")]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IEnumerable<VideoDto>> GetLastUploadedVideosAsync(
+        public async Task<IEnumerable<VideoDto>> GetLastUploadedVideosAsync_old0(
             [Range(0, int.MaxValue)] int page,
             [Range(1, 100)] int take = 25) =>
-            (await service.GetLastUploadedVideosAsync(page, take)).Elements;
+            (await service.GetLastUploadedVideosAsync_old(page, take)).Elements;
 
         /// <summary>
         /// Get list of last uploaded videos.
@@ -129,10 +143,26 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// <param name="take">Number of items to retrieve. Max 100</param>
         /// <response code="200">Current page on list</response>
         [HttpGet("latest2")]
+        [Obsolete("Use \"latest3\" instead")]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public Task<PaginatedEnumerableDto<VideoDto>> GetLastUploadedVideos2Async(
+        public Task<PaginatedEnumerableDto<VideoDto>> GetLastUploadedVideosAsync_old1(
+            [Range(0, int.MaxValue)] int page,
+            [Range(1, 100)] int take = 25) =>
+            service.GetLastUploadedVideosAsync_old(page, take);
+
+        /// <summary>
+        /// Get list of last uploaded videos.
+        /// </summary>
+        /// <param name="page">Current page of results</param>
+        /// <param name="take">Number of items to retrieve. Max 100</param>
+        /// <response code="200">Current page on list</response>
+        [HttpGet("latest3")]
+        [SimpleExceptionFilter]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public Task<PaginatedEnumerableDto<Video2Dto>> GetLastUploadedVideosAsync(
             [Range(0, int.MaxValue)] int page,
             [Range(1, 100)] int take = 25) =>
             service.GetLastUploadedVideosAsync(page, take);
@@ -142,11 +172,25 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// </summary>
         /// <param name="hash">The video hash</param>
         [HttpGet("manifest/{hash}")]
+        [Obsolete("Use \"manifest2\" instead")]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public Task<VideoDto> FindByManifestHashAsync(
+        public Task<VideoDto> FindByManifestHashAsync_old(
+            [Required] string hash) =>
+            service.FindByManifestHashAsync_old(hash);
+
+        /// <summary>
+        /// Get video info by manifest hash.
+        /// </summary>
+        /// <param name="hash">The video hash</param>
+        [HttpGet("manifest2/{hash}")]
+        [SimpleExceptionFilter]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public Task<Video2Dto> FindByManifestHashAsync(
             [Required] string hash) =>
             service.FindByManifestHashAsync(hash);
 
@@ -253,13 +297,31 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// <param name="id">The video id</param>
         /// <param name="newHash">The new video manifest hash</param>
         [HttpPut("{id}")]
+        [Obsolete("Use \"update2\" instead")]
         [Authorize]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public Task<VideoManifestDto> UpdateAsync(
+        public Task<VideoManifestDto> UpdateAsync_old(
+            [Required] string id,
+            [Required] string newHash) =>
+            service.UpdateAsync_old(id, newHash);
+
+        /// <summary>
+        /// Update video manifest.
+        /// </summary>
+        /// <param name="id">The video id</param>
+        /// <param name="newHash">The new video manifest hash</param>
+        [HttpPut("{id}/update2")]
+        [Authorize]
+        [SimpleExceptionFilter]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public Task<VideoManifest2Dto> UpdateAsync(
             [Required] string id,
             [Required] string newHash) =>
             service.UpdateAsync(id, newHash);

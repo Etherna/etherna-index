@@ -17,10 +17,10 @@ using System.Collections.Generic;
 
 namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
 {
-    public class ErrorDetail : ModelBase
+    public class ValidationError : ModelBase
     {
         // Constructors.
-        public ErrorDetail(
+        public ValidationError(
             ValidationErrorType errorType,
             string? errorMessage = null)
         {
@@ -28,7 +28,7 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
             ErrorMessage = errorMessage ?? errorType.ToString();
         }
 #pragma warning disable CS8618 //Used only by EthernaIndex.Persistence
-        protected ErrorDetail() { }
+        protected ValidationError() { }
 #pragma warning restore CS8618 //Used only by EthernaIndex.Persistence
 
         // Properties.
@@ -41,8 +41,8 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
             if (ReferenceEquals(this, obj)) return true;
             if (obj is null) return false;
             return GetType() == obj.GetType() &&
-                EqualityComparer<string>.Default.Equals(ErrorMessage, (obj as ErrorDetail)!.ErrorMessage) &&
-                ErrorType.Equals((obj as ErrorDetail)?.ErrorType);
+                EqualityComparer<string>.Default.Equals(ErrorMessage, (obj as ValidationError)!.ErrorMessage) &&
+                ErrorType.Equals((obj as ValidationError)?.ErrorType);
         }
 
         public override int GetHashCode() =>
