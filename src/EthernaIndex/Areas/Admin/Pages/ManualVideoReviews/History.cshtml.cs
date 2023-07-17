@@ -128,7 +128,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.ManualVideoReviews
             VideoReview = new VideoReviewDto(
                 currentManifest?.Manifest.Hash ?? "",
                 currentManifest?.Id ?? "",
-                currentManifest?.Title ?? "",
+                currentManifest?.TryGetTitle() ?? "",
                 video.Id);
         }
     }

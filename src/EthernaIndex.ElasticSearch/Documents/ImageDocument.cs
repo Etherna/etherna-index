@@ -22,7 +22,7 @@ namespace Etherna.EthernaIndex.ElasticSearch.Documents
         public ImageDocument(
             float aspectRatio,
             string blurhash,
-            IReadOnlyDictionary<string, string> sources)
+            IEnumerable<SourceImageDocument> sources)
         {
             AspectRatio = aspectRatio;
             Blurhash = blurhash;
@@ -35,6 +35,6 @@ namespace Etherna.EthernaIndex.ElasticSearch.Documents
         // Properties.
         public float AspectRatio { get; set; }
         public string Blurhash { get; set; }
-        public IReadOnlyDictionary<string, string> Sources { get; set; }
+        public IEnumerable<SourceImageDocument> Sources { get; set; }
     }
 }
