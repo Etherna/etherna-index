@@ -17,10 +17,10 @@ using Etherna.EthernaIndex.Domain.Models.UserAgg;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg;
 using Etherna.EthernaIndex.ElasticSearch.Documents;
 using System;
-using System.Linq;
 
 namespace Etherna.EthernaIndex.Areas.Api.DtoModels
 {
+    [Obsolete("Used only for API backwards compatibility")]
     public class VideoDto
     {
         // Constructors.

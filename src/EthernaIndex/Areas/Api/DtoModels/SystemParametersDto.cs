@@ -20,8 +20,8 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
     public class SystemParametersDto
     {
         public int CommentMaxLength => Comment.MaxLength;
-        public int VideoDescriptionMaxLength => VideoManifest.DescriptionMaxLength;
-        public int VideoPersonalDataMaxLength => VideoManifest.PersonalDataMaxLength;
-        public int VideoTitleMaxLength => VideoManifest.TitleMaxLength;
+        public int VideoDescriptionMaxLength => VideoManifest.CurrentDescriptionMaxLength;
+        public int VideoPersonalDataMaxLength => VideoManifest.CurrentPersonalDataMaxLength;
+        public int VideoTitleMaxLength => VideoManifest.CurrentTitleMaxLength;
     }
 }

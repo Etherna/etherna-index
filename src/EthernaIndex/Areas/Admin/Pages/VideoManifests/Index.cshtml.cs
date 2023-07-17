@@ -105,7 +105,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
             VideoManifests= paginatedVideoManifests.Elements.Select( 
                 e => new VideoManifestDto(
                     e.Manifest.Hash, 
-                    e.Title ?? ""));
+                    e.TryGetTitle() ?? ""));
         }
 
         private IMongoQueryable<VideoManifest> VideoWhere(
