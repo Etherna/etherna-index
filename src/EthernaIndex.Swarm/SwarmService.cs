@@ -22,6 +22,7 @@ using Etherna.EthernaIndex.Swarm.DtoModels.ManifestV1;
 using Etherna.EthernaIndex.Swarm.DtoModels.ManifestV2;
 using Microsoft.Extensions.Options;
 using System;
+using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -95,6 +96,39 @@ namespace Etherna.EthernaIndex.Swarm
 #else
             return (VideoManifestMetadataBase)SwarmObjectMockups[manifestHash];
 #endif
+        }
+
+        public async Task<bool> IsImageAsync(string hash)
+        {
+            if (BeeNodeClient.GatewayClient is null)
+                throw new InvalidOperationException(nameof(BeeNodeClient.GatewayClient));
+
+            // Download and save file.
+            var stream = await BeeNodeClient.GatewayClient.GetFileAsync(hash);
+            var fileName = Path.GetTempFileName();
+            try
+            {
+                using var fs = File.OpenWrite(fileName);
+                await stream.CopyToAsync(fs);
+                try
+                {
+                    // Check for image.
+                    var imageInfo = MagickFormatInfo.Create(fileName);
+                    if (imageInfo is null)
+                        return false;
+
+                    return allowedImageFormats.Contains(imageInfo.Format);
+                }
+                catch (MagickException)
+                {
+                    return false;
+                }
+            }
+            finally
+            {
+                if (File.Exists(fileName))
+                    File.Delete(fileName);
+            }
         }
 
 #if DEBUG_MOCKUP_SWARM

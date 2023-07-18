@@ -15,6 +15,7 @@
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Exceptions;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg;
+using Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2;
 using Etherna.EthernaIndex.Services.Extensions;
 using Etherna.EthernaIndex.Swarm;
 using Microsoft.Extensions.Logging;
@@ -77,6 +78,16 @@ namespace Etherna.EthernaIndex.Services.Tasks
                 return;
             }
 
+            //thumbnail
+            if (videoMetadata is VideoManifestMetadataV2)
+            {
+                var ttt = videoMetadata as VideoManifestMetadataV2;
+                var validationVideoError = await CheckThumbnailSourcesAsync(ttt.Thumbnail.Sources.ToDictionary(i => i.Width.ToString(), i => i.Path));
+                validationErrors.AddRange(validationVideoError);
+            }
+
+
+
             // Set result of validation.
             if (validationErrors.Any())
             {
@@ -93,6 +104,28 @@ namespace Etherna.EthernaIndex.Services.Tasks
 
             // Complete task.
             await indexDbContext.SaveChangesAsync().ConfigureAwait(false);
+        }
+
+        // Helpers.
+        private async Task<IEnumerable<ValidationError>> CheckThumbnailSourcesAsync(IReadOnlyDictionary<string, string> sources)
+        {
+            if (sources is null ||
+                !sources.Any())
+            {
+                return new ValidationError[] { new ValidationError(ValidationErrorType.InvalidVideoSource, "Missing sources") };
+            }
+
+            var errorDetails = new List<ValidationError>();
+            foreach (var item in sources)
+            {
+                if (string.IsNullOrWhiteSpace(item.Value))
+                    errorDetails.Add(new ValidationError(ValidationErrorType.InvalidVideoSource, $"[{item.Key}] empty source"));
+
+                if (!await swarmService.IsImageAsync(item.Value))
+                    errorDetails.Add(new ValidationError(ValidationErrorType.InvalidVideoSource, $"[{item.Key}] source not a valid image format"));
+            }
+
+            return errorDetails;
         }
     }
 }

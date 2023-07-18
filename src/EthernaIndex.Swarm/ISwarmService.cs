@@ -22,6 +22,7 @@ namespace Etherna.EthernaIndex.Swarm
     {
         Task<VideoManifestMetadataBase> DeserializeVideoMetadataAsync(string manifestHash, JsonElement jsonElementManifest);
         Task<VideoManifestMetadataBase> GetVideoMetadataAsync(string manifestHash);
+        Task<bool> IsImageAsync(string hash);
 
 #if DEBUG_MOCKUP_SWARM
         string GenerateNewHash();
