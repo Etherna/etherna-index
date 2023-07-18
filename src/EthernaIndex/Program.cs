@@ -13,6 +13,8 @@
 //   limitations under the License.
 
 using Etherna.ACR.Exceptions;
+using Etherna.ACR.Middlewares.DebugPages;
+using Etherna.Authentication.AspNetCore;
 using Etherna.DomainEvents;
 using Etherna.EthernaIndex.Configs;
 using Etherna.EthernaIndex.Configs.Authorization;
@@ -306,7 +308,7 @@ namespace Etherna.EthernaIndex
             services.AddScoped<IAuthorizationHandler, DenyBannedAuthorizationHandler>();
 
             // Configure token management.
-            services.AddAccessTokenManagement();
+            services.AddOpenIdConnectAccessTokenManagement();
 
             // Configure Hangfire server.
             if (!env.IsStaging()) //don't start server in staging
@@ -403,6 +405,7 @@ namespace Etherna.EthernaIndex
             {
                 app.UseDeveloperExceptionPage();
                 app.UseForwardedHeaders();
+                app.UseEthernaAcrDebugPages();
             }
             else
             {

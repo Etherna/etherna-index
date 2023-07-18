@@ -31,12 +31,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{D2E7C23E-16DA-4E7B-94BB-3425A0F98651}"
-	ProjectSection(SolutionItems) = preProject
-		.github\workflows\stable-release.yml = .github\workflows\stable-release.yml
-		.github\workflows\unstable-release.yml = .github\workflows\unstable-release.yml
-	EndProjectSection
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EthernaIndex.Swarm", "src\EthernaIndex.Swarm\EthernaIndex.Swarm.csproj", "{7BA052AB-A1A6-4596-B00A-6AF3BD079FEF}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EthernaIndex.Services.Tests", "test\EthernaIndex.Services.Tests\EthernaIndex.Services.Tests.csproj", "{E402005E-81B1-4440-86C7-F481CD1CB274}"
@@ -45,9 +39,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EthernaIndex.Domain.Tests",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EthernaIndex.Persistence.Tests", "test\EthernaIndex.Persistence.Tests\EthernaIndex.Persistence.Tests.csproj", "{55F3DAD7-3092-4F76-B668-3F39E1F7E278}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EthernaIndex.Swarm.Tests", "test\EthernaIndex.Swarm.Tests\EthernaIndex.Swarm.Tests.csproj", "{11E9DB15-40F0-405C-8889-46269C88C41B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EthernaIndex.Swarm.Tests", "test\EthernaIndex.Swarm.Tests\EthernaIndex.Swarm.Tests.csproj", "{11E9DB15-40F0-405C-8889-46269C88C41B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EthernaIndex.ElasticSearch", "src\EthernaIndex.ElasticSearch\EthernaIndex.ElasticSearch.csproj", "{D57A04DA-2046-43B8-B398-EFC71E1DF02A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EthernaIndex.ElasticSearch", "src\EthernaIndex.ElasticSearch\EthernaIndex.ElasticSearch.csproj", "{D57A04DA-2046-43B8-B398-EFC71E1DF02A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -127,7 +121,6 @@ Global
 		{EA8B21DD-6D0A-450E-B3E1-C7E4C2579146} = {7A662891-200D-4111-80FB-7717F2576208}
 		{71C7A7AC-39C1-40D3-B8FF-A90D71194CFA} = {552815A3-3072-492B-B3D4-B5E115B8038C}
 		{EC4BAD2D-55EA-495F-BEA9-5CC9379ED3D3} = {7A662891-200D-4111-80FB-7717F2576208}
-		{D2E7C23E-16DA-4E7B-94BB-3425A0F98651} = {532935A2-7A67-4F11-8072-3468B837697E}
 		{7BA052AB-A1A6-4596-B00A-6AF3BD079FEF} = {552815A3-3072-492B-B3D4-B5E115B8038C}
 		{E402005E-81B1-4440-86C7-F481CD1CB274} = {A97F8160-ADCD-4B37-8EB7-E8782BF88315}
 		{1F9834D1-EAD7-4AF3-96B9-4191680CBE3C} = {A97F8160-ADCD-4B37-8EB7-E8782BF88315}

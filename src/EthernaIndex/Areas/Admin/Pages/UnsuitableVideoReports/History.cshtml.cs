@@ -136,7 +136,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports
             VideoReview = new VideoReviewDto(
                 currentManifest?.Manifest.Hash ?? "",
                 currentManifest?.Id ?? "",
-                currentManifest?.Title ?? "",
+                currentManifest?.TryGetTitle() ?? "",
                 video.Id);
         }
     }

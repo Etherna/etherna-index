@@ -154,7 +154,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports
                 paginatedHashVideoReports.Elements,
                 lastValidManifest?.Manifest.Hash ?? "",
                 lastValidManifest?.Id ?? "",
-                lastValidManifest?.Title ?? "",
+                lastValidManifest?.TryGetTitle() ?? "",
                 video.Id);
         }
 

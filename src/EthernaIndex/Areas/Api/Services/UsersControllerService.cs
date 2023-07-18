@@ -113,7 +113,33 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
                 paginatedUsers.TotalElements);
         }
 
-        public async Task<PaginatedEnumerableDto<VideoDto>> GetVideosAsync(string address, int page, int take)
+        public async Task<PaginatedEnumerableDto<Video2Dto>> GetVideosAsync(string address, int page, int take)
+        {
+            var currentUserAddress = await ethernaOidcClient.TryGetEtherAddressAsync();
+            var requestByVideoOwner = address == currentUserAddress;
+
+            var (user, sharedInfo) = await userService.FindUserAsync(address);
+            var paginatedVideos = await indexDbContext.Videos.QueryPaginatedElementsAsync(
+                elements => elements.Where(v => v.Owner.Id == user.Id)
+                                    .Where(v => requestByVideoOwner || v.LastValidManifest != null),
+                v => v.CreationDateTime,
+                page,
+                take,
+                true);
+
+            logger.GetUserVideosPaginated(address, page, take);
+
+            return new PaginatedEnumerableDto<Video2Dto>(
+                paginatedVideos.CurrentPage,
+                paginatedVideos.Elements.Select(v => new Video2Dto(v, v.LastValidManifest, sharedInfo, null)),
+                paginatedVideos.PageSize,
+                paginatedVideos.TotalElements);
+        }
+
+        //deprecated
+
+        [Obsolete("Used only for API backwards compatibility")]
+        public async Task<PaginatedEnumerableDto<VideoDto>> GetVideosAsync_old(string address, int page, int take)
         {
             var currentUserAddress = await ethernaOidcClient.TryGetEtherAddressAsync();
             var requestByVideoOwner = address == currentUserAddress;

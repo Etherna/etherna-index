@@ -71,7 +71,7 @@ namespace Etherna.EthernaIndex.Domain.Models
         [PropertyAlterer(nameof(LastValidManifest))]
         public virtual void FailedManifestValidation(
             VideoManifest manifest,
-            IEnumerable<ErrorDetail> validationErrors)
+            IEnumerable<ValidationError> validationErrors)
         {
             if (manifest is null)
                 throw new ArgumentNullException(nameof(manifest));
@@ -123,17 +123,12 @@ namespace Etherna.EthernaIndex.Domain.Models
         [PropertyAlterer(nameof(LastValidManifest))]
         public virtual void SucceededManifestValidation(
             VideoManifest manifest,
-            string? batchId,
-            string description,
-            long duration,
-            string originalQuality,
-            string? personalData,
-            IEnumerable<VideoSource> sources,
-            SwarmImageRaw? thumbnail,
-            string title)
+            VideoManifestMetadataBase metadata)
         {
             if (manifest is null)
                 throw new ArgumentNullException(nameof(manifest));
+            if (metadata is null)
+                throw new ArgumentNullException(nameof(metadata));
 
             if (!VideoManifests.Contains(manifest))
             {
@@ -142,15 +137,7 @@ namespace Etherna.EthernaIndex.Domain.Models
                 throw ex;
             }
 
-            manifest.SucceededValidation(
-                batchId,
-                description,
-                duration,
-                originalQuality,
-                personalData,
-                sources,
-                thumbnail,
-                title);
+            manifest.SucceededValidation(metadata);
 
             UpdateLastValidManifest();
 

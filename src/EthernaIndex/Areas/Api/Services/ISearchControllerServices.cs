@@ -13,6 +13,7 @@
 //   limitations under the License.
 
 using Etherna.EthernaIndex.Areas.Api.DtoModels;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -21,6 +22,10 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
     public interface ISearchControllerServices
     {
         void ReindexAllVideos();
-        Task<IEnumerable<VideoDto>> SearchVideoAsync(string query, int page, int take);
+        Task<IEnumerable<Video2Dto>> SearchVideoAsync(string query, int page, int take);
+
+        //deprecated
+        [Obsolete("Used only for API backwards compatibility")]
+        Task<IEnumerable<VideoDto>> SearchVideoAsync_old(string query, int page, int take);
     }
 }
