@@ -12,68 +12,87 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
+using Etherna.EthernaIndex.Domain.Models.Swarm;
+using Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV1;
+using Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2;
 using Etherna.MongODM.Core.Attributes;
+using System;
 using System.Collections.Generic;
 
 namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
 {
-    public class VideoManifest : ManifestBase
+    public class VideoManifest : EntityModelBase<string>
     {
         // Consts.
-        public const int DescriptionMaxLength = 5000;
-        public const int PersonalDataMaxLength = 200;
-        public const int TitleMaxLength = 200;
+        public const int CurrentDescriptionMaxLength = VideoManifestMetadataV2.DescriptionMaxLength;
+        public const int CurrentPersonalDataMaxLength = VideoManifestMetadataV2.PersonalDataMaxLength;
+        public const int CurrentTitleMaxLength = VideoManifestMetadataV2.TitleMaxLength;
 
         // Fields.
-        private List<VideoSource> _sources = new();
+        private List<ValidationError> _validationErrors = new();
 
         // Constructors.
         public VideoManifest(string manifestHash)
-            : base(manifestHash) { }
+        {
+            Manifest = new SwarmBzz(manifestHash);
+        }
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         protected VideoManifest() { }
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         // Properties.
-        public virtual string? BatchId { get; protected set; }
-        public virtual string? Description { get; protected set; }
-        public virtual long? Duration { get; protected set; }
-        public virtual string? OriginalQuality { get; protected set; }
-        public virtual string? PersonalData { get; protected set; }
-        public virtual IEnumerable<VideoSource> Sources
+        public virtual bool? IsValid { get; private set; }
+        public virtual SwarmBzz Manifest { get; protected set; }
+        public virtual VideoManifestMetadataBase? Metadata { get; protected set; }
+        public virtual IEnumerable<ValidationError> ValidationErrors
         {
-            get => _sources;
-            protected set => _sources = new List<VideoSource>(value ?? new List<VideoSource>());
+            get => _validationErrors;
+            protected set => _validationErrors = new List<ValidationError>(value ?? Array.Empty<ValidationError>());
         }
-        public virtual SwarmImageRaw? Thumbnail { get; protected set; }
-        public virtual string? Title { get; protected set; }
+        public virtual DateTime? ValidationTime { get; private set; }
 
-        // Methods.
-        [PropertyAlterer(nameof(BatchId))]
-        [PropertyAlterer(nameof(Description))]
-        [PropertyAlterer(nameof(Duration))]
-        [PropertyAlterer(nameof(OriginalQuality))]
-        [PropertyAlterer(nameof(PersonalData))]
-        [PropertyAlterer(nameof(Sources))]
-        [PropertyAlterer(nameof(Thumbnail))]
-        [PropertyAlterer(nameof(Title))]
-        internal virtual void SucceededValidation(
-            string? batchId,
-            string description,
-            long duration,
-            string originalQuality,
-            string? personalData,
-            IEnumerable<VideoSource> sources,
-            SwarmImageRaw? thumbnail,
-            string title)
+        // Public methods.
+        public virtual string? TryGetDescription() =>
+            Metadata switch
+            {
+                null => null,
+                VideoManifestMetadataV1 metadataV1 => metadataV1.Description,
+                VideoManifestMetadataV2 metadataV2 => metadataV2.Description,
+                _ => throw new InvalidOperationException()
+            };
+
+        public virtual string? TryGetTitle() =>
+            Metadata switch
+            {
+                null => null,
+                VideoManifestMetadataV1 metadataV1 => metadataV1.Title,
+                VideoManifestMetadataV2 metadataV2 => metadataV2.Title,
+                _ => throw new InvalidOperationException()
+            };
+
+        // Internal methods.
+        [PropertyAlterer(nameof(IsValid))]
+        [PropertyAlterer(nameof(Metadata))]
+        [PropertyAlterer(nameof(ValidationErrors))]
+        [PropertyAlterer(nameof(ValidationTime))]
+        internal virtual void FailedValidation(IEnumerable<ValidationError> validationErrors)
         {
-            base.SucceededValidation();
-            BatchId = batchId;
-            Description = description;
-            Duration = duration;
-            OriginalQuality = originalQuality;
-            PersonalData = personalData;
-            Sources = sources;
-            Thumbnail = thumbnail;
-            Title = title;
+            IsValid = false;
+            Metadata = null;
+            _validationErrors.AddRange(validationErrors);
+            ValidationTime = DateTime.UtcNow;
+        }
+
+        [PropertyAlterer(nameof(IsValid))]
+        [PropertyAlterer(nameof(Metadata))]
+        [PropertyAlterer(nameof(ValidationErrors))]
+        [PropertyAlterer(nameof(ValidationTime))]
+        internal virtual void SucceededValidation(VideoManifestMetadataBase metadata)
+        {
+            IsValid = true;
+            Metadata = metadata;
+            _validationErrors.Clear();
+            ValidationTime = DateTime.UtcNow;
         }
     }
 }

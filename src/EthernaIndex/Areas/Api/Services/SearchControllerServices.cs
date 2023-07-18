@@ -18,6 +18,7 @@ using Etherna.EthernaIndex.Domain.Models.UserAgg;
 using Etherna.EthernaIndex.ElasticSearch;
 using Etherna.EthernaIndex.Services.Tasks;
 using Hangfire;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -45,7 +46,34 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         public void ReindexAllVideos() =>
             backgroundJobClient.Enqueue<IFullVideoReindexTask>(t => t.RunAsync());
 
-        public async Task<IEnumerable<VideoDto>> SearchVideoAsync(string query, int page, int take)
+        public async Task<IEnumerable<Video2Dto>> SearchVideoAsync(string query, int page, int take)
+        {
+            var videoDocuments = await elasticSearchService.SearchVideoAsync(query, page, take);
+
+            // Get user info from video selected.
+            var cacheSharedInfos = new Dictionary<string, UserSharedInfo>();
+            var videoDtos = new List<Video2Dto>();
+            foreach (var videoDocument in videoDocuments)
+            {
+                // Get shared info.
+                if (!cacheSharedInfos.ContainsKey(videoDocument.OwnerSharedInfoId))
+                {
+                    cacheSharedInfos[videoDocument.OwnerSharedInfoId] = await sharedDbContext.UsersInfo.FindOneAsync(videoDocument.OwnerSharedInfoId);
+                }
+
+                // Create video dto.
+                videoDtos.Add(new Video2Dto(
+                    videoDocument,
+                    cacheSharedInfos[videoDocument.OwnerSharedInfoId],
+                    null));
+            }
+
+            return videoDtos;
+        }
+
+        //deprecated
+        [Obsolete("Used only for API backwards compatibility")]
+        public async Task<IEnumerable<VideoDto>> SearchVideoAsync_old(string query, int page, int take)
         {
             var videoDocuments = await elasticSearchService.SearchVideoAsync(query, page, take);
 
