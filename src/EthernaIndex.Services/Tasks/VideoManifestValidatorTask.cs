@@ -15,11 +15,14 @@
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Exceptions;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg;
+using Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV1;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2;
 using Etherna.EthernaIndex.Services.Extensions;
 using Etherna.EthernaIndex.Swarm;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -79,14 +82,24 @@ namespace Etherna.EthernaIndex.Services.Tasks
             }
 
             //thumbnail
-            if (videoMetadata is VideoManifestMetadataV2)
+            if (videoMetadata is VideoManifestMetadataV1)
             {
-                var ttt = videoMetadata as VideoManifestMetadataV2;
-                var validationVideoError = await CheckThumbnailSourcesAsync(ttt.Thumbnail.Sources.ToDictionary(i => i.Width.ToString(), i => i.Path));
-                validationErrors.AddRange(validationVideoError);
+                var metadataV1 = videoMetadata as VideoManifestMetadataV1;
+                if (metadataV1?.Thumbnail?.Sources is not null)
+                {
+                    var validationVideoError = await CheckThumbnailSourcesAsync(metadataV1.Thumbnail.Sources);
+                    validationErrors.AddRange(validationVideoError);
+                }
             }
-
-
+            else if (videoMetadata is VideoManifestMetadataV2)
+            {
+                var metadataV2 = videoMetadata as VideoManifestMetadataV2;
+                if (metadataV2?.Thumbnail?.Sources is not null)
+                {
+                    var validationVideoError = await CheckThumbnailSourcesAsync(metadataV2.Thumbnail.Sources.ToDictionary(i => i.Width.ToString(CultureInfo.InvariantCulture), i => i.Path));
+                    validationErrors.AddRange(validationVideoError);
+                }
+            }
 
             // Set result of validation.
             if (validationErrors.Any())

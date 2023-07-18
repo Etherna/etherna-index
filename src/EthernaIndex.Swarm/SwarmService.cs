@@ -20,8 +20,10 @@ using Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV1;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2;
 using Etherna.EthernaIndex.Swarm.DtoModels.ManifestV1;
 using Etherna.EthernaIndex.Swarm.DtoModels.ManifestV2;
+using ImageMagick;
 using Microsoft.Extensions.Options;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
@@ -42,6 +44,9 @@ namespace Etherna.EthernaIndex.Swarm
 {
     public class SwarmService : ISwarmService
     {
+        // Consts.
+        private readonly List<MagickFormat> allowedImageFormats = new() { MagickFormat.Jpeg, MagickFormat.Jpg, MagickFormat.Png, MagickFormat.Png00, MagickFormat.Png24, MagickFormat.Png32, MagickFormat.Png48, MagickFormat.Png64, MagickFormat.Png8, MagickFormat.WebP };
+
         // Fields.
         private readonly IBeeNodeClient BeeNodeClient;
         private readonly SwarmSettings SwarmSettings;
