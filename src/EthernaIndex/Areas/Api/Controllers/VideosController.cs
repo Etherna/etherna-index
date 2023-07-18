@@ -281,7 +281,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// </summary>
         /// <param name="commentId">Comment id</param>
         /// <param name="text">Comment text</param>
-        [HttpPost("{commentId}/comments")]
+        [HttpPut("{commentId}/comments")]
         [Authorize]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
