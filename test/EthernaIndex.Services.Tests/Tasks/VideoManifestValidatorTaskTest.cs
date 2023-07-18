@@ -18,6 +18,7 @@ using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.Domain.Models.UserAgg;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV1;
+using Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2;
 using Etherna.EthernaIndex.Services.Tasks;
 using Etherna.EthernaIndex.Swarm;
 using Microsoft.Extensions.Logging;
@@ -233,6 +234,38 @@ namespace EthernaIndex.Services.Tests.Tasks
                 null,
                 null,
                 null,
+                null);
+            swarmService
+                .Setup(x => x.GetVideoMetadataAsync(manifestHash))
+                .ReturnsAsync(metadataVideoDto);
+
+            // Action.
+            await videoManifestValidatorTask.RunAsync(videoId, manifestHash);
+
+            // Assert.
+            Assert.True(videoManifest.IsValid);
+            Assert.NotNull(videoManifest.ValidationTime);
+            Assert.Equal(metadataVideoDto, videoManifest.Metadata);
+            Assert.Empty(videoManifest.ValidationErrors);
+            Assert.Contains(video.VideoManifests,
+                i => i.Manifest.Hash == manifestHash);
+            Assert.Equal(manifestHash, video.LastValidManifest!.Manifest.Hash);
+        }
+
+        [Fact]
+        public async Task InsertManifestInVideoV2WhenIsValid()
+        {
+            // Arrange.
+            var metadataVideoDto = new VideoManifestMetadataV2(
+                "title",
+                "Description",
+                1234,
+                new[] { new VideoSourceV2("path", "720p", 1234, "mp4") },
+                new ThumbnailV2(1, "", new List<ImageSourceV2> { new ImageSourceV2(320, "aaa", "jpg") }),
+                (float)1.34,
+                "batchId",
+                12345,
+                null, 
                 null);
             swarmService
                 .Setup(x => x.GetVideoMetadataAsync(manifestHash))

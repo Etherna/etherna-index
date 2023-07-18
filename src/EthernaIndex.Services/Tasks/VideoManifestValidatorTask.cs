@@ -82,23 +82,17 @@ namespace Etherna.EthernaIndex.Services.Tasks
             }
 
             //thumbnail
-            if (videoMetadata is VideoManifestMetadataV1)
+            switch (videoMetadata)
             {
-                var metadataV1 = videoMetadata as VideoManifestMetadataV1;
-                if (metadataV1?.Thumbnail?.Sources is not null)
-                {
-                    var validationVideoError = await CheckThumbnailSourcesAsync(metadataV1.Thumbnail.Sources);
-                    validationErrors.AddRange(validationVideoError);
-                }
-            }
-            else if (videoMetadata is VideoManifestMetadataV2)
-            {
-                var metadataV2 = videoMetadata as VideoManifestMetadataV2;
-                if (metadataV2?.Thumbnail?.Sources is not null)
-                {
-                    var validationVideoError = await CheckThumbnailSourcesAsync(metadataV2.Thumbnail.Sources.ToDictionary(i => i.Width.ToString(CultureInfo.InvariantCulture), i => i.Path));
-                    validationErrors.AddRange(validationVideoError);
-                }
+                case VideoManifestMetadataV1 metadataV1:
+                    if (metadataV1.Thumbnail?.Sources is not null)
+                        validationErrors.AddRange(await CheckThumbnailSourcesAsync(metadataV1.Thumbnail.Sources));
+                    break;
+                case VideoManifestMetadataV2 metadataV2:
+                    if (metadataV2.Thumbnail?.Sources is not null)
+                        validationErrors.AddRange(await CheckThumbnailSourcesAsync(metadataV2.Thumbnail.Sources.ToDictionary(i => i.Width.ToString(CultureInfo.InvariantCulture), i => i.Path)));
+                    break;
+                default: throw new InvalidOperationException();
             }
 
             // Set result of validation.
