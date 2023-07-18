@@ -56,7 +56,11 @@ namespace EthernaIndex.Services.Tests.Tasks
             video.AddManifest(videoManifest);
 
             loggerMock = new Mock<ILogger<VideoManifestValidatorTask>>();
+
+            // Swarm Service.
             swarmService = new Mock<ISwarmService>();
+            swarmService.Setup(_ => _.IsImageAsync(It.IsAny<string>()))
+                .ReturnsAsync(true);
 
             // Mock Db Data.
             indexContext = new Mock<IIndexDbContext>();
@@ -225,7 +229,7 @@ namespace EthernaIndex.Services.Tests.Tasks
                 "Description",
                 1234,
                 new[] { new VideoSourceV1(null, "720", "ref", null) },
-                null,
+                new ThumbnailV1(1, "", new Dictionary<string, string> { { "320w", "aaa" } }),
                 null,
                 null,
                 null,
