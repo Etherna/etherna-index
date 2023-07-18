@@ -30,7 +30,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
         public void Register(IDbContext dbContext)
         {
             dbContext.MapRegistry.AddModelMap<Video>(
-                "a25631af-fb94-44a3-b0e4-365fe5b4dfae", //v0.3.9
+                "a25631af-fb94-44a3-b0e4-365fe5b4dfae", //v0.3.10
                 mm =>
                 {
                     mm.AutoMap();
