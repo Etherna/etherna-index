@@ -14,12 +14,13 @@
 
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 
 namespace Etherna.EthernaIndex.Services.Extensions
 {
     /*
      * Always group similar log delegates by type, always use incremental event ids.
-     * Last event id is: 25
+     * Last event id is: 27
      */
     public static class LoggerExtensions
     {
@@ -80,6 +81,18 @@ namespace Etherna.EthernaIndex.Services.Extensions
                 new EventId(15, nameof(FindVideoById)),
                 "Find video by Id {VideoId}");
 
+        private static readonly Action<ILogger, IEnumerable<string>, Exception> _getBulkVideoManifestValidationStatusByHashes =
+            LoggerMessage.Define<IEnumerable<string>>(
+                LogLevel.Information,
+                new EventId(27, nameof(GetBulkVideoManifestValidationStatusByHashes)),
+                "Get bulk validation status by video manifests hashes {ManifestHashes}");
+
+        private static readonly Action<ILogger, IEnumerable<string>, Exception> _getBulkVideoValidationStatusByIds =
+            LoggerMessage.Define<IEnumerable<string>>(
+                LogLevel.Information,
+                new EventId(26, nameof(GetBulkVideoValidationStatusByIds)),
+                "Get bulk validation status by videos ids {VideoIds}");
+
         private static readonly Action<ILogger, string, Exception> _getCurrentUser =
             LoggerMessage.Define<string>(
                 LogLevel.Information,
@@ -110,10 +123,10 @@ namespace Etherna.EthernaIndex.Services.Extensions
                 new EventId(16, nameof(GetVideoComments)),
                 "Get comments from video id {VideoId} paginated Page: {Page} Take: {Take}");
 
-        private static readonly Action<ILogger, string, Exception> _getVideoValidationStatusByHash =
+        private static readonly Action<ILogger, string, Exception> _getVideoManifestValidationStatusByHash =
             LoggerMessage.Define<string>(
                 LogLevel.Information,
-                new EventId(18, nameof(GetVideoValidationStatusByHash)),
+                new EventId(18, nameof(GetVideoManifestValidationStatusByHash)),
                 "Get validation status by manifest hash {ManifestHash}");
 
         private static readonly Action<ILogger, string, Exception> _getVideoValidationStatusById =
@@ -207,6 +220,12 @@ namespace Etherna.EthernaIndex.Services.Extensions
         public static void FindVideoById(this ILogger logger, string videoId) =>
             _findVideoById(logger, videoId, null!);
 
+        public static void GetBulkVideoManifestValidationStatusByHashes(this ILogger logger, IEnumerable<string> manifestHashes) =>
+            _getBulkVideoManifestValidationStatusByHashes(logger, manifestHashes, null!);
+
+        public static void GetBulkVideoValidationStatusByIds(this ILogger logger, IEnumerable<string> videoIds) =>
+            _getBulkVideoValidationStatusByIds(logger, videoIds, null!);
+
         public static void GetCurrentUser(this ILogger logger, string address) =>
             _getCurrentUser(logger, address, null!);
 
@@ -222,8 +241,8 @@ namespace Etherna.EthernaIndex.Services.Extensions
         public static void GetVideoComments(this ILogger logger, string videoId, int page, int take) =>
             _getVideoComments(logger, videoId, page, take, null!);
 
-        public static void GetVideoValidationStatusByHash(this ILogger logger, string manifestHash) =>
-             _getVideoValidationStatusByHash(logger, manifestHash, null!);
+        public static void GetVideoManifestValidationStatusByHash(this ILogger logger, string manifestHash) =>
+             _getVideoManifestValidationStatusByHash(logger, manifestHash, null!);
 
         public static void GetVideoValidationStatusById(this ILogger logger, string videoId) =>
             _getVideoValidationStatusById(logger, videoId, null!);
