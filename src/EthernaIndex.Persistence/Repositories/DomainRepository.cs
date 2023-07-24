@@ -13,7 +13,7 @@
 //   limitations under the License.
 
 using Etherna.DomainEvents;
-using Etherna.EthernaIndex.Domain.Events;
+using Etherna.DomainEvents.Events;
 using Etherna.EthernaIndex.Domain.Models;
 using Etherna.MongODM.Core.Repositories;
 using System;
