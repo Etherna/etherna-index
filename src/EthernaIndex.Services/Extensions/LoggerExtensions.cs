@@ -20,7 +20,7 @@ namespace Etherna.EthernaIndex.Services.Extensions
 {
     /*
      * Always group similar log delegates by type, always use incremental event ids.
-     * Last event id is: 27
+     * Last event id is: 28
      */
     public static class LoggerExtensions
     {
@@ -80,6 +80,12 @@ namespace Etherna.EthernaIndex.Services.Extensions
                 LogLevel.Information,
                 new EventId(15, nameof(FindVideoById)),
                 "Find video by Id {VideoId}");
+
+        private static readonly Action<ILogger, string, string, IEnumerable<string>, Exception> _forcedVideoManifestsValidation =
+            LoggerMessage.Define<string, string, IEnumerable<string>>(
+                LogLevel.Information,
+                new EventId(28, nameof(ForcedVideoManifestsValidation)),
+                "User {UserId} forced validation of video {VideoId} on manifests {ManifestHashes}");
 
         private static readonly Action<ILogger, IEnumerable<string>, Exception> _getBulkVideoManifestValidationStatusByHashes =
             LoggerMessage.Define<IEnumerable<string>>(
@@ -219,6 +225,9 @@ namespace Etherna.EthernaIndex.Services.Extensions
 
         public static void FindVideoById(this ILogger logger, string videoId) =>
             _findVideoById(logger, videoId, null!);
+
+        public static void ForcedVideoManifestsValidation(this ILogger logger, string userId, string videoid, IEnumerable<string> manifestHashes) =>
+            _forcedVideoManifestsValidation(logger, userId, videoid, manifestHashes, null!);
 
         public static void GetBulkVideoManifestValidationStatusByHashes(this ILogger logger, IEnumerable<string> manifestHashes) =>
             _getBulkVideoManifestValidationStatusByHashes(logger, manifestHashes, null!);

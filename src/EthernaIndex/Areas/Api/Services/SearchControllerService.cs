@@ -24,7 +24,7 @@ using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Areas.Api.Services
 {
-    internal sealed class SearchControllerServices : ISearchControllerServices
+    internal sealed class SearchControllerService : ISearchControllerService
     {
         // Fields.
         private readonly IBackgroundJobClient backgroundJobClient;
@@ -32,7 +32,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         private readonly ISharedDbContext sharedDbContext;
 
         // Constructors.
-        public SearchControllerServices(
+        public SearchControllerService(
             IBackgroundJobClient backgroundJobClient,
             IElasticSearchService elasticSearchService,
             ISharedDbContext sharedDbContext)

@@ -19,7 +19,7 @@ using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Areas.Api.Services
 {
-    public interface ISearchControllerServices
+    public interface ISearchControllerService
     {
         void ReindexAllVideos();
         Task<IEnumerable<Video2Dto>> SearchVideoAsync(string query, int page, int take);

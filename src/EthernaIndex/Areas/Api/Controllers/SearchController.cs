@@ -32,10 +32,10 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
     public class SearchController : ControllerBase
     {
         // Fields.
-        private readonly ISearchControllerServices service;
+        private readonly ISearchControllerService service;
 
         // Constructor.
-        public SearchController(ISearchControllerServices service)
+        public SearchController(ISearchControllerService service)
         {
             this.service = service;
         }
@@ -82,6 +82,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         // Post.
         [HttpPost("videos/reindex")]
         [Authorize(CommonConsts.RequireAdministratorClaimPolicy)]
+        [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public void ReindexAllVideos() =>
