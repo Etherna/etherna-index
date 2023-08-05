@@ -13,9 +13,14 @@
 //   limitations under the License.
 
 using Etherna.EthernaIndex.Areas.Api.DtoModels;
+using Etherna.EthernaIndex.Areas.Api.Services;
 using Etherna.EthernaIndex.Attributes;
+using Etherna.EthernaIndex.Configs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
+using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Areas.Api.Controllers
 {
@@ -24,8 +29,17 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
     [Route("api/v{api-version:apiVersion}/[controller]")]
     public class SystemController : ControllerBase
     {
-        // Get.
+        // Fields.
+        private readonly ISystemControllerService service;
 
+        // Constructor.
+        public SystemController(
+            ISystemControllerService service)
+        {
+            this.service = service;
+        }
+
+        // Get.
         /// <summary>
         /// Get list of configuration parameters.
         /// </summary>
@@ -34,5 +48,36 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public SystemParametersDto GetParameters() => new();
+
+        // Put.
+        /// <summary>
+        /// Force new validation of video manifest.
+        /// </summary>
+        /// <param name="hash">Hash manifest</param>
+        [HttpPut("validate/manifest/{hash}")]
+        [Authorize(CommonConsts.RequireAdministratorClaimPolicy)]
+        [SimpleExceptionFilter]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public Task ForceVideoManifestValidationAsync(
+            [Required] string hash) =>
+            service.ForceVideoManifestValidationAsync(hash);
+
+        /// <summary>
+        /// Force new validation of video manifests.
+        /// </summary>
+        /// <param name="id">Video id</param>
+        [HttpPut("validate/video/{id}")]
+        [Authorize(CommonConsts.RequireAdministratorClaimPolicy)]
+        [SimpleExceptionFilter]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public Task ForceVideoManifestsValidationAsync(
+            [Required] string id) =>
+            service.ForceVideoManifestsValidationAsync(id);
     }
 }
