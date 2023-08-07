@@ -14,11 +14,12 @@
  *@
 
 @page
+@using static Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports.UnsuitableReportModel;
 @model Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports.UnsuitableReportModel
 @{
     ViewData["Title"] = Model.VideoReport.Title;
 
-    var pageSelectorModel = new PageSelectorModel(Model.CurrentPage, (int)Model.MaxPage);
+    var pageSelectorModel = new PageSelectorModel(Model.CurrentPage, (int)Model.MaxPage, routeData: Model.CustomRouteData);
 }
 
 <div class="row">
@@ -43,20 +44,23 @@
             <table class="table table-striped">
                 <thead>
                     <tr>
-                        <th>Description</th>
-                        <th>Reporter Address</th>
-                        <th>Report Date</th>
+                        <th>History</th>
                     </tr>
                 </thead>
 
                 <tbody>
                     @foreach (var videoReport in Model.VideoReport.DetailReports)
                     {
-                    <tr>
-                        <td class="align-middle">@videoReport.Description</td>
-                        <td class="align-middle">@videoReport.ReporterAddress</td>
-                        <td class="align-middle">@videoReport.ReportDate</td>
-                    </tr>
+                        <tr>
+                            @if (@videoReport.DetailType == VideoReportDto.UnsuitableReportDetailType.ReportVideo)
+                            {
+                                <td class="align-middle">@videoReport.Date <b>User:</b> @videoReport.Address <b>Reported:</b> @videoReport.Description</td>
+                            }
+                            else
+                            {
+                                <td class="align-middle">@videoReport.Date <b>User</b> @videoReport.Address <b>Review:</b> @(videoReport.IsValid ? "Accepted" : "Rejected") <b>Motivation:</b> @videoReport.Description</td>
+                            }
+                        </tr>
                     }
                 </tbody>
             </table>
@@ -66,8 +70,6 @@
 
 <div class="row">
     <div class="col-12">
-        <partial name="_PageSelector" model="pageSelectorModel" />
+        <partial name="_PageSelector" model="pageSelectorModel" asp-route-videoId="@Model.VideoReport.VideoId" />
     </div>
 </div>
-
-<a class="btn btn-primary" asp-page="History" asp-route-videoId="@Model.VideoReport.VideoId">History</a>

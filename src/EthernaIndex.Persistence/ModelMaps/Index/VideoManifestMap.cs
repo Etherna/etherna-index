@@ -12,6 +12,7 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
+using Etherna.EthernaIndex.Domain.Exceptions;
 using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV1;
@@ -48,7 +49,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                                 (string)titleObj : "";
                             var description = m.ExtraElements.TryGetValue("Description", out var descriptionObj) ?
                                 (string)descriptionObj : "";
-                            var duration = (long)m.ExtraElements["Duration"];
+                            var duration = (long)(m.ExtraElements["Duration"] ?? 0L);
                             var sources = m.ExtraElements.TryGetValue("Sources", out var sourcesObj) ?
                                 new ExtraElementsSerializer(dbContext).DeserializeValue<List<VideoSourceV1>>(sourcesObj) :
                                 new List<VideoSourceV1>();
@@ -61,17 +62,21 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                                 (string?)personalDataObj : null;
 
                             // Update model.
-                            var metadata = new VideoManifestMetadataV1(
-                                title,
-                                description,
-                                duration,
-                                sources,
-                                thumbnail,
-                                batchId,
-                                null,
-                                null,
-                                personalData);
-                            ReflectionHelper.SetValue(m, vm => vm.Metadata!, metadata);
+                            try
+                            {
+                                var metadata = new VideoManifestMetadataV1(
+                                                                title,
+                                                                description,
+                                                                duration,
+                                                                sources,
+                                                                thumbnail,
+                                                                batchId,
+                                                                null,
+                                                                null,
+                                                                personalData);
+                                ReflectionHelper.SetValue(m, vm => vm.Metadata!, metadata);
+                            }
+                            catch (VideoManifestValidationException){}
                         }
 
                         return Task.FromResult(m);
@@ -98,7 +103,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                                 (string)titleObj : "";
                             var description = m.ExtraElements.TryGetValue("Description", out var descriptionObj) ?
                                 (string)descriptionObj : "";
-                            var duration = (long)(double)m.ExtraElements["Duration"]; //was double
+                            var duration = (long)(double)(m.ExtraElements["Duration"] ?? 0L); //was double
                             var sources = m.ExtraElements.TryGetValue("Sources", out var sourcesObj) ?
                                 new ExtraElementsSerializer(dbContext).DeserializeValue<List<VideoSourceV1>>(sourcesObj) :
                                 new List<VideoSourceV1>();
@@ -148,7 +153,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                                 (string)titleObj : "";
                             var description = m.ExtraElements.TryGetValue("Description", out var descriptionObj) ?
                                 (string)descriptionObj : "";
-                            var duration = (long)(double)m.ExtraElements["Duration"]; //was double
+                            var duration = (long)(double)(m.ExtraElements["Duration"] ?? 0L); //was double
                             var sources = m.ExtraElements.TryGetValue("Sources", out var sourcesObj) ?
                                 new ExtraElementsSerializer(dbContext).DeserializeValue<List<VideoSourceV1>>(sourcesObj) :
                                 new List<VideoSourceV1>();
@@ -161,17 +166,21 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                                 (string?)personalDataObj : null;
 
                             // Update model.
-                            var metadata = new VideoManifestMetadataV1(
-                                title,
-                                description,
-                                duration,
-                                sources,
-                                thumbnail,
-                                batchId,
-                                null,
-                                null,
-                                personalData);
-                            ReflectionHelper.SetValue(m, vm => vm.Metadata!, metadata);
+                            try
+                            {
+                                var metadata = new VideoManifestMetadataV1(
+                                    title,
+                                    description,
+                                    duration,
+                                    sources,
+                                    thumbnail,
+                                    batchId,
+                                    null,
+                                    null,
+                                    personalData);
+                                ReflectionHelper.SetValue(m, vm => vm.Metadata!, metadata);
+                            }
+                            catch (VideoManifestValidationException) { }
                         }
 
                         return Task.FromResult(m);

@@ -23,6 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using static Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports.UnsuitableReportModel.VideoReportDto;
 
 namespace Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports
 {
@@ -31,7 +32,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports
         public class VideoReportDto
         {
             public VideoReportDto(
-                IEnumerable<UnsuitableVideoReport> videoReports,
+                IEnumerable<VideoReportDetailDto> detailReports,
                 string manifestHash,
                 string manifestId,
                 string title,
@@ -42,11 +43,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports
                 if (manifestHash is null)
                     throw new ArgumentNullException(nameof(manifestHash));
 
-                DetailReports = videoReports.Select(vr => new VideoReportDetailDto(
-                    vr.Id,
-                    vr.Description,
-                    vr.ReporterAuthor.SharedInfoId,
-                    vr.CreationDateTime));
+                DetailReports = detailReports;
                 ManifestHash = manifestHash;
                 ManifestId = manifestId;
                 Title = title;
@@ -56,29 +53,57 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports
             public IEnumerable<VideoReportDetailDto> DetailReports { get; }
             public string ManifestHash { get; private set; }
             public string ManifestId { get; set; } = default!;
-            public string Title { get; set; } = default!;
-            public string VideoId { get; set; }
+            public string Title { get; private set; } = default!;
+            public string VideoId { get; private set; }
+
             public class VideoReportDetailDto
             {
                 public VideoReportDetailDto(
                     string id,
-                    string description,
                     string reportAddress,
+                    string reportDescription,
                     DateTime reportDate)
                 {
                     if (id is null)
                         throw new ArgumentNullException(nameof(id));
 
                     Id = id;
-                    Description = description;
-                    ReporterAddress = reportAddress;
-                    ReportDate = reportDate;
+                    Address = reportAddress;
+                    Date = reportDate;
+                    Description = reportDescription;
+                    DetailType = UnsuitableReportDetailType.ReportVideo;
+                }
+
+                public VideoReportDetailDto(
+                    string id,
+                    string reviewerAddress,
+                    string reviewDescription,
+                    DateTime reviewDate,
+                    bool isValid)
+                {
+                    if (id is null)
+                        throw new ArgumentNullException(nameof(id));
+
+                    Id = id;
+                    Address = reviewerAddress;
+                    Date = reviewDate;
+                    Description = reviewDescription;
+                    DetailType = UnsuitableReportDetailType.ManualVideoReview;
+                    IsValid = isValid;
                 }
 
                 public string Id { get; }
+                public string Address { get; }
                 public string Description { get; }
-                public string ReporterAddress { get; }
-                public DateTime ReportDate { get; }
+                public DateTime Date { get; }
+                public UnsuitableReportDetailType DetailType { get; }
+                public bool IsValid { get; private set; }
+            }
+
+            public enum UnsuitableReportDetailType
+            {
+                ManualVideoReview,
+                ReportVideo
             }
         }
 
@@ -98,6 +123,8 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports
         {
             if (indexDbContext is null)
                 throw new ArgumentNullException(nameof(indexDbContext));
+
+            this.CustomRouteData = new Dictionary<string, string>();
             this.ethernaOidcClient = ethernaOidcClient;
             this.indexDbContext = indexDbContext;
             this.userService = userService;
@@ -105,6 +132,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports
 
         // Properties.
         public int CurrentPage { get; private set; }
+        public Dictionary<string, string> CustomRouteData { get; private set; }
         public long MaxPage { get; private set; }
         public VideoReportDto VideoReport { get; private set; } = default!;
 
@@ -133,23 +161,49 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports
         // Helpers.
         private async Task InitializeAsync(string videoId, int? p)
         {
+            if (CustomRouteData.ContainsKey("videoId"))
+                CustomRouteData["videoId"] = videoId;
+            else
+                CustomRouteData.Add("videoId", videoId);
+
             // Video info
             var video = await indexDbContext.Videos.FindOneAsync(vm => vm.Id == videoId);
 
             CurrentPage = p ?? 0;
 
-            var paginatedHashVideoReports = await indexDbContext.UnsuitableVideoReports.QueryPaginatedElementsAsync(
+            // Unsuitable video reports.
+            var paginatedUnsuitableVideoReports = await indexDbContext.UnsuitableVideoReports.QueryPaginatedElementsAsync(
                 vm => vm.Where(i => i.Video.Id == video.Id),
                 vm => vm.CreationDateTime,
                 CurrentPage,
                 PageSize);
+            var videoReportDetails = paginatedUnsuitableVideoReports.Elements
+                .Select(e => new VideoReportDetailDto(
+                        e.Id,
+                        e.ReporterAuthor.SharedInfoId,
+                        e.Description,
+                        e.CreationDateTime));
+            MaxPage = paginatedUnsuitableVideoReports.MaxPage;
 
-            MaxPage = paginatedHashVideoReports.MaxPage;
+            // Manual video reviews.
+            var paginatedManualVideoReviews = await indexDbContext.ManualVideoReviews.QueryPaginatedElementsAsync(
+                vr => vr.Where(i => i.Video.Id == videoId),
+                vr => vr.CreationDateTime,
+                CurrentPage,
+                PageSize);
+            MaxPage += paginatedManualVideoReviews.MaxPage;
+            videoReportDetails = videoReportDetails.Union(paginatedManualVideoReviews.Elements
+                .Select(e => new VideoReportDetailDto(
+                        e.Id,
+                        e.Author.SharedInfoId,
+                        e.Description,
+                        e.CreationDateTime,
+                        e.IsValidResult)));
 
+            // Video report dto.
             var lastValidManifest = video.LastValidManifest;
-
             VideoReport = new VideoReportDto(
-                paginatedHashVideoReports.Elements,
+                videoReportDetails.Take(PageSize).OrderByDescending(i=>i.Date),
                 lastValidManifest?.Manifest.Hash ?? "",
                 lastValidManifest?.Id ?? "",
                 lastValidManifest?.TryGetTitle() ?? "",
