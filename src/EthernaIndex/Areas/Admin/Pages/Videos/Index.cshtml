@@ -1,0 +1,124 @@
+﻿@page
+@using static Etherna.EthernaIndex.Areas.Admin.Pages.Videos.IndexModel;
+@model Etherna.EthernaIndex.Areas.Admin.Pages.Videos.IndexModel
+@{
+    ViewData["Title"] = Model.VideoModelSelected.Manifest?.Title ?? "";
+
+    var pageSelectorModel = new PageSelectorModel(Model.CurrentPage, (int)Model.MaxPage, routeData: Model.CustomRouteData);
+}
+
+<div class="row">
+    <div class="col-12 mb-3 text-center mt-1">
+        <h5>Video Info</h5>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-2 mb-3 text-left mt-1">
+        <strong>Video Id:</strong>
+    </div>
+    <div class="col-2 mb-3 text-left mt-1">
+        @Model.VideoModelSelected.VideoId
+    </div>
+</div>
+
+@if (Model.VideoModelSelected.Manifest is not null)
+{
+    <div class="row">
+        <div class="col-12 mb-3 text-center mt-1">
+            <h2>@Model.VideoModelSelected.Manifest.Title</h2>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-2 mb-3 text-left mt-1">
+            <strong>Description:</strong>
+        </div>
+        <div class="col-10 mb-3 text-left mt-1">
+            @Model.VideoModelSelected.Manifest.Description
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-2 mb-3 text-left mt-1">
+            <strong>Creation:</strong>
+        </div>
+        <div class="col-10 mb-3 text-left mt-1">
+            @Model.VideoModelSelected.Manifest.CreationDateTime
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-2 mb-3 text-left mt-1">
+            <strong>ManifestHash:</strong>
+        </div>
+        <div class="col-10 mb-3 text-left mt-1">
+            @Model.VideoModelSelected.Manifest.ManifestHash
+        </div>
+    </div>
+}
+else
+{
+    <div class="row">
+        <div class="col-2 mb-3 text-left mt-1">
+            <strong>Video Manifest:</strong>
+        </div>
+        <div class="col-2 mb-3 text-left mt-1">
+            Missing valid manifest
+        </div>
+    </div>
+}
+
+<div class="row">
+    <div class="col-12 mb-3 text-center mt-1">
+        <h5>Reports</h5>
+    </div>
+</div>
+
+
+<form id="client-form" Method="post">
+    <div class="form-row">
+        <div class="col-12 mb-3">
+            <input type="hidden" asp-for="VideoModelSelected.VideoId" name="VideoId" />
+            <input type="submit" asp-page-handler="ApproveVideo" class="btn btn-primary" value="Approve Video" name="button" />
+            <input type="submit" asp-page-handler="RejectVideo" class="btn btn-primary" value="Reject Video" name="button" />
+            <input asp-for="Input.Reason" type="text" placeholder="Reason" class="form-control" />
+        </div>
+    </div>
+</form>
+
+<div class="row">
+    <div class="col-12">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>History</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var report in Model.VideoModelSelected.Reports)
+                    {
+                        <tr>
+                            @if (@report.DetailType == VideoReportModel.UnsuitableReportDetailType.ReportVideo)
+                            {
+                                <td class="align-middle">@report.Date <b>User:</b> @report.Address <b>Reported:</b> @report.Description</td>
+                            }
+                            else
+                            {
+                                <td class="align-middle">@report.Date <b>User</b> @report.Address <b>Review:</b> @(report.IsValid ? "Accepted" : "Rejected") <b>Motivation:</b> @report.Description</td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <partial name="_PageSelector" model="pageSelectorModel" asp-route-videoId="@Model.VideoModelSelected.VideoId" />
+    </div>
+</div>

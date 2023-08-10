@@ -12,6 +12,7 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
+using Amazon.Runtime.Internal.Transform;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
 using Etherna.MongoDB.Driver;
@@ -33,9 +34,6 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports
         // Models.
         public class InputModel
         {
-            [Display(Name = "Include Reviewed")]
-            public bool IncludeArchived { get; set; } = default!;
-
             [Display(Name = "Video Id")]
             public string? VideoId { get; set; }
         }
@@ -76,88 +74,99 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports
             IIndexDbContext indexDbContext)
         {
             this.indexDbContext = indexDbContext;
+            ErrorMessage = "";
         }
 
         // Properties.
         [BindProperty]
         public InputModel Input { get; set; } = default!;
 
+        public string ErrorMessage { get; private set; }
         public int CurrentPage { get; private set; }
         public long MaxPage { get; private set; }
         public IEnumerable<VideoUnsuitableReportDto> VideoUnsuitableReports { get; private set; } = default!;
 
         // Methods.
-        public async Task OnGetAsync(
-            bool includeArchived, 
-            string videoId,
-            int? p)
+        public async Task<IActionResult> OnGetAsync(int? p)
         {
-            await InitializeAsync(
-                includeArchived,
-                videoId,
+            return await InitializeAsync(
+                null,
                 p);
         }
 
-        public async Task OnPost()
+        public async Task<IActionResult> OnPostAsync()
         {
-            await InitializeAsync(
-                Input?.IncludeArchived ?? false,
+            return await InitializeAsync(
                 Input?.VideoId,
                 null);
         }
 
         // Helpers.
-        private async Task InitializeAsync(
-            bool includeArchived,
+        private async Task<IActionResult> InitializeAsync(
             string? videoId,
             int? p)
         {
             if (!string.IsNullOrWhiteSpace(videoId) &&
                 !VideoIdRegex().IsMatch(videoId))
             {
+                ErrorMessage = "Invalid VideoId format.";
                 VideoUnsuitableReports = new List<VideoUnsuitableReportDto>();
-                return;
+                return new PageResult();
             }
-
             CurrentPage = p ?? 0;
 
-            var paginatedUnsuitableReports = await indexDbContext.UnsuitableVideoReports.QueryPaginatedElementsAsync(
-                vm => VideoUnsuitableReportWhere(vm, includeArchived, videoId)
-                        .GroupBy(i => i.Video.Id)
-                        .Select(group => new
-                        {
-                            Id = group.Key,
-                            Count = group.Count()
-                        }),
-                vm => vm.Id,
-                CurrentPage,
-                PageSize);
+            if (!string.IsNullOrWhiteSpace(videoId))
+            {
+                var video = await indexDbContext.Videos.TryFindOneAsync(v => v.Id == videoId);
 
-            MaxPage = paginatedUnsuitableReports.MaxPage;
+                if (video is not null)
+                    return RedirectToPage("../Videos/Index", new Dictionary<string, string> { { "videoId", video.Id } });
+            }
+            else
+            {
+                var paginatedUnsuitableReports = await indexDbContext.UnsuitableVideoReports.QueryPaginatedElementsAsync(
+                    vm => VideoUnsuitableReportWhere(vm, videoId)
+                            .GroupBy(i => i.Video.Id)
+                            .Select(group => new
+                            {
+                                Id = group.Key,
+                                Count = group.Count()
+                            }),
+                    vm => vm.Id,
+                    CurrentPage,
+                    PageSize);
 
-            var videoIds = paginatedUnsuitableReports.Elements.Select(e => e.Id);
+                MaxPage = paginatedUnsuitableReports.MaxPage;
 
-            // Get manifest info.
-            var videos = await indexDbContext.Videos.QueryElementsAsync(elements =>
-               elements.Where(u => videoIds.Contains(u.Id))
-                       .OrderBy(i => i.Id)
-                       .ToListAsync());
+                var videoIds = paginatedUnsuitableReports.Elements.Select(e => e.Id);
 
-            VideoUnsuitableReports = videos.Select(vm => new VideoUnsuitableReportDto(
-                vm.LastValidManifest?.TryGetTitle() ?? "",
-                vm.Id,
-                paginatedUnsuitableReports.Elements.First(pv => pv.Id == vm.Id).Count));
+                // Get manifest info.
+                var videos = await indexDbContext.Videos.QueryElementsAsync(elements =>
+                   elements.Where(u => videoIds.Contains(u.Id))
+                           .OrderBy(i => i.Id)
+                           .ToListAsync());
+
+                VideoUnsuitableReports = videos.Select(vm => new VideoUnsuitableReportDto(
+                    vm.LastValidManifest?.TryGetTitle() ?? "",
+                    vm.Id,
+                    paginatedUnsuitableReports.Elements.First(pv => pv.Id == vm.Id).Count));
+            }
+
+            if (!string.IsNullOrWhiteSpace(videoId))
+            {
+                VideoUnsuitableReports = Array.Empty<VideoUnsuitableReportDto>(); 
+                ErrorMessage = "VideoId not found.";
+            }
+
+            return new PageResult();
         }
 
         private IMongoQueryable<UnsuitableVideoReport> VideoUnsuitableReportWhere(
             IMongoQueryable<UnsuitableVideoReport> querable,
-            bool includeArchived,
             string? videoId)
         {
             if (!string.IsNullOrWhiteSpace(videoId))
                 querable = querable.Where(vur => vur.Video.Id == videoId);
-            if (!includeArchived)
-                querable = querable.Where(vur => vur.IsArchived == false);
 
             return querable;
         }
