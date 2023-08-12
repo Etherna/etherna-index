@@ -22,11 +22,23 @@
     </div>
 </div>
 
+<div class="row">
+    <div class="col-2 mb-3 text-left mt-1">
+        <strong>Video Creation:</strong>
+    </div>
+    <div class="col-2 mb-3 text-left mt-1">
+        @Model.VideoModelSelected.CreationDateTime
+    </div>
+</div>
+
 @if (Model.VideoModelSelected.Manifest is not null)
 {
     <div class="row">
-        <div class="col-12 mb-3 text-center mt-1">
-            <h2>@Model.VideoModelSelected.Manifest.Title</h2>
+        <div class="col-2 mb-3 text-left mt-1">
+            <strong>Title:</strong>
+        </div>
+        <div class="col-10 mb-3 text-left mt-1">
+            @Model.VideoModelSelected.Manifest.Title
         </div>
     </div>
 
@@ -41,7 +53,7 @@
 
     <div class="row">
         <div class="col-2 mb-3 text-left mt-1">
-            <strong>Creation:</strong>
+            <strong>Manifest Creation:</strong>
         </div>
         <div class="col-10 mb-3 text-left mt-1">
             @Model.VideoModelSelected.Manifest.CreationDateTime

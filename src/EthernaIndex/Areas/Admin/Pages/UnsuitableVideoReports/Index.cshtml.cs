@@ -41,6 +41,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports
         public class VideoUnsuitableReportDto
         {
             public VideoUnsuitableReportDto(
+                DateTime creationDateTime,
                 string title,
                 string videoId,
                 int totalReports)
@@ -50,11 +51,13 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports
                 if (videoId is null)
                     throw new ArgumentNullException(nameof(videoId));
 
+                CreationDateTime = creationDateTime;
                 Title = title;
                 TotalReports = totalReports;
                 VideoId = videoId;
             }
 
+            public DateTime CreationDateTime { get; set; }
             public string Title { get; }
             public int TotalReports { get; }
             public string VideoId { get; }
@@ -126,15 +129,17 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports
             {
                 var paginatedUnsuitableReports = await indexDbContext.UnsuitableVideoReports.QueryPaginatedElementsAsync(
                     vm => VideoUnsuitableReportWhere(vm, videoId)
-                            .GroupBy(i => i.Video.Id)
+                            .GroupBy(i => new { i.Video.Id, i.CreationDateTime })
                             .Select(group => new
                             {
-                                Id = group.Key,
+                                Id = group.Key.Id,
+                                CreationDateTime = group.Key.CreationDateTime,
                                 Count = group.Count()
                             }),
-                    vm => vm.Id,
+                    vm => vm.CreationDateTime,
                     CurrentPage,
-                    PageSize);
+                    PageSize,
+                    useDescendingOrder: true);
 
                 MaxPage = paginatedUnsuitableReports.MaxPage;
 
@@ -146,15 +151,18 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports
                            .OrderBy(i => i.Id)
                            .ToListAsync());
 
-                VideoUnsuitableReports = videos.Select(vm => new VideoUnsuitableReportDto(
-                    vm.LastValidManifest?.TryGetTitle() ?? "",
-                    vm.Id,
-                    paginatedUnsuitableReports.Elements.First(pv => pv.Id == vm.Id).Count));
+                VideoUnsuitableReports = videos
+                    .Select(v => new VideoUnsuitableReportDto(
+                        v.CreationDateTime,
+                        v.LastValidManifest?.TryGetTitle() ?? "",
+                        v.Id,
+                        paginatedUnsuitableReports.Elements.First(pv => pv.Id == v.Id).Count))
+                    .OrderByDescending(vur => vur.CreationDateTime);
             }
 
             if (!string.IsNullOrWhiteSpace(videoId))
             {
-                VideoUnsuitableReports = Array.Empty<VideoUnsuitableReportDto>(); 
+                VideoUnsuitableReports = Array.Empty<VideoUnsuitableReportDto>();
                 ErrorMessage = "VideoId not found.";
             }
 

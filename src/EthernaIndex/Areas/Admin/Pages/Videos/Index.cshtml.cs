@@ -89,6 +89,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.Videos
                     throw new ArgumentNullException(nameof(video));
 
                 VideoId = video.Id;
+                CreationDateTime = video.CreationDateTime;
                 Reports = detailReports;
 
                 if (videoManifest is not null)
@@ -97,6 +98,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.Videos
 
             // Properties.
             public string VideoId { get; set; }
+            public DateTime CreationDateTime { get; set; }
             public ManifestModel Manifest { get; private set; } = default!;
             public IEnumerable<VideoReportModel> Reports { get; private set; } = default!;
         }
