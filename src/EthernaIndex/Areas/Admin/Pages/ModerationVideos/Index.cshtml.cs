@@ -58,7 +58,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.ModerationVideos
         }
 
         // Consts.
-        private const int PageSize = 1;
+        private const int PageSize = 20;
 
         [GeneratedRegex("^[A-Fa-f0-9]{24}$")]
         private static partial Regex VideoIdRegex();
