@@ -12,7 +12,6 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-using Amazon.Runtime.Internal.Transform;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
 using Etherna.MongoDB.Driver;
@@ -21,7 +20,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -98,6 +96,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.ModerationVideos
             if (!string.IsNullOrWhiteSpace(videoId) &&
                 !VideoIdRegex().IsMatch(videoId))
             {
+                CurrentPage = 0;
                 ErrorMessage = "Invalid VideoId format.";
                 VideoUnsuitableReports = new List<VideoUnsuitableReportDto>();
                 return new PageResult();
@@ -131,7 +130,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.ModerationVideos
 
                 var videoIds = paginatedUnsuitableReports.Elements.Select(e => e.Id);
 
-                // Get manifest info.
+                // Get videos.
                 var videos = await indexDbContext.Videos.QueryElementsAsync(elements =>
                    elements.Where(u => videoIds.Contains(u.Id))
                            .OrderBy(i => i.Id)
