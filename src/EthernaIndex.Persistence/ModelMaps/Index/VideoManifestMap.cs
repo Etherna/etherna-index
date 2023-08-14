@@ -103,7 +103,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                                 (string)titleObj : "";
                             var description = m.ExtraElements.TryGetValue("Description", out var descriptionObj) ?
                                 (string)descriptionObj : "";
-                            var duration = (long)(double)(m.ExtraElements["Duration"] ?? 0L); //was double
+                            var duration = (long)(double)(m.ExtraElements["Duration"] ?? 0.0); //was double
                             var sources = m.ExtraElements.TryGetValue("Sources", out var sourcesObj) ?
                                 new ExtraElementsSerializer(dbContext).DeserializeValue<List<VideoSourceV1>>(sourcesObj) :
                                 new List<VideoSourceV1>();
@@ -153,7 +153,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                                 (string)titleObj : "";
                             var description = m.ExtraElements.TryGetValue("Description", out var descriptionObj) ?
                                 (string)descriptionObj : "";
-                            var duration = (long)(double)(m.ExtraElements["Duration"] ?? 0L); //was double
+                            var duration = (long)(double)(m.ExtraElements["Duration"] ?? 0.0); //was double
                             var sources = m.ExtraElements.TryGetValue("Sources", out var sourcesObj) ?
                                 new ExtraElementsSerializer(dbContext).DeserializeValue<List<VideoSourceV1>>(sourcesObj) :
                                 new List<VideoSourceV1>();
