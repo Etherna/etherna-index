@@ -26,7 +26,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports
+namespace Etherna.EthernaIndex.Areas.Admin.Pages.ModerationVideos
 {
     public partial class ReportModel : PageModel
     {
