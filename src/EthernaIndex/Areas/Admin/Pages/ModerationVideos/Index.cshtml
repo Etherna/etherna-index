@@ -60,12 +60,12 @@
     </div>
 </div>
 
-<form method="post"
+<form method="get"
       asp-route-p="@Model.CurrentPage">
 
     <div class="form-row">
         <div class="col-4 mb-3">
-            <input asp-for="Input.VideoId" type="text" placeholder="video id" class="form-control" />
+            <input id="VideoId" name="VideoId" type="text" placeholder="video id" class="form-control" />
         </div>
     </div>
 

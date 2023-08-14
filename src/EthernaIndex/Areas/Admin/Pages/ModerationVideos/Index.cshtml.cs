@@ -32,12 +32,6 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.ModerationVideos
     {
 
         // Models.
-        public class InputModel
-        {
-            [Display(Name = "Video Id")]
-            public string? VideoId { get; set; }
-        }
-
         public class VideoUnsuitableReportDto
         {
             public VideoUnsuitableReportDto(
@@ -64,7 +58,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.ModerationVideos
         }
 
         // Consts.
-        private const int PageSize = 20;
+        private const int PageSize = 1;
 
         [GeneratedRegex("^[A-Fa-f0-9]{24}$")]
         private static partial Regex VideoIdRegex();
@@ -81,27 +75,19 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.ModerationVideos
         }
 
         // Properties.
-        [BindProperty]
-        public InputModel Input { get; set; } = default!;
-
         public string ErrorMessage { get; private set; }
         public int CurrentPage { get; private set; }
         public long MaxPage { get; private set; }
         public IEnumerable<VideoUnsuitableReportDto> VideoUnsuitableReports { get; private set; } = default!;
 
         // Methods.
-        public async Task<IActionResult> OnGetAsync(int? p)
+        public async Task<IActionResult> OnGetAsync(
+            string? videoId,
+            int? p)
         {
             return await InitializeAsync(
-                null,
+                videoId,
                 p);
-        }
-
-        public async Task<IActionResult> OnPostAsync()
-        {
-            return await InitializeAsync(
-                Input?.VideoId,
-                null);
         }
 
         // Helpers.
