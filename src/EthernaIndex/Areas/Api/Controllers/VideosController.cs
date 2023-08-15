@@ -112,11 +112,25 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// </summary>
         /// <param name="id">The video id</param>
         [HttpGet("{id}/validations")]
+        [Obsolete("Use \"{id}/validation\" instead")]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public Task<IEnumerable<VideoManifestStatusDto>> ValidationsStatusByIdAsync(
+        public async Task<IEnumerable<VideoManifestStatusDto>> ValidationsStatusByIdAsync_old(
+            [Required] string id) =>
+            (await service.GetValidationStatusByIdAsync(id)).ManifestsStatus;
+
+        /// <summary>
+        /// Get validation info by id.
+        /// </summary>
+        /// <param name="id">The video id</param>
+        [HttpGet("{id}/validation")]
+        [SimpleExceptionFilter]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public Task<VideoStatusDto> ValidationsStatusByIdAsync(
             [Required] string id) =>
             service.GetValidationStatusByIdAsync(id);
 
@@ -275,6 +289,30 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
             service.VoteVideAsync(id, value);
 
         // Put.
+
+        /// <summary>
+        /// Get bulk validation info by multiple manifest hashes.
+        /// </summary>
+        /// <param name="hashes">The list of video manifest hashes</param>
+        [HttpPut("manifest/bulkValidation")]
+        [SimpleExceptionFilter]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public Task<IEnumerable<VideoManifestStatusDto>> GetBulkValidationStatusByHashesAsync(
+            [Required][FromBody] IEnumerable<string> hashes) =>
+            service.GetBulkValidationStatusByHashesAsync(hashes);
+
+        /// <summary>
+        /// Get bulk validation info by multiple video ids.
+        /// </summary>
+        /// <param name="ids">The list of video id</param>
+        [HttpPut("bulkValidation")]
+        [SimpleExceptionFilter]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public Task<IEnumerable<VideoStatusDto>> GetBulkValidationStatusByIdsAsync(
+            [Required][FromBody] IEnumerable<string> ids) =>
+            service.GetBulkValidationStatusByIdsAsync(ids);
 
         /// <summary>
         /// Update video manifest.
