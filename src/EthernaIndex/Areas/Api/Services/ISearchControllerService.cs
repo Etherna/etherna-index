@@ -12,19 +12,20 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-using Etherna.DomainEvents;
-using Etherna.MongODM.Core.Domain.Models;
+using Etherna.EthernaIndex.Areas.Api.DtoModels;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
-namespace Etherna.EthernaIndex.Domain.Events
+namespace Etherna.EthernaIndex.Areas.Api.Services
 {
-    public class EntityDeletedEvent<TModel> : IDomainEvent
-        where TModel : IEntityModel
+    public interface ISearchControllerService
     {
-        public EntityDeletedEvent(TModel entity)
-        {
-            Entity = entity;
-        }
+        void ReindexAllVideos();
+        Task<IEnumerable<Video2Dto>> SearchVideoAsync(string query, int page, int take);
 
-        public TModel Entity { get; }
+        //deprecated
+        [Obsolete("Used only for API backwards compatibility")]
+        Task<IEnumerable<VideoDto>> SearchVideoAsync_old(string query, int page, int take);
     }
 }
