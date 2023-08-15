@@ -73,8 +73,8 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.ModerationVideos
         }
 
         // Properties.
-        public string ErrorMessage { get; private set; }
         public int CurrentPage { get; private set; }
+        public string ErrorMessage { get; private set; }
         public long MaxPage { get; private set; }
         public IEnumerable<VideoUnsuitableReportDto> VideoUnsuitableReports { get; private set; } = default!;
 

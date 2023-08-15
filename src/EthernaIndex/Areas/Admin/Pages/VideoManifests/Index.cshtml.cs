@@ -19,7 +19,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -28,12 +27,6 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
     public class IndexModel : PageModel
     {
         // Models.
-        public class InputModel
-        {
-            [Display(Name = "Manifest Hash")]
-            public string? ManifestHash { get; set; }
-        }
-
         public class VideoManifestDto
         {
             public VideoManifestDto(
@@ -64,48 +57,59 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
             IIndexDbContext indexDbContext)
         {
             this.indexDbContext = indexDbContext;
+            ErrorMessage = "";
         }
 
         // Properties.
-        [BindProperty]
-        public InputModel Input { get; set; } = default!;
-
         public int CurrentPage { get; private set; }
+        public string ErrorMessage { get; private set; }
         public long MaxPage { get; private set; }
         public IEnumerable<VideoManifestDto> VideoManifests { get; set; } = default!;
 
         // Methods.
-        public Task OnGetAsync(
+        public Task<IActionResult> OnGetAsync(
             string manifestHash,
             int? p) =>
             InitializeAsync(
                 manifestHash,
                 p);
 
-        public Task OnPost() =>
-            InitializeAsync(
-                Input?.ManifestHash,
-                null);
-
         // Helpers.
-        private async Task InitializeAsync(
+        private async Task<IActionResult> InitializeAsync(
             string? manifestHash,
             int? p)
         {
             CurrentPage = p ?? 0;
+            if (!string.IsNullOrWhiteSpace(manifestHash))
+            {
+                var videoManifests = await indexDbContext.VideoManifests.TryFindOneAsync(v => v.Manifest.Hash == manifestHash);
 
-            var paginatedVideoManifests = await indexDbContext.VideoManifests.QueryPaginatedElementsAsync(
+                if (videoManifests is not null)
+                    return RedirectToPage("../VideoManifests/Manifest", new Dictionary<string, string> { { "manifestHash", manifestHash } });
+            }
+            else
+            {
+                var paginatedVideoManifests = await indexDbContext.VideoManifests.QueryPaginatedElementsAsync(
                 vm => VideoWhere(vm, manifestHash),
                 vm => vm.Id,
                 CurrentPage,
                 PageSize);
 
-            MaxPage = paginatedVideoManifests.MaxPage;
+                MaxPage = paginatedVideoManifests.MaxPage;
 
-            VideoManifests= paginatedVideoManifests.Elements.Select( 
-                e => new VideoManifestDto(
-                    e.Manifest.Hash, 
+                VideoManifests = paginatedVideoManifests.Elements.Select(
+                    e => new VideoManifestDto(
+                        e.Manifest.Hash,
                     e.TryGetTitle() ?? ""));
+            }
+
+            if (!string.IsNullOrWhiteSpace(manifestHash))
+            {
+                VideoManifests = Array.Empty<VideoManifestDto>();
+                ErrorMessage = "ManifestHash not found.";
+            }
+
+            return new PageResult();
         }
 
         private IMongoQueryable<VideoManifest> VideoWhere(

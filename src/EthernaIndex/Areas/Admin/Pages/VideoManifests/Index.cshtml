@@ -27,18 +27,24 @@
     </div>
 </div>
 
-<form method="post"
+<form method="get"
       asp-route-p="@Model.CurrentPage">
 
     <div class="form-row">
         <div class="col-4 mb-3">
-            <input asp-for="Input.ManifestHash" type="text" placeholder="manifest hash" class="form-control" />
+            <input id="ManifestHash" name="ManifestHash" type="text" placeholder="manifest hash" class="form-control" />
         </div>
     </div>
 
     <div class="form-row">
         <div class="col-12 mb-3">
             <input type="submit" class="btn btn-primary" value="Find" />
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="col-4 mb-3">
+            <span>@Model.ErrorMessage</span>
         </div>
     </div>
 </form>
