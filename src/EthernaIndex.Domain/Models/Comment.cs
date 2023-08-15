@@ -12,13 +12,19 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
+using Etherna.EthernaIndex.Domain.Models.CommentAgg;
+using Etherna.EthernaIndex.Domain.Models.VideoAgg;
 using Etherna.MongODM.Core.Attributes;
 using System;
+using System.Collections.Generic;
 
 namespace Etherna.EthernaIndex.Domain.Models
 {
     public class Comment : EntityModelBase<string>
     {
+        // Fields.
+        private List<HistoryComment> _histories = new();
+
         // Consts.
         public const int MaxLength = 2000;
 
@@ -42,12 +48,18 @@ namespace Etherna.EthernaIndex.Domain.Models
 
         // Properties.
         public virtual User Author { get; protected set; }
+        public virtual IEnumerable<HistoryComment> Histories
+        {
+            get => _histories;
+            protected set => _histories = new List<HistoryComment>(value ?? new List<HistoryComment>());
+        }
         public virtual bool IsFrozen { get; set; }
         public virtual DateTime LastUpdateDateTime { get; protected set; }
         public virtual string Text { get; protected set; }
         public virtual Video Video { get; protected set; }
 
         // Methods.
+        [PropertyAlterer(nameof(Histories))]
         [PropertyAlterer(nameof(IsFrozen))]
         [PropertyAlterer(nameof(LastUpdateDateTime))]
         [PropertyAlterer(nameof(Text))]
@@ -56,33 +68,38 @@ namespace Etherna.EthernaIndex.Domain.Models
             if (IsFrozen)
                 throw new InvalidOperationException();
 
+            _histories.Add(new HistoryComment(null, Text));
             IsFrozen = true;
             LastUpdateDateTime = DateTime.UtcNow;
             Text = "(removed by author)";
         }
 
+        [PropertyAlterer(nameof(Histories))]
         [PropertyAlterer(nameof(IsFrozen))]
         [PropertyAlterer(nameof(LastUpdateDateTime))]
         [PropertyAlterer(nameof(Text))]
-        public virtual void SetAsDeletedByModerator()
+        public virtual void SetAsDeletedByModerator(User userModerator)
         {
             if (IsFrozen)
                 throw new InvalidOperationException();
 
+            _histories.Add(new HistoryComment(userModerator, Text));
             IsFrozen = true;
             LastUpdateDateTime = DateTime.UtcNow;
             Text = "(removed by moderator)";
         }
 
+        [PropertyAlterer(nameof(Histories))]
         [PropertyAlterer(nameof(LastUpdateDateTime))]
         [PropertyAlterer(nameof(Text))]
-        public virtual void UpdateComment(string text)
+        public virtual void UpdateComment(string text, HistoryComment historyComment)
         {
             if (IsFrozen)
                 throw new InvalidOperationException();
 
+            _histories.Add(historyComment);
             LastUpdateDateTime = DateTime.UtcNow;
-            Text = "text";
+            Text = text;
         }
     }
 }
