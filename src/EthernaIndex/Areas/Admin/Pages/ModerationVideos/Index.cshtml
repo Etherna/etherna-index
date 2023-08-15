@@ -14,12 +14,45 @@
  *@
 
 @page
-@model Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports.ReportModel
+@model Etherna.EthernaIndex.Areas.Admin.Pages.ModerationVideos.ReportModel
 @{
-    ViewData["Title"] = "Video Reports";
+    ViewData["Title"] = "Video Moderation Reports";
 
     var pageSelectorModel = new PageSelectorModel(Model.CurrentPage, (int)Model.MaxPage);
 }
+
+<style>
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .table th,
+    .table td {
+        padding: 8px;
+        text-align: left;
+    }
+
+    .table th {
+        background-color: #f2f2f2;
+    }
+
+    .video-id {
+        width: 20%;
+    }
+
+    .total-reports {
+        width: 10%;
+    }
+
+    .last-report {
+        width: 20%;
+    }
+
+    .title {
+        width: 35%;
+    }
+</style>
 
 <div class="row">
     <div class="col-12 mb-3 text-center mt-1">
@@ -27,22 +60,23 @@
     </div>
 </div>
 
-<form method="post"
+<form method="get"
       asp-route-p="@Model.CurrentPage">
 
     <div class="form-row">
         <div class="col-4 mb-3">
-            <input asp-for="Input.VideoId" type="text" placeholder="video id" class="form-control" />
-        </div>
-        <div class="col-4 mb-3">
-            <label>Include Archived</label>
-            <input asp-for="Input.IncludeArchived" type="checkbox" placeholder="include archived" class="form-control" />
+            <input id="VideoId" name="VideoId" type="text" placeholder="video id" class="form-control" />
         </div>
     </div>
 
     <div class="form-row">
         <div class="col-12 mb-3">
             <input type="submit" class="btn btn-primary" value="Find" />
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="col-4 mb-3">
+            <span>@Model.ErrorMessage</span>
         </div>
     </div>
 </form>
@@ -54,9 +88,10 @@
                 <thead>
                     <tr>
                         <th></th>
-                        <th>Video Id</th>
-                        <th>Total Reports</th>
-                        <th>Title</th>
+                        <th class="video-id">Video Id</th>
+                        <th class="total-reports">Total Reports</th>
+                        <th class="last-report">Last Report Received</th>
+                        <th class="title">Title</th>
                     </tr>
                 </thead>
 
@@ -65,11 +100,12 @@
                     {
                         <tr>
                             <td class="align-middle">
-                                <a class="btn btn-primary" asp-page="UnsuitableReport" asp-route-videoId="@videoReport.VideoId">Manage</a>
+                                <a class="btn btn-primary" asp-page="../Videos/Index" asp-route-videoId="@videoReport.VideoId">Manage</a>
                             </td>
-                            <td class="align-middle">@videoReport.VideoId</td>
-                            <td class="align-middle">@videoReport.TotalReports</td>
-                            <td class="align-middle">@videoReport.Title</td>
+                            <td class="align-middle video-id">@videoReport.VideoId</td>
+                            <td class="align-middle total-reports">@videoReport.TotalReports</td>
+                            <td class="align-middle last-report">@videoReport.CreationDateTime</td>
+                            <td class="align-middle title">@videoReport.Title</td>
                         </tr>
                     }
                 </tbody>

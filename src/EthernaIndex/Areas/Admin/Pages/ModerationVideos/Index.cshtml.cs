@@ -20,29 +20,20 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports
+namespace Etherna.EthernaIndex.Areas.Admin.Pages.ModerationVideos
 {
     public partial class ReportModel : PageModel
     {
 
         // Models.
-        public class InputModel
-        {
-            [Display(Name = "Include Reviewed")]
-            public bool IncludeArchived { get; set; } = default!;
-
-            [Display(Name = "Video Id")]
-            public string? VideoId { get; set; }
-        }
-
         public class VideoUnsuitableReportDto
         {
             public VideoUnsuitableReportDto(
+                DateTime creationDateTime,
                 string title,
                 string videoId,
                 int totalReports)
@@ -52,11 +43,13 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports
                 if (videoId is null)
                     throw new ArgumentNullException(nameof(videoId));
 
+                CreationDateTime = creationDateTime;
                 Title = title;
                 TotalReports = totalReports;
                 VideoId = videoId;
             }
 
+            public DateTime CreationDateTime { get; set; }
             public string Title { get; }
             public int TotalReports { get; }
             public string VideoId { get; }
@@ -65,7 +58,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports
         // Consts.
         private const int PageSize = 20;
 
-        [GeneratedRegex("^[A-Fa-f0-9]{64}$")]
+        [GeneratedRegex("^[A-Fa-f0-9]{24}$")]
         private static partial Regex VideoIdRegex();
 
         // Fields.
@@ -76,88 +69,97 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.UnsuitableVideoReports
             IIndexDbContext indexDbContext)
         {
             this.indexDbContext = indexDbContext;
+            ErrorMessage = "";
         }
 
         // Properties.
-        [BindProperty]
-        public InputModel Input { get; set; } = default!;
-
+        public string ErrorMessage { get; private set; }
         public int CurrentPage { get; private set; }
         public long MaxPage { get; private set; }
         public IEnumerable<VideoUnsuitableReportDto> VideoUnsuitableReports { get; private set; } = default!;
 
         // Methods.
-        public async Task OnGetAsync(
-            bool includeArchived, 
-            string videoId,
+        public async Task<IActionResult> OnGetAsync(
+            string? videoId,
             int? p)
         {
-            await InitializeAsync(
-                includeArchived,
+            return await InitializeAsync(
                 videoId,
                 p);
         }
 
-        public async Task OnPost()
-        {
-            await InitializeAsync(
-                Input?.IncludeArchived ?? false,
-                Input?.VideoId,
-                null);
-        }
-
         // Helpers.
-        private async Task InitializeAsync(
-            bool includeArchived,
+        private async Task<IActionResult> InitializeAsync(
             string? videoId,
             int? p)
         {
             if (!string.IsNullOrWhiteSpace(videoId) &&
                 !VideoIdRegex().IsMatch(videoId))
             {
+                CurrentPage = 0;
+                ErrorMessage = "Invalid VideoId format.";
                 VideoUnsuitableReports = new List<VideoUnsuitableReportDto>();
-                return;
+                return new PageResult();
             }
-
             CurrentPage = p ?? 0;
 
-            var paginatedUnsuitableReports = await indexDbContext.UnsuitableVideoReports.QueryPaginatedElementsAsync(
-                vm => VideoUnsuitableReportWhere(vm, includeArchived, videoId)
-                        .GroupBy(i => i.Video.Id)
-                        .Select(group => new
-                        {
-                            Id = group.Key,
-                            Count = group.Count()
-                        }),
-                vm => vm.Id,
-                CurrentPage,
-                PageSize);
+            if (!string.IsNullOrWhiteSpace(videoId))
+            {
+                var video = await indexDbContext.Videos.TryFindOneAsync(v => v.Id == videoId);
 
-            MaxPage = paginatedUnsuitableReports.MaxPage;
+                if (video is not null)
+                    return RedirectToPage("../Videos/Index", new Dictionary<string, string> { { "videoId", video.Id } });
+            }
+            else
+            {
+                var paginatedUnsuitableReports = await indexDbContext.UnsuitableVideoReports.QueryPaginatedElementsAsync(
+                    vm => VideoUnsuitableReportWhere(vm, videoId)
+                            .GroupBy(i => new { i.Video.Id, i.CreationDateTime })
+                            .Select(group => new
+                            {
+                                Id = group.Key.Id,
+                                CreationDateTime = group.Key.CreationDateTime,
+                                Count = group.Count()
+                            }),
+                    vm => vm.CreationDateTime,
+                    CurrentPage,
+                    PageSize,
+                    useDescendingOrder: true);
 
-            var videoIds = paginatedUnsuitableReports.Elements.Select(e => e.Id);
+                MaxPage = paginatedUnsuitableReports.MaxPage;
 
-            // Get manifest info.
-            var videos = await indexDbContext.Videos.QueryElementsAsync(elements =>
-               elements.Where(u => videoIds.Contains(u.Id))
-                       .OrderBy(i => i.Id)
-                       .ToListAsync());
+                var videoIds = paginatedUnsuitableReports.Elements.Select(e => e.Id);
 
-            VideoUnsuitableReports = videos.Select(vm => new VideoUnsuitableReportDto(
-                vm.LastValidManifest?.TryGetTitle() ?? "",
-                vm.Id,
-                paginatedUnsuitableReports.Elements.First(pv => pv.Id == vm.Id).Count));
+                // Get videos.
+                var videos = await indexDbContext.Videos.QueryElementsAsync(elements =>
+                   elements.Where(u => videoIds.Contains(u.Id))
+                           .OrderBy(i => i.Id)
+                           .ToListAsync());
+
+                VideoUnsuitableReports = videos
+                    .Select(v => new VideoUnsuitableReportDto(
+                        v.CreationDateTime,
+                        v.LastValidManifest?.TryGetTitle() ?? "",
+                        v.Id,
+                        paginatedUnsuitableReports.Elements.First(pv => pv.Id == v.Id).Count))
+                    .OrderByDescending(vur => vur.CreationDateTime);
+            }
+
+            if (!string.IsNullOrWhiteSpace(videoId))
+            {
+                VideoUnsuitableReports = Array.Empty<VideoUnsuitableReportDto>();
+                ErrorMessage = "VideoId not found.";
+            }
+
+            return new PageResult();
         }
 
         private IMongoQueryable<UnsuitableVideoReport> VideoUnsuitableReportWhere(
             IMongoQueryable<UnsuitableVideoReport> querable,
-            bool includeArchived,
             string? videoId)
         {
             if (!string.IsNullOrWhiteSpace(videoId))
                 querable = querable.Where(vur => vur.Video.Id == videoId);
-            if (!includeArchived)
-                querable = querable.Where(vur => !vur.IsArchived);
 
             return querable;
         }
