@@ -17,7 +17,6 @@ using Etherna.EthernaIndex.Areas.Api.DtoModels;
 using Etherna.EthernaIndex.Areas.Api.InputModels;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
-using Etherna.EthernaIndex.Domain.Models.CommentAgg;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg;
 using Etherna.EthernaIndex.Services.Domain;
 using Etherna.EthernaIndex.Services.Exceptions;
@@ -317,9 +316,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             if (comment.Author.SharedInfoId != currentUser.SharedInfoId)
                 throw new UnauthorizedAccessException("Only the owner of comment can update the content");
 
-            var historyComment = new HistoryComment(null, comment.Text);
-            await indexDbContext.HistoryComments.CreateAsync(historyComment);
-            comment.UpdateComment(text, historyComment);
+            comment.UpdateComment(text);
             await indexDbContext.SaveChangesAsync();
             logger.UpdateComment(commentId);
         }

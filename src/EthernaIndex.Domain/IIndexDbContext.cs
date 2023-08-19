@@ -14,7 +14,6 @@
 
 using Etherna.DomainEvents;
 using Etherna.EthernaIndex.Domain.Models;
-using Etherna.EthernaIndex.Domain.Models.CommentAgg;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg;
 using Etherna.MongODM.Core;
 using Etherna.MongODM.Core.Repositories;
@@ -24,7 +23,6 @@ namespace Etherna.EthernaIndex.Domain
     public interface IIndexDbContext : IDbContext
     {
         IRepository<Comment, string> Comments { get; }
-        IRepository<HistoryComment, string> HistoryComments { get; }
         IRepository<ManualVideoReview, string> ManualVideoReviews { get; }
         IRepository<UnsuitableVideoReport, string> UnsuitableVideoReports { get; }
         IRepository<User, string> Users { get; }

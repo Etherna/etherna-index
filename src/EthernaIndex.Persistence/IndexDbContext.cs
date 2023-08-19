@@ -15,7 +15,6 @@
 using Etherna.DomainEvents;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
-using Etherna.EthernaIndex.Domain.Models.CommentAgg;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg;
 using Etherna.EthernaIndex.Persistence.Repositories;
 using Etherna.MongoDB.Driver;
@@ -57,8 +56,6 @@ namespace Etherna.EthernaIndex.Persistence
                     (Builders<Comment>.IndexKeys.Ascending(c => c.Video.Id), new CreateIndexOptions<Comment>())
                 }
             });
-        public IRepository<HistoryComment, string> HistoryComments { get; } =
-            new DomainRepository<HistoryComment, string>("historyComments"); 
         public IRepository<ManualVideoReview, string> ManualVideoReviews { get; } =
             new DomainRepository<ManualVideoReview, string>("manualVideoReviews");
         public IRepository<UnsuitableVideoReport, string> UnsuitableVideoReports { get; } =

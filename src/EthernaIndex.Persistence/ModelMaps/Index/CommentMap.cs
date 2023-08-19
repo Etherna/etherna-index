@@ -13,11 +13,13 @@
 //   limitations under the License.
 
 using Etherna.EthernaIndex.Domain.Models;
-using Etherna.EthernaIndex.Domain.Models.CommentAgg;
 using Etherna.MongODM.Core;
 using Etherna.MongODM.Core.Extensions;
 using Etherna.MongODM.Core.Serialization;
-using Etherna.MongODM.Core.Serialization.Serializers;
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
 {
@@ -33,9 +35,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
 
                     // Set members with custom serializers.
                     mm.SetMemberSerializer(c => c.Author, UserMap.InformationSerializer(dbContext));
-                    mm.SetMemberSerializer(c => c.Histories,
-                        new EnumerableSerializer<HistoryComment>(
-                            HistoryCommentMap.InformationSerializer(dbContext)));
+                    //mm.SetMemberSerializer(c => c.History, JsonSerializer);
                     mm.SetMemberSerializer(c => c.Video, VideoMap.ReferenceSerializer(dbContext));
                 })
                 .AddSecondarySchema("8e509e8e-5c2b-4874-a734-ada4e2b91f92", //dev (pre v0.3.0), published for WAM event
@@ -46,6 +46,13 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                     // Set members with custom serializers.
                     mm.SetMemberSerializer(c => c.Author, UserMap.InformationSerializer(dbContext));
                     mm.SetMemberSerializer(c => c.Video, VideoMap.ReferenceSerializer(dbContext));
+                }, fixDeserializedModelFunc: comment =>
+                {
+                    ReflectionHelper.SetValue(
+                        comment,
+                        v => v.History,
+                        new Dictionary<DateTime, string>());
+                    return Task.FromResult(comment);
                 });
         }
     }

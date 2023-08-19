@@ -12,8 +12,6 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-using Etherna.EthernaIndex.Domain.Models.CommentAgg;
-using Etherna.EthernaIndex.Domain.Models.VideoAgg;
 using Etherna.MongODM.Core.Attributes;
 using System;
 using System.Collections.Generic;
@@ -23,10 +21,12 @@ namespace Etherna.EthernaIndex.Domain.Models
     public class Comment : EntityModelBase<string>
     {
         // Fields.
-        private List<HistoryComment> _histories = new();
+        private Dictionary<DateTime, string> _history = new();
 
         // Consts.
         public const int MaxLength = 2000;
+        public const int MaxUpdate = 10;
+        public static readonly TimeSpan MaxHoursUpdate = TimeSpan.FromHours(24);
 
         // Constructors.
         public Comment(
@@ -48,10 +48,21 @@ namespace Etherna.EthernaIndex.Domain.Models
 
         // Properties.
         public virtual User Author { get; protected set; }
-        public virtual IEnumerable<HistoryComment> Histories
+#pragma warning disable CA2227 // Collection properties should be read only
+        public virtual Dictionary<DateTime, string> History
+#pragma warning restore CA2227 // Collection properties should be read only
         {
-            get => _histories;
-            protected set => _histories = new List<HistoryComment>(value ?? new List<HistoryComment>());
+            get => _history;
+            protected set => _history = new Dictionary<DateTime, string>(value ?? new Dictionary<DateTime, string>());
+        }
+        public virtual int EditTimes { get; protected set; }
+        public virtual bool IsEditable
+        {
+            get
+            {
+                return CreationDateTime.Add(MaxHoursUpdate) > DateTime.UtcNow &&
+                        EditTimes <= MaxUpdate;
+            }
         }
         public virtual bool IsFrozen { get; set; }
         public virtual DateTime LastUpdateDateTime { get; protected set; }
@@ -59,7 +70,7 @@ namespace Etherna.EthernaIndex.Domain.Models
         public virtual Video Video { get; protected set; }
 
         // Methods.
-        [PropertyAlterer(nameof(Histories))]
+        [PropertyAlterer(nameof(History))]
         [PropertyAlterer(nameof(IsFrozen))]
         [PropertyAlterer(nameof(LastUpdateDateTime))]
         [PropertyAlterer(nameof(Text))]
@@ -68,13 +79,13 @@ namespace Etherna.EthernaIndex.Domain.Models
             if (IsFrozen)
                 throw new InvalidOperationException();
 
-            _histories.Add(new HistoryComment(null, Text));
+            _history.Add(CreationDateTime, Text);
             IsFrozen = true;
             LastUpdateDateTime = DateTime.UtcNow;
             Text = "(removed by author)";
         }
 
-        [PropertyAlterer(nameof(Histories))]
+        [PropertyAlterer(nameof(History))]
         [PropertyAlterer(nameof(IsFrozen))]
         [PropertyAlterer(nameof(LastUpdateDateTime))]
         [PropertyAlterer(nameof(Text))]
@@ -83,21 +94,23 @@ namespace Etherna.EthernaIndex.Domain.Models
             if (IsFrozen)
                 throw new InvalidOperationException();
 
-            _histories.Add(new HistoryComment(userModerator, Text));
+            _history.Clear();
             IsFrozen = true;
             LastUpdateDateTime = DateTime.UtcNow;
             Text = "(removed by moderator)";
         }
 
-        [PropertyAlterer(nameof(Histories))]
+        [PropertyAlterer(nameof(History))]
         [PropertyAlterer(nameof(LastUpdateDateTime))]
         [PropertyAlterer(nameof(Text))]
-        public virtual void UpdateComment(string text, HistoryComment historyComment)
+        public virtual void UpdateComment(string text)
         {
-            if (IsFrozen)
+            if (IsFrozen ||
+                !IsEditable)
                 throw new InvalidOperationException();
 
-            _histories.Add(historyComment);
+            EditTimes++;
+            _history.Add(CreationDateTime, Text);
             LastUpdateDateTime = DateTime.UtcNow;
             Text = text;
         }
