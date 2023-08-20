@@ -12,15 +12,22 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
+using Etherna.BeeNet;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Exceptions;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg;
+using Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2;
 using Etherna.EthernaIndex.Services.Extensions;
 using Etherna.EthernaIndex.Swarm;
+using Etherna.EthernaIndex.Swarm.DtoModels.ManifestV2;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
+using System.Text.Json;
 using System.Threading.Tasks;
+using System.IO;
+using System;
 
 namespace Etherna.EthernaIndex.Services.Tasks
 {
