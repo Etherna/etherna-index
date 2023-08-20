@@ -48,9 +48,7 @@ namespace Etherna.EthernaIndex.Domain.Models
 
         // Properties.
         public virtual User Author { get; protected set; }
-#pragma warning disable CA2227 // Collection properties should be read only
-        public virtual Dictionary<DateTime, string> History
-#pragma warning restore CA2227 // Collection properties should be read only
+        public virtual IReadOnlyDictionary<DateTime, string> History
         {
             get => _history;
             protected set => _history = new Dictionary<DateTime, string>(value ?? new Dictionary<DateTime, string>());
@@ -60,8 +58,9 @@ namespace Etherna.EthernaIndex.Domain.Models
         {
             get
             {
-                return CreationDateTime.Add(MaxHoursUpdate) > DateTime.UtcNow &&
-                        EditTimes <= MaxUpdate;
+                return !IsFrozen && 
+                        CreationDateTime.Add(MaxHoursUpdate) > DateTime.UtcNow &&
+                        EditTimes < MaxUpdate;
             }
         }
         public virtual bool IsFrozen { get; set; }
@@ -110,7 +109,7 @@ namespace Etherna.EthernaIndex.Domain.Models
                 throw new InvalidOperationException();
 
             EditTimes++;
-            _history.Add(CreationDateTime, Text);
+            _history.Add(LastUpdateDateTime, Text);
             LastUpdateDateTime = DateTime.UtcNow;
             Text = text;
         }

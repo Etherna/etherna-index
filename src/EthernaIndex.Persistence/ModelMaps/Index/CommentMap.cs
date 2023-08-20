@@ -13,6 +13,8 @@
 //   limitations under the License.
 
 using Etherna.EthernaIndex.Domain.Models;
+using Etherna.MongoDB.Bson.Serialization.Serializers;
+using Etherna.MongoDB.Bson;
 using Etherna.MongODM.Core;
 using Etherna.MongODM.Core.Extensions;
 using Etherna.MongODM.Core.Serialization;
@@ -20,6 +22,8 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Etherna.MongODM.Core.Serialization.Serializers;
+using Etherna.MongoDB.Bson.Serialization.Options;
 
 namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
 {
@@ -35,7 +39,10 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
 
                     // Set members with custom serializers.
                     mm.SetMemberSerializer(c => c.Author, UserMap.InformationSerializer(dbContext));
-                    //mm.SetMemberSerializer(c => c.History, JsonSerializer);
+                    mm.SetMemberSerializer(m => m.History, new ReadOnlyDictionarySerializer<DateTime, string>(
+                        DictionaryRepresentation.ArrayOfDocuments, 
+                        new DateTimeSerializer(),
+                        new StringSerializer()));
                     mm.SetMemberSerializer(c => c.Video, VideoMap.ReferenceSerializer(dbContext));
                 })
                 .AddSecondarySchema("8e509e8e-5c2b-4874-a734-ada4e2b91f92", //dev (pre v0.3.0), published for WAM event
