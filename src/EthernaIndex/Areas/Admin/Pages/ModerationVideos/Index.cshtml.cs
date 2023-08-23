@@ -26,7 +26,7 @@ using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Areas.Admin.Pages.ModerationVideos
 {
-    public partial class ReportModel : PageModel
+    public partial class IndexModel : PageModel
     {
 
         // Models.
@@ -65,7 +65,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.ModerationVideos
         private readonly IIndexDbContext indexDbContext;
 
         // Constructor.
-        public ReportModel(
+        public IndexModel(
             IIndexDbContext indexDbContext)
         {
             this.indexDbContext = indexDbContext;
