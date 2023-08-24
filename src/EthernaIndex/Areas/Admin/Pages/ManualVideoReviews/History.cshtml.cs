@@ -19,12 +19,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using static Etherna.EthernaIndex.Areas.Admin.Pages.ManualVideoReviews.HistoryModel.VideoReviewDto;
 
 namespace Etherna.EthernaIndex.Areas.Admin.Pages.ManualVideoReviews
 {
     public class HistoryModel : PageModel
     {
+        // Classes.
         public class VideoReviewDto
         {
             public VideoReviewDto(
@@ -49,32 +49,32 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.ManualVideoReviews
             public string? ManifestId { get; set; }
             public string? Title { get; set; }
             public string VideoId { get; set; }
+        }
 
-            public class VideoReviewDetailDto
+        public class VideoReviewDetailDto
+        {
+            public VideoReviewDetailDto(
+                string id,
+                string description,
+                bool isValid,
+                string reviewAddress,
+                DateTime reportDate)
             {
-                public VideoReviewDetailDto(
-                    string id,
-                    string description,
-                    bool isValid,
-                    string reviewAddress,
-                    DateTime reportDate)
-                {
-                    if (id is null)
-                        throw new ArgumentNullException(nameof(id));
+                if (id is null)
+                    throw new ArgumentNullException(nameof(id));
 
-                    Id = id;
-                    Description = description;
-                    IsValid = isValid;
-                    ReviewAddress = reviewAddress;
-                    ReviewDate = reportDate;
-                }
-
-                public string Id { get; }
-                public string Description { get; }
-                public bool IsValid { get; }
-                public string ReviewAddress { get; }
-                public DateTime ReviewDate { get; }
+                Id = id;
+                Description = description;
+                IsValid = isValid;
+                ReviewAddress = reviewAddress;
+                ReviewDate = reportDate;
             }
+
+            public string Id { get; }
+            public string Description { get; }
+            public bool IsValid { get; }
+            public string ReviewAddress { get; }
+            public DateTime ReviewDate { get; }
         }
 
         // Consts.
