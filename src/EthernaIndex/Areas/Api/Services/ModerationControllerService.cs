@@ -30,6 +30,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         private readonly IIndexDbContext dbContext;
         private readonly IEthernaOpenIdConnectClient ethernaOidcClient;
         private readonly ILogger<ModerationControllerService> logger;
+        private readonly IUserService userService;
         private readonly IVideoService videoService;
         private readonly IUserService userService;
 
@@ -44,6 +45,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             this.dbContext = dbContext;
             this.ethernaOidcClient = ethernaOidcClient;
             this.logger = logger;
+            this.userService = userService;
             this.videoService = videoService;
             this.userService = userService;
         }
@@ -51,8 +53,11 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         // Methods.
         public async Task ModerateCommentAsync(string id)
         {
+            var address = await ethernaOidcClient.GetEtherAddressAsync();
+            var (user, _) = await userService.FindUserAsync(address);
+
             var comment = await dbContext.Comments.FindOneAsync(id);
-            comment.SetAsDeletedByModerator();
+            comment.SetAsDeletedByModerator(user);
             await dbContext.SaveChangesAsync();
 
             logger.ModerateComment(id);

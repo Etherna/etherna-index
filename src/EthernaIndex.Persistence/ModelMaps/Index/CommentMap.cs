@@ -13,9 +13,17 @@
 //   limitations under the License.
 
 using Etherna.EthernaIndex.Domain.Models;
+using Etherna.MongoDB.Bson.Serialization.Serializers;
+using Etherna.MongoDB.Bson;
 using Etherna.MongODM.Core;
 using Etherna.MongODM.Core.Extensions;
 using Etherna.MongODM.Core.Serialization;
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Etherna.MongODM.Core.Serialization.Serializers;
+using Etherna.MongoDB.Bson.Serialization.Options;
 
 namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
 {
@@ -24,7 +32,20 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
         public void Register(IDbContext dbContext)
         {
             dbContext.MapRegistry.AddModelMap<Comment>(
-                "8e509e8e-5c2b-4874-a734-ada4e2b91f92", //dev (pre v0.3.0), published for WAM event
+                "a846e95a-f99b-4d66-91a8-807a1ef34140", //v0.3.10
+                mm =>
+                {
+                    mm.AutoMap();
+
+                    // Set members with custom serializers.
+                    mm.SetMemberSerializer(c => c.Author, UserMap.InformationSerializer(dbContext));
+                    mm.SetMemberSerializer(m => m.History, new ReadOnlyDictionarySerializer<DateTime, string>(
+                        DictionaryRepresentation.ArrayOfDocuments, 
+                        new DateTimeSerializer(),
+                        new StringSerializer()));
+                    mm.SetMemberSerializer(c => c.Video, VideoMap.ReferenceSerializer(dbContext));
+                })
+                .AddSecondarySchema("8e509e8e-5c2b-4874-a734-ada4e2b91f92", //dev (pre v0.3.0), published for WAM event
                 mm =>
                 {
                     mm.AutoMap();
@@ -32,6 +53,13 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                     // Set members with custom serializers.
                     mm.SetMemberSerializer(c => c.Author, UserMap.InformationSerializer(dbContext));
                     mm.SetMemberSerializer(c => c.Video, VideoMap.ReferenceSerializer(dbContext));
+                }, fixDeserializedModelFunc: comment =>
+                {
+                    ReflectionHelper.SetValue(
+                        comment,
+                        v => v.History,
+                        new Dictionary<DateTime, string>());
+                    return Task.FromResult(comment);
                 });
         }
     }

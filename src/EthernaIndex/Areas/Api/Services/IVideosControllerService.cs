@@ -36,6 +36,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         Task<PaginatedEnumerableDto<CommentDto>> GetVideoCommentsAsync(string id, int page, int take);
         Task ReportVideoAsync(string videoId, string manifestHash, string description);
         Task<VideoManifest2Dto> UpdateAsync(string id, string newHash);
+        Task UpdateCommentAsync(string commentId, string text);
         Task VoteVideAsync(string id, VoteValue value);
 
         //deprecated

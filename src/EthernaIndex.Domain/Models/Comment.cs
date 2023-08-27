@@ -14,13 +14,19 @@
 
 using Etherna.MongODM.Core.Attributes;
 using System;
+using System.Collections.Generic;
 
 namespace Etherna.EthernaIndex.Domain.Models
 {
     public class Comment : EntityModelBase<string>
     {
+        // Fields.
+        private Dictionary<DateTime, string> _history = new();
+
         // Consts.
         public const int MaxLength = 2000;
+        public const int MaxUpdate = 10;
+        public static readonly TimeSpan MaxHoursUpdate = TimeSpan.FromHours(24);
 
         // Constructors.
         public Comment(
@@ -42,12 +48,28 @@ namespace Etherna.EthernaIndex.Domain.Models
 
         // Properties.
         public virtual User Author { get; protected set; }
+        public virtual IReadOnlyDictionary<DateTime, string> History
+        {
+            get => _history;
+            protected set => _history = new Dictionary<DateTime, string>(value ?? new Dictionary<DateTime, string>());
+        }
+        public virtual int EditTimes { get; protected set; }
+        public virtual bool IsEditable
+        {
+            get
+            {
+                return !IsFrozen && 
+                        CreationDateTime.Add(MaxHoursUpdate) > DateTime.UtcNow &&
+                        EditTimes < MaxUpdate;
+            }
+        }
         public virtual bool IsFrozen { get; set; }
         public virtual DateTime LastUpdateDateTime { get; protected set; }
         public virtual string Text { get; protected set; }
         public virtual Video Video { get; protected set; }
 
         // Methods.
+        [PropertyAlterer(nameof(History))]
         [PropertyAlterer(nameof(IsFrozen))]
         [PropertyAlterer(nameof(LastUpdateDateTime))]
         [PropertyAlterer(nameof(Text))]
@@ -56,22 +78,40 @@ namespace Etherna.EthernaIndex.Domain.Models
             if (IsFrozen)
                 throw new InvalidOperationException();
 
+            _history.Add(CreationDateTime, Text);
             IsFrozen = true;
             LastUpdateDateTime = DateTime.UtcNow;
             Text = "(removed by author)";
         }
 
+        [PropertyAlterer(nameof(History))]
         [PropertyAlterer(nameof(IsFrozen))]
         [PropertyAlterer(nameof(LastUpdateDateTime))]
         [PropertyAlterer(nameof(Text))]
-        public virtual void SetAsDeletedByModerator()
+        public virtual void SetAsDeletedByModerator(User userModerator)
         {
             if (IsFrozen)
                 throw new InvalidOperationException();
 
+            _history.Clear();
             IsFrozen = true;
             LastUpdateDateTime = DateTime.UtcNow;
             Text = "(removed by moderator)";
+        }
+
+        [PropertyAlterer(nameof(History))]
+        [PropertyAlterer(nameof(LastUpdateDateTime))]
+        [PropertyAlterer(nameof(Text))]
+        public virtual void UpdateComment(string text)
+        {
+            if (IsFrozen ||
+                !IsEditable)
+                throw new InvalidOperationException();
+
+            EditTimes++;
+            _history.Add(LastUpdateDateTime, Text);
+            LastUpdateDateTime = DateTime.UtcNow;
+            Text = text;
         }
     }
 }
