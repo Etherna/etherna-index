@@ -15,8 +15,6 @@
 using Etherna.Authentication;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
-using Etherna.EthernaIndex.Domain.Models.VideoAgg;
-using Etherna.EthernaIndex.Persistence;
 using Etherna.EthernaIndex.Services.Domain;
 using Etherna.EthernaIndex.Services.Extensions;
 using Microsoft.Extensions.Logging;
@@ -32,7 +30,6 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         private readonly ILogger<ModerationControllerService> logger;
         private readonly IUserService userService;
         private readonly IVideoService videoService;
-        private readonly IUserService userService;
 
         // Constructor.
         public ModerationControllerService(
@@ -47,7 +44,6 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             this.logger = logger;
             this.userService = userService;
             this.videoService = videoService;
-            this.userService = userService;
         }
 
         // Methods.
@@ -67,7 +63,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         {
             // Get current user.
             var address = await ethernaOidcClient.GetEtherAddressAsync();
-            var (user, sharedInfo) = await userService.FindUserAsync(address);
+            var (user, _) = await userService.FindUserAsync(address);
 
             // Getvideo to moderate.
             var video = await dbContext.Videos.FindOneAsync(id);
