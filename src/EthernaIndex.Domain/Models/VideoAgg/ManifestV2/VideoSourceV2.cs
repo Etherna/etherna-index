@@ -32,7 +32,8 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2
             var validationErrors = new List<ValidationError>();
 
             //quality
-            if (string.IsNullOrWhiteSpace(quality))
+            if (quality is not null &&
+                string.IsNullOrWhiteSpace(quality))
                 validationErrors.Add(new ValidationError(ValidationErrorType.InvalidVideoSource, "Video source has empty quality"));
 
             //path
@@ -44,7 +45,8 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2
                 validationErrors.Add(new ValidationError(ValidationErrorType.InvalidVideoSource, "Video source has empty type"));
 
             //size
-            if (size <= 0)
+            if (size <= 0 &&
+                !path.EndsWith("/manifest.m3u8", StringComparison.InvariantCultureIgnoreCase))
                 validationErrors.Add(new ValidationError(ValidationErrorType.InvalidVideoSource, "Video source has invalid size"));
 
             // Throws validation exception.

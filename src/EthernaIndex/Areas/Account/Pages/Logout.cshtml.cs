@@ -17,7 +17,7 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace Etherna.EthernaIndex.Areas.Account
+namespace Etherna.EthernaIndex.Areas.Account.Pages
 {
     public class LogoutModel : PageModel
     {
