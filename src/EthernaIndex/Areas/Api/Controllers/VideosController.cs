@@ -176,7 +176,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public Task<PaginatedEnumerableDto<Video2Dto>> GetLastUploadedVideosAsync(
+        public Task<PaginatedEnumerableDto<VideoPreviewDto>> GetLastUploadedVideosAsync(
             [Range(0, int.MaxValue)] int page,
             [Range(1, 100)] int take = 25) =>
             service.GetLastUploadedVideosAsync(page, take);

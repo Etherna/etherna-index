@@ -27,6 +27,6 @@ namespace Etherna.EthernaIndex.ElasticSearch
         Task RemoveCommentIndexAsync(string commentId);
         Task RemoveVideoIndexAsync(Video video);
         Task RemoveVideoIndexAsync(string videoId);
-        Task<IEnumerable<VideoDocument>> SearchVideoAsync(string query, int page, int take);
+        Task<(IEnumerable<VideoDocument> Results, long TotalElements)> SearchVideoAsync(string query, int page, int take);
     }
 }
