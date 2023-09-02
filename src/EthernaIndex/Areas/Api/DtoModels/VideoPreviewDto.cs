@@ -1,8 +1,6 @@
 ﻿using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.Domain.Models.UserAgg;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg;
-using Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV1;
-using Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2;
 using System;
 
 namespace Etherna.EthernaIndex.Areas.Api.DtoModels
@@ -28,16 +26,6 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
             Thumbnail = manifestDto.Thumbnail;
             Title = manifestDto.Title ?? "";
             UpdatedAt = manifestDto.UpdatedAt;
-            switch (videoManifest.Metadata)
-            {
-                case VideoManifestMetadataV1:
-                    V = "1.x";
-                    break;
-                case VideoManifestMetadataV2:
-                    V = "2.0";
-                    break;
-                default: throw new InvalidOperationException("VideoManifestMetadataV not found");
-            }
         }
 
         // Properties.
@@ -48,6 +36,5 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
         public Image2Dto? Thumbnail { get; }
         public string? Title { get; }
         public long? UpdatedAt { get; }
-        public string? V { get; }
     }
 }
