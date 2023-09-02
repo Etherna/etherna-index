@@ -120,7 +120,7 @@ namespace Etherna.EthernaIndex.Domain.Models
 
 
             // Action.
-            comment.SetAsDeletedByModerator(moderator);
+            comment.SetAsDeletedByModerator();
 
 
             // Assert.
