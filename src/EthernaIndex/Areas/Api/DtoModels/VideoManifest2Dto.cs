@@ -48,7 +48,7 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
                     PersonalData = metadataV1.PersonalData;
                     Sources = metadataV1.Sources
                         .Select(s => new VideoSource2Dto(
-                            "",
+                            "mp4",
                             s.Quality,
                             s.Reference,
                             s.Size ?? 0));
