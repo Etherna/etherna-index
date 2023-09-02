@@ -282,6 +282,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// <param name="commentId">Comment id</param>
         /// <param name="text">Comment text</param>
         [HttpPut("{commentId}/comments")]
+        [Authorize]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
