@@ -65,18 +65,21 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                             try
                             {
                                 var metadata = new VideoManifestMetadataV1(
-                                                                title,
-                                                                description,
-                                                                duration,
-                                                                sources,
-                                                                thumbnail,
-                                                                batchId,
-                                                                null,
-                                                                null,
-                                                                personalData);
+                                    title,
+                                    description,
+                                    duration,
+                                    sources,
+                                    thumbnail,
+                                    batchId,
+                                    null,
+                                    null,
+                                    personalData);
                                 ReflectionHelper.SetValue(m, vm => vm.Metadata!, metadata);
                             }
-                            catch (VideoManifestValidationException){}
+                            catch (VideoManifestValidationException e)
+                            {
+                                m.FailedValidation(e.ValidationErrors);
+                            }
                         }
 
                         return Task.FromResult(m);
@@ -92,8 +95,8 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                     },
                     fixDeserializedModelFunc: m =>
                     {
-                    if (m.ExtraElements is null)
-                        return Task.FromResult(m);
+                        if (m.ExtraElements is null)
+                            return Task.FromResult(m);
 
                         // Verify if there isn't any validation error.
                         if (!m.ValidationErrors.Any())
@@ -116,17 +119,24 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                                 (string?)personalDataObj : null;
 
                             // Update model.
-                            var metadata = new VideoManifestMetadataV1(
-                                title,
-                                description,
-                                duration,
-                                sources,
-                                thumbnail,
-                                batchId,
-                                null,
-                                null,
-                                personalData);
-                            ReflectionHelper.SetValue(m, vm => vm.Metadata!, metadata);
+                            try
+                            {
+                                var metadata = new VideoManifestMetadataV1(
+                                    title,
+                                    description,
+                                    duration,
+                                    sources,
+                                    thumbnail,
+                                    batchId,
+                                    null,
+                                    null,
+                                    personalData);
+                                ReflectionHelper.SetValue(m, vm => vm.Metadata!, metadata);
+                            }
+                            catch (VideoManifestValidationException e)
+                            {
+                                m.FailedValidation(e.ValidationErrors);
+                            }
                         }
 
                         return Task.FromResult(m);
@@ -180,7 +190,10 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                                     personalData);
                                 ReflectionHelper.SetValue(m, vm => vm.Metadata!, metadata);
                             }
-                            catch (VideoManifestValidationException) { }
+                            catch(VideoManifestValidationException e)
+                            {
+                                m.FailedValidation(e.ValidationErrors);
+                            }
                         }
 
                         return Task.FromResult(m);
