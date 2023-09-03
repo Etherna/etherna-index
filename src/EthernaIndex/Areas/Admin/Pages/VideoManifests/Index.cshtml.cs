@@ -57,7 +57,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
             IIndexDbContext indexDbContext)
         {
             this.indexDbContext = indexDbContext;
-            ErrorMessage = "";
+            this.ErrorMessage = "";
         }
 
         // Properties.
@@ -67,16 +67,8 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
         public IEnumerable<VideoManifestDto> VideoManifests { get; set; } = default!;
 
         // Methods.
-        public Task<IActionResult> OnGetAsync(
+        public async Task<IActionResult> OnGetAsync(
             string manifestHash,
-            int? p) =>
-            InitializeAsync(
-                manifestHash,
-                p);
-
-        // Helpers.
-        private async Task<IActionResult> InitializeAsync(
-            string? manifestHash,
             int? p)
         {
             CurrentPage = p ?? 0;
@@ -112,6 +104,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
             return new PageResult();
         }
 
+        // Helpers.
         private IMongoQueryable<VideoManifest> VideoWhere(
             IMongoQueryable<VideoManifest> querable,
             string? manifestHash)
