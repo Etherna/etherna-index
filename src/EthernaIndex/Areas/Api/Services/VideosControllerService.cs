@@ -194,6 +194,28 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             return new Video2Dto(video, videoManifest, ownerSharedInfo, currentUserVideoVote);
         }
 
+        public async Task<IEnumerable<VideoManifestStatusDto>> GetBulkValidationStatusByHashesAsync(IEnumerable<string> manifestHashes)
+        {
+            var manifests = await indexDbContext.VideoManifests.QueryElementsAsync(
+                elements => elements.Where(m => manifestHashes.Contains(m.Manifest.Hash))
+                                    .ToListAsync());
+
+            logger.GetBulkVideoManifestValidationStatusByHashes(manifestHashes);
+
+            return manifests.Select(m => new VideoManifestStatusDto(m));
+        }
+
+        public async Task<IEnumerable<VideoStatusDto>> GetBulkValidationStatusByIdsAsync(IEnumerable<string> videoIds)
+        {
+            var videos = await indexDbContext.Videos.QueryElementsAsync(
+                elements => elements.Where(v => videoIds.Contains(v.Id))
+                                    .ToListAsync());
+
+            logger.GetBulkVideoValidationStatusByIds(videoIds);
+
+            return videos.Select(v => new VideoStatusDto(v));
+        }
+
         public async Task<PaginatedEnumerableDto<Video2Dto>> GetLastUploadedVideosAsync(int page, int take)
         {
             // Get videos with valid manifest.
@@ -229,16 +251,18 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         {
             var manifest = await indexDbContext.VideoManifests.FindOneAsync(i => i.Manifest.Hash == hash);
 
+            logger.GetVideoManifestValidationStatusByHash(hash);
+
             return new VideoManifestStatusDto(manifest);
         }
 
-
-        public async Task<IEnumerable<VideoManifestStatusDto>> GetValidationStatusByIdAsync(string videoId)
+        public async Task<VideoStatusDto> GetValidationStatusByIdAsync(string videoId)
         {
-            var manifest = await indexDbContext.Videos.FindOneAsync(i => i.Id == videoId);
+            var video = await indexDbContext.Videos.FindOneAsync(i => i.Id == videoId);
 
-            return manifest.VideoManifests
-                .Select(i => new VideoManifestStatusDto(i));
+            logger.GetVideoValidationStatusById(videoId);
+
+            return new VideoStatusDto(video);
         }
 
         public async Task<PaginatedEnumerableDto<CommentDto>> GetVideoCommentsAsync(string id, int page, int take)

@@ -13,8 +13,8 @@
 //   limitations under the License.
 
 using Etherna.DomainEvents;
+using Etherna.DomainEvents.Events;
 using Etherna.EthernaIndex.Domain;
-using Etherna.EthernaIndex.Domain.Events;
 using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.Services.Domain;
 using System;
@@ -22,14 +22,14 @@ using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Services.EventHandlers
 {
-    internal sealed class OnManualVideoReviewRejectedThenRemoveVideoManifestsHandler : EventHandlerBase<EntityCreatedEvent<ManualVideoReview>>
+    internal sealed class OnManualVideoReviewCreatedThenVerifyIfRemoveVideoManifestsHandler : EventHandlerBase<EntityCreatedEvent<ManualVideoReview>>
     {
         // Fields.
         private readonly IIndexDbContext dbContext;
         private readonly IVideoService videoService;
 
         // Constructor.
-        public OnManualVideoReviewRejectedThenRemoveVideoManifestsHandler(
+        public OnManualVideoReviewCreatedThenVerifyIfRemoveVideoManifestsHandler(
             IIndexDbContext dbContext,
             IVideoService videoService)
         {

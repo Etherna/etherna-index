@@ -1,0 +1,140 @@
+﻿@page
+@using Etherna.EthernaIndex.Areas.Admin.Pages.VideoModeration
+@model Etherna.EthernaIndex.Areas.Admin.Pages.VideoModeration.VideoModel
+@{
+    ViewData["Title"] = Model.LastValidManifest?.TryGetTitle() ?? "";
+}
+
+<div class="row">
+    <div class="col-12 mb-3 text-center mt-1">
+        <h5>Video Info</h5>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-2 mb-3 text-left mt-1">
+        <strong>Video Id:</strong>
+    </div>
+    <div class="col-2 mb-3 text-left mt-1">
+        @Model.VideoId
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-2 mb-3 text-left mt-1">
+        <strong>Video Creation:</strong>
+    </div>
+    <div class="col-2 mb-3 text-left mt-1">
+        @Model.CreationDateTime
+    </div>
+</div>
+
+@if (Model.LastValidManifest is not null)
+{
+    <div class="row">
+        <div class="col-2 mb-3 text-left mt-1">
+            <strong>Title:</strong>
+        </div>
+        <div class="col-10 mb-3 text-left mt-1">
+            @Model.LastValidManifest?.TryGetTitle()
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-2 mb-3 text-left mt-1">
+            <strong>Description:</strong>
+        </div>
+        <div class="col-10 mb-3 text-left mt-1">
+            @Model.LastValidManifest?.TryGetDescription()
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-2 mb-3 text-left mt-1">
+            <strong>Manifest Creation:</strong>
+        </div>
+        <div class="col-10 mb-3 text-left mt-1">
+            @Model.LastValidManifest?.CreationDateTime
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-2 mb-3 text-left mt-1">
+            <strong>ManifestHash:</strong>
+        </div>
+        <div class="col-10 mb-3 text-left mt-1">
+            @Model.LastValidManifest?.Manifest.Hash
+        </div>
+    </div>
+}
+else
+{
+    <div class="row">
+        <div class="col-2 mb-3 text-left mt-1">
+            <strong>Video Manifest:</strong>
+        </div>
+        <div class="col-2 mb-3 text-left mt-1">
+            Missing valid manifest
+        </div>
+    </div>
+}
+
+<div class="row">
+    <div class="col-2 mb-3 text-left mt-1">
+        <strong>Is frozen:</strong>
+    </div>
+    <div class="col-10 mb-3 text-left mt-1">
+        @Model.IsFrozen
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12 mb-3 text-center mt-1">
+        <h5>Reports</h5>
+    </div>
+</div>
+
+<form Method="post">
+    <div class="form-row">
+        <div class="col-12 mb-3">
+            @if (!Model.IsFrozen)
+            {
+                <input type="submit" asp-page-handler="ApproveVideo" asp-route-id="@Model.VideoId" class="btn btn-primary" value="Approve Video" name="button"/>
+                <input type="submit" asp-page-handler="RejectVideo" asp-route-id="@Model.VideoId" class="btn btn-primary" value="Reject Video" name="button"/>
+
+                <input asp-for="Input.Reason" type="text" placeholder="Reason (required)" class="form-control"/>
+            }
+        </div>
+    </div>
+</form>
+
+<div class="row">
+    <div class="col-12">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>History</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var element in Model.HistoryElements)
+                    {
+                        <tr>
+                            @switch (element)
+                            {
+                                case VideoModel.ReportHistoryElement report:
+                                    <td class="align-middle">@report.CreationDateTime <b>User sharedInfoId:</b> @report.AuthorSharedInfoId <b>Reported:</b> @report.Description</td>
+                                    break;
+                                case VideoModel.ReviewHistoryElement review:
+                                    <td class="align-middle">@review.CreationDateTime <b>User sharedInfoId</b> @review.AuthorSharedInfoId <b>Review:</b> @(review.IsValid ? "Accepted" : "Rejected") <b>Motivation:</b> @review.Description</td>
+                                    break;
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
