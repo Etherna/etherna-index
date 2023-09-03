@@ -77,7 +77,10 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
                 var videoManifests = await indexDbContext.VideoManifests.TryFindOneAsync(v => v.Manifest.Hash == manifestHash);
 
                 if (videoManifests is not null)
-                    return RedirectToPage("../VideoManifests/Manifest", new Dictionary<string, string> { { "manifestHash", manifestHash } });
+                    return RedirectToPage("Manifest", new { manifestHash });
+
+                VideoManifests = Array.Empty<VideoManifestDto>();
+                ErrorMessage = "ManifestHash not found.";
             }
             else
             {
@@ -93,12 +96,6 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
                     e => new VideoManifestDto(
                         e.Manifest.Hash,
                     e.TryGetTitle() ?? ""));
-            }
-
-            if (!string.IsNullOrWhiteSpace(manifestHash))
-            {
-                VideoManifests = Array.Empty<VideoManifestDto>();
-                ErrorMessage = "ManifestHash not found.";
             }
 
             return new PageResult();
