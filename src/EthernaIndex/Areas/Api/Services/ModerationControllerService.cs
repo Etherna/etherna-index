@@ -12,7 +12,6 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-using Etherna.Authentication;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Services.Domain;
 using Etherna.EthernaIndex.Services.Extensions;
