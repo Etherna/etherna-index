@@ -22,14 +22,14 @@ using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Services.EventHandlers
 {
-    internal sealed class OnManualVideoReviewCreatedThenVerifiyIfRemoveVideoManifestsHandler : EventHandlerBase<EntityCreatedEvent<ManualVideoReview>>
+    internal sealed class OnManualVideoReviewCreatedThenVerifyIfRemoveVideoManifestsHandler : EventHandlerBase<EntityCreatedEvent<ManualVideoReview>>
     {
         // Fields.
         private readonly IIndexDbContext dbContext;
         private readonly IVideoService videoService;
 
         // Constructor.
-        public OnManualVideoReviewCreatedThenVerifiyIfRemoveVideoManifestsHandler(
+        public OnManualVideoReviewCreatedThenVerifyIfRemoveVideoManifestsHandler(
             IIndexDbContext dbContext,
             IVideoService videoService)
         {

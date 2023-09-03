@@ -43,7 +43,7 @@ namespace Etherna.EthernaIndex.Services.Domain
 
         public async Task ModerateUnsuitableVideoAsync(Video video, ManualVideoReview manualVideoReview)
         {
-            // Delete unsitable manifests.
+            // Delete unsuitable manifests.
             //save manifest list
             var videoManifests = video.VideoManifests.ToList();
 

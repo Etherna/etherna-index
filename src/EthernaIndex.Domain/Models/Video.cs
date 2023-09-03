@@ -24,6 +24,7 @@ namespace Etherna.EthernaIndex.Domain.Models
     public class Video : EntityModelBase<string>
     {
         // Fields.
+        private VideoManifest? _lastValidManifest;
         private List<VideoManifest> _videoManifests = new();
 
         // Constructors and dispose.
@@ -35,7 +36,16 @@ namespace Etherna.EthernaIndex.Domain.Models
 
         // Properties.
         public virtual bool IsFrozen { get; set; }
-        public virtual VideoManifest? LastValidManifest { get; set; }
+        public virtual VideoManifest? LastValidManifest
+        {
+            get => _lastValidManifest;
+            protected set
+            {
+                //old manifests could be deserialized from db as valid, even if they aren't with current rules
+                if (value?.IsValid == true)
+                    _lastValidManifest = value;
+            }
+        }
         public virtual ManualVideoReview? Moderated { get; set; }
         public virtual User Owner { get; protected set; } = default!;
         public virtual long TotDownvotes { get; set; }
@@ -114,7 +124,7 @@ namespace Etherna.EthernaIndex.Domain.Models
         public virtual void SetAsUnsuitable(ManualVideoReview manualVideoReview)
         {
             IsFrozen = true;
-            LastValidManifest = null;
+            _lastValidManifest = null;
             Moderated = manualVideoReview;
             _videoManifests.Clear();
             AddEvent(new VideoModeratedEvent(this));
@@ -147,8 +157,9 @@ namespace Etherna.EthernaIndex.Domain.Models
 
         // Helpers.
         private void UpdateLastValidManifest() =>
-            LastValidManifest = VideoManifests.Where(i => i.IsValid == true)
-                                              .OrderByDescending(i => i.CreationDateTime)
-                                              .FirstOrDefault();
+            _lastValidManifest = VideoManifests
+                .Where(i => i.IsValid == true)
+                .OrderByDescending(i => i.CreationDateTime)
+                .FirstOrDefault();
     }
 }

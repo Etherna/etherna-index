@@ -18,3 +18,4 @@ using System.Runtime.CompilerServices;
 [assembly: CLSCompliant(false)]
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
 [assembly: InternalsVisibleTo("EthernaIndex.Domain.Tests")]
+[assembly: InternalsVisibleTo("EthernaIndex.Persistence")]

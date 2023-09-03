@@ -291,21 +291,6 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         // Put.
 
         /// <summary>
-        /// Update a comment on a video with current user.
-        /// </summary>
-        /// <param name="commentId">Comment id</param>
-        /// <param name="text">Comment text</param>
-        [HttpPut("{commentId}/comments")]
-        [SimpleExceptionFilter]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public Task UpdateCommentAsync(
-            [Required] string commentId,
-            [Required][FromBody] string text) =>
-            service.UpdateCommentAsync(commentId, text);
-
-        /// <summary>
         /// Get bulk validation info by multiple manifest hashes.
         /// </summary>
         /// <param name="hashes">The list of video manifest hashes</param>
@@ -328,6 +313,22 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         public Task<IEnumerable<VideoStatusDto>> GetBulkValidationStatusByIdsAsync(
             [Required][FromBody] IEnumerable<string> ids) =>
             service.GetBulkValidationStatusByIdsAsync(ids);
+
+        /// <summary>
+        /// Update a comment on a video with current user.
+        /// </summary>
+        /// <param name="commentId">Comment id</param>
+        /// <param name="text">Comment text</param>
+        [HttpPut("{commentId}/comments")]
+        [Authorize]
+        [SimpleExceptionFilter]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public Task UpdateCommentAsync(
+            [Required] string commentId,
+            [Required][FromBody] string text) =>
+            service.UpdateCommentAsync(commentId, text);
 
         /// <summary>
         /// Update video manifest.

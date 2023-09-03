@@ -88,7 +88,7 @@ namespace Etherna.EthernaIndex.Domain.Models
         [PropertyAlterer(nameof(IsFrozen))]
         [PropertyAlterer(nameof(LastUpdateDateTime))]
         [PropertyAlterer(nameof(Text))]
-        public virtual void SetAsDeletedByModerator(User userModerator)
+        public virtual void SetAsDeletedByModerator()
         {
             if (IsFrozen)
                 throw new InvalidOperationException();
