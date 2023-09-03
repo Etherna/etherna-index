@@ -12,6 +12,7 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
+using Etherna.Authentication;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.Services.Domain;
@@ -25,18 +26,23 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
     {
         // Fields.
         private readonly IIndexDbContext dbContext;
+        private readonly IEthernaOpenIdConnectClient ethernaOidcClient;
         private readonly ILogger<ModerationControllerService> logger;
+        private readonly IUserService userService;
         private readonly IVideoService videoService;
 
         // Constructor.
         public ModerationControllerService(
             IIndexDbContext dbContext,
+            IEthernaOpenIdConnectClient ethernaOidcClient,
             ILogger<ModerationControllerService> logger,
-            IVideoService videoService,
-            IUserService userService)
+            IUserService userService,
+            IVideoService videoService)
         {
             this.dbContext = dbContext;
+            this.ethernaOidcClient = ethernaOidcClient;
             this.logger = logger;
+            this.userService = userService;
             this.videoService = videoService;
         }
 
