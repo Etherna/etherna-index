@@ -58,7 +58,7 @@ namespace Etherna.EthernaIndex.Swarm
             SwarmSettings = swarmSettings.Value;
             BeeNodeClient = new BeeNodeClient(
                 SwarmSettings.GatewayUrl,
-                gatewayApiVersion: GatewayApiVersion.v4_0_0);
+                gatewayApiVersion: GatewayApiVersion.v5_0_0);
         }
 
         // Methods.
@@ -91,7 +91,7 @@ namespace Etherna.EthernaIndex.Swarm
                 throw new InvalidOperationException(nameof(BeeNodeClient.GatewayClient));
 
 #if !DEBUG_MOCKUP_SWARM
-            using var manifestStream = await BeeNodeClient.GatewayClient.GetFileAsync(manifestHash);
+            using var manifestStream = (await BeeNodeClient.GatewayClient.GetFileAsync(manifestHash)).Stream;
             var jsonElementManifest = await JsonSerializer.DeserializeAsync<JsonElement>(manifestStream);
 
             return DeserializeMetadataVideo(jsonElementManifest);
