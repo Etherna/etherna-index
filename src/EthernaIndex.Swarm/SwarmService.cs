@@ -85,18 +85,19 @@ namespace Etherna.EthernaIndex.Swarm
             return metadataVideoDto;
         }
 
-        public async Task<MetadataVideo> GetMetadataVideoAsync(string manifestHash)
+        public async Task<(MetadataVideo Metadata, bool IsFeed)> GetMetadataVideoAsync(string manifestHash)
         {
             if (BeeNodeClient.GatewayClient is null)
                 throw new InvalidOperationException(nameof(BeeNodeClient.GatewayClient));
 
 #if !DEBUG_MOCKUP_SWARM
-            using var manifestStream = (await BeeNodeClient.GatewayClient.GetFileAsync(manifestHash)).Stream;
+            var swarmFile = await BeeNodeClient.GatewayClient.GetFileAsync(manifestHash);
+            using var manifestStream = swarmFile.Stream;
             var jsonElementManifest = await JsonSerializer.DeserializeAsync<JsonElement>(manifestStream);
 
-            return DeserializeMetadataVideo(jsonElementManifest);
+            return (DeserializeMetadataVideo(jsonElementManifest), swarmFile.IsFeed);
 #else
-            return (MetadataVideo)SwarmObjectMockups[manifestHash];
+            return ((MetadataVideo)SwarmObjectMockups[manifestHash], false);
 #endif
         }
 

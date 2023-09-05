@@ -93,7 +93,7 @@ namespace EthernaIndex.Services.Tests.Tasks
                 null);
             swarmService
                 .Setup(x => x.GetMetadataVideoAsync(manifestHash))
-                .ReturnsAsync(firstMetadataVideoDto);
+                .ReturnsAsync((firstMetadataVideoDto, false));
             await videoManifestValidatorTask.RunAsync(videoId, manifestHash);
             //second manifest for same video
             string secondManifestHash = "2b678a1d73fd8f28d71e6b03d2e42f44721db94b734c2edcfe6fcd48b76a74f9";
@@ -122,7 +122,7 @@ namespace EthernaIndex.Services.Tests.Tasks
             var secondSwarmService = new Mock<ISwarmService>();
             secondSwarmService
                 .Setup(x => x.GetMetadataVideoAsync(secondManifestHash))
-                .ReturnsAsync(secondMetadataVideoDto);
+                .ReturnsAsync((secondMetadataVideoDto, false));
             var secondMetadataVideoValidatorTask = new VideoManifestValidatorTask(secondIndexContext.Object, loggerMock.Object, secondSwarmService.Object);
 
             // Action.
@@ -157,7 +157,7 @@ namespace EthernaIndex.Services.Tests.Tasks
                 null);
             swarmService
                 .Setup(x => x.GetMetadataVideoAsync(manifestHash))
-                .ReturnsAsync(metadataVideoDto);
+                .ReturnsAsync((metadataVideoDto, false));
 
             // Action.
             await videoManifestValidatorTask.RunAsync(videoId, manifestHash);
@@ -194,7 +194,7 @@ namespace EthernaIndex.Services.Tests.Tasks
                 null);
             swarmService
                 .Setup(x => x.GetMetadataVideoAsync(manifestHash))
-                .ReturnsAsync(metadataVideoDto);
+                .ReturnsAsync((metadataVideoDto, false));
 
             // Action.
             await videoManifestValidatorTask.RunAsync(videoId, manifestHash);
@@ -227,7 +227,7 @@ namespace EthernaIndex.Services.Tests.Tasks
                 null);
             swarmService
                 .Setup(x => x.GetMetadataVideoAsync(manifestHash))
-                .ReturnsAsync(metadataVideoDto);
+                .ReturnsAsync((metadataVideoDto, false));
 
             // Action.
             await videoManifestValidatorTask.RunAsync(videoId, manifestHash);
@@ -287,7 +287,7 @@ namespace EthernaIndex.Services.Tests.Tasks
                 null);
             swarmService
                 .Setup(x => x.GetMetadataVideoAsync(manifestHash))
-                .ReturnsAsync(metadataVideoDto);
+                .ReturnsAsync((metadataVideoDto, false));
 
             // Action.
             await videoManifestValidatorTask.RunAsync(videoId, manifestHash);
@@ -325,7 +325,7 @@ namespace EthernaIndex.Services.Tests.Tasks
                 null);
             swarmService
                 .Setup(x => x.GetMetadataVideoAsync(manifestHash))
-                .ReturnsAsync(metadataVideoDto);
+                .ReturnsAsync((metadataVideoDto, false));
 
             // Action.
             await videoManifestValidatorTask.RunAsync(videoId, manifestHash);
@@ -363,7 +363,7 @@ namespace EthernaIndex.Services.Tests.Tasks
                 null);
             swarmService
                 .Setup(x => x.GetMetadataVideoAsync(manifestHash))
-                .ReturnsAsync(metadataVideoDto);
+                .ReturnsAsync((metadataVideoDto, false));
 
             // Action.
             await videoManifestValidatorTask.RunAsync(videoId, manifestHash);
@@ -401,7 +401,7 @@ namespace EthernaIndex.Services.Tests.Tasks
                 null);
             swarmService
                 .Setup(x => x.GetMetadataVideoAsync(manifestHash))
-                .ReturnsAsync(metadataVideoDto);
+                .ReturnsAsync((metadataVideoDto, false));
 
             // Action.
             await videoManifestValidatorTask.RunAsync(videoId, manifestHash);
@@ -436,7 +436,7 @@ namespace EthernaIndex.Services.Tests.Tasks
                 null);
             swarmService
                 .Setup(x => x.GetMetadataVideoAsync(manifestHash))
-                .ReturnsAsync(metadataVideoDto);
+                .ReturnsAsync((metadataVideoDto, false));
 
             // Action.
             await videoManifestValidatorTask.RunAsync(videoId, manifestHash);
@@ -471,7 +471,7 @@ namespace EthernaIndex.Services.Tests.Tasks
                 null);
             swarmService
                 .Setup(x => x.GetMetadataVideoAsync(manifestHash))
-                .ReturnsAsync(metadataVideoDto);
+                .ReturnsAsync((metadataVideoDto, false));
 
             // Action.
             await videoManifestValidatorTask.RunAsync(videoId, manifestHash);
@@ -495,6 +495,44 @@ namespace EthernaIndex.Services.Tests.Tasks
                     i.Reference == "Ref720" &&
                     i.Size == 32);
             Assert.Equal(manifestHash, video.LastValidManifest!.Manifest.Hash);
+        }
+
+        [Fact]
+        public async Task FailValidationWithFeed()
+        {
+            // Arrange.
+            var metadataVideoDto = new MetadataVideo(
+                null,
+                "Description",
+                10,
+                1234,
+                "123",
+                address,
+                "{}",
+                new List<MetadataVideoSource>
+                {
+                    new MetadataVideoSource(1, "1080", "Ref1080", 32),
+                    new MetadataVideoSource(2, "720", "Ref720", 32)
+                },
+                null,
+                "Titletest",
+                null);
+            swarmService
+                .Setup(x => x.GetMetadataVideoAsync(manifestHash))
+                .ReturnsAsync((metadataVideoDto, true));
+
+            // Action.
+            await videoManifestValidatorTask.RunAsync(videoId, manifestHash);
+
+            // Assert.
+            Assert.False(videoManifest.IsValid);
+            Assert.NotNull(videoManifest.ValidationTime);
+            Assert.Contains(videoManifest.ValidationErrors,
+                i => i.ErrorMessage == "Hash content is on a feed" &&
+                    i.ErrorType == ValidationErrorType.IsFeedContent);
+            Assert.Contains(video.VideoManifests,
+                i => i.Manifest.Hash == manifestHash);
+            Assert.Null(video.LastValidManifest);
         }
     }
 }

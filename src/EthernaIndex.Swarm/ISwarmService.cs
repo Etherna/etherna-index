@@ -21,7 +21,7 @@ namespace Etherna.EthernaIndex.Swarm
     public interface ISwarmService
     {
         MetadataVideo DeserializeMetadataVideo(JsonElement jsonElementManifest);
-        Task<MetadataVideo> GetMetadataVideoAsync(string manifestHash);
+        Task<(MetadataVideo Metadata, bool IsFeed)> GetMetadataVideoAsync(string manifestHash);
 
 #if DEBUG_MOCKUP_SWARM
         string GenerateNewHash();

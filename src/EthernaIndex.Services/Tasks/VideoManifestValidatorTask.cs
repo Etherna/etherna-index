@@ -64,9 +64,12 @@ namespace Etherna.EthernaIndex.Services.Tasks
 #if DEBUG_MOCKUP_SWARM
                 swarmService.SetupNewMetadataVideoMockup(manifestHash);
 #endif
-                metadataDto = await swarmService.GetMetadataVideoAsync(manifestHash);
+                (metadataDto, bool isFeed) = await swarmService.GetMetadataVideoAsync(manifestHash);
 
                 logger.VideoManifestValidationRetrievedManifest(videoId, manifestHash);
+
+                if (isFeed)
+                    validationErrors.Add(new ErrorDetail(ValidationErrorType.IsFeedContent, "Hash content is on a feed"));
             }
             catch (MetadataVideoException ex)
             {
