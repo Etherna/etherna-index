@@ -42,11 +42,13 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
 
                 case VideoManifestMetadataV1 metadataV1:
                     BatchId = metadataV1.BatchId;
+                    CreatedAt = metadataV1.CreatedAt ?? 0;
                     Description = metadataV1.Description;
                     Duration = metadataV1.Duration;
                     PersonalData = metadataV1.PersonalData;
                     Sources = metadataV1.Sources
                         .Select(s => new VideoSourceDto(
+                            "mp4",
                             s.Quality,
                             s.Reference,
                             s.Size ?? 0));
@@ -61,15 +63,19 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
                                 int.Parse(s.Key.Replace("w", "", StringComparison.OrdinalIgnoreCase), CultureInfo.InvariantCulture))));
 
                     Title = metadataV1.Title;
+                    UpdatedAt = metadataV1.UpdatedAt;
                     break;
 
                 case VideoManifestMetadataV2 metadataV2:
+                    AspectRatio = metadataV2.AspectRatio;
                     BatchId = metadataV2.BatchId;
+                    CreatedAt = metadataV2.CreatedAt;
                     Description = metadataV2.Description;
                     Duration = metadataV2.Duration;
                     PersonalData = metadataV2.PersonalData;
                     Sources = metadataV2.Sources
                         .Select(s => new VideoSourceDto(
+                            s.Type,
                             s.Quality,
                             s.Path,
                             s.Size));
@@ -81,6 +87,7 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
                             metadataV2.Thumbnail.Sources.Select(s => new ImageSourceDto(s.Type, s.Path, s.Width)));
 
                     Title = metadataV2.Title;
+                    UpdatedAt = metadataV2.UpdatedAt;
                     break;
 
                 default: throw new InvalidOperationException();
@@ -101,6 +108,7 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
             OriginalQuality = videoDocument.OriginalQuality;
             Sources = videoDocument.Sources
                 .Select(i => new VideoSourceDto(
+                    i.Type,
                     i.Quality,
                     i.Path,
                     i.Size));
@@ -115,7 +123,9 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
         }
 
         // Properties.
+        public float AspectRatio { get; }
         public string? BatchId { get; }
+        public long CreatedAt { get; }
         public string? Description { get; }
         public long? Duration { get; }
         public string Hash { get; }
@@ -124,5 +134,6 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
         public IEnumerable<VideoSourceDto> Sources { get; }
         public Image2Dto? Thumbnail { get; }
         public string? Title { get; }
+        public long? UpdatedAt { get; }
     }
 }

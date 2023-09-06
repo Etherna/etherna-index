@@ -25,7 +25,7 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
         // Constructors.
         public Video2Dto(
             Video video,
-            VideoManifest? videoManifest,
+            VideoManifest? lastValidManifest,
             UserSharedInfo ownerSharedInfo,
             VideoVote? currentUserVideoVote)
         {
@@ -42,8 +42,8 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
                 CurrentVoteValue = currentUserVideoVote.Value;
             }
             
-            if (videoManifest is not null)
-                LastValidManifest = new VideoManifest2Dto(videoManifest);
+            if (lastValidManifest is not null)
+                LastValidManifest = new VideoManifest2Dto(lastValidManifest);
             OwnerAddress = ownerSharedInfo.EtherAddress;
             TotDownvotes = video.TotDownvotes;
             TotUpvotes = video.TotUpvotes;

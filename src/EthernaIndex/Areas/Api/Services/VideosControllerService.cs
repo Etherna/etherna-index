@@ -216,7 +216,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             return videos.Select(v => new VideoStatusDto(v));
         }
 
-        public async Task<PaginatedEnumerableDto<Video2Dto>> GetLastUploadedVideosAsync(int page, int take)
+        public async Task<PaginatedEnumerableDto<VideoPreviewDto>> GetLastUploadedVideosAsync(int page, int take)
         {
             // Get videos with valid manifest.
             var paginatedVideos = await indexDbContext.Videos.QueryPaginatedElementsAsync(
@@ -227,22 +227,20 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
                 true);
 
             // Get user info from video selected
-            var videoDtos = new List<Video2Dto>();
+            var videoPreviews = new List<VideoPreviewDto>();
             foreach (var video in paginatedVideos.Elements)
             {
                 var ownerSharedInfo = await sharedDbContext.UsersInfo.FindOneAsync(video.Owner.SharedInfoId);
-                videoDtos.Add(new Video2Dto(
+                videoPreviews.Add(new VideoPreviewDto(
                     video,
-                    video.LastValidManifest,
-                    ownerSharedInfo,
-                    null));
+                    ownerSharedInfo));
             }
 
             logger.GetLastUploadedVideos(page, take);
 
-            return new PaginatedEnumerableDto<Video2Dto>(
+            return new PaginatedEnumerableDto<VideoPreviewDto>(
                 paginatedVideos.CurrentPage,
-                videoDtos,
+                videoPreviews,
                 paginatedVideos.PageSize,
                 paginatedVideos.TotalElements);
         }
