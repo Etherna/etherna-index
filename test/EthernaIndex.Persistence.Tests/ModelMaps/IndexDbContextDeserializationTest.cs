@@ -58,7 +58,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
             {
                 var tests = new List<DeserializationTestElement<Comment>>();
                 
-                // "a846e95a-f99b-4d66-91a8-807a1ef34140" - v0.3.10
+                // "a846e95a-f99b-4d66-91a8-807a1ef34140" - v0.3.9
                 {
                     var sourceDocument =
                         $$"""
