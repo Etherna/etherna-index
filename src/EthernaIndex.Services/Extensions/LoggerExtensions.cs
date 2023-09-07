@@ -20,7 +20,7 @@ namespace Etherna.EthernaIndex.Services.Extensions
 {
     /*
      * Always group similar log delegates by type, always use incremental event ids.
-     * Last event id is: 28
+     * Last event id is: 29
      */
     public static class LoggerExtensions
     {
@@ -159,10 +159,16 @@ namespace Etherna.EthernaIndex.Services.Extensions
                 new EventId(19, nameof(OwnerDeleteVideoComment)),
                 "Comment Id {CommentId} deleted by owner");
 
-        private static readonly Action<ILogger, string, string, Exception> _updateVideo =
+        private static readonly Action<ILogger, string, Exception> _updatedComment =
+            LoggerMessage.Define<string>(
+                LogLevel.Information,
+                new EventId(29, nameof(UpdatedComment)),
+                "Comment Id {CommentId} updated  by author");
+
+        private static readonly Action<ILogger, string, string, Exception> _updatedVideo =
             LoggerMessage.Define<string, string>(
                 LogLevel.Information,
-                new EventId(5, nameof(UpdateVideo)),
+                new EventId(5, nameof(UpdatedVideo)),
                 "Video Id {VideoId} updated with manifest {NewHash} by author");
 
         private static readonly Action<ILogger, string, string, Exception> _videoCreated =
@@ -268,8 +274,11 @@ namespace Etherna.EthernaIndex.Services.Extensions
         public static void RequestThrowedError(this ILogger logger, string requestId) =>
             _requestThrowedError(logger, requestId, null!);
 
-        public static void UpdateVideo(this ILogger logger, string videoId, string newHash) =>
-            _updateVideo(logger, videoId, newHash, null!);
+        public static void UpdatedComment(this ILogger logger, string commentId) =>
+            _updatedComment(logger, commentId, null!);
+
+        public static void UpdatedVideo(this ILogger logger, string videoId, string newHash) =>
+            _updatedVideo(logger, videoId, newHash, null!);
 
         public static void VideoCreated(this ILogger logger, string userId, string videoId) =>
             _videoCreated(logger, userId, videoId, null!);

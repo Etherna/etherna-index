@@ -57,6 +57,61 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
             get
             {
                 var tests = new List<DeserializationTestElement<Comment>>();
+                
+                // "a846e95a-f99b-4d66-91a8-807a1ef34140" - v0.3.10
+                {
+                    var sourceDocument =
+                        $$"""
+                        {
+                            "_id" : ObjectId("621d377079200245673f1071"),
+                            "_m" : "a846e95a-f99b-4d66-91a8-807a1ef34140",
+                            "CreationDateTime" : ISODate("2023-09-07T22:15:48.183+0000"),
+                            "Author" : {
+                                "_m" : "caa0968f-4493-485b-b8d0-bc40942e8684",
+                                "_id" : ObjectId("6217ce1f89618c1a512354a1"),
+                                "SharedInfoId" : "61cdffb4fa7c4052d258123b"
+                            },
+                            "IsFrozen" : true,
+                            "TextHistory" : [
+                                {
+                                    "k" : ISODate("2023-09-07T22:15:48.183+0000"),
+                                    "v" : "This is a comment"
+                                },
+                                {
+                                    "k" : ISODate("2023-09-07T22:17:08.438+0000"),
+                                    "v" : "And this is an edit"
+                                }
+                            ],
+                            "Video" : {
+                                "_m" : "d4844740-472d-48b9-b066-67ba9a2acc9b",
+                                "_id" : ObjectId("621caf06ce0a123b360e640a")
+                            }
+                        }
+                        """;
+
+                    var expectedCommentMock = new Mock<Comment>();
+                    expectedCommentMock.Setup(c => c.Id).Returns("621d377079200245673f1071");
+                    expectedCommentMock.Setup(c => c.CreationDateTime).Returns(new DateTime(2023, 09, 07, 22, 15, 48, 183));
+                    {
+                        var authorMock = new Mock<User>();
+                        authorMock.Setup(a => a.Id).Returns("6217ce1f89618c1a512354a1");
+                        expectedCommentMock.Setup(c => c.Author).Returns(authorMock.Object);
+                    }
+                    expectedCommentMock.Setup(c => c.IsFrozen).Returns(true);
+                    expectedCommentMock.Setup(c => c.TextHistory).Returns(
+                        new Dictionary<DateTime, string>
+                        {
+                            [new DateTime(2023, 09, 07, 22, 15, 48, 183)] = "This is a comment",
+                            [new DateTime(2023, 09, 07, 22, 17, 08, 438)] = "And this is an edit"
+                        });
+                    {
+                        var videoMock = new Mock<Video>();
+                        videoMock.Setup(v => v.Id).Returns("621caf06ce0a123b360e640a");
+                        expectedCommentMock.Setup(c => c.Video).Returns(videoMock.Object);
+                    }
+
+                    tests.Add(new DeserializationTestElement<Comment>(sourceDocument, expectedCommentMock.Object));
+                }
 
                 // "8e509e8e-5c2b-4874-a734-ada4e2b91f92" - dev (pre v0.3.0), published for WAM event
                 {
@@ -92,7 +147,11 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                         expectedCommentMock.Setup(c => c.Author).Returns(authorMock.Object);
                     }
                     expectedCommentMock.Setup(c => c.IsFrozen).Returns(true);
-                    expectedCommentMock.Setup(c => c.Text).Returns("test");
+                    expectedCommentMock.Setup(c => c.TextHistory).Returns(
+                        new Dictionary<DateTime, string>
+                        {
+                            [new DateTime(2022, 02, 28, 20, 58, 24, 825)] = "test"
+                        });
                     {
                         var videoMock = new Mock<Video>();
                         videoMock.Setup(v => v.Id).Returns("621caf06ce0a123b360e640a");
@@ -1180,11 +1239,11 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
             Assert.Equal(testElement.ExpectedModel.Id, result.Id);
             Assert.Equal(testElement.ExpectedModel.Author, result.Author, EntityModelEqualityComparer.Instance);
             Assert.Equal(testElement.ExpectedModel.CreationDateTime, result.CreationDateTime);
-            Assert.Equal(testElement.ExpectedModel.Text, result.Text);
+            Assert.Equal(testElement.ExpectedModel.TextHistory, result.TextHistory);
             Assert.Equal(testElement.ExpectedModel.Video, result.Video, EntityModelEqualityComparer.Instance);
             Assert.NotNull(result.Id);
             Assert.NotNull(result.Author);
-            Assert.NotNull(result.Text);
+            Assert.NotNull(result.LastText);
             Assert.NotNull(result.Video);
         }
 

@@ -14,13 +14,22 @@
 
 using Etherna.MongODM.Core.Attributes;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Etherna.EthernaIndex.Domain.Models
 {
     public class Comment : EntityModelBase<string>
     {
+        // Fields.
+        private Dictionary<DateTime, string> _textHistory = new();
+
         // Consts.
+        public const int MaxEditHistory = 10;
+        public static readonly TimeSpan MaxEditTimeSpan = TimeSpan.FromHours(24);
         public const int MaxLength = 2000;
+        public const string RemovedByAuthorReplaceText = "(removed by author)";
+        public const string RemovedByModeratorReplaceText = "(removed by moderator)";
 
         // Constructors.
         public Comment(
@@ -29,8 +38,7 @@ namespace Etherna.EthernaIndex.Domain.Models
             Video video)
         {
             Author = author ?? throw new ArgumentNullException(nameof(author));
-            LastUpdateDateTime = DateTime.UtcNow;
-            Text = text ?? throw new ArgumentNullException(nameof(text));
+            _textHistory.Add(DateTime.UtcNow, text ?? throw new ArgumentNullException(nameof(text)));
             Video = video ?? throw new ArgumentNullException(nameof(video));
 
             if (text.Length > MaxLength)
@@ -42,36 +50,58 @@ namespace Etherna.EthernaIndex.Domain.Models
 
         // Properties.
         public virtual User Author { get; protected set; }
-        public virtual bool IsFrozen { get; set; }
-        public virtual DateTime LastUpdateDateTime { get; protected set; }
-        public virtual string Text { get; protected set; }
+        public virtual bool IsEditable =>
+            !IsFrozen && 
+            DateTime.UtcNow <= CreationDateTime + MaxEditTimeSpan &&
+            _textHistory.Count < MaxEditHistory;
+        public virtual bool IsFrozen { get; protected set; }
+        public virtual string LastText => TextHistory.MaxBy(pair => pair.Key).Value;
+        public virtual DateTime LastUpdateDateTime => TextHistory.Keys.Max();
+        public virtual IReadOnlyDictionary<DateTime, string> TextHistory
+        {
+            get => _textHistory;
+            protected set => _textHistory = new Dictionary<DateTime, string>(value ?? new Dictionary<DateTime, string>());
+        }
         public virtual Video Video { get; protected set; }
 
         // Methods.
-        [PropertyAlterer(nameof(IsFrozen))]
+        [PropertyAlterer(nameof(LastText))]
         [PropertyAlterer(nameof(LastUpdateDateTime))]
-        [PropertyAlterer(nameof(Text))]
+        [PropertyAlterer(nameof(TextHistory))]
+        public virtual void EditByAuthor(string text)
+        {
+            if (!IsEditable)
+                throw new InvalidOperationException();
+
+            _textHistory.Add(DateTime.UtcNow, text);
+        }
+        
+        [PropertyAlterer(nameof(IsFrozen))]
+        [PropertyAlterer(nameof(LastText))]
+        [PropertyAlterer(nameof(LastUpdateDateTime))]
+        [PropertyAlterer(nameof(TextHistory))]
         public virtual void SetAsDeletedByAuthor()
         {
             if (IsFrozen)
                 throw new InvalidOperationException();
-
+            
+            _textHistory.Clear();
+            _textHistory.Add(DateTime.UtcNow, RemovedByAuthorReplaceText);
             IsFrozen = true;
-            LastUpdateDateTime = DateTime.UtcNow;
-            Text = "(removed by author)";
         }
 
         [PropertyAlterer(nameof(IsFrozen))]
+        [PropertyAlterer(nameof(LastText))]
         [PropertyAlterer(nameof(LastUpdateDateTime))]
-        [PropertyAlterer(nameof(Text))]
+        [PropertyAlterer(nameof(TextHistory))]
         public virtual void SetAsDeletedByModerator()
         {
             if (IsFrozen)
                 throw new InvalidOperationException();
 
+            _textHistory.Clear();
+            _textHistory.Add(DateTime.UtcNow, RemovedByModeratorReplaceText);
             IsFrozen = true;
-            LastUpdateDateTime = DateTime.UtcNow;
-            Text = "(removed by moderator)";
         }
     }
 }

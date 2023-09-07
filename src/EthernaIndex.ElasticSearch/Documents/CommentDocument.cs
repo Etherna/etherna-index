@@ -33,7 +33,7 @@ namespace Etherna.EthernaIndex.ElasticSearch.Documents
             IsFrozen = comment.IsFrozen;
             LastUpdateDateTime = comment.LastUpdateDateTime;
             OwnerAddress = userSharedInfo.EtherAddress;
-            Text = comment.Text;
+            Text = comment.LastText;
             VideoId = comment.Video.Id;
         }
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
