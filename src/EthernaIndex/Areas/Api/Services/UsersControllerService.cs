@@ -1,11 +1,11 @@
 ﻿//   Copyright 2021-present Etherna Sagl
-//
+// 
 //   Licensed under the Apache License, Version 2.0 (the "License");
 //   you may not use this file except in compliance with the License.
 //   You may obtain a copy of the License at
-//
+// 
 //       http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 //   Unless required by applicable law or agreed to in writing, software
 //   distributed under the License is distributed on an "AS IS" BASIS,
 //   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -113,7 +113,33 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
                 paginatedUsers.TotalElements);
         }
 
-        public async Task<PaginatedEnumerableDto<VideoDto>> GetVideosAsync(string address, int page, int take)
+        public async Task<PaginatedEnumerableDto<Video2Dto>> GetVideosAsync(string address, int page, int take)
+        {
+            var currentUserAddress = await ethernaOidcClient.TryGetEtherAddressAsync();
+            var requestByVideoOwner = address == currentUserAddress;
+
+            var (user, sharedInfo) = await userService.FindUserAsync(address);
+            var paginatedVideos = await indexDbContext.Videos.QueryPaginatedElementsAsync(
+                elements => elements.Where(v => v.Owner.Id == user.Id)
+                                    .Where(v => requestByVideoOwner || v.LastValidManifest != null),
+                v => v.CreationDateTime,
+                page,
+                take,
+                true);
+
+            logger.GetUserVideosPaginated(address, page, take);
+
+            return new PaginatedEnumerableDto<Video2Dto>(
+                paginatedVideos.CurrentPage,
+                paginatedVideos.Elements.Select(v => new Video2Dto(v, v.LastValidManifest, sharedInfo, null)),
+                paginatedVideos.PageSize,
+                paginatedVideos.TotalElements);
+        }
+
+        //deprecated
+
+        [Obsolete("Used only for API backwards compatibility")]
+        public async Task<PaginatedEnumerableDto<VideoDto>> GetVideosAsync_old(string address, int page, int take)
         {
             var currentUserAddress = await ethernaOidcClient.TryGetEtherAddressAsync();
             var requestByVideoOwner = address == currentUserAddress;
