@@ -1,11 +1,11 @@
 ﻿//   Copyright 2021-present Etherna Sagl
-//
+// 
 //   Licensed under the Apache License, Version 2.0 (the "License");
 //   you may not use this file except in compliance with the License.
 //   You may obtain a copy of the License at
-//
+// 
 //       http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 //   Unless required by applicable law or agreed to in writing, software
 //   distributed under the License is distributed on an "AS IS" BASIS,
 //   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -99,9 +99,7 @@ namespace Etherna.EthernaIndex.Persistence
             });
 
         //other properties
-        public override IEnumerable<DocumentMigration> DocumentMigrationList => new[] {
-            new DocumentMigration<Video, string>(Videos)
-        };
+        public override IEnumerable<DocumentMigration> DocumentMigrationList => Array.Empty<DocumentMigration>();
         public IEventDispatcher EventDispatcher { get; }
 
         // Protected properties.
@@ -114,15 +112,17 @@ namespace Etherna.EthernaIndex.Persistence
         // Methods.
         public override async Task SaveChangesAsync(CancellationToken cancellationToken = default)
         {
+            var changedEntityModels = ChangedModelsList.OfType<EntityModelBase>().ToArray();
+
+            // Save changes.
+            await base.SaveChangesAsync(cancellationToken);
+
             // Dispatch events.
-            foreach (var model in ChangedModelsList.Where(m => m is EntityModelBase)
-                                                   .Select(m => (EntityModelBase)m))
+            foreach (var model in changedEntityModels)
             {
                 await EventDispatcher.DispatchAsync(model.Events);
                 model.ClearEvents();
             }
-
-            await base.SaveChangesAsync(cancellationToken);
         }
     }
 }
