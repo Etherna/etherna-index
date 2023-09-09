@@ -15,6 +15,7 @@
 using System;
 using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.Domain.Models.UserAgg;
+using Etherna.EthernaIndex.ElasticSearch.Documents;
 
 namespace Etherna.EthernaIndex.Areas.Api.DtoModels
 {
@@ -41,6 +42,25 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
                 UpdatedAt = manifestDto.UpdatedAt;
             }
             OwnerAddress = ownerSharedInfo.EtherAddress;
+        }
+
+        public VideoPreviewDto(
+            VideoDocument videoDocument,
+            UserSharedInfo ownerSharedInfo)
+        {
+            if (videoDocument is null)
+                throw new ArgumentNullException(nameof(videoDocument));
+            if (ownerSharedInfo is null)
+                throw new ArgumentNullException(nameof(ownerSharedInfo));
+
+            var manifestDto = new VideoManifest2Dto(videoDocument);
+            Id = videoDocument.Id;
+            CreatedAt = manifestDto.CreatedAt;
+            Duration = manifestDto.Duration;
+            OwnerAddress = ownerSharedInfo.EtherAddress;
+            Thumbnail = manifestDto.Thumbnail;
+            Title = manifestDto.Title;
+            UpdatedAt = manifestDto.UpdatedAt;
         }
 
         // Properties.

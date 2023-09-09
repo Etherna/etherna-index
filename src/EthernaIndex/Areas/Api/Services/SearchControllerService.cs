@@ -46,29 +46,26 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         public void ReindexAllVideos() =>
             backgroundJobClient.Enqueue<IFullVideoReindexTask>(t => t.RunAsync());
 
-        public async Task<PaginatedEnumerableDto<Video2Dto>> SearchVideoAsync(string query, int page, int take)
+        public async Task<PaginatedEnumerableDto<VideoPreviewDto>> SearchVideoAsync(string query, int page, int take)
         {
             var paginatedVideoDocuments = await elasticSearchService.SearchVideoAsync(query, page, take);
 
             // Get user info from video selected.
             var cacheSharedInfos = new Dictionary<string, UserSharedInfo>();
-            var videoDtos = new List<Video2Dto>();
+            var videoDtos = new List<VideoPreviewDto>();
             foreach (var videoDocument in paginatedVideoDocuments.Results)
             {
                 // Get shared info.
                 if (!cacheSharedInfos.ContainsKey(videoDocument.OwnerSharedInfoId))
-                {
                     cacheSharedInfos[videoDocument.OwnerSharedInfoId] = await sharedDbContext.UsersInfo.FindOneAsync(videoDocument.OwnerSharedInfoId);
-                }
 
                 // Create video dto.
-                videoDtos.Add(new Video2Dto(
+                videoDtos.Add(new VideoPreviewDto(
                     videoDocument,
-                    cacheSharedInfos[videoDocument.OwnerSharedInfoId],
-                    null));
+                    cacheSharedInfos[videoDocument.OwnerSharedInfoId]));
             }
 
-            return new PaginatedEnumerableDto<Video2Dto>(
+            return new PaginatedEnumerableDto<VideoPreviewDto>(
                 page,
                 videoDtos,
                 take,
