@@ -1,11 +1,11 @@
 ﻿//   Copyright 2021-present Etherna Sagl
-//
+// 
 //   Licensed under the Apache License, Version 2.0 (the "License");
 //   you may not use this file except in compliance with the License.
 //   You may obtain a copy of the License at
-//
+// 
 //       http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 //   Unless required by applicable law or agreed to in writing, software
 //   distributed under the License is distributed on an "AS IS" BASIS,
 //   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,6 +24,7 @@ namespace Etherna.EthernaIndex.Domain.Models
     public class Video : EntityModelBase<string>
     {
         // Fields.
+        private VideoManifest? _lastValidManifest;
         private List<VideoManifest> _videoManifests = new();
 
         // Constructors and dispose.
@@ -35,7 +36,16 @@ namespace Etherna.EthernaIndex.Domain.Models
 
         // Properties.
         public virtual bool IsFrozen { get; set; }
-        public virtual VideoManifest? LastValidManifest { get; set; }
+        public virtual VideoManifest? LastValidManifest
+        {
+            get => _lastValidManifest;
+            protected set
+            {
+                //old manifests could be deserialized from db as valid, even if they aren't with current rules
+                if (value?.IsValid == true)
+                    _lastValidManifest = value;
+            }
+        }
         public virtual User Owner { get; protected set; } = default!;
         public virtual long TotDownvotes { get; set; }
         public virtual long TotUpvotes { get; set; }
@@ -70,7 +80,7 @@ namespace Etherna.EthernaIndex.Domain.Models
         [PropertyAlterer(nameof(LastValidManifest))]
         public virtual void FailedManifestValidation(
             VideoManifest manifest,
-            IEnumerable<ErrorDetail> validationErrors)
+            IEnumerable<ValidationError> validationErrors)
         {
             if (manifest is null)
                 throw new ArgumentNullException(nameof(manifest));
@@ -112,7 +122,7 @@ namespace Etherna.EthernaIndex.Domain.Models
         public virtual void SetAsUnsuitable()
         {
             IsFrozen = true;
-            LastValidManifest = null;
+            _lastValidManifest = null;
             _videoManifests.Clear();
             AddEvent(new VideoModeratedEvent(this));
         }
@@ -120,17 +130,12 @@ namespace Etherna.EthernaIndex.Domain.Models
         [PropertyAlterer(nameof(LastValidManifest))]
         public virtual void SucceededManifestValidation(
             VideoManifest manifest,
-            string? batchId,
-            string description,
-            long duration,
-            string originalQuality,
-            string? personalData,
-            IEnumerable<VideoSource> sources,
-            SwarmImageRaw? thumbnail,
-            string title)
+            VideoManifestMetadataBase metadata)
         {
             if (manifest is null)
                 throw new ArgumentNullException(nameof(manifest));
+            if (metadata is null)
+                throw new ArgumentNullException(nameof(metadata));
 
             if (!VideoManifests.Contains(manifest))
             {
@@ -139,15 +144,7 @@ namespace Etherna.EthernaIndex.Domain.Models
                 throw ex;
             }
 
-            manifest.SucceededValidation(
-                batchId,
-                description,
-                duration,
-                originalQuality,
-                personalData,
-                sources,
-                thumbnail,
-                title);
+            manifest.SucceededValidation(metadata);
 
             UpdateLastValidManifest();
 
@@ -157,8 +154,9 @@ namespace Etherna.EthernaIndex.Domain.Models
 
         // Helpers.
         private void UpdateLastValidManifest() =>
-            LastValidManifest = VideoManifests.Where(i => i.IsValid == true)
-                                              .OrderByDescending(i => i.CreationDateTime)
-                                              .FirstOrDefault();
+            _lastValidManifest = VideoManifests
+                .Where(i => i.IsValid == true)
+                .OrderByDescending(i => i.CreationDateTime)
+                .FirstOrDefault();
     }
 }

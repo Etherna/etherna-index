@@ -1,11 +1,11 @@
 ﻿//   Copyright 2021-present Etherna Sagl
-//
+// 
 //   Licensed under the Apache License, Version 2.0 (the "License");
 //   you may not use this file except in compliance with the License.
 //   You may obtain a copy of the License at
-//
+// 
 //       http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 //   Unless required by applicable law or agreed to in writing, software
 //   distributed under the License is distributed on an "AS IS" BASIS,
 //   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,6 +14,7 @@
 
 using Etherna.EthernaIndex.Domain.Models.UserAgg;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg;
+using Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV1;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -44,10 +45,6 @@ namespace Etherna.EthernaIndex.Domain.Models
         [Fact]
         public void Create_Video()
         {
-            // Arrange.
-
-            // Action.
-
             // Assert.
             Assert.Equal(0, video.TotDownvotes);
             Assert.Equal(0, video.TotDownvotes);
@@ -89,27 +86,20 @@ namespace Etherna.EthernaIndex.Domain.Models
         private VideoManifest CreateManifest(string hash, bool valid)
         {
             var videoManifest = new VideoManifest(hash);
-            var title = "FeddTopicTest";
-            var desc = "DescTest";
-            var original = "OriginalTest";
-            var personalData = "{}";
-            var duration = 1;
-            var videoSources = new List<VideoSource> {
-                new VideoSource(1, "10801", "reff1", 4),
-                new VideoSource(2, "321", "reff2", 100) };
 
             if (valid)
-                videoManifest.SucceededValidation(
+                videoManifest.SucceededValidation(new VideoManifestMetadataV1(
+                    "FeddTopicTest",
+                    "DescTest",
+                    1,
+                    new[] { new VideoSourceV1(null, "1080", "ref", 4) },
                     null,
-                    desc,
-                    duration,
-                    original,
-                    personalData,
-                    videoSources,
                     null,
-                    title);
+                    null,
+                    null,
+                    null));
             else
-                videoManifest.FailedValidation(new List<ErrorDetail> { new ErrorDetail(ValidationErrorType.Unknown, "test") });
+                videoManifest.FailedValidation(new List<ValidationError> { new ValidationError(ValidationErrorType.Unknown, "test") });
 
             return videoManifest;
         }

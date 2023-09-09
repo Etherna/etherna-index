@@ -1,11 +1,11 @@
 ﻿//   Copyright 2021-present Etherna Sagl
-//
+// 
 //   Licensed under the Apache License, Version 2.0 (the "License");
 //   you may not use this file except in compliance with the License.
 //   You may obtain a copy of the License at
-//
+// 
 //       http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 //   Unless required by applicable law or agreed to in writing, software
 //   distributed under the License is distributed on an "AS IS" BASIS,
 //   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -49,7 +49,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         public VideosControllerService(
             IBackgroundJobClient backgroundJobClient,
             IEthernaOpenIdConnectClient ethernaOidcClient,
-            IIndexDbContext indexContext,
+            IIndexDbContext indexDbContext,
             ILogger<VideosControllerService> logger,
             ISharedDbContext sharedDbContext,
             IUserService userService,
@@ -57,7 +57,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         {
             this.backgroundJobClient = backgroundJobClient;
             this.ethernaOidcClient = ethernaOidcClient;
-            this.indexDbContext = indexContext;
+            this.indexDbContext = indexDbContext;
             this.logger = logger;
             this.sharedDbContext = sharedDbContext;
             this.userService = userService;
@@ -127,7 +127,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             return video.Id;
         }
 
-        public async Task<CommentDto> CreateCommentAsync(string id, string text)
+        public async Task<Comment2Dto> CreateCommentAsync(string id, string text)
         {
             var address = await ethernaOidcClient.GetEtherAddressAsync();
             var (user, userSharedInfo) = await userService.FindUserAsync(address);
@@ -139,10 +139,10 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
 
             logger.CreateVideoComment(user.Id, id);
 
-            return new CommentDto(comment, userSharedInfo);
+            return new Comment2Dto(comment, userSharedInfo);
         }
 
-        public async Task<VideoDto> FindByIdAsync(string id)
+        public async Task<Video2Dto> FindByIdAsync(string id)
         {
             // Get Video.
             var video = await indexDbContext.Videos.FindOneAsync(v => v.Id == id);
@@ -165,10 +165,10 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
 
             logger.FindVideoById(id);
 
-            return new VideoDto(video, lastValidManifest, ownerSharedInfo, currentUserVideoVote);
+            return new Video2Dto(video, lastValidManifest, ownerSharedInfo, currentUserVideoVote);
         }
 
-        public async Task<VideoDto> FindByManifestHashAsync(string hash)
+        public async Task<Video2Dto> FindByManifestHashAsync(string hash)
         {
             // Get Video.
             var videoManifest = await indexDbContext.VideoManifests.FindOneAsync(vm => vm.Manifest.Hash == hash);
@@ -191,10 +191,32 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
 
             logger.FindManifestByHash(hash);
 
-            return new VideoDto(video, videoManifest, ownerSharedInfo, currentUserVideoVote);
+            return new Video2Dto(video, videoManifest, ownerSharedInfo, currentUserVideoVote);
         }
 
-        public async Task<PaginatedEnumerableDto<VideoDto>> GetLastUploadedVideosAsync(int page, int take)
+        public async Task<IEnumerable<VideoManifestStatusDto>> GetBulkValidationStatusByHashesAsync(IEnumerable<string> manifestHashes)
+        {
+            var manifests = await indexDbContext.VideoManifests.QueryElementsAsync(
+                elements => elements.Where(m => manifestHashes.Contains(m.Manifest.Hash))
+                                    .ToListAsync());
+
+            logger.GetBulkVideoManifestValidationStatusByHashes(manifestHashes);
+
+            return manifests.Select(m => new VideoManifestStatusDto(m));
+        }
+
+        public async Task<IEnumerable<VideoStatusDto>> GetBulkValidationStatusByIdsAsync(IEnumerable<string> videoIds)
+        {
+            var videos = await indexDbContext.Videos.QueryElementsAsync(
+                elements => elements.Where(v => videoIds.Contains(v.Id))
+                                    .ToListAsync());
+
+            logger.GetBulkVideoValidationStatusByIds(videoIds);
+
+            return videos.Select(v => new VideoStatusDto(v));
+        }
+
+        public async Task<PaginatedEnumerableDto<VideoPreviewDto>> GetLastUploadedVideosAsync(int page, int take)
         {
             // Get videos with valid manifest.
             var paginatedVideos = await indexDbContext.Videos.QueryPaginatedElementsAsync(
@@ -205,22 +227,20 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
                 true);
 
             // Get user info from video selected
-            var videoDtos = new List<VideoDto>();
+            var videoPreviews = new List<VideoPreviewDto>();
             foreach (var video in paginatedVideos.Elements)
             {
                 var ownerSharedInfo = await sharedDbContext.UsersInfo.FindOneAsync(video.Owner.SharedInfoId);
-                videoDtos.Add(new VideoDto(
+                videoPreviews.Add(new VideoPreviewDto(
                     video,
-                    video.LastValidManifest,
-                    ownerSharedInfo,
-                    null));
+                    ownerSharedInfo));
             }
 
             logger.GetLastUploadedVideos(page, take);
 
-            return new PaginatedEnumerableDto<VideoDto>(
+            return new PaginatedEnumerableDto<VideoPreviewDto>(
                 paginatedVideos.CurrentPage,
-                videoDtos,
+                videoPreviews,
                 paginatedVideos.PageSize,
                 paginatedVideos.TotalElements);
         }
@@ -229,19 +249,21 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         {
             var manifest = await indexDbContext.VideoManifests.FindOneAsync(i => i.Manifest.Hash == hash);
 
+            logger.GetVideoManifestValidationStatusByHash(hash);
+
             return new VideoManifestStatusDto(manifest);
         }
 
-
-        public async Task<IEnumerable<VideoManifestStatusDto>> GetValidationStatusByIdAsync(string videoId)
+        public async Task<VideoStatusDto> GetValidationStatusByIdAsync(string videoId)
         {
-            var manifest = await indexDbContext.Videos.FindOneAsync(i => i.Id == videoId);
+            var video = await indexDbContext.Videos.FindOneAsync(i => i.Id == videoId);
 
-            return manifest.VideoManifests
-                .Select(i => new VideoManifestStatusDto(i));
+            logger.GetVideoValidationStatusById(videoId);
+
+            return new VideoStatusDto(video);
         }
 
-        public async Task<PaginatedEnumerableDto<CommentDto>> GetVideoCommentsAsync(string id, int page, int take)
+        public async Task<PaginatedEnumerableDto<Comment2Dto>> GetVideoCommentsAsync(string id, int page, int take)
         {
             var paginatedComments = await indexDbContext.Comments.QueryPaginatedElementsAsync(
                 elements => elements.Where(c => c.Video.Id == id),
@@ -250,17 +272,17 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
                 take,
                 true);
 
-            var commentDtos = new List<CommentDto>();
+            var commentDtos = new List<Comment2Dto>();
             foreach (var comment in paginatedComments.Elements)
             {
                 var author = await indexDbContext.Users.FindOneAsync(comment.Author.Id);
                 var authorSharedInfo = await sharedDbContext.UsersInfo.FindOneAsync(author.SharedInfoId);
-                commentDtos.Add(new CommentDto(comment, authorSharedInfo));
+                commentDtos.Add(new Comment2Dto(comment, authorSharedInfo));
             }
 
             logger.GetVideoComments(id, page, take);
 
-            return new PaginatedEnumerableDto<CommentDto>(
+            return new PaginatedEnumerableDto<Comment2Dto>(
                 paginatedComments.CurrentPage,
                 commentDtos,
                 paginatedComments.PageSize,
@@ -299,34 +321,26 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             }
         }
 
-        public async Task<VideoManifestDto> UpdateAsync(string id, string newHash)
+        public async Task<VideoManifest2Dto> UpdateAsync(string id, string newHash)
+        {
+            var videoManifest = await UpdateCommonAsync(id, newHash);
+            return new VideoManifest2Dto(videoManifest);
+        }
+
+        public async Task UpdateCommentAsync(string commentId, string text)
         {
             // Get data.
             var address = await ethernaOidcClient.GetEtherAddressAsync();
             var (currentUser, _) = await userService.FindUserAsync(address);
 
-            var video = await indexDbContext.Videos.FindOneAsync(id);
+            var comment = await indexDbContext.Comments.FindOneAsync(commentId);
+            if (comment.Author.Id != currentUser.Id)
+                throw new UnauthorizedAccessException("Only the owner of comment can update the content");
 
-            // Verify authz.
-            if (video.Owner.Id != currentUser.Id)
-                throw new UnauthorizedAccessException("User is not owner of the video");
-
-            // Create videoManifest.
-            var videoManifest = new VideoManifest(newHash);
-            await indexDbContext.VideoManifests.CreateAsync(videoManifest);
-
-            // Add manifest to video.
-            video.AddManifest(videoManifest);
+            comment.EditByAuthor(text);
+            
             await indexDbContext.SaveChangesAsync();
-
-            // Create Validation Manifest Task.
-            backgroundJobClient.Create<IVideoManifestValidatorTask>(
-                task => task.RunAsync(video.Id, newHash),
-                new EnqueuedState(Queues.METADATA_VIDEO_VALIDATOR));
-
-            logger.UpdateVideo(id, newHash);
-
-            return new VideoManifestDto(videoManifest);
+            logger.UpdatedComment(commentId);
         }
 
         public async Task VoteVideAsync(string id, VoteValue value)
@@ -364,6 +378,143 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             await indexDbContext.SaveChangesAsync();
 
             logger.VideoVoted(user.Id, id);
+        }
+
+        //deprecated
+        [Obsolete("Used only for API backwards compatibility")]
+        public async Task<VideoDto> FindByIdAsync_old(string id)
+        {
+            // Get Video.
+            var video = await indexDbContext.Videos.FindOneAsync(v => v.Id == id);
+
+            // Get VideoManifest.
+            var lastValidManifest = video.LastValidManifest;
+
+            // Get Owner User.
+            var ownerSharedInfo = await sharedDbContext.UsersInfo.FindOneAsync(video.Owner.SharedInfoId);
+
+            // Get Current User and Vote
+            VideoVote? currentUserVideoVote = null;
+            var etherAddress = await ethernaOidcClient.TryGetEtherAddressAsync();
+            if (etherAddress is not null)
+            {
+                var (currentUser, _) = await userService.FindUserAsync(etherAddress);
+                currentUserVideoVote = await indexDbContext.Votes.TryFindOneAsync(v => v.Video.Id == id &&
+                                                                                       v.Owner.Id == currentUser.Id);
+            }
+
+            logger.FindVideoById(id);
+
+            return new VideoDto(video, lastValidManifest, ownerSharedInfo, currentUserVideoVote);
+        }
+
+        [Obsolete("Used only for API backwards compatibility")]
+        public async Task<VideoDto> FindByManifestHashAsync_old(string hash)
+        {
+            // Get Video.
+            var videoManifest = await indexDbContext.VideoManifests.FindOneAsync(vm => vm.Manifest.Hash == hash);
+
+            // Get VideoManifest.
+            var video = await indexDbContext.Videos.FindOneAsync(v => v.VideoManifests.Any(vm => vm.Id == videoManifest.Id));
+
+            // Get Owner User.
+            var ownerSharedInfo = await sharedDbContext.UsersInfo.FindOneAsync(video.Owner.SharedInfoId);
+
+            // Get Current User and Vote
+            VideoVote? currentUserVideoVote = null;
+            var etherAddress = await ethernaOidcClient.TryGetEtherAddressAsync();
+            if (etherAddress is not null)
+            {
+                var (currentUser, _) = await userService.FindUserAsync(etherAddress);
+                currentUserVideoVote = await indexDbContext.Votes.TryFindOneAsync(v => v.Video.Id == video.Id &&
+                                                                                       v.Owner.Id == currentUser.Id);
+            }
+
+            logger.FindManifestByHash(hash);
+
+            return new VideoDto(video, videoManifest, ownerSharedInfo, currentUserVideoVote);
+        }
+
+        [Obsolete("Used only for API backwards compatibility")]
+        public async Task<PaginatedEnumerableDto<VideoDto>> GetLastUploadedVideosAsync_old(int page, int take)
+        {
+            // Get videos with valid manifest.
+            var paginatedVideos = await indexDbContext.Videos.QueryPaginatedElementsAsync(
+                elements => elements.Where(v => v.LastValidManifest != null),
+                v => v.CreationDateTime,
+                page,
+                take,
+                true);
+
+            // Get user info from video selected
+            var videoDtos = new List<VideoDto>();
+            foreach (var video in paginatedVideos.Elements)
+            {
+                var ownerSharedInfo = await sharedDbContext.UsersInfo.FindOneAsync(video.Owner.SharedInfoId);
+                videoDtos.Add(new VideoDto(
+                    video,
+                    video.LastValidManifest,
+                    ownerSharedInfo,
+                    null));
+            }
+
+            logger.GetLastUploadedVideos(page, take);
+
+            return new PaginatedEnumerableDto<VideoDto>(
+                paginatedVideos.CurrentPage,
+                videoDtos,
+                paginatedVideos.PageSize,
+                paginatedVideos.TotalElements);
+        }
+
+        [Obsolete("Used only for API backwards compatibility")]
+        public async Task<PaginatedEnumerableDto<CommentDto>> GetVideoCommentsAsync_old(string id, int page, int take)
+        {
+            var paginatedComments = await GetVideoCommentsAsync(id, page, take);
+
+            return new PaginatedEnumerableDto<CommentDto>(
+                paginatedComments.CurrentPage,
+                paginatedComments.Elements.Select(c => new CommentDto(c)),
+                paginatedComments.PageSize,
+                paginatedComments.TotalElements);
+        }
+
+        [Obsolete("Used only for API backwards compatibility")]
+        public async Task<VideoManifestDto> UpdateAsync_old(string id, string newHash)
+        {
+            var videoManifest = await UpdateCommonAsync(id, newHash);
+            return new VideoManifestDto(videoManifest);
+        }
+
+        // Helpers.
+        private async Task<VideoManifest> UpdateCommonAsync(string id, string newHash)
+        {
+            // Get data.
+            var address = await ethernaOidcClient.GetEtherAddressAsync();
+            var (currentUser, _) = await userService.FindUserAsync(address);
+
+            var video = await indexDbContext.Videos.FindOneAsync(id);
+
+            // Verify authz.
+            if (video.Owner.Id != currentUser.Id)
+                throw new UnauthorizedAccessException("User is not owner of the video");
+
+            // Create videoManifest.
+            var videoManifest = new VideoManifest(newHash);
+            await indexDbContext.VideoManifests.CreateAsync(videoManifest);
+
+            // Add manifest to video.
+            video.AddManifest(videoManifest);
+            await indexDbContext.SaveChangesAsync();
+
+            // Create Validation Manifest Task.
+            backgroundJobClient.Create<IVideoManifestValidatorTask>(
+                task => task.RunAsync(video.Id, newHash),
+                new EnqueuedState(Queues.METADATA_VIDEO_VALIDATOR));
+
+            logger.UpdatedVideo(id, newHash);
+
+            return videoManifest;
         }
     }
 }
