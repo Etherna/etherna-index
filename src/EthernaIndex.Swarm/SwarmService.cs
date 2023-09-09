@@ -59,7 +59,7 @@ namespace Etherna.EthernaIndex.Swarm
             SwarmSettings = swarmSettings.Value;
             BeeNodeClient = new BeeNodeClient(
                 SwarmSettings.GatewayUrl,
-                gatewayApiVersion: GatewayApiVersion.v4_0_0);
+                gatewayApiVersion: GatewayApiVersion.v5_0_0);
         }
 
         // Methods.
@@ -88,7 +88,11 @@ namespace Etherna.EthernaIndex.Swarm
                 throw new InvalidOperationException(nameof(BeeNodeClient.GatewayClient));
 
 #if !DEBUG_MOCKUP_SWARM
-            using var manifestStream = await BeeNodeClient.GatewayClient.GetFileAsync(manifestHash);
+            var manifestData = await BeeNodeClient.GatewayClient.GetFileAsync(manifestHash);
+            if (manifestData.IsFeed)
+                throw new VideoManifestValidationException(new[] { new ValidationError(ValidationErrorType.IsFeedContent, "Content is on a feed") });
+
+            using var manifestStream = manifestData.Stream;
             var jsonElementManifest = await JsonSerializer.DeserializeAsync<JsonElement>(manifestStream);
 
             return await DeserializeVideoMetadataAsync(manifestHash, jsonElementManifest);
@@ -153,7 +157,8 @@ namespace Etherna.EthernaIndex.Swarm
 #endif
 
         // Helpers.
-        private VideoManifestMetadataV1 DeserializeVideoMetadataV1(JsonElement jsonElementManifest)
+        private VideoManifestMetadataV1 DeserializeVideoMetadataV1(
+            JsonElement jsonElementManifest)
         {
             var manifestDto = jsonElementManifest.Deserialize<VideoManifestV1Dto>(
                 new JsonSerializerOptions
@@ -194,7 +199,7 @@ namespace Etherna.EthernaIndex.Swarm
                 }) ?? throw new VideoManifestValidationException(new[] { new ValidationError(ValidationErrorType.JsonConvert, "Empty json preview") });
 
             // Get detail dto.
-            using var manifestDetailStream = await BeeNodeClient.GatewayClient.GetFileAsync($"{manifestHash}/details");
+            using var manifestDetailStream = (await BeeNodeClient.GatewayClient.GetFileAsync($"{manifestHash}/details")).Stream;
             var manifestDetailDto = await JsonSerializer.DeserializeAsync<VideoManifestDetailV2Dto>(
                 manifestDetailStream,
                 new JsonSerializerOptions

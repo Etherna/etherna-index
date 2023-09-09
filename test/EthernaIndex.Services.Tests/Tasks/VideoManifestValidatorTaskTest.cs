@@ -24,6 +24,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
@@ -245,6 +246,30 @@ namespace EthernaIndex.Services.Tests.Tasks
             Assert.Contains(video.VideoManifests,
                 i => i.Manifest.Hash == manifestHash);
             Assert.Equal(manifestHash, video.LastValidManifest!.Manifest.Hash);
+        }
+
+        [Fact]
+        public async Task FailValidationWithFeed()
+        {
+            // Arrange.
+            swarmService
+                .Setup(x => x.GetVideoMetadataAsync(manifestHash))
+                .Throws(new VideoManifestValidationException(new[] { new ValidationError(ValidationErrorType.IsFeedContent, "Content is on a feed") }));
+
+
+            // Action.
+            await videoManifestValidatorTask.RunAsync(videoId, manifestHash);
+
+
+            // Assert.
+            Assert.False(videoManifest.IsValid);
+            Assert.NotNull(videoManifest.ValidationTime);
+            Assert.Contains(videoManifest.ValidationErrors,
+                i => i.ErrorMessage == "Content is on a feed" &&
+                    i.ErrorType == ValidationErrorType.IsFeedContent);
+            Assert.Contains(video.VideoManifests,
+                i => i.Manifest.Hash == manifestHash);
+            Assert.Null(video.LastValidManifest);
         }
     }
 }
