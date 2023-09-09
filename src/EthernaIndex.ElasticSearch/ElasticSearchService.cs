@@ -1,11 +1,11 @@
 ﻿//   Copyright 2021-present Etherna Sagl
-//
+// 
 //   Licensed under the Apache License, Version 2.0 (the "License");
 //   you may not use this file except in compliance with the License.
 //   You may obtain a copy of the License at
-//
+// 
 //       http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 //   Unless required by applicable law or agreed to in writing, software
 //   distributed under the License is distributed on an "AS IS" BASIS,
 //   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -84,7 +84,7 @@ namespace Etherna.EthernaIndex.ElasticSearch
         public async Task RemoveVideoIndexAsync(string videoId) =>
             await elasticClient.DeleteAsync<VideoDocument>(videoId);
 
-        public async Task<IEnumerable<VideoDocument>> SearchVideoAsync(string query, int page, int take)
+        public async Task<(IEnumerable<VideoDocument> Results, long TotalElements)> SearchVideoAsync(string query, int page, int take)
         {
             if (string.IsNullOrWhiteSpace(query))
                 throw new ArgumentNullException(query);
@@ -100,9 +100,10 @@ namespace Etherna.EthernaIndex.ElasticSearch
                     mu.Wildcard(f => f.Description, $"*{query.ToLowerInvariant()}*"))
                 ))
                 .From(page * take)
-                .Size(take));
+                .Size(take)
+                .TrackTotalHits(true));
 
-            return searchResponse.Documents;
+            return (searchResponse.Documents, searchResponse.Total);
         }
 
     }

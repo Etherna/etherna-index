@@ -1,11 +1,11 @@
 ﻿//   Copyright 2021-present Etherna Sagl
-//
+// 
 //   Licensed under the Apache License, Version 2.0 (the "License");
 //   you may not use this file except in compliance with the License.
 //   You may obtain a copy of the License at
-//
+// 
 //       http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 //   Unless required by applicable law or agreed to in writing, software
 //   distributed under the License is distributed on an "AS IS" BASIS,
 //   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -49,7 +49,8 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                                 (string)titleObj : "";
                             var description = m.ExtraElements.TryGetValue("Description", out var descriptionObj) ?
                                 (string)descriptionObj : "";
-                            var duration = (long)(m.ExtraElements["Duration"] ?? 0L);
+                            var duration = m.ExtraElements.TryGetValue("Duration", out var durationObj) ?
+                                (long)(durationObj ?? 0L) : 0L;
                             var sources = m.ExtraElements.TryGetValue("Sources", out var sourcesObj) ?
                                 new ExtraElementsSerializer(dbContext).DeserializeValue<List<VideoSourceV1>>(sourcesObj) :
                                 new List<VideoSourceV1>();
@@ -106,7 +107,8 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                                 (string)titleObj : "";
                             var description = m.ExtraElements.TryGetValue("Description", out var descriptionObj) ?
                                 (string)descriptionObj : "";
-                            var duration = (long)(double)(m.ExtraElements["Duration"] ?? 0.0); //was double
+                            var duration = m.ExtraElements.TryGetValue("Duration", out var durationObj) ?
+                                (long)(double)(durationObj ?? 0.0) : 0L; //was double
                             var sources = m.ExtraElements.TryGetValue("Sources", out var sourcesObj) ?
                                 new ExtraElementsSerializer(dbContext).DeserializeValue<List<VideoSourceV1>>(sourcesObj) :
                                 new List<VideoSourceV1>();
@@ -163,7 +165,8 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                                 (string)titleObj : "";
                             var description = m.ExtraElements.TryGetValue("Description", out var descriptionObj) ?
                                 (string)descriptionObj : "";
-                            var duration = (long)(double)(m.ExtraElements["Duration"] ?? 0.0); //was double
+                            var duration = m.ExtraElements.TryGetValue("Duration", out var durationObj) ?
+                                (long)(double)(durationObj ?? 0.0) : 0L; //was double
                             var sources = m.ExtraElements.TryGetValue("Sources", out var sourcesObj) ?
                                 new ExtraElementsSerializer(dbContext).DeserializeValue<List<VideoSourceV1>>(sourcesObj) :
                                 new List<VideoSourceV1>();

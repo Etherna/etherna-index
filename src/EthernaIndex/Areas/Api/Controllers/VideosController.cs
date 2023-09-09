@@ -1,11 +1,11 @@
 ﻿//   Copyright 2021-present Etherna Sagl
-//
+// 
 //   Licensed under the Apache License, Version 2.0 (the "License");
 //   you may not use this file except in compliance with the License.
 //   You may obtain a copy of the License at
-//
+// 
 //       http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 //   Unless required by applicable law or agreed to in writing, software
 //   distributed under the License is distributed on an "AS IS" BASIS,
 //   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -78,7 +78,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// <param name="take">Number of items to retrieve. Max 100</param>
         /// <response code="200">Current page on list</response>
         [HttpGet("{id}/comments")]
-        [Obsolete("Use \"{id}/comments2\" instead")]
+        [Obsolete("Use \"{id}/comments3\" instead")]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -87,7 +87,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
             [Required] string id,
             [Range(0, int.MaxValue)] int page,
             [Range(1, 100)] int take = 25) =>
-            (await service.GetVideoCommentsAsync(id, page, take)).Elements;
+            (await service.GetVideoCommentsAsync_old(id, page, take)).Elements;
 
         /// <summary>
         /// Get paginated video comments by id
@@ -97,11 +97,30 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// <param name="take">Number of items to retrieve. Max 100</param>
         /// <response code="200">Current page on list</response>
         [HttpGet("{id}/comments2")]
+        [Obsolete("Use \"{id}/comments3\" instead")]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public Task<PaginatedEnumerableDto<CommentDto>> GetVideoComments2Async(
+            [Required] string id,
+            [Range(0, int.MaxValue)] int page,
+            [Range(1, 100)] int take = 25) =>
+            service.GetVideoCommentsAsync_old(id, page, take);
+        
+        /// <summary>
+        /// Get paginated video comments by id
+        /// </summary>
+        /// <param name="id">Video id</param>
+        /// <param name="page">Current page of results</param>
+        /// <param name="take">Number of items to retrieve. Max 100</param>
+        /// <response code="200">Current page on list</response>
+        [HttpGet("{id}/comments3")]
+        [SimpleExceptionFilter]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public Task<PaginatedEnumerableDto<Comment2Dto>> GetVideoComments3Async(
             [Required] string id,
             [Range(0, int.MaxValue)] int page,
             [Range(1, 100)] int take = 25) =>
@@ -176,7 +195,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public Task<PaginatedEnumerableDto<Video2Dto>> GetLastUploadedVideosAsync(
+        public Task<PaginatedEnumerableDto<VideoPreviewDto>> GetLastUploadedVideosAsync(
             [Range(0, int.MaxValue)] int page,
             [Range(1, 100)] int take = 25) =>
             service.GetLastUploadedVideosAsync(page, take);
@@ -244,12 +263,29 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// <param name="id">Video id</param>
         /// <param name="text">Comment text</param>
         [HttpPost("{id}/comments")]
+        [Obsolete("Use \"{id}/comments2\" instead")]
         [Authorize]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public Task<CommentDto> CreateCommentAsync(
+        public async Task<CommentDto> CreateCommentAsync(
+            [Required] string id,
+            [Required][FromBody] string text) =>
+            new(await service.CreateCommentAsync(id, text));
+
+        /// <summary>
+        /// Create a new comment on a video with current user.
+        /// </summary>
+        /// <param name="id">Video id</param>
+        /// <param name="text">Comment text</param>
+        [HttpPost("{id}/comments2")]
+        [Authorize]
+        [SimpleExceptionFilter]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public Task<Comment2Dto> CreateComment2Async(
             [Required] string id,
             [Required][FromBody] string text) =>
             service.CreateCommentAsync(id, text);
@@ -315,16 +351,17 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
             service.GetBulkValidationStatusByIdsAsync(ids);
 
         /// <summary>
-        /// Update a comment on a video with current user.
+        /// Edit a video comment with current author user.
         /// </summary>
         /// <param name="commentId">Comment id</param>
         /// <param name="text">Comment text</param>
-        [HttpPut("{commentId}/comments")]
+        [HttpPut("comments/{commentId}")]
         [Authorize]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public Task UpdateCommentAsync(
             [Required] string commentId,
             [Required][FromBody] string text) =>

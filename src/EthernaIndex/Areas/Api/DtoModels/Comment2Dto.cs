@@ -15,33 +15,34 @@
 using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.Domain.Models.UserAgg;
 using System;
-using System.Linq;
+using System.Collections.Generic;
 
 namespace Etherna.EthernaIndex.Areas.Api.DtoModels
 {
-    [Obsolete("Used only for API backwards compatibility")]
-    public class CommentDto
+    public class Comment2Dto
     {
-        public CommentDto(Comment2Dto comment)
+        public Comment2Dto(Comment comment, UserSharedInfo userSharedInfo)
         {
             if (comment is null)
                 throw new ArgumentNullException(nameof(comment));
-            
+            if (userSharedInfo is null)
+                throw new ArgumentNullException(nameof(userSharedInfo));
+
             Id = comment.Id;
             CreationDateTime = comment.CreationDateTime;
+            IsEditable = comment.IsEditable;
             IsFrozen = comment.IsFrozen;
-            LastUpdateDateTime = comment.TextHistory.Keys.Max();
-            OwnerAddress = comment.OwnerAddress;
-            Text = comment.TextHistory.MaxBy(p => p.Key).Value;
-            VideoId = comment.VideoId;
+            OwnerAddress = userSharedInfo.EtherAddress;
+            TextHistory = comment.TextHistory;
+            VideoId = comment.Video.Id;
         }
 
         public string Id { get; }
         public DateTime CreationDateTime { get; }
+        public bool IsEditable { get; }
         public bool IsFrozen { get; }
-        public DateTime LastUpdateDateTime { get; }
         public string OwnerAddress { get; }
-        public string Text { get; }
+        public IReadOnlyDictionary<DateTime, string> TextHistory { get; }
         public string VideoId { get; }
     }
 }
