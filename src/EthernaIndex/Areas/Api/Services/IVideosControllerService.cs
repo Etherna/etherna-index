@@ -1,11 +1,11 @@
 ﻿//   Copyright 2021-present Etherna Sagl
-//
+// 
 //   Licensed under the Apache License, Version 2.0 (the "License");
 //   you may not use this file except in compliance with the License.
 //   You may obtain a copy of the License at
-//
+// 
 //       http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 //   Unless required by applicable law or agreed to in writing, software
 //   distributed under the License is distributed on an "AS IS" BASIS,
 //   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,17 +25,18 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
     {
         Task AuthorDeleteAsync(string id);
         Task<string> CreateAsync(VideoCreateInput videoInput);
-        Task<CommentDto> CreateCommentAsync(string id, string text);
+        Task<Comment2Dto> CreateCommentAsync(string id, string text);
         Task<Video2Dto> FindByIdAsync(string id);
         Task<Video2Dto> FindByManifestHashAsync(string hash);
         Task<IEnumerable<VideoManifestStatusDto>> GetBulkValidationStatusByHashesAsync(IEnumerable<string> manifestHashes);
         Task<IEnumerable<VideoStatusDto>> GetBulkValidationStatusByIdsAsync(IEnumerable<string> ids);
-        Task<PaginatedEnumerableDto<Video2Dto>> GetLastUploadedVideosAsync(int page, int take);
+        Task<PaginatedEnumerableDto<VideoPreviewDto>> GetLastUploadedVideosAsync(int page, int take);
         Task<VideoManifestStatusDto> GetValidationStatusByHashAsync(string manifestHash);
         Task<VideoStatusDto> GetValidationStatusByIdAsync(string id);
-        Task<PaginatedEnumerableDto<CommentDto>> GetVideoCommentsAsync(string id, int page, int take);
+        Task<PaginatedEnumerableDto<Comment2Dto>> GetVideoCommentsAsync(string id, int page, int take);
         Task ReportVideoAsync(string videoId, string manifestHash, string description);
         Task<VideoManifest2Dto> UpdateAsync(string id, string newHash);
+        Task UpdateCommentAsync(string commentId, string text);
         Task VoteVideAsync(string id, VoteValue value);
 
         //deprecated
@@ -47,6 +48,9 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
 
         [Obsolete("Used only for API backwards compatibility")]
         Task<PaginatedEnumerableDto<VideoDto>> GetLastUploadedVideosAsync_old(int page, int take);
+        
+        [Obsolete("Used only for API backwards compatibility")]
+        Task<PaginatedEnumerableDto<CommentDto>> GetVideoCommentsAsync_old(string id, int page, int take);
 
         [Obsolete("Used only for API backwards compatibility")]
         Task<VideoManifestDto> UpdateAsync_old(string id, string newHash);

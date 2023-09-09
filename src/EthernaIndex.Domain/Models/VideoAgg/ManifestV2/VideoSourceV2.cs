@@ -1,11 +1,11 @@
 ﻿//   Copyright 2021-present Etherna Sagl
-//
+// 
 //   Licensed under the Apache License, Version 2.0 (the "License");
 //   you may not use this file except in compliance with the License.
 //   You may obtain a copy of the License at
-//
+// 
 //       http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 //   Unless required by applicable law or agreed to in writing, software
 //   distributed under the License is distributed on an "AS IS" BASIS,
 //   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -32,7 +32,8 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2
             var validationErrors = new List<ValidationError>();
 
             //quality
-            if (string.IsNullOrWhiteSpace(quality))
+            if (quality is not null &&
+                string.IsNullOrWhiteSpace(quality))
                 validationErrors.Add(new ValidationError(ValidationErrorType.InvalidVideoSource, "Video source has empty quality"));
 
             //path
@@ -44,7 +45,8 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2
                 validationErrors.Add(new ValidationError(ValidationErrorType.InvalidVideoSource, "Video source has empty type"));
 
             //size
-            if (size <= 0)
+            if (size <= 0 &&
+                !path.EndsWith("/manifest.m3u8", StringComparison.InvariantCultureIgnoreCase))
                 validationErrors.Add(new ValidationError(ValidationErrorType.InvalidVideoSource, "Video source has invalid size"));
 
             // Throws validation exception.

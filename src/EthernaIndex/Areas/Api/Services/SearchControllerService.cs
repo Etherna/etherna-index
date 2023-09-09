@@ -1,11 +1,11 @@
 ﻿//   Copyright 2021-present Etherna Sagl
-//
+// 
 //   Licensed under the Apache License, Version 2.0 (the "License");
 //   you may not use this file except in compliance with the License.
 //   You may obtain a copy of the License at
-//
+// 
 //       http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 //   Unless required by applicable law or agreed to in writing, software
 //   distributed under the License is distributed on an "AS IS" BASIS,
 //   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -46,14 +46,14 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         public void ReindexAllVideos() =>
             backgroundJobClient.Enqueue<IFullVideoReindexTask>(t => t.RunAsync());
 
-        public async Task<IEnumerable<Video2Dto>> SearchVideoAsync(string query, int page, int take)
+        public async Task<PaginatedEnumerableDto<Video2Dto>> SearchVideoAsync(string query, int page, int take)
         {
-            var videoDocuments = await elasticSearchService.SearchVideoAsync(query, page, take);
+            var paginatedVideoDocuments = await elasticSearchService.SearchVideoAsync(query, page, take);
 
             // Get user info from video selected.
             var cacheSharedInfos = new Dictionary<string, UserSharedInfo>();
             var videoDtos = new List<Video2Dto>();
-            foreach (var videoDocument in videoDocuments)
+            foreach (var videoDocument in paginatedVideoDocuments.Results)
             {
                 // Get shared info.
                 if (!cacheSharedInfos.ContainsKey(videoDocument.OwnerSharedInfoId))
@@ -68,7 +68,11 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
                     null));
             }
 
-            return videoDtos;
+            return new PaginatedEnumerableDto<Video2Dto>(
+                page,
+                videoDtos,
+                take,
+                paginatedVideoDocuments.TotalElements);
         }
 
         //deprecated
@@ -80,7 +84,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             // Get user info from video selected.
             var cacheSharedInfos = new Dictionary<string, UserSharedInfo>();
             var videoDtos = new List<VideoDto>();
-            foreach (var videoDocument in videoDocuments)
+            foreach (var videoDocument in videoDocuments.Results)
             {
                 // Get shared info.
                 if (!cacheSharedInfos.ContainsKey(videoDocument.OwnerSharedInfoId))

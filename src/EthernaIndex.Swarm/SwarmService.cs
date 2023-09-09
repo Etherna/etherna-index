@@ -1,11 +1,11 @@
 ﻿//   Copyright 2021-present Etherna Sagl
-//
+// 
 //   Licensed under the Apache License, Version 2.0 (the "License");
 //   you may not use this file except in compliance with the License.
 //   You may obtain a copy of the License at
-//
+// 
 //       http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 //   Unless required by applicable law or agreed to in writing, software
 //   distributed under the License is distributed on an "AS IS" BASIS,
 //   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -233,15 +233,21 @@ namespace Etherna.EthernaIndex.Swarm
                 }) ?? throw new VideoManifestValidationException(new[] { new ValidationError(ValidationErrorType.JsonConvert, "Empty json preview") });
 
             // Get detail dto.
-            using var manifestDetailStream = await BeeNodeClient.GatewayClient.GetFileAsync($"{manifestHash}/detail");
-            var manifestDetailDto = await JsonSerializer.DeserializeAsync<VideoManifestDetailV2Dto>(manifestDetailStream) ??
+            using var manifestDetailStream = await BeeNodeClient.GatewayClient.GetFileAsync($"{manifestHash}/details");
+            var manifestDetailDto = await JsonSerializer.DeserializeAsync<VideoManifestDetailV2Dto>(
+                manifestDetailStream,
+                new JsonSerializerOptions
+                {
+                    Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) },
+                    PropertyNameCaseInsensitive = true,
+                }) ??
                 throw new VideoManifestValidationException(new[] { new ValidationError(ValidationErrorType.JsonConvert, "Empty json detail") });
 
             return new VideoManifestMetadataV2(
                 manifestPreviewDto.Title,
                 manifestDetailDto.Description,
                 manifestPreviewDto.Duration,
-                manifestDetailDto.Sources.Select(s => new VideoSourceV2(s.Path, s.Quality, s.Size, s.Type)),
+                manifestDetailDto.Sources?.Select(s => new VideoSourceV2(s.Path, s.Quality, s.Size, s.Type)) ?? Array.Empty<VideoSourceV2>(),
                 manifestPreviewDto.Thumbnail is null ? null :
                     new ThumbnailV2(
                         manifestPreviewDto.Thumbnail.AspectRatio,
