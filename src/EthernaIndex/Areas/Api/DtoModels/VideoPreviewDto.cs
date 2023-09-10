@@ -12,10 +12,11 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-using System;
 using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.Domain.Models.UserAgg;
 using Etherna.EthernaIndex.ElasticSearch.Documents;
+using System;
+using System.Linq;
 
 namespace Etherna.EthernaIndex.Areas.Api.DtoModels
 {
@@ -37,6 +38,7 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
                 var manifestDto = new VideoManifest2Dto(video.LastValidManifest);
                 CreatedAt = manifestDto.CreatedAt;
                 Duration = manifestDto.Duration;
+                Hash = manifestDto.Hash;
                 Thumbnail = manifestDto.Thumbnail;
                 Title = manifestDto.Title ?? "";
                 UpdatedAt = manifestDto.UpdatedAt;
@@ -53,20 +55,23 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
             if (ownerSharedInfo is null)
                 throw new ArgumentNullException(nameof(ownerSharedInfo));
 
-            var manifestDto = new VideoManifest2Dto(videoDocument);
             Id = videoDocument.Id;
-            CreatedAt = manifestDto.CreatedAt;
-            Duration = manifestDto.Duration;
+            Duration = videoDocument.Duration;
+            Hash = videoDocument.ManifestHash;
             OwnerAddress = ownerSharedInfo.EtherAddress;
-            Thumbnail = manifestDto.Thumbnail;
-            Title = manifestDto.Title;
-            UpdatedAt = manifestDto.UpdatedAt;
+            if (videoDocument.Thumbnail is not null)
+                Thumbnail = new Image2Dto(
+                    videoDocument.Thumbnail.AspectRatio,
+                    videoDocument.Thumbnail.Blurhash,
+                    videoDocument.Thumbnail.Sources.Select(s => new ImageSourceDto(s.Type, s.Path, s.Width)));
+            Title = videoDocument.Title;
         }
 
         // Properties.
         public string Id { get; }
         public long? CreatedAt { get; }
         public long? Duration { get; }
+        public string? Hash { get; }
         public string OwnerAddress { get; }
         public Image2Dto? Thumbnail { get; }
         public string? Title { get; }

@@ -94,34 +94,6 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
             }
         }
 
-        public VideoManifest2Dto(
-            VideoDocument videoDocument)
-        {
-            if (videoDocument is null)
-                throw new ArgumentNullException(nameof(videoDocument));
-
-            BatchId = videoDocument.BatchId;
-            Description = videoDocument.Description;
-            Duration = videoDocument.Duration;
-            Hash = videoDocument.ManifestHash;
-            PersonalData = videoDocument.PersonalData;
-            OriginalQuality = videoDocument.OriginalQuality;
-            Sources = videoDocument.Sources
-                .Select(i => new VideoSourceDto(
-                    i.Type,
-                    i.Quality,
-                    i.Path,
-                    i.Size));
-
-            if (videoDocument.Thumbnail is not null)
-                Thumbnail = new Image2Dto(
-                    videoDocument.Thumbnail.AspectRatio,
-                    videoDocument.Thumbnail.Blurhash,
-                    videoDocument.Thumbnail.Sources.Select(s => new ImageSourceDto(s.Type, s.Path, s.Width)));
-
-            Title = videoDocument.Title;
-        }
-
         // Properties.
         public float AspectRatio { get; }
         public string? BatchId { get; }
@@ -129,7 +101,6 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
         public string? Description { get; }
         public long? Duration { get; }
         public string Hash { get; }
-        public string? OriginalQuality { get; }
         public string? PersonalData { get; }
         public IEnumerable<VideoSourceDto> Sources { get; }
         public Image2Dto? Thumbnail { get; }
