@@ -12,6 +12,7 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
+using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg;
 using System;
 using System.Collections.Generic;
@@ -22,16 +23,24 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
     public class VideoManifestStatusDto
     {
         // Constructors.
-        public VideoManifestStatusDto(VideoManifest videoManifest)
+        public VideoManifestStatusDto(
+            Video video,
+            VideoManifest videoManifest)
         {
+            if (video == null)
+                throw new ArgumentNullException(nameof(video));
             if (videoManifest is null)
                 throw new ArgumentNullException(nameof(videoManifest));
+
+            if (!video.VideoManifests.Contains(videoManifest))
+                throw new InvalidOperationException("Video must contain the manifest");
 
             ErrorDetails = videoManifest.ValidationErrors
                 .Select(i => new ErrorDetailDto(i.ErrorMessage, i.ErrorType));
             Hash = videoManifest.Manifest.Hash;
             IsValid = videoManifest.IsValid;
             ValidationTime = videoManifest.ValidationTime;
+            VideoId = video.Id;
         }
 
         // Properties.
@@ -39,5 +48,6 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
         public string Hash { get; private set; }
         public bool? IsValid { get; private set; }
         public DateTime? ValidationTime { get; private set; }
+        public string VideoId { get; private set; }
     }
 }
