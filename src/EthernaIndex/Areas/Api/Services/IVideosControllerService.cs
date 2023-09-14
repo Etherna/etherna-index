@@ -29,10 +29,10 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         Task<Video2Dto> FindByIdAsync(string id);
         Task<Video2Dto> FindByManifestHashAsync(string hash);
         Task<IEnumerable<VideoManifestStatusDto>> GetBulkValidationStatusByHashesAsync(IEnumerable<string> manifestHashes);
-        Task<IEnumerable<VideoStatusDto>> GetBulkValidationStatusByIdsAsync(IEnumerable<string> ids);
+        Task<IEnumerable<VideoManifestStatusDto>> GetBulkValidationStatusByIdsAsync(IEnumerable<string> ids);
         Task<PaginatedEnumerableDto<VideoPreviewDto>> GetLastUploadedVideosAsync(int page, int take);
         Task<VideoManifestStatusDto> GetValidationStatusByHashAsync(string manifestHash);
-        Task<VideoStatusDto> GetValidationStatusByIdAsync(string id);
+        Task<IEnumerable<VideoManifestStatusDto>> GetValidationStatusByIdAsync(string id);
         Task<PaginatedEnumerableDto<Comment2Dto>> GetVideoCommentsAsync(string id, int page, int take);
         Task ReportVideoAsync(string videoId, string manifestHash, string description);
         Task<VideoManifest2Dto> UpdateAsync(string id, string newHash);
@@ -47,7 +47,13 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         Task<VideoDto> FindByManifestHashAsync_old(string hash);
 
         [Obsolete("Used only for API backwards compatibility")]
+        Task<IEnumerable<VideoStatusDto>> GetBulkValidationStatusByIdsAsync_old(IEnumerable<string> ids);
+
+        [Obsolete("Used only for API backwards compatibility")]
         Task<PaginatedEnumerableDto<VideoDto>> GetLastUploadedVideosAsync_old(int page, int take);
+
+        [Obsolete("Used only for API backwards compatibility")]
+        Task<VideoStatusDto> GetValidationStatusByIdAsync_old(string id);
         
         [Obsolete("Used only for API backwards compatibility")]
         Task<PaginatedEnumerableDto<CommentDto>> GetVideoCommentsAsync_old(string id, int page, int take);

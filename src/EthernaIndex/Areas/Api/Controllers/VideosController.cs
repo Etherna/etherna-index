@@ -131,25 +131,39 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// </summary>
         /// <param name="id">The video id</param>
         [HttpGet("{id}/validations")]
-        [Obsolete("Use \"{id}/validation\" instead")]
+        [Obsolete("Use \"{id}/validation2\" instead")]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IEnumerable<VideoManifestStatusDto>> ValidationsStatusByIdAsync_old(
             [Required] string id) =>
-            (await service.GetValidationStatusByIdAsync(id)).ManifestsStatus;
+            (await service.GetValidationStatusByIdAsync_old(id)).ManifestsStatus;
 
         /// <summary>
         /// Get validation info by id.
         /// </summary>
         /// <param name="id">The video id</param>
         [HttpGet("{id}/validation")]
+        [Obsolete("Use \"{id}/validation2\" instead")]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public Task<VideoStatusDto> ValidationsStatusByIdAsync(
+        public Task<VideoStatusDto> ValidationsStatusByIdAsync_old2(
+            [Required] string id) =>
+            service.GetValidationStatusByIdAsync_old(id);
+
+        /// <summary>
+        /// Get validation info by id.
+        /// </summary>
+        /// <param name="id">The video id</param>
+        [HttpGet("{id}/validation2")]
+        [SimpleExceptionFilter]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public Task<IEnumerable<VideoManifestStatusDto>> ValidationsStatusByIdAsync(
             [Required] string id) =>
             service.GetValidationStatusByIdAsync(id);
 
@@ -343,10 +357,23 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// </summary>
         /// <param name="ids">The list of video id</param>
         [HttpPut("bulkValidation")]
+        [Obsolete("Use \"bulkValidation2\" instead")]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public Task<IEnumerable<VideoStatusDto>> GetBulkValidationStatusByIdsAsync(
+        public Task<IEnumerable<VideoStatusDto>> GetBulkValidationStatusByIdsAsync_old(
+            [Required][FromBody] IEnumerable<string> ids) =>
+            service.GetBulkValidationStatusByIdsAsync_old(ids);
+
+        /// <summary>
+        /// Get bulk validation info by multiple video ids.
+        /// </summary>
+        /// <param name="ids">The list of video id</param>
+        [HttpPut("bulkValidation2")]
+        [SimpleExceptionFilter]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public Task<IEnumerable<VideoManifestStatusDto>> GetBulkValidationStatusByIdsAsync(
             [Required][FromBody] IEnumerable<string> ids) =>
             service.GetBulkValidationStatusByIdsAsync(ids);
 

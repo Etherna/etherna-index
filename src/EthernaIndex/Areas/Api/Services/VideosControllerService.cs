@@ -170,10 +170,10 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
 
         public async Task<Video2Dto> FindByManifestHashAsync(string hash)
         {
-            // Get Video.
+            // Get VideoManifest.
             var videoManifest = await indexDbContext.VideoManifests.FindOneAsync(vm => vm.Manifest.Hash == hash);
 
-            // Get VideoManifest.
+            // Get Video.
             var video = await indexDbContext.Videos.FindOneAsync(v => v.VideoManifests.Any(vm => vm.Id == videoManifest.Id));
 
             // Get Owner User.
@@ -196,16 +196,22 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
 
         public async Task<IEnumerable<VideoManifestStatusDto>> GetBulkValidationStatusByHashesAsync(IEnumerable<string> manifestHashes)
         {
-            var manifests = await indexDbContext.VideoManifests.QueryElementsAsync(
+            var videoManifests = await indexDbContext.VideoManifests.QueryElementsAsync(
                 elements => elements.Where(m => manifestHashes.Contains(m.Manifest.Hash))
+                                    .ToListAsync());
+            var videoManifestsIds = videoManifests.Select(vm => vm.Id);
+            var videos = await indexDbContext.Videos.QueryElementsAsync(
+                elements => elements.Where(v => v.VideoManifests.Any(vm => videoManifestsIds.Contains(vm.Id)))
                                     .ToListAsync());
 
             logger.GetBulkVideoManifestValidationStatusByHashes(manifestHashes);
 
-            return manifests.Select(m => new VideoManifestStatusDto(m));
+            return videoManifests.Select(m => new VideoManifestStatusDto(
+                videos.First(v => v.VideoManifests.Any(vm => vm.Id == m.Id)),
+                m));
         }
 
-        public async Task<IEnumerable<VideoStatusDto>> GetBulkValidationStatusByIdsAsync(IEnumerable<string> videoIds)
+        public async Task<IEnumerable<VideoManifestStatusDto>> GetBulkValidationStatusByIdsAsync(IEnumerable<string> videoIds)
         {
             var videos = await indexDbContext.Videos.QueryElementsAsync(
                 elements => elements.Where(v => videoIds.Contains(v.Id))
@@ -213,7 +219,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
 
             logger.GetBulkVideoValidationStatusByIds(videoIds);
 
-            return videos.Select(v => new VideoStatusDto(v));
+            return videos.SelectMany(v => v.VideoManifests.Select(vm => new VideoManifestStatusDto(v, vm)));
         }
 
         public async Task<PaginatedEnumerableDto<VideoPreviewDto>> GetLastUploadedVideosAsync(int page, int take)
@@ -248,19 +254,20 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         public async Task<VideoManifestStatusDto> GetValidationStatusByHashAsync(string hash)
         {
             var manifest = await indexDbContext.VideoManifests.FindOneAsync(i => i.Manifest.Hash == hash);
+            var video = await indexDbContext.Videos.FindOneAsync(v => v.VideoManifests.Any(vm => vm.Id == manifest.Id));
 
             logger.GetVideoManifestValidationStatusByHash(hash);
 
-            return new VideoManifestStatusDto(manifest);
+            return new VideoManifestStatusDto(video, manifest);
         }
 
-        public async Task<VideoStatusDto> GetValidationStatusByIdAsync(string videoId)
+        public async Task<IEnumerable<VideoManifestStatusDto>> GetValidationStatusByIdAsync(string videoId)
         {
             var video = await indexDbContext.Videos.FindOneAsync(i => i.Id == videoId);
 
             logger.GetVideoValidationStatusById(videoId);
 
-            return new VideoStatusDto(video);
+            return video.VideoManifests.Select(vm => new VideoManifestStatusDto(video, vm));
         }
 
         public async Task<PaginatedEnumerableDto<Comment2Dto>> GetVideoCommentsAsync(string id, int page, int take)
@@ -436,6 +443,18 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         }
 
         [Obsolete("Used only for API backwards compatibility")]
+        public async Task<IEnumerable<VideoStatusDto>> GetBulkValidationStatusByIdsAsync_old(IEnumerable<string> videoIds)
+        {
+            var videos = await indexDbContext.Videos.QueryElementsAsync(
+                elements => elements.Where(v => videoIds.Contains(v.Id))
+                    .ToListAsync());
+
+            logger.GetBulkVideoValidationStatusByIds(videoIds);
+
+            return videos.Select(v => new VideoStatusDto(v));
+        }
+
+        [Obsolete("Used only for API backwards compatibility")]
         public async Task<PaginatedEnumerableDto<VideoDto>> GetLastUploadedVideosAsync_old(int page, int take)
         {
             // Get videos with valid manifest.
@@ -465,6 +484,16 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
                 videoDtos,
                 paginatedVideos.PageSize,
                 paginatedVideos.TotalElements);
+        }
+
+        [Obsolete("Used only for API backwards compatibility")]
+        public async Task<VideoStatusDto> GetValidationStatusByIdAsync_old(string videoId)
+        {
+            var video = await indexDbContext.Videos.FindOneAsync(i => i.Id == videoId);
+
+            logger.GetVideoValidationStatusById(videoId);
+
+            return new VideoStatusDto(video);
         }
 
         [Obsolete("Used only for API backwards compatibility")]
