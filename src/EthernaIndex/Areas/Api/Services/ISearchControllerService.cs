@@ -22,7 +22,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
     public interface ISearchControllerService
     {
         void ReindexAllVideos();
-        Task<PaginatedEnumerableDto<Video2Dto>> SearchVideoAsync(string query, int page, int take);
+        Task<PaginatedEnumerableDto<Video2GenericManifestDto>> SearchVideoAsync(string query, int page, int take);
 
         //deprecated
         [Obsolete("Used only for API backwards compatibility")]

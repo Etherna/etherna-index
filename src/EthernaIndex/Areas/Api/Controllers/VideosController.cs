@@ -223,7 +223,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public Task<Video2Dto> FindByManifestHashAsync(
+        public Task<Video2GenericManifestDto> FindByManifestHashAsync(
             [Required] string hash) =>
             service.FindByManifestHashAsync(hash);
 

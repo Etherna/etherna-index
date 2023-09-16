@@ -168,7 +168,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             return new Video2Dto(video, lastValidManifest, ownerSharedInfo, currentUserVideoVote);
         }
 
-        public async Task<Video2Dto> FindByManifestHashAsync(string hash)
+        public async Task<Video2GenericManifestDto> FindByManifestHashAsync(string hash)
         {
             // Get Video.
             var videoManifest = await indexDbContext.VideoManifests.FindOneAsync(vm => vm.Manifest.Hash == hash);
@@ -191,7 +191,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
 
             logger.FindManifestByHash(hash);
 
-            return new Video2Dto(video, videoManifest, ownerSharedInfo, currentUserVideoVote);
+            return new Video2GenericManifestDto(video, videoManifest, ownerSharedInfo, currentUserVideoVote);
         }
 
         public async Task<IEnumerable<VideoManifestStatusDto>> GetBulkValidationStatusByHashesAsync(IEnumerable<string> manifestHashes)
