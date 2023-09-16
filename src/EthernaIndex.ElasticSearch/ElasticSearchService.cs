@@ -18,6 +18,7 @@ using Etherna.EthernaIndex.ElasticSearch.Documents;
 using Nest;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.ElasticSearch
@@ -84,6 +85,21 @@ namespace Etherna.EthernaIndex.ElasticSearch
         public async Task RemoveVideoIndexAsync(string videoId) =>
             await elasticClient.DeleteAsync<VideoDocument>(videoId);
 
+        public async Task<IEnumerable<string>> SearchVideoIndexBeforeAsync(DateTime updateDate)
+        {
+            var searchResponse = await elasticClient.SearchAsync<VideoDocument>(s => s
+                .Query(q => q
+                    .DateRange(r => r
+                        .Field(f => f.IndexingDateTime)
+                            .LessThan(updateDate)))
+                .Source(sf => sf
+                    .Includes(i => i
+                        .Field(f => f.Id))
+                ));
+
+            return searchResponse.Documents.Select(d => d.Id);
+        }
+
         public async Task<(IEnumerable<VideoDocument> Results, long TotalElements)> SearchVideoAsync(string query, int page, int take)
         {
             if (string.IsNullOrWhiteSpace(query))
@@ -105,6 +121,5 @@ namespace Etherna.EthernaIndex.ElasticSearch
 
             return (searchResponse.Documents, searchResponse.Total);
         }
-
     }
 }

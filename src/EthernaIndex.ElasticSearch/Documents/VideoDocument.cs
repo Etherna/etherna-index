@@ -41,6 +41,7 @@ namespace Etherna.EthernaIndex.ElasticSearch.Documents
 
             Id = video.Id;
             CreationDateTime = video.LastValidManifest.CreationDateTime;
+            IndexingDateTime = DateTime.UtcNow;
             IsFrozen = video.IsFrozen;
             ManifestHash = video.LastValidManifest.Manifest.Hash;
             OwnerSharedInfoId = video.Owner.SharedInfoId;
@@ -94,6 +95,7 @@ namespace Etherna.EthernaIndex.ElasticSearch.Documents
         public string? BatchId { get; set; }
         public string Description { get; set; }
         public long Duration { get; set; }
+        public DateTime IndexingDateTime { get; set; }
         public bool IsFrozen { get; set; }
         public string ManifestHash { get; set; }
         public string? OriginalQuality { get; set; }

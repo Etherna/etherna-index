@@ -17,6 +17,7 @@ using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.ElasticSearch;
 using Etherna.MongoDB.Driver;
 using Etherna.MongODM.Core.Utility;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -45,6 +46,11 @@ namespace Etherna.EthernaIndex.Services.Tasks
             while (await videosCursor.MoveNextAsync())
                 foreach (var element in videosCursor.Current.Where(v => v.LastValidManifest != null))
                     await elasticSearchService.IndexVideoAsync(element);
+
+            var indexDate = DateTime.UtcNow;
+            var videoIds = await elasticSearchService.SearchVideoIndexBeforeAsync(indexDate);
+            foreach (var videoId in videoIds)
+                await elasticSearchService.RemoveVideoIndexAsync(videoId);
         }
     }
 }
