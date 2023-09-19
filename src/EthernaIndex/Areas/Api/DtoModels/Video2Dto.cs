@@ -49,30 +49,6 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
             TotUpvotes = video.TotUpvotes;
         }
 
-        public Video2Dto(
-            VideoDocument videoDocument,
-            UserSharedInfo ownerSharedInfo,
-            VideoVote? currentUserVideoVote)
-        {
-            if (videoDocument is null)
-                throw new ArgumentNullException(nameof(videoDocument));
-            if (ownerSharedInfo is null)
-                throw new ArgumentNullException(nameof(ownerSharedInfo));
-
-            Id = videoDocument.Id;
-            CreationDateTime = videoDocument.CreationDateTime;
-            if (currentUserVideoVote is not null &&
-                currentUserVideoVote.Value != VoteValue.Neutral)
-            {
-                CurrentVoteValue = currentUserVideoVote.Value;
-            }
-
-            LastValidManifest = new VideoManifest2Dto(videoDocument);
-            OwnerAddress = ownerSharedInfo.EtherAddress;
-            TotDownvotes = videoDocument.TotDownvotes;
-            TotUpvotes = videoDocument.TotUpvotes;
-        }
-
         // Properties.
         public string Id { get; }
         public DateTime CreationDateTime { get; }

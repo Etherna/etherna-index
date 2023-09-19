@@ -19,6 +19,7 @@ using System.Linq;
 
 namespace Etherna.EthernaIndex.Areas.Api.DtoModels
 {
+    [Obsolete("Use enumerable of VideoManifestStatusDto instead")]
     public class VideoStatusDto
     {
         // Constructors.
@@ -28,7 +29,7 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
                 throw new ArgumentNullException(nameof(video));
 
             Id = video.Id;
-            ManifestsStatus = video.VideoManifests.Select(vm => new VideoManifestStatusDto(vm));
+            ManifestsStatus = video.VideoManifests.Select(vm => new VideoManifestStatusDto(video, vm));
         }
 
         // Properties.
