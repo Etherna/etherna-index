@@ -29,11 +29,13 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Xunit;
 
 namespace Etherna.EthernaIndex.Persistence.ModelMaps
 {
+    [SuppressMessage("Design", "CA1001:Types that own disposable fields should be disposable")]
     public class IndexDbContextDeserializationTest
     {
         // Fields.

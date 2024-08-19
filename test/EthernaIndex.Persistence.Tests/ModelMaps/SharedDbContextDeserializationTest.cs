@@ -22,11 +22,13 @@ using Etherna.MongODM.Core.Utility;
 using Moq;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Xunit;
 
 namespace Etherna.EthernaIndex.Persistence.ModelMaps
 {
+    [SuppressMessage("Design", "CA1001:Types that own disposable fields should be disposable")]
     public class SharedDbContextDeserializationTest
     {
         // Fields.
