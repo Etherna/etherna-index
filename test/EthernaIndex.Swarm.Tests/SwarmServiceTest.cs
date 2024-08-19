@@ -12,7 +12,7 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-using Microsoft.Extensions.Options;
+using Etherna.BeeNet;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -46,15 +46,10 @@ namespace Etherna.EthernaIndex.Swarm
         // Constructor.
         public SwarmServiceTest()
         {
-            var swarmSettings = new SwarmSettings()
-            {
-                GatewayUrl = "http://localhost/"
-            };
+            var beeClientMock = new Mock<IBeeClient>();
 
-            var swarmServiceOptionsMock = new Mock<IOptions<SwarmSettings>>();
-            swarmServiceOptionsMock.Setup(o => o.Value).Returns(swarmSettings);
-
-            swarmService = new SwarmService(swarmServiceOptionsMock.Object);
+            swarmService = new SwarmService(
+                beeClientMock.Object);
         }
 
         // Data.

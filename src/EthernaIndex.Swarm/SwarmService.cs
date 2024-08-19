@@ -13,7 +13,6 @@
 //   limitations under the License.
 
 using Etherna.BeeNet;
-using Etherna.BeeNet.Clients.GatewayApi;
 using Etherna.EthernaIndex.Domain.Exceptions;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV1;
@@ -42,8 +41,7 @@ namespace Etherna.EthernaIndex.Swarm
     public class SwarmService : ISwarmService
     {
         // Fields.
-        private readonly IBeeNodeClient BeeNodeClient;
-        private readonly SwarmSettings SwarmSettings;
+        private readonly IBeeClient BeeClient;
 
 #if DEBUG_MOCKUP_SWARM
         private readonly Dictionary<string, object> SwarmObjectMockups = new(); //hash->object
@@ -51,15 +49,10 @@ namespace Etherna.EthernaIndex.Swarm
 #endif
 
         // Constructors.
-        public SwarmService(IOptions<SwarmSettings> swarmSettings)
+        public SwarmService(
+            IBeeClient beeClient)
         {
-            if (swarmSettings?.Value is null)
-                throw new ArgumentNullException(nameof(swarmSettings));
-
-            SwarmSettings = swarmSettings.Value;
-            BeeNodeClient = new BeeNodeClient(
-                SwarmSettings.GatewayUrl,
-                gatewayApiVersion: GatewayApiVersion.v4_0_0);
+            BeeClient = beeClient;
         }
 
         // Methods.
@@ -84,11 +77,8 @@ namespace Etherna.EthernaIndex.Swarm
 
         public async Task<VideoManifestMetadataBase> GetVideoMetadataAsync(string manifestHash)
         {
-            if (BeeNodeClient.GatewayClient is null)
-                throw new InvalidOperationException(nameof(BeeNodeClient.GatewayClient));
-
 #if !DEBUG_MOCKUP_SWARM
-            using var manifestStream = await BeeNodeClient.GatewayClient.GetFileAsync(manifestHash);
+            using var manifestStream = (await BeeClient.GetFileAsync(manifestHash)).Stream;
             var jsonElementManifest = await JsonSerializer.DeserializeAsync<JsonElement>(manifestStream);
 
             return await DeserializeVideoMetadataAsync(manifestHash, jsonElementManifest);
@@ -182,9 +172,6 @@ namespace Etherna.EthernaIndex.Swarm
             string manifestHash,
             JsonElement jsonElementManifest)
         {
-            if (BeeNodeClient.GatewayClient is null)
-                throw new InvalidOperationException(nameof(BeeNodeClient.GatewayClient));
-
             // Get preview dto.
             var manifestPreviewDto = jsonElementManifest.Deserialize<VideoManifestPreviewV2Dto>(
                 new JsonSerializerOptions
@@ -194,7 +181,7 @@ namespace Etherna.EthernaIndex.Swarm
                 }) ?? throw new VideoManifestValidationException(new[] { new ValidationError(ValidationErrorType.JsonConvert, "Empty json preview") });
 
             // Get detail dto.
-            using var manifestDetailStream = await BeeNodeClient.GatewayClient.GetFileAsync($"{manifestHash}/details");
+            using var manifestDetailStream = (await BeeClient.GetFileAsync($"{manifestHash}/details")).Stream;
             var manifestDetailDto = await JsonSerializer.DeserializeAsync<VideoManifestDetailV2Dto>(
                 manifestDetailStream,
                 new JsonSerializerOptions

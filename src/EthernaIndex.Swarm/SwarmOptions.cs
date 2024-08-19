@@ -14,7 +14,7 @@
 
 namespace Etherna.EthernaIndex.Swarm
 {
-    public class SwarmSettings
+    public class SwarmOptions
     {
         public string GatewayUrl { get; set; } = default!;
     }

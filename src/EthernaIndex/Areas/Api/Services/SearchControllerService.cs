@@ -84,15 +84,16 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             foreach (var videoDocument in videoDocuments.Results)
             {
                 // Get shared info.
-                if (!cacheSharedInfos.ContainsKey(videoDocument.OwnerSharedInfoId))
+                if (!cacheSharedInfos.TryGetValue(videoDocument.OwnerSharedInfoId, out UserSharedInfo? sharedInfo))
                 {
-                    cacheSharedInfos[videoDocument.OwnerSharedInfoId] = await sharedDbContext.UsersInfo.FindOneAsync(videoDocument.OwnerSharedInfoId);
+                    sharedInfo = await sharedDbContext.UsersInfo.FindOneAsync(videoDocument.OwnerSharedInfoId);
+                    cacheSharedInfos[videoDocument.OwnerSharedInfoId] = sharedInfo;
                 }
 
                 // Create video dto.
                 videoDtos.Add(new VideoDto(
                     videoDocument,
-                    cacheSharedInfos[videoDocument.OwnerSharedInfoId],
+                    sharedInfo,
                     null));
             }
 

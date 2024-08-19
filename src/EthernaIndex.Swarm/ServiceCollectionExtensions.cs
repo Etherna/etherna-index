@@ -12,6 +12,7 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
+using Etherna.BeeNet;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -25,8 +26,17 @@ namespace Etherna.EthernaIndex.Swarm
             if (configuration is null)
                 throw new ArgumentNullException(nameof(configuration));
             
-            services.Configure<SwarmSettings>(configuration.GetSection("Swarm"));
+            //scoped
+            services.Configure<SwarmOptions>(configuration.GetSection("Swarm"));
             services.AddScoped<ISwarmService, SwarmService>();
+            
+            //singleton
+            services.AddSingleton<IBeeClient>(sp =>
+            {
+                var options = sp.GetRequiredService<SwarmOptions>();
+                return new BeeClient(
+                    baseUrl: options.GatewayUrl);
+            });
         }
     }
 }
