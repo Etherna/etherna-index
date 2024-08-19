@@ -27,10 +27,9 @@ namespace Etherna.EthernaIndex.Areas.Api
 
         public void Configure(IWebHostBuilder builder)
         {
-            if (builder is null)
-                throw new System.ArgumentNullException(nameof(builder));
+            ArgumentNullException.ThrowIfNull(builder, nameof(builder));
 
-            builder.ConfigureServices((context, services) => {
+            builder.ConfigureServices((_, services) => {
 
                 var currentType = typeof(Program).GetTypeInfo();
                 var servicesNamespace = $"{currentType.Namespace}.{ServicesSubNamespace}";

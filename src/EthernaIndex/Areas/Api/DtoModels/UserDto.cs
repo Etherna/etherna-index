@@ -23,8 +23,7 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
         // Constructors.
         public UserDto(User user, UserSharedInfo? userSharedInfo)
         {
-            if (user is null)
-                throw new ArgumentNullException(nameof(user));
+            ArgumentNullException.ThrowIfNull(user, nameof(user));
 
             Id = user.Id;
             Address = userSharedInfo?.EtherAddress;

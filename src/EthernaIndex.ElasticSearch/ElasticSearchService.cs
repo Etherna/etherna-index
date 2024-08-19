@@ -40,8 +40,7 @@ namespace Etherna.EthernaIndex.ElasticSearch
         // Public methods.
         public async Task IndexCommentAsync(Comment comment)
         {
-            if (comment is null)
-                throw new ArgumentNullException(nameof(comment));
+            ArgumentNullException.ThrowIfNull(comment, nameof(comment));
 
             var ownerSharedInfo = await sharedDbContext.UsersInfo.FindOneAsync(comment.Author.SharedInfoId);
 
@@ -52,8 +51,7 @@ namespace Etherna.EthernaIndex.ElasticSearch
 
         public async Task IndexVideoAsync(Video video)
         {
-            if (video is null)
-                throw new ArgumentNullException(nameof(video));
+            ArgumentNullException.ThrowIfNull(video, nameof(video));
             if (video.LastValidManifest is null)
                 throw new InvalidOperationException($"{nameof(video.LastValidManifest)} can't be null");
 
@@ -64,8 +62,7 @@ namespace Etherna.EthernaIndex.ElasticSearch
 
         public async Task RemoveCommentIndexAsync(Comment comment)
         {
-            if (comment is null)
-                throw new ArgumentNullException(nameof(comment));
+            ArgumentNullException.ThrowIfNull(comment, nameof(comment));
 
             await RemoveCommentIndexAsync(comment.Id);
         }
@@ -75,8 +72,7 @@ namespace Etherna.EthernaIndex.ElasticSearch
 
         public async Task RemoveVideoIndexAsync(Video video)
         {
-            if (video is null)
-                throw new ArgumentNullException(nameof(video));
+            ArgumentNullException.ThrowIfNull(video, nameof(video));
 
             await RemoveVideoIndexAsync(video.Id);
         }
@@ -88,10 +84,8 @@ namespace Etherna.EthernaIndex.ElasticSearch
         {
             if (string.IsNullOrWhiteSpace(query))
                 throw new ArgumentNullException(query);
-            if (page < 0)
-                throw new ArgumentOutOfRangeException(nameof(page));
-            if (take <= 0)
-                throw new ArgumentOutOfRangeException(nameof(take));
+            ArgumentOutOfRangeException.ThrowIfNegative(page, nameof(page));
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(take, nameof(take));
 
 
             var searchResponse = await elasticClient.SearchAsync<VideoDocument>(s =>

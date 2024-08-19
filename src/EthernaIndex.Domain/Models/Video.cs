@@ -60,8 +60,7 @@ namespace Etherna.EthernaIndex.Domain.Models
         [PropertyAlterer(nameof(VideoManifests))]
         public virtual void AddManifest(VideoManifest videoManifest)
         {
-            if (videoManifest is null)
-                throw new ArgumentNullException(nameof(videoManifest));
+            ArgumentNullException.ThrowIfNull(videoManifest, nameof(videoManifest));
             if (IsFrozen)
                 throw new InvalidOperationException("Video is frozen");
 
@@ -82,10 +81,8 @@ namespace Etherna.EthernaIndex.Domain.Models
             VideoManifest manifest,
             IEnumerable<ValidationError> validationErrors)
         {
-            if (manifest is null)
-                throw new ArgumentNullException(nameof(manifest));
-            if (validationErrors is null)
-                throw new ArgumentNullException(nameof(validationErrors));
+            ArgumentNullException.ThrowIfNull(manifest, nameof(manifest));
+            ArgumentNullException.ThrowIfNull(validationErrors, nameof(validationErrors));
 
             if (!VideoManifests.Contains(manifest))
             {
@@ -103,8 +100,7 @@ namespace Etherna.EthernaIndex.Domain.Models
         [PropertyAlterer(nameof(VideoManifests))]
         public virtual bool RemoveManifest(VideoManifest videoManifest)
         {
-            if (videoManifest is null)
-                throw new ArgumentNullException(nameof(videoManifest));
+            ArgumentNullException.ThrowIfNull(videoManifest, nameof(videoManifest));
             if (IsFrozen)
                 throw new InvalidOperationException("Video is frozen");
 
@@ -132,10 +128,8 @@ namespace Etherna.EthernaIndex.Domain.Models
             VideoManifest manifest,
             VideoManifestMetadataBase metadata)
         {
-            if (manifest is null)
-                throw new ArgumentNullException(nameof(manifest));
-            if (metadata is null)
-                throw new ArgumentNullException(nameof(metadata));
+            ArgumentNullException.ThrowIfNull(manifest, nameof(manifest));
+            ArgumentNullException.ThrowIfNull(metadata, nameof(metadata));
 
             if (!VideoManifests.Contains(manifest))
             {

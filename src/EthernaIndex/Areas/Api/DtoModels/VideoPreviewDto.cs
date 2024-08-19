@@ -27,10 +27,8 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
             Video video,
             UserSharedInfo ownerSharedInfo)
         {
-            if (ownerSharedInfo is null)
-                throw new ArgumentNullException(nameof(ownerSharedInfo));
-            if (video is null)
-                throw new ArgumentNullException(nameof(video));
+            ArgumentNullException.ThrowIfNull(ownerSharedInfo, nameof(ownerSharedInfo));
+            ArgumentNullException.ThrowIfNull(video, nameof(video));
 
             Id = video.Id;
             if (video.LastValidManifest is not null)
@@ -50,10 +48,8 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
             VideoDocument videoDocument,
             UserSharedInfo ownerSharedInfo)
         {
-            if (videoDocument is null)
-                throw new ArgumentNullException(nameof(videoDocument));
-            if (ownerSharedInfo is null)
-                throw new ArgumentNullException(nameof(ownerSharedInfo));
+            ArgumentNullException.ThrowIfNull(videoDocument, nameof(videoDocument));
+            ArgumentNullException.ThrowIfNull(ownerSharedInfo, nameof(ownerSharedInfo));
 
             Id = videoDocument.Id;
             Duration = videoDocument.Duration;

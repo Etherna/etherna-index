@@ -29,10 +29,8 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
             UserSharedInfo ownerSharedInfo,
             VideoVote? currentUserVideoVote)
         {
-            if (video is null)
-                throw new ArgumentNullException(nameof(video));
-            if (ownerSharedInfo is null)
-                throw new ArgumentNullException(nameof(ownerSharedInfo));
+            ArgumentNullException.ThrowIfNull(video, nameof(video));
+            ArgumentNullException.ThrowIfNull(ownerSharedInfo, nameof(ownerSharedInfo));
 
             Id = video.Id;
             CreationDateTime = video.CreationDateTime;

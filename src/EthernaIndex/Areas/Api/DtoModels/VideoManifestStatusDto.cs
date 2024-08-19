@@ -27,10 +27,8 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
             Video video,
             VideoManifest videoManifest)
         {
-            if (video == null)
-                throw new ArgumentNullException(nameof(video));
-            if (videoManifest is null)
-                throw new ArgumentNullException(nameof(videoManifest));
+            ArgumentNullException.ThrowIfNull(video, nameof(video));
+            ArgumentNullException.ThrowIfNull(videoManifest, nameof(videoManifest));
 
             if (!video.VideoManifests.Contains(videoManifest))
                 throw new InvalidOperationException("Video must contain the manifest");

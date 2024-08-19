@@ -33,10 +33,8 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
                 string manifestHash,
                 string title)
             {
-                if (manifestHash is null)
-                    throw new ArgumentNullException(nameof(manifestHash));
-                if (title is null)
-                    throw new ArgumentNullException(nameof(title));
+                ArgumentNullException.ThrowIfNull(manifestHash, nameof(manifestHash));
+                ArgumentNullException.ThrowIfNull(title, nameof(title));
 
                 ManifestHash = manifestHash;
                 Title = title;

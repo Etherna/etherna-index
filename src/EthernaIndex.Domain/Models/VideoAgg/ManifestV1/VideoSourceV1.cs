@@ -40,7 +40,7 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV1
                 validationErrors.Add(new ValidationError(ValidationErrorType.InvalidVideoSource, "Video source has empty reference"));
 
             // Throws validation exception.
-            if (validationErrors.Any())
+            if (validationErrors.Count != 0)
                 throw new VideoManifestValidationException(validationErrors);
 
             // Assign properties.

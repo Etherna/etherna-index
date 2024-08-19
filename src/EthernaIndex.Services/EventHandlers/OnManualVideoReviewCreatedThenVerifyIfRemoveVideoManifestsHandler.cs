@@ -40,9 +40,8 @@ namespace Etherna.EthernaIndex.Services.EventHandlers
         // Methods.
         public override async Task HandleAsync(EntityCreatedEvent<ManualVideoReview> @event)
         {
-            if (@event is null)
-                throw new ArgumentNullException(nameof(@event));
-            
+            ArgumentNullException.ThrowIfNull(@event, nameof(@event));
+
             if (!@event.Entity.IsValidResult)
             {
                 var video = await dbContext.Videos.FindOneAsync(@event.Entity.Video.Id);

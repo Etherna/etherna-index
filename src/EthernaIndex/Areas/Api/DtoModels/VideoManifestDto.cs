@@ -29,8 +29,7 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
         public VideoManifestDto(
             VideoManifest videoManifest)
         {
-            if (videoManifest is null)
-                throw new ArgumentNullException(nameof(videoManifest));
+            ArgumentNullException.ThrowIfNull(videoManifest, nameof(videoManifest));
 
             Hash = videoManifest.Manifest.Hash;
 
@@ -91,8 +90,7 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
         public VideoManifestDto(
             VideoDocument videoDocument)
         {
-            if (videoDocument is null)
-                throw new ArgumentNullException(nameof(videoDocument));
+            ArgumentNullException.ThrowIfNull(videoDocument, nameof(videoDocument));
 
             BatchId = videoDocument.BatchId;
             Description = videoDocument.Description;

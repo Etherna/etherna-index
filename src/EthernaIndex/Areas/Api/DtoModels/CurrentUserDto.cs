@@ -26,10 +26,8 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
             UserSharedInfo userSharedInfo,
             bool isSuperModerator)
         {
-            if (user is null)
-                throw new ArgumentNullException(nameof(user));
-            if (userSharedInfo is null)
-                throw new ArgumentNullException(nameof(userSharedInfo));
+            ArgumentNullException.ThrowIfNull(user, nameof(user));
+            ArgumentNullException.ThrowIfNull(userSharedInfo, nameof(userSharedInfo));
 
             Id = user.Id;
             Address = userSharedInfo.EtherAddress;
