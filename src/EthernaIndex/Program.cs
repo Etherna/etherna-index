@@ -19,7 +19,7 @@ using Etherna.Authentication.AspNetCore;
 using Etherna.DomainEvents;
 using Etherna.EthernaIndex.Configs;
 using Etherna.EthernaIndex.Configs.Authorization;
-using Etherna.EthernaIndex.Configs.Hangfire;
+using Etherna.EthernaIndex.Configs.MongODM;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.ElasticSearch;
 using Etherna.EthernaIndex.Extensions;
@@ -42,7 +42,6 @@ using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -62,6 +61,7 @@ using System.Reflection;
 using System.Security.Claims;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using DashboardOptions = Etherna.MongODM.AspNetCore.UI.DashboardOptions;
 using IPNetwork = Microsoft.AspNetCore.HttpOverrides.IPNetwork;
 
 namespace Etherna.EthernaIndex
@@ -382,9 +382,9 @@ namespace Etherna.EthernaIndex
                     options.ConnectionString = config["ConnectionStrings:ServiceSharedDb"] ?? throw new ServiceConfigurationException();
                 });
 
-            services.AddMongODMAdminDashboard(new MongODM.AspNetCore.UI.DashboardOptions
+            services.AddMongODMAdminDashboard(new DashboardOptions
             {
-                AuthFilters = new[] { new Configs.MongODM.AdminAuthFilter() },
+                AuthFilters = [new AdminAuthFilter()],
                 BasePath = CommonConsts.DatabaseAdminPath
             });
 
@@ -449,7 +449,7 @@ namespace Etherna.EthernaIndex
                 CommonConsts.HangfireAdminPath,
                 new Hangfire.DashboardOptions
                 {
-                    Authorization = new[] { new AdminAuthFilter() }
+                    Authorization = [new Configs.Hangfire.AdminAuthFilter()]
                 });
 
             // Add Swagger and SwaggerUI.
