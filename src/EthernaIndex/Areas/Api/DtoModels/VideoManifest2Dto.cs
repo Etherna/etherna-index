@@ -29,8 +29,7 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
         public VideoManifest2Dto(
             VideoManifest videoManifest)
         {
-            if (videoManifest is null)
-                throw new ArgumentNullException(nameof(videoManifest));
+            ArgumentNullException.ThrowIfNull(videoManifest, nameof(videoManifest));
 
             Hash = videoManifest.Manifest.Hash;
 

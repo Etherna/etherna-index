@@ -42,6 +42,11 @@ namespace Etherna.EthernaIndex.Swarm
     {
         // Fields.
         private readonly IBeeClient BeeClient;
+        private readonly JsonSerializerOptions jsonSerializerOptions = new()
+        {
+            Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) },
+            PropertyNameCaseInsensitive = true,
+        };
 
 #if DEBUG_MOCKUP_SWARM
         private readonly Dictionary<string, object> SwarmObjectMockups = new(); //hash->object
@@ -145,12 +150,8 @@ namespace Etherna.EthernaIndex.Swarm
         // Helpers.
         private VideoManifestMetadataV1 DeserializeVideoMetadataV1(JsonElement jsonElementManifest)
         {
-            var manifestDto = jsonElementManifest.Deserialize<VideoManifestV1Dto>(
-                new JsonSerializerOptions
-                {
-                    Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) },
-                    PropertyNameCaseInsensitive = true,
-                }) ?? throw new VideoManifestValidationException(new[] { new ValidationError(ValidationErrorType.JsonConvert, "Empty json") });
+            var manifestDto = jsonElementManifest.Deserialize<VideoManifestV1Dto>(jsonSerializerOptions)
+                ?? throw new VideoManifestValidationException([new ValidationError(ValidationErrorType.JsonConvert, "Empty json")]);
 
             return new VideoManifestMetadataV1(
                 manifestDto.Title,
@@ -173,23 +174,15 @@ namespace Etherna.EthernaIndex.Swarm
             JsonElement jsonElementManifest)
         {
             // Get preview dto.
-            var manifestPreviewDto = jsonElementManifest.Deserialize<VideoManifestPreviewV2Dto>(
-                new JsonSerializerOptions
-                {
-                    Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) },
-                    PropertyNameCaseInsensitive = true,
-                }) ?? throw new VideoManifestValidationException(new[] { new ValidationError(ValidationErrorType.JsonConvert, "Empty json preview") });
+            var manifestPreviewDto = jsonElementManifest.Deserialize<VideoManifestPreviewV2Dto>(jsonSerializerOptions)
+                ?? throw new VideoManifestValidationException([new ValidationError(ValidationErrorType.JsonConvert, "Empty json preview")]);
 
             // Get detail dto.
             using var manifestDetailStream = (await BeeClient.GetFileAsync($"{manifestHash}/details")).Stream;
             var manifestDetailDto = await JsonSerializer.DeserializeAsync<VideoManifestDetailV2Dto>(
                 manifestDetailStream,
-                new JsonSerializerOptions
-                {
-                    Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) },
-                    PropertyNameCaseInsensitive = true,
-                }) ??
-                throw new VideoManifestValidationException(new[] { new ValidationError(ValidationErrorType.JsonConvert, "Empty json detail") });
+                jsonSerializerOptions) ??
+                throw new VideoManifestValidationException([new ValidationError(ValidationErrorType.JsonConvert, "Empty json detail")]);
 
             return new VideoManifestMetadataV2(
                 manifestPreviewDto.Title,

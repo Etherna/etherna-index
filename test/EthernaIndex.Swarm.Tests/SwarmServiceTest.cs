@@ -41,7 +41,7 @@ namespace Etherna.EthernaIndex.Swarm
         }
 
         // Fields.
-        private readonly ISwarmService swarmService;
+        private readonly SwarmService swarmService;
 
         // Constructor.
         public SwarmServiceTest()
@@ -136,8 +136,7 @@ namespace Etherna.EthernaIndex.Swarm
         [Theory, MemberData(nameof(ParseManifestTests))]
         public async Task ParseManifestAsync(ParseManifestTestElement test)
         {
-            if (test is null)
-                throw new ArgumentNullException(nameof(test));
+            ArgumentNullException.ThrowIfNull(test, nameof(test));
 
             // Action.
             var metadata = await swarmService.DeserializeVideoMetadataAsync(

@@ -52,7 +52,7 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV1
             }
 
             // Throws validation exception.
-            if (validationErrors.Any())
+            if (validationErrors.Count != 0)
                 throw new VideoManifestValidationException(validationErrors);
 
             // Assign properties.

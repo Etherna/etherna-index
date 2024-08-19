@@ -50,7 +50,7 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2
                 validationErrors.Add(new ValidationError(ValidationErrorType.InvalidVideoSource, "Video source has invalid size"));
 
             // Throws validation exception.
-            if (validationErrors.Any())
+            if (validationErrors.Count != 0)
                 throw new VideoManifestValidationException(validationErrors);
 
             // Assign properties.

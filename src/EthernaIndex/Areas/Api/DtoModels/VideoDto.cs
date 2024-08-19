@@ -30,10 +30,8 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
             UserSharedInfo ownerSharedInfo,
             VideoVote? currentUserVideoVote)
         {
-            if (video is null)
-                throw new ArgumentNullException(nameof(video));
-            if (ownerSharedInfo is null)
-                throw new ArgumentNullException(nameof(ownerSharedInfo));
+            ArgumentNullException.ThrowIfNull(video, nameof(video));
+            ArgumentNullException.ThrowIfNull(ownerSharedInfo, nameof(ownerSharedInfo));
 
             Id = video.Id;
             CreationDateTime = video.CreationDateTime;
@@ -55,10 +53,8 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
             UserSharedInfo ownerSharedInfo,
             VideoVote? currentUserVideoVote)
         {
-            if (videoDocument is null)
-                throw new ArgumentNullException(nameof(videoDocument));
-            if (ownerSharedInfo is null)
-                throw new ArgumentNullException(nameof(ownerSharedInfo));
+            ArgumentNullException.ThrowIfNull(videoDocument, nameof(videoDocument));
+            ArgumentNullException.ThrowIfNull(ownerSharedInfo, nameof(ownerSharedInfo));
 
             Id = videoDocument.Id;
             CreationDateTime = videoDocument.CreationDateTime;

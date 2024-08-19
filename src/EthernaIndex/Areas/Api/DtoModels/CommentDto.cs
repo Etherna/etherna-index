@@ -24,9 +24,8 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
     {
         public CommentDto(Comment2Dto comment)
         {
-            if (comment is null)
-                throw new ArgumentNullException(nameof(comment));
-            
+            ArgumentNullException.ThrowIfNull(comment, nameof(comment));
+
             Id = comment.Id;
             CreationDateTime = comment.CreationDateTime;
             IsFrozen = comment.IsFrozen;

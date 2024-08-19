@@ -70,7 +70,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                     expectedSharedInfoMock.Setup(i => i.Id).Returns("61cdffb4fa7c4052d258adcb");
                     expectedSharedInfoMock.Setup(i => i.CreationDateTime).Returns(new DateTime(2021, 12, 30, 18, 51, 32, 706));
                     expectedSharedInfoMock.Setup(i => i.EtherAddress).Returns("0x410211F4824A8f7EDf174B32AB215924557b4437");
-                    expectedSharedInfoMock.Setup(i => i.EtherPreviousAddresses).Returns(new[] { "0x6401ceD81d2e864f214A93823647F5baBF819123" });
+                    expectedSharedInfoMock.Setup(i => i.EtherPreviousAddresses).Returns(["0x6401ceD81d2e864f214A93823647F5baBF819123"]);
                     expectedSharedInfoMock.Setup(i => i.LockoutEnabled).Returns(true);
                     expectedSharedInfoMock.Setup(i => i.LockoutEnd).Returns(new DateTimeOffset(2022, 12, 30, 18, 51, 32, 706, TimeSpan.Zero));
 
@@ -85,8 +85,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
         [Theory, MemberData(nameof(UserSharedInfoDeserializationTests))]
         public void UserSharedInfoDeserialization(DeserializationTestElement<UserSharedInfo> testElement)
         {
-            if (testElement is null)
-                throw new ArgumentNullException(nameof(testElement));
+            ArgumentNullException.ThrowIfNull(testElement, nameof(testElement));
 
             // Setup.
             using var documentReader = new JsonReader(testElement.SourceDocument);

@@ -28,8 +28,7 @@ namespace Etherna.EthernaIndex.Domain.Models.Swarm
         protected SwarmContentBase(
             string hash)
         {
-            if (hash is null)
-                throw new ArgumentNullException(nameof(hash));
+            ArgumentNullException.ThrowIfNull(hash, nameof(hash));
             if (!SwarmHashRegex().IsMatch(hash))
                 throw new ArgumentException($"{hash} is not a valid swarm hash", nameof(hash));
 

@@ -27,11 +27,9 @@ namespace Etherna.EthernaIndex.ElasticSearch.Documents
         // Constructors.
         public VideoDocument(
             Video video)
-        { 
-            if (video is null)
-            {
-                throw new ArgumentNullException(nameof(video));
-            }
+        {
+            ArgumentNullException.ThrowIfNull(video, nameof(video));
+            
             if (video.LastValidManifest?.Metadata is null)
             {
                 var ex = new InvalidOperationException("Null last valid manifest");

@@ -82,7 +82,7 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2
                 validationErrors.Add(new ValidationError(ValidationErrorType.InvalidPersonalData, "Personal data is too long"));
 
             // Throws validation exception.
-            if (validationErrors.Any())
+            if (validationErrors.Count != 0)
                 throw new VideoManifestValidationException(validationErrors);
 
             // Assign properties.

@@ -63,8 +63,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         // Methods.
         public async Task<UserDto> FindByAddressAsync(string address)
         {
-            if (address is null)
-                throw new ArgumentNullException(nameof(address));
+            ArgumentNullException.ThrowIfNull(address, nameof(address));
             if (!address.IsValidEthereumAddressHexFormat())
                 throw new ArgumentException("The value is not a valid address", nameof(address));
 

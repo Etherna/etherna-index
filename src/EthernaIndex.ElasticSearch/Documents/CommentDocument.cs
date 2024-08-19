@@ -23,10 +23,8 @@ namespace Etherna.EthernaIndex.ElasticSearch.Documents
         // Constructors.
         public CommentDocument(Comment comment, UserSharedInfo userSharedInfo)
         {
-            if (comment is null)
-                throw new ArgumentNullException(nameof(comment));
-            if (userSharedInfo is null)
-                throw new ArgumentNullException(nameof(userSharedInfo));
+            ArgumentNullException.ThrowIfNull(comment, nameof(comment));
+            ArgumentNullException.ThrowIfNull(userSharedInfo, nameof(userSharedInfo));
 
             Id = comment.Id;
             CreationDateTime = comment.CreationDateTime;

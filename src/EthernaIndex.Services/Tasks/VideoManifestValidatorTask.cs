@@ -78,7 +78,7 @@ namespace Etherna.EthernaIndex.Services.Tasks
             }
 
             // Set result of validation.
-            if (validationErrors.Any())
+            if (validationErrors.Count != 0)
             {
                 video.FailedManifestValidation(videoManifest, validationErrors);
 

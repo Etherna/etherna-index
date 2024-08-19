@@ -27,8 +27,7 @@ namespace Etherna.EthernaIndex.ElasticSearch.Configs
         // Constructor.
         public ElasticSearchOptions(IEnumerable<string> urls)
         {
-            if (urls is null)
-                throw new ArgumentNullException(nameof(urls));
+            ArgumentNullException.ThrowIfNull(urls, nameof(urls));
             if (!urls.Any())
                 throw new ArgumentException("Urls arg can't be empty", nameof(urls));
 

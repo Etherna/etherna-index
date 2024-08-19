@@ -22,8 +22,7 @@ namespace Etherna.EthernaIndex.Domain.Models
         // Constructors.
         public User(UserSharedInfo sharedInfo)
         {
-            if (sharedInfo is null)
-                throw new ArgumentNullException(nameof(sharedInfo));
+            ArgumentNullException.ThrowIfNull(sharedInfo, nameof(sharedInfo));
 
             SharedInfoId = sharedInfo.Id;
         }
