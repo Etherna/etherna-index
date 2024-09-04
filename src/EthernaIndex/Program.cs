@@ -468,9 +468,6 @@ namespace Etherna.EthernaIndex
             // Add pages and controllers.
             app.MapControllers();
             app.MapRazorPages();
-
-            // Seed db.
-            app.SeedDbContexts();
         }
     }
 }
