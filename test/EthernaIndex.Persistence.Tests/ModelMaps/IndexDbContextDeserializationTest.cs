@@ -12,10 +12,10 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
+using Etherna.BeeNet.Models;
 using Etherna.DomainEvents;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
-using Etherna.EthernaIndex.Domain.Models.Swarm;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV1;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2;
@@ -611,8 +611,8 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                     expectedManifestMock.Setup(m => m.Id).Returns("64b407f64a709a0ceb86b07c");
                     expectedManifestMock.Setup(m => m.CreationDateTime).Returns(new DateTime(2023, 07, 16, 15, 08, 38, 008));
                     expectedManifestMock.Setup(m => m.IsValid).Returns(false);
-                    expectedManifestMock.Setup(m => m.Manifest).Returns(new SwarmBzz("765a93649a58db3a4a85d800aa8111b13c7082e081b5ea186885d95cdd232dcb"));
-                    expectedManifestMock.Setup(m => m.ValidationErrors).Returns(new[] { new ValidationError(ValidationErrorType.MissingTitle) });
+                    expectedManifestMock.Setup(m => m.ManifestHash).Returns(new SwarmHash("765a93649a58db3a4a85d800aa8111b13c7082e081b5ea186885d95cdd232dcb"));
+                    expectedManifestMock.Setup(m => m.ValidationErrors).Returns([new ValidationError(ValidationErrorType.MissingTitle)]);
                     expectedManifestMock.Setup(m => m.ValidationTime).Returns(new DateTime(2023, 07, 16, 15, 09, 21, 700));
 
                     tests.Add(new DeserializationTestElement<VideoManifest>(sourceDocument, expectedManifestMock.Object));
@@ -671,7 +671,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                     expectedManifestMock.Setup(m => m.Id).Returns("64b3ff1f70673319b83d4343");
                     expectedManifestMock.Setup(m => m.CreationDateTime).Returns(new DateTime(2023, 07, 16, 14, 30, 55, 121));
                     expectedManifestMock.Setup(m => m.IsValid).Returns(true);
-                    expectedManifestMock.Setup(m => m.Manifest).Returns(new SwarmBzz("765a93649a58db3a4a85d800aa8111b13c7082e081b5ea186885d95cdd232dcb"));
+                    expectedManifestMock.Setup(m => m.ManifestHash).Returns(new SwarmHash("765a93649a58db3a4a85d800aa8111b13c7082e081b5ea186885d95cdd232dcb"));
                     {
                         var metadataMock = new Mock<VideoManifestMetadataV1>();
                         metadataMock.Setup(m => m.BatchId).Returns("36b7efd913ca4cf880b8eeac5093fa27b0825906c600685b6abdd6566e6cfe8f");
@@ -679,10 +679,11 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                         metadataMock.Setup(m => m.Description).Returns("Test description");
                         metadataMock.Setup(m => m.Duration).Returns(420);
                         metadataMock.Setup(m => m.PersonalData).Returns("{\"test\":\"sample\"}");
-                        metadataMock.Setup(m => m.Sources).Returns(new[]{
+                        metadataMock.Setup(m => m.Sources).Returns(
+                        [
                             new VideoSourceV1(560000, "720p", "5370D45B2CA38F480B53334163FEF3BEECD4D048B398852B33DD4F568C329956", 100000000)
-                        });
-                        metadataMock.Setup(m => m.Thumbnail).Returns(new ThumbnailV1(1.7699999809265137f, "LEHV6nWB2yk8pyo0adR*.7kCMdnj", new Dictionary<string, string>
+                        ]);
+                        metadataMock.Setup(m => m.Thumbnail).Returns(new ThumbnailV1(1.7699999809265137f, "LEHV6nWB2yk8pyo0adR*.7kCMdnj", new Dictionary<string, SwarmHash>
                         {
                             { "480", "A01F2EFCB975C9602F420700B7B39EC174B8378462B95871A1CC0EB786AAD2B6" },
                         }));
@@ -756,7 +757,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                     expectedManifestMock.Setup(m => m.Id).Returns("64b3ff1f70673319b83d4343");
                     expectedManifestMock.Setup(m => m.CreationDateTime).Returns(new DateTime(2023, 07, 16, 15, 14, 27, 084));
                     expectedManifestMock.Setup(m => m.IsValid).Returns(true);
-                    expectedManifestMock.Setup(m => m.Manifest).Returns(new SwarmBzz("7fb7ed4960e636e91c9056dc7dd22d401ed8d4495b04df0a07379555784188a0"));
+                    expectedManifestMock.Setup(m => m.ManifestHash).Returns(new SwarmHash("7fb7ed4960e636e91c9056dc7dd22d401ed8d4495b04df0a07379555784188a0"));
                     {
                         var metadataMock = new Mock<VideoManifestMetadataV2>();
                         metadataMock.Setup(m => m.AspectRatio).Returns(1.7699999809265137f);
@@ -832,8 +833,8 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                     expectedManifestMock.Setup(m => m.Id).Returns("630fad72a93c1417a162417e");
                     expectedManifestMock.Setup(m => m.CreationDateTime).Returns(new DateTime(2022, 08, 31, 18, 50, 26, 067));
                     expectedManifestMock.Setup(m => m.IsValid).Returns(false);
-                    expectedManifestMock.Setup(m => m.Manifest).Returns(new SwarmBzz("765a93649a58db3a4a85d800aa8111b13c7082e081b5ea186885d95cdd232dcb"));
-                    expectedManifestMock.Setup(m => m.ValidationErrors).Returns(new[] { new ValidationError(ValidationErrorType.MissingTitle) });
+                    expectedManifestMock.Setup(m => m.ManifestHash).Returns(new SwarmHash("765a93649a58db3a4a85d800aa8111b13c7082e081b5ea186885d95cdd232dcb"));
+                    expectedManifestMock.Setup(m => m.ValidationErrors).Returns([new ValidationError(ValidationErrorType.MissingTitle)]);
                     expectedManifestMock.Setup(m => m.ValidationTime).Returns(new DateTime(2022, 08, 31, 18, 50, 26, 473));
 
                     tests.Add(new DeserializationTestElement<VideoManifest>(sourceDocument, expectedManifestMock.Object));
@@ -886,7 +887,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                     expectedManifestMock.Setup(m => m.Id).Returns("630fad72a93c1417a162417e");
                     expectedManifestMock.Setup(m => m.CreationDateTime).Returns(new DateTime(2022, 08, 31, 18, 50, 26, 067));
                     expectedManifestMock.Setup(m => m.IsValid).Returns(true);
-                    expectedManifestMock.Setup(m => m.Manifest).Returns(new SwarmBzz("765a93649a58db3a4a85d800aa8111b13c7082e081b5ea186885d95cdd232dcb"));
+                    expectedManifestMock.Setup(m => m.ManifestHash).Returns(new SwarmHash("765a93649a58db3a4a85d800aa8111b13c7082e081b5ea186885d95cdd232dcb"));
                     {
                         var metadataMock = new Mock<VideoManifestMetadataV1>();
                         metadataMock.Setup(m => m.BatchId).Returns("36b7efd913ca4cf880b8eeac5093fa27b0825906c600685b6abdd6566e6cfe8f");
@@ -895,7 +896,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                         metadataMock.Setup(m => m.Sources).Returns(new[]{
                             new VideoSourceV1(560000, "720p", "5370D45B2CA38F480B53334163FEF3BEECD4D048B398852B33DD4F568C329956", 100000000)
                         });
-                        metadataMock.Setup(m => m.Thumbnail).Returns(new ThumbnailV1(1.7699999809265137f, "LEHV6nWB2yk8pyo0adR*.7kCMdnj", new Dictionary<string, string>
+                        metadataMock.Setup(m => m.Thumbnail).Returns(new ThumbnailV1(1.7699999809265137f, "LEHV6nWB2yk8pyo0adR*.7kCMdnj", new Dictionary<string, SwarmHash>
                         {
                             { "480w", "a015d8923a777bf8230291318274a5f9795b4bb9445ad41a2667d06df1ea3008" },
                         }));
@@ -955,9 +956,9 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                     var expectedManifestMock = new Mock<VideoManifest>();
                     expectedManifestMock.Setup(m => m.Id).Returns("625df43c74679c25b6c157ed");
                     expectedManifestMock.Setup(m => m.CreationDateTime).Returns(new DateTime(2022, 04, 18, 23, 29, 00, 919));
-                    expectedManifestMock.Setup(m => m.ValidationErrors).Returns(new[] { new ValidationError(ValidationErrorType.MissingTitle) });
+                    expectedManifestMock.Setup(m => m.ValidationErrors).Returns([new ValidationError(ValidationErrorType.MissingTitle)]);
                     expectedManifestMock.Setup(m => m.IsValid).Returns(false);
-                    expectedManifestMock.Setup(m => m.Manifest).Returns(new SwarmBzz("568863d1a27feb3682b720d43cebd723ee09ce57c538831bf94bafc9408871c9"));
+                    expectedManifestMock.Setup(m => m.ManifestHash).Returns(new SwarmHash("568863d1a27feb3682b720d43cebd723ee09ce57c538831bf94bafc9408871c9"));
                     expectedManifestMock.Setup(m => m.ValidationTime).Returns(new DateTime(2022, 04, 18, 23, 29, 06, 299));
 
                     tests.Add(new DeserializationTestElement<VideoManifest>(sourceDocument, expectedManifestMock.Object));
@@ -1009,7 +1010,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                     expectedManifestMock.Setup(m => m.CreationDateTime).Returns(new DateTime(2022, 04, 18, 23, 29, 00, 919));
                     expectedManifestMock.Setup(m => m.ValidationErrors).Returns(Array.Empty<ValidationError>());
                     expectedManifestMock.Setup(m => m.IsValid).Returns(true);
-                    expectedManifestMock.Setup(m => m.Manifest).Returns(new SwarmBzz("568863d1a27feb3682b720d43cebd723ee09ce57c538831bf94bafc9408871c9"));
+                    expectedManifestMock.Setup(m => m.ManifestHash).Returns(new SwarmHash("568863d1a27feb3682b720d43cebd723ee09ce57c538831bf94bafc9408871c9"));
                     {
                         var metadataMock = new Mock<VideoManifestMetadataV1>();
                         metadataMock.Setup(m => m.Description).Returns("Test description");
@@ -1018,7 +1019,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                             new VideoSourceV1(560000, "720p", "5FDAC6FCBBBC3CA5DBEAACFA0CF8F5777DB36793931E177D870C45E0D70CE637", 100000000)
                         });
                         metadataMock.Setup(m => m.Title).Returns("Mocked sample video");
-                        metadataMock.Setup(m => m.Thumbnail).Returns(new ThumbnailV1(1.7777777910232544f, "LEHV6nWB2yk8pyo0adR*.7kCMdnj", new Dictionary<string, string>
+                        metadataMock.Setup(m => m.Thumbnail).Returns(new ThumbnailV1(1.7777777910232544f, "LEHV6nWB2yk8pyo0adR*.7kCMdnj", new Dictionary<string, SwarmHash>
                         {
                             { "480w", "a015d8923a777bf8230291318274a5f9795b4bb9445ad41a2667d06df1ea3008" },
                         }));
@@ -1081,9 +1082,9 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                     var expectedManifestMock = new Mock<VideoManifest>();
                     expectedManifestMock.Setup(m => m.Id).Returns("622e619a0a7a47231a0ec7b5");
                     expectedManifestMock.Setup(m => m.CreationDateTime).Returns(new DateTime(2022, 03, 13, 21, 26, 50, 359));
-                    expectedManifestMock.Setup(m => m.ValidationErrors).Returns(new[] { new ValidationError(ValidationErrorType.MissingTitle) });
+                    expectedManifestMock.Setup(m => m.ValidationErrors).Returns([new ValidationError(ValidationErrorType.MissingTitle)]);
                     expectedManifestMock.Setup(m => m.IsValid).Returns(false);
-                    expectedManifestMock.Setup(m => m.Manifest).Returns(new SwarmBzz("ce601b421535419ae5c536d736075afb9eaac39e304c75357ef9312251704232"));
+                    expectedManifestMock.Setup(m => m.ManifestHash).Returns(new SwarmHash("ce601b421535419ae5c536d736075afb9eaac39e304c75357ef9312251704232"));
                     expectedManifestMock.Setup(m => m.ValidationTime).Returns(new DateTime(2022, 03, 13, 21, 26, 50, 455));
 
                     tests.Add(new DeserializationTestElement<VideoManifest>(sourceDocument, expectedManifestMock.Object));
@@ -1140,7 +1141,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                     expectedManifestMock.Setup(m => m.CreationDateTime).Returns(new DateTime(2022, 03, 13, 21, 26, 50, 359));
                     expectedManifestMock.Setup(m => m.ValidationErrors).Returns(Array.Empty<ValidationError>());
                     expectedManifestMock.Setup(m => m.IsValid).Returns(true);
-                    expectedManifestMock.Setup(m => m.Manifest).Returns(new SwarmBzz("ce601b421535419ae5c536d736075afb9eaac39e304c75357ef9312251704232"));
+                    expectedManifestMock.Setup(m => m.ManifestHash).Returns(new SwarmHash("ce601b421535419ae5c536d736075afb9eaac39e304c75357ef9312251704232"));
                     {
                         var metadataMock = new Mock<VideoManifestMetadataV1>();
                         metadataMock.Setup(m => m.Description).Returns("Test description");
@@ -1149,7 +1150,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                             new VideoSourceV1(557647, "720p", "d88f68aa5b157ce6bda355d8bd54179df264a899c03bf5bdf0d4569f20a6933b", 62735710)
                         });
                         metadataMock.Setup(m => m.Title).Returns("Etherna WAM presentation");
-                        metadataMock.Setup(m => m.Thumbnail).Returns(new ThumbnailV1(1.7777777910232544f, "LEHV6nWB2yk8pyo0adR*.7kCMdnj", new Dictionary<string, string>
+                        metadataMock.Setup(m => m.Thumbnail).Returns(new ThumbnailV1(1.7777777910232544f, "LEHV6nWB2yk8pyo0adR*.7kCMdnj", new Dictionary<string, SwarmHash>
                         {
                             { "1920w", "5d2a835a77269dc7bb1fb6be7b12407326cf6dcde4bd14f41b92be9d82414421" },
                             { "480w", "a015d8923a777bf8230291318274a5f9795b4bb9445ad41a2667d06df1ea3008" },
@@ -1379,7 +1380,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
             Assert.Equal(testElement.ExpectedModel.Id, result.Id);
             Assert.Equal(testElement.ExpectedModel.CreationDateTime, result.CreationDateTime);
             Assert.Equal(testElement.ExpectedModel.IsValid, result.IsValid);
-            Assert.Equal(testElement.ExpectedModel.Manifest, result.Manifest);
+            Assert.Equal(testElement.ExpectedModel.ManifestHash, result.ManifestHash);
             switch (testElement.ExpectedModel.Metadata)
             {
                 case VideoManifestMetadataV1 expectedMetadataV1:
@@ -1423,7 +1424,6 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
             Assert.Equal(testElement.ExpectedModel.ValidationTime, result.ValidationTime);
             Assert.NotNull(result.Id);
             Assert.NotNull(result.IsValid);
-            Assert.NotNull(result.Manifest);
             Assert.NotNull(result.ValidationErrors);
             Assert.NotNull(result.ValidationTime);
         }

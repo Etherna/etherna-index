@@ -37,7 +37,7 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2
                 validationErrors.Add(new ValidationError(ValidationErrorType.InvalidVideoSource, "Video source has empty quality"));
 
             //path
-            if (!path.HasPath)
+            if (path is { UriKind: UriKind.Relative, HasPath: false })
                 validationErrors.Add(new ValidationError(ValidationErrorType.InvalidVideoSource, "Video source has empty path"));
 
             //type
