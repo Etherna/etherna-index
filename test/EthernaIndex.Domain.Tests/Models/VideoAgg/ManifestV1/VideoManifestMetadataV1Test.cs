@@ -56,7 +56,7 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV1
                     "Titletest",
                     null!,
                     1234,
-                    new[] { new VideoSourceV1(null, "720", "ref", null) },
+                    [new VideoSourceV1(null, "720", SwarmHash.Zero, null)],
                     null,
                     null,
                     null,
