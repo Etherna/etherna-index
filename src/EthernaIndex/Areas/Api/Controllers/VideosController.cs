@@ -13,6 +13,7 @@
 // If not, see <https://www.gnu.org/licenses/>.
 
 using Asp.Versioning;
+using Etherna.BeeNet.Models;
 using Etherna.EthernaIndex.Areas.Api.DtoModels;
 using Etherna.EthernaIndex.Areas.Api.InputModels;
 using Etherna.EthernaIndex.Areas.Api.Services;
@@ -350,7 +351,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public Task<IEnumerable<VideoManifestStatusDto>> GetBulkValidationStatusByHashesAsync(
-            [Required][FromBody] IEnumerable<string> hashes) =>
+            [Required][FromBody] IEnumerable<SwarmHash> hashes) =>
             service.GetBulkValidationStatusByHashesAsync(hashes);
 
         /// <summary>

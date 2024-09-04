@@ -12,6 +12,8 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
+using Etherna.BeeNet.Models;
+
 namespace Etherna.EthernaIndex.ElasticSearch.Documents
 {
     public class SourceImageDocument
@@ -19,7 +21,7 @@ namespace Etherna.EthernaIndex.ElasticSearch.Documents
         // Constructors.
         public SourceImageDocument(
             int width,
-            string path,
+            SwarmAddress path,
             string? type)
         {
             Width = width;
@@ -32,7 +34,7 @@ namespace Etherna.EthernaIndex.ElasticSearch.Documents
 
         // Properties.
         public int Width { get; set; }
-        public string Path { get; set; }
+        public SwarmAddress Path { get; set; }
         public string? Type { get; set; }
     }
 }

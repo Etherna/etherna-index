@@ -12,10 +12,10 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
+using Etherna.BeeNet.Models;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV1;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2;
-using Etherna.EthernaIndex.ElasticSearch.Documents;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -31,7 +31,7 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
         {
             ArgumentNullException.ThrowIfNull(videoManifest, nameof(videoManifest));
 
-            Hash = videoManifest.Manifest.Hash;
+            Hash = videoManifest.ManifestHash;
 
             switch (videoManifest.Metadata)
             {
@@ -76,14 +76,17 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
                         .Select(s => new VideoSourceDto(
                             s.Type,
                             s.Quality,
-                            s.Path,
+                            s.Path.ToSwarmAddress(videoManifest.ManifestHash),
                             s.Size));
 
                     if (metadataV2.Thumbnail is not null)
                         Thumbnail = new Image2Dto(
                             metadataV2.Thumbnail.AspectRatio,
                             metadataV2.Thumbnail.Blurhash,
-                            metadataV2.Thumbnail.Sources.Select(s => new ImageSourceDto(s.Type, s.Path, s.Width)));
+                            metadataV2.Thumbnail.Sources.Select(s => new ImageSourceDto(
+                                s.Type,
+                                s.Path.ToSwarmAddress(videoManifest.ManifestHash),
+                                s.Width)));
 
                     Title = metadataV2.Title;
                     UpdatedAt = metadataV2.UpdatedAt;
@@ -95,11 +98,11 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
 
         // Properties.
         public float AspectRatio { get; }
-        public string? BatchId { get; }
+        public PostageBatchId? BatchId { get; }
         public long CreatedAt { get; }
         public string? Description { get; }
         public long? Duration { get; }
-        public string Hash { get; }
+        public SwarmHash Hash { get; }
         public string? PersonalData { get; }
         public IEnumerable<VideoSourceDto> Sources { get; }
         public Image2Dto? Thumbnail { get; }

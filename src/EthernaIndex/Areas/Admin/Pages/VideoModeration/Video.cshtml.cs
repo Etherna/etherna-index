@@ -29,7 +29,11 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoModeration
 {
-    public class VideoModel : PageModel
+    public class VideoModel(
+        IEthernaOpenIdConnectClient ethernaOidcClient,
+        IIndexDbContext indexDbContext,
+        IUserService userService)
+        : PageModel
     {
         // Models.
         public abstract class HistoryElementBase
@@ -77,22 +81,6 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoModeration
 
             // Properties.
             public bool IsValid { get; }
-        }
-
-        // Fields.
-        private readonly IEthernaOpenIdConnectClient ethernaOidcClient;
-        private readonly IIndexDbContext indexDbContext;
-        private readonly IUserService userService;
-
-        // Constructor.
-        public VideoModel(
-            IEthernaOpenIdConnectClient ethernaOidcClient,
-            IIndexDbContext indexDbContext,
-            IUserService userService)
-        {
-            this.ethernaOidcClient = ethernaOidcClient;
-            this.indexDbContext = indexDbContext;
-            this.userService = userService;
         }
 
         // Properties.

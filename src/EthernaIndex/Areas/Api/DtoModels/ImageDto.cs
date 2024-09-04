@@ -12,28 +12,21 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
+using Etherna.BeeNet.Models;
 using System;
 using System.Collections.Generic;
 
 namespace Etherna.EthernaIndex.Areas.Api.DtoModels
 {
     [Obsolete("Used only for API backwards compatibility")]
-    public class ImageDto
+    public class ImageDto(
+        float aspectRatio,
+        string blurhash,
+        IReadOnlyDictionary<string, SwarmAddress> sources)
     {
-        // Constructors.
-        public ImageDto(
-            float aspectRatio,
-            string blurhash,
-            IReadOnlyDictionary<string, string> sources)
-        {
-            AspectRatio = aspectRatio;
-            Blurhash = blurhash;
-            Sources = sources;
-        }
-
         // Properties.
-        public float AspectRatio { get; private set; }
-        public string Blurhash { get; private set; }
-        public IReadOnlyDictionary<string, string> Sources { get; private set; }
+        public float AspectRatio { get; private set; } = aspectRatio;
+        public string Blurhash { get; private set; } = blurhash;
+        public IReadOnlyDictionary<string, SwarmAddress> Sources { get; private set; } = sources;
     }
 }

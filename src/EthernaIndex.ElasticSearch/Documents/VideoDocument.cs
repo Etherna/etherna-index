@@ -12,6 +12,7 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
+using Etherna.BeeNet.Models;
 using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV1;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2;
@@ -46,7 +47,7 @@ namespace Etherna.EthernaIndex.ElasticSearch.Documents
             switch (video.LastValidManifest.Metadata)
             {
                 case VideoManifestMetadataV1 metadataV1:
-                    BatchId = metadataV1.BatchId.ToString();
+                    BatchId = metadataV1.BatchId;
                     Description = metadataV1.Description;
                     Duration = metadataV1.Duration;
                     PersonalData = metadataV1.PersonalData;
@@ -76,7 +77,10 @@ namespace Etherna.EthernaIndex.ElasticSearch.Documents
                         Thumbnail = new ImageDocument(
                             metadataV2.Thumbnail.AspectRatio,
                             metadataV2.Thumbnail.Blurhash,
-                            metadataV2.Thumbnail.Sources.Select(s => new SourceImageDocument(s.Width, s.Path.ToString(), s.Type)));
+                            metadataV2.Thumbnail.Sources.Select(s => new SourceImageDocument(
+                                s.Width,
+                                s.Path.ToSwarmAddress(video.LastValidManifest.ManifestHash),
+                                s.Type)));
                     break;
 
                 default: throw new InvalidOperationException();
@@ -89,11 +93,11 @@ namespace Etherna.EthernaIndex.ElasticSearch.Documents
         // Properties.
         public string Id { get; set; }
         public DateTime CreationDateTime { get; set; }
-        public string? BatchId { get; set; }
+        public PostageBatchId? BatchId { get; set; }
         public string Description { get; set; }
         public long Duration { get; set; }
         public bool IsFrozen { get; set; }
-        public string ManifestHash { get; set; }
+        public SwarmHash ManifestHash { get; set; }
         public string? OriginalQuality { get; set; }
         public string OwnerSharedInfoId { get; set; }
         public string? PersonalData { get; set; }

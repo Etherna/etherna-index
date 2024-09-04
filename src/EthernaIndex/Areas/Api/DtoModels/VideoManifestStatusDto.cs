@@ -12,6 +12,7 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
+using Etherna.BeeNet.Models;
 using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg;
 using System;
@@ -35,7 +36,7 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
 
             ErrorDetails = videoManifest.ValidationErrors
                 .Select(i => new ErrorDetailDto(i.ErrorMessage, i.ErrorType));
-            Hash = videoManifest.Manifest.Hash;
+            Hash = videoManifest.ManifestHash;
             IsValid = videoManifest.IsValid;
             ValidationTime = videoManifest.ValidationTime;
             VideoId = video.Id;
@@ -43,7 +44,7 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
 
         // Properties.
         public IEnumerable<ErrorDetailDto> ErrorDetails { get; private set; }
-        public string Hash { get; private set; }
+        public SwarmHash Hash { get; private set; }
         public bool? IsValid { get; private set; }
         public DateTime? ValidationTime { get; private set; }
         public string VideoId { get; private set; }

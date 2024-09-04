@@ -13,6 +13,7 @@
 // If not, see <https://www.gnu.org/licenses/>.
 
 using Etherna.Authentication;
+using Etherna.BeeNet.Models;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Services.Extensions;
 using Etherna.EthernaIndex.Services.Tasks;
@@ -46,13 +47,13 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         }
 
         // Methods.
-        public async Task ForceVideoManifestValidationAsync(string manifestHash)
+        public async Task ForceVideoManifestValidationAsync(SwarmHash manifestHash)
         {
-            var videoManifest = await indexDbContext.VideoManifests.FindOneAsync(c => c.Manifest.Hash == manifestHash);
+            var videoManifest = await indexDbContext.VideoManifests.FindOneAsync(c => c.ManifestHash == manifestHash);
             var video = await indexDbContext.Videos.FindOneAsync(v => v.VideoManifests.Any(vm => vm.Id == videoManifest.Id));
 
             backgroundJobClient.Create<IVideoManifestValidatorTask>(
-                task => task.RunAsync(video.Id, manifestHash),
+                task => task.RunAsync(video.Id, manifestHash.ToString()),
                 new EnqueuedState(Queues.METADATA_VIDEO_VALIDATOR));
 
             logger.ForcedVideoManifestsValidation(await ethernaOidcClient.GetClientIdAsync(), video.Id, new[] { manifestHash });
@@ -65,11 +66,14 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             foreach (var manifest in video.VideoManifests)
             {
                 backgroundJobClient.Create<IVideoManifestValidatorTask>(
-                    task => task.RunAsync(video.Id, manifest.Manifest.Hash),
+                    task => task.RunAsync(video.Id, manifest.ManifestHash.ToString()),
                     new EnqueuedState(Queues.METADATA_VIDEO_VALIDATOR));
             }
 
-            logger.ForcedVideoManifestsValidation(await ethernaOidcClient.GetClientIdAsync(), video.Id, video.VideoManifests.Select(m => m.Id));
+            logger.ForcedVideoManifestsValidation(
+                await ethernaOidcClient.GetClientIdAsync(),
+                video.Id,
+                video.VideoManifests.Select(m => m.ManifestHash));
         }
     }
 }

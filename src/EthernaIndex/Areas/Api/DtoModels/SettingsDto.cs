@@ -14,19 +14,12 @@
 
 namespace Etherna.EthernaIndex.Areas.Api.DtoModels
 {
-    public class SettingsDto
+    public class SettingsDto(
+        string defaultSwarmGatewayUrl,
+        string version)
     {
-        // Constructors.
-        public SettingsDto(
-            string defaultSwarmGatewayUrl,
-            string version)
-        {
-            DefaultSwarmGatewayUrl = defaultSwarmGatewayUrl ?? throw new System.ArgumentNullException(nameof(defaultSwarmGatewayUrl));
-            Version = version ?? throw new System.ArgumentNullException(nameof(version));
-        }
-
         // Properties.
-        public string DefaultSwarmGatewayUrl { get; }
-        public string Version { get; }
+        public string DefaultSwarmGatewayUrl { get; } = defaultSwarmGatewayUrl ?? throw new System.ArgumentNullException(nameof(defaultSwarmGatewayUrl));
+        public string Version { get; } = version ?? throw new System.ArgumentNullException(nameof(version));
     }
 }
