@@ -40,17 +40,17 @@ namespace Etherna.EthernaIndex.ElasticSearch.Documents
             Id = video.Id;
             CreationDateTime = video.LastValidManifest.CreationDateTime;
             IsFrozen = video.IsFrozen;
-            ManifestHash = video.LastValidManifest.Manifest.Hash;
+            ManifestHash = video.LastValidManifest.ManifestHash.ToString();
             OwnerSharedInfoId = video.Owner.SharedInfoId;
 
             switch (video.LastValidManifest.Metadata)
             {
                 case VideoManifestMetadataV1 metadataV1:
-                    BatchId = metadataV1.BatchId;
+                    BatchId = metadataV1.BatchId.ToString();
                     Description = metadataV1.Description;
                     Duration = metadataV1.Duration;
                     PersonalData = metadataV1.PersonalData;
-                    Sources = metadataV1.Sources.Select(i => new SourceVideoDocument(i.Reference, i.Quality, i.Size ?? 0, "mp4"));
+                    Sources = metadataV1.Sources.Select(i => new SourceVideoDocument(i.Reference.ToString(), i.Quality, i.Size ?? 0, "mp4"));
                     Title = metadataV1.Title;
 
                     if (metadataV1.Thumbnail is not null)
@@ -60,23 +60,23 @@ namespace Etherna.EthernaIndex.ElasticSearch.Documents
                             metadataV1.Thumbnail.Sources.Select(s =>
                                 new SourceImageDocument(
                                     int.Parse(s.Key.Replace("w", "", StringComparison.OrdinalIgnoreCase), CultureInfo.InvariantCulture),
-                                    s.Value,
+                                    s.Value.ToString(),
                                     null)));
                     break;
 
                 case VideoManifestMetadataV2 metadataV2:
-                    BatchId = metadataV2.BatchId;
+                    BatchId = metadataV2.BatchId.ToString();
                     Description = metadataV2.Description;
                     Duration = metadataV2.Duration;
                     PersonalData = metadataV2.PersonalData;
-                    Sources = metadataV2.Sources.Select(i => new SourceVideoDocument(i.Path, i.Quality, i.Size, i.Type));
+                    Sources = metadataV2.Sources.Select(i => new SourceVideoDocument(i.Path.ToString(), i.Quality, i.Size, i.Type));
                     Title = metadataV2.Title;
 
                     if (metadataV2.Thumbnail is not null)
                         Thumbnail = new ImageDocument(
                             metadataV2.Thumbnail.AspectRatio,
                             metadataV2.Thumbnail.Blurhash,
-                            metadataV2.Thumbnail.Sources.Select(s => new SourceImageDocument(s.Width, s.Path, s.Type)));
+                            metadataV2.Thumbnail.Sources.Select(s => new SourceImageDocument(s.Width, s.Path.ToString(), s.Type)));
                     break;
 
                 default: throw new InvalidOperationException();
