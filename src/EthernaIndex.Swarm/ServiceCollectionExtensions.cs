@@ -15,6 +15,7 @@
 using Etherna.BeeNet;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using System;
 
 namespace Etherna.EthernaIndex.Swarm
@@ -32,9 +33,9 @@ namespace Etherna.EthernaIndex.Swarm
             //singleton
             services.AddSingleton<IBeeClient>(sp =>
             {
-                var options = sp.GetRequiredService<SwarmOptions>();
+                var options = sp.GetRequiredService<IOptions<SwarmOptions>>();
                 return new BeeClient(
-                    baseUrl: options.GatewayUrl);
+                    baseUrl: options.Value.GatewayUrl);
             });
         }
     }

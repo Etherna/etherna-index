@@ -13,13 +13,13 @@
 // If not, see <https://www.gnu.org/licenses/>.
 
 using Etherna.BeeNet;
+using Etherna.BeeNet.Models;
 using Etherna.EthernaIndex.Domain.Exceptions;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV1;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2;
 using Etherna.EthernaIndex.Swarm.DtoModels.ManifestV1;
 using Etherna.EthernaIndex.Swarm.DtoModels.ManifestV2;
-using Microsoft.Extensions.Options;
 using System;
 using System.Linq;
 using System.Text.Json;
@@ -28,8 +28,6 @@ using System.Threading.Tasks;
 
 #if DEBUG_MOCKUP_SWARM
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 #endif
 
 #if DEBUG_MOCKUP_SWARM
@@ -49,8 +47,7 @@ namespace Etherna.EthernaIndex.Swarm
         };
 
 #if DEBUG_MOCKUP_SWARM
-        private readonly Dictionary<string, object> SwarmObjectMockups = new(); //hash->object
-        private readonly Random random = new();
+        private readonly Dictionary<SwarmHash, object> SwarmObjectMockups = new(); //hash->object
 #endif
 
         // Constructors.
@@ -62,7 +59,7 @@ namespace Etherna.EthernaIndex.Swarm
 
         // Methods.
         public async Task<VideoManifestMetadataBase> DeserializeVideoMetadataAsync(
-            string manifestHash,
+            SwarmHash manifestHash,
             JsonElement jsonElementManifest)
         {
             // Find version.
@@ -80,7 +77,7 @@ namespace Etherna.EthernaIndex.Swarm
             };
         }
 
-        public async Task<VideoManifestMetadataBase> GetVideoMetadataAsync(string manifestHash)
+        public async Task<VideoManifestMetadataBase> GetVideoMetadataAsync(SwarmHash manifestHash)
         {
 #if !DEBUG_MOCKUP_SWARM
             using var manifestStream = (await BeeClient.GetFileAsync(manifestHash)).Stream;
@@ -93,19 +90,6 @@ namespace Etherna.EthernaIndex.Swarm
         }
 
 #if DEBUG_MOCKUP_SWARM
-        [SuppressMessage("Security", "CA5394:Do not use insecure randomness", Justification = "Not critical")]
-        public string GenerateNewHash()
-        {
-            var digits = 64;
-
-            byte[] buffer = new byte[digits / 2];
-            random.NextBytes(buffer);
-            string result = string.Concat(buffer.Select(x => x.ToString("X2", CultureInfo.InvariantCulture)).ToArray());
-            if (digits % 2 == 0)
-                return result;
-            return result + random.Next(16).ToString("X", CultureInfo.InvariantCulture);
-        }
-
         public void SetupHashMockup(string hash, object returnedObject) =>
             SwarmObjectMockups[hash] = returnedObject;
 
@@ -115,8 +99,8 @@ namespace Etherna.EthernaIndex.Swarm
                 "Mocked sample video",
                 "Test description",
                 420,
-                new[] { new VideoSourceV1(42, "720", GenerateNewHash(), 100000000) },
-                new ThumbnailV1(1.77f, "LEHV6nWB2yk8pyo0adR*.7kCMdnj", new Dictionary<string, string>() { { "480", GenerateNewHash() } }),
+                [new VideoSourceV1(42, "720", SwarmHash.Zero, 100000000)],
+                new ThumbnailV1(1.77f, "LEHV6nWB2yk8pyo0adR*.7kCMdnj", new Dictionary<string, SwarmHash> { { "480", SwarmHash.Zero } }),
                 "36b7efd913ca4cf880b8eeac5093fa27b0825906c600685b6abdd6566e6cfe8f",
                 123456,
                 234567,
@@ -133,8 +117,8 @@ namespace Etherna.EthernaIndex.Swarm
                 "Mocked sample video",
                 "Test description",
                 420,
-                new[] { new VideoSourceV2(GenerateNewHash(), "720", 100000000, "mp4") },
-                new ThumbnailV2(1.77f, "LEHV6nWB2yk8pyo0adR*.7kCMdnj", new[] { new ImageSourceV2(480, GenerateNewHash(), "jpeg") }),
+                [new VideoSourceV2(SwarmHash.Zero, "720", 100000000, "mp4")],
+                new ThumbnailV2(1.77f, "LEHV6nWB2yk8pyo0adR*.7kCMdnj", [new ImageSourceV2(480, SwarmHash.Zero, "jpeg")]),
                 1.77f,
                 "36b7efd913ca4cf880b8eeac5093fa27b0825906c600685b6abdd6566e6cfe8f",
                 123456,
@@ -162,15 +146,15 @@ namespace Etherna.EthernaIndex.Swarm
                     new ThumbnailV1(
                         manifestDto.Thumbnail.AspectRatio,
                         manifestDto.Thumbnail.Blurhash,
-                        manifestDto.Thumbnail.Sources),
-                manifestDto.BatchId,
+                        manifestDto.Thumbnail.Sources.ToDictionary(s => s.Key, s => (SwarmHash)s.Value)),
+                manifestDto.BatchId is null ? (PostageBatchId?)null : PostageBatchId.FromString(manifestDto.BatchId),
                 manifestDto.CreatedAt,
                 manifestDto.UpdatedAt,
                 manifestDto.PersonalData);
         }
 
         private async Task<VideoManifestMetadataV2> DeserializeVideoMetadataV2Async(
-            string manifestHash,
+            SwarmHash manifestHash,
             JsonElement jsonElementManifest)
         {
             // Get preview dto.
