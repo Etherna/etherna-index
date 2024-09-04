@@ -12,6 +12,7 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
+using Etherna.BeeNet.Models;
 using Etherna.EthernaIndex.Domain.Exceptions;
 using Xunit;
 
@@ -29,10 +30,10 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2
                     "Title",
                     "Description",
                     1234,
-                    new[] { new VideoSourceV2("myPath", "720", 32, "mp4") },
+                    [new VideoSourceV2("myPath", "720", 32, "mp4")],
                     null,
                     0,
-                    "myBatchId",
+                    PostageBatchId.Zero, 
                     1234,
                     null,
                     null));

@@ -12,6 +12,7 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
+using Etherna.BeeNet.Models;
 using Etherna.EthernaIndex.Domain.Exceptions;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,7 +36,7 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV1
             long duration,
             IEnumerable<VideoSourceV1> sources,
             ThumbnailV1? thumbnail,
-            string? batchId,
+            PostageBatchId? batchId,
             long? createdAt,
             long? updatedAt,
             string? personalData)
@@ -100,7 +101,7 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV1
         public virtual string Title { get; protected set; }
 
         //from v1.1
-        public virtual string? BatchId { get; protected set; }
+        public virtual PostageBatchId? BatchId { get; protected set; }
         public virtual long? CreatedAt { get; protected set; }
         public virtual long? UpdatedAt { get; protected set; }
 

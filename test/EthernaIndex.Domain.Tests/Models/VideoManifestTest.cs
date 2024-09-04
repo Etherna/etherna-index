@@ -12,6 +12,7 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
+using Etherna.BeeNet.Models;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2;
 using System;
@@ -23,7 +24,7 @@ namespace Etherna.EthernaIndex.Domain.Models
     public class VideoManifestTest
     {
         // Fields.
-        readonly string hash = "5d942a1d73fd8f28d71e6b03d2e42f44721db94b734c2edcfe6fcd48b76a74f9";
+        readonly SwarmHash hash = "5d942a1d73fd8f28d71e6b03d2e42f44721db94b734c2edcfe6fcd48b76a74f9";
         readonly VideoManifest manifest;
 
         // Constructors.
@@ -36,7 +37,7 @@ namespace Etherna.EthernaIndex.Domain.Models
         public void Create_Manifest_WithDefaultValue()
         {
             // Assert.
-            Assert.Equal(hash, manifest.Manifest.Hash);
+            Assert.Equal(hash, manifest.ManifestHash);
             Assert.Null(manifest.IsValid);
             Assert.Null(manifest.ValidationTime);
         }
@@ -73,7 +74,7 @@ namespace Etherna.EthernaIndex.Domain.Models
                     new[] { new VideoSourceV2("myPath", "720", 32, "mp4") },
                     null,
                     1,
-                    "myBatchId",
+                    PostageBatchId.Zero, 
                     456,
                     null,
                     null));
@@ -95,7 +96,7 @@ namespace Etherna.EthernaIndex.Domain.Models
                 new[] { new VideoSourceV2("path1", "10801", 4, "type1") },
                 new ThumbnailV2(1.78f, "BlurTst", new[] { new ImageSourceV2(1080, "Test1", "image") }),
                 1.78f,
-                "myBatchId",
+                PostageBatchId.Zero, 
                 12345,
                 54321,
                 "{}");

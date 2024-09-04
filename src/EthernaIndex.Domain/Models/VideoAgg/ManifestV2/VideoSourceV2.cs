@@ -12,10 +12,10 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
+using Etherna.BeeNet.Models;
 using Etherna.EthernaIndex.Domain.Exceptions;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2
 {
@@ -23,7 +23,7 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2
     {
         // Constructors.
         public VideoSourceV2(
-            string path,
+            SwarmUri path,
             string? quality,
             long size,
             string type)
@@ -37,7 +37,7 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2
                 validationErrors.Add(new ValidationError(ValidationErrorType.InvalidVideoSource, "Video source has empty quality"));
 
             //path
-            if (string.IsNullOrWhiteSpace(path))
+            if (!path.HasPath)
                 validationErrors.Add(new ValidationError(ValidationErrorType.InvalidVideoSource, "Video source has empty path"));
 
             //type
@@ -45,8 +45,7 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2
                 validationErrors.Add(new ValidationError(ValidationErrorType.InvalidVideoSource, "Video source has empty type"));
 
             //size
-            if (size <= 0 &&
-                !path.EndsWith("/manifest.m3u8", StringComparison.InvariantCultureIgnoreCase))
+            if (size <= 0 && !path.ToString().EndsWith("/manifest.m3u8", StringComparison.InvariantCultureIgnoreCase))
                 validationErrors.Add(new ValidationError(ValidationErrorType.InvalidVideoSource, "Video source has invalid size"));
 
             // Throws validation exception.
@@ -66,7 +65,7 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2
 
         // Properties.
         //from v2.0
-        public virtual string Path { get; set; }
+        public virtual SwarmUri Path { get; set; }
         public virtual string? Quality { get; set; }
         public virtual long Size { get; set; }
         public virtual string Type { get; set; }
@@ -77,14 +76,14 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2
             if (ReferenceEquals(this, obj)) return true;
             if (obj is null) return false;
             return GetType() == obj.GetType() &&
-                EqualityComparer<string>.Default.Equals(Path, (obj as VideoSourceV2)!.Path) &&
+                EqualityComparer<SwarmUri>.Default.Equals(Path, (obj as VideoSourceV2)!.Path) &&
                 EqualityComparer<string>.Default.Equals(Quality, (obj as VideoSourceV2)!.Quality) &&
                 Size.Equals((obj as VideoSourceV2)?.Size) &&
                 EqualityComparer<string>.Default.Equals(Type, (obj as VideoSourceV2)!.Type);
         }
 
         public override int GetHashCode() =>
-            Path.GetHashCode(StringComparison.Ordinal) ^
+            Path.GetHashCode() ^
             Quality?.GetHashCode(StringComparison.Ordinal) ?? "".GetHashCode(StringComparison.Ordinal) ^
             Size.GetHashCode() ^
             Type.GetHashCode(StringComparison.Ordinal);

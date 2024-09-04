@@ -12,7 +12,7 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
-using Etherna.EthernaIndex.Domain.Models.Swarm;
+using Etherna.BeeNet.Models;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV1;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2;
 using Etherna.MongODM.Core.Attributes;
@@ -32,9 +32,9 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
         private List<ValidationError> _validationErrors = new();
 
         // Constructors.
-        public VideoManifest(string manifestHash)
+        public VideoManifest(SwarmHash manifestHash)
         {
-            Manifest = new SwarmBzz(manifestHash);
+            ManifestHash = manifestHash;
         }
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         protected VideoManifest() { }
@@ -42,7 +42,7 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
 
         // Properties.
         public virtual bool? IsValid { get; private set; }
-        public virtual SwarmBzz Manifest { get; protected set; }
+        public virtual SwarmHash ManifestHash { get; protected set; }
         public virtual VideoManifestMetadataBase? Metadata { get; protected set; }
         public virtual IEnumerable<ValidationError> ValidationErrors
         {

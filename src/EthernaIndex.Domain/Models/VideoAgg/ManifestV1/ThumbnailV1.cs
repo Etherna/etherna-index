@@ -12,6 +12,7 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
+using Etherna.BeeNet.Models;
 using Etherna.EthernaIndex.Domain.Exceptions;
 using System;
 using System.Collections.Generic;
@@ -22,13 +23,13 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV1
     public class ThumbnailV1 : ModelBase
     {
         // Fields.
-        private Dictionary<string, string> _sources = new();
+        private Dictionary<string, SwarmHash> _sources = new();
 
         // Constructors.
         public ThumbnailV1(
             float aspectRatio,
             string blurhash,
-            IDictionary<string, string> sources)
+            IDictionary<string, SwarmHash> sources)
         {
             // Validate args.
             var validationErrors = new List<ValidationError>();
@@ -37,7 +38,7 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV1
             if (sources is null || !sources.Any())
                 validationErrors.Add(new ValidationError(ValidationErrorType.InvalidThumbnailSource, "Thumbnail has missing sources"));
 
-            foreach (var source in sources ?? new Dictionary<string, string>())
+            foreach (var source in sources ?? new Dictionary<string, SwarmHash>())
             {
                 //width
                 if (string.IsNullOrWhiteSpace(source.Key))
@@ -45,10 +46,6 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV1
                 if (!int.TryParse(source.Key.Replace("w", "", StringComparison.OrdinalIgnoreCase), out var width) ||
                     width <= 0)
                     validationErrors.Add(new ValidationError(ValidationErrorType.InvalidThumbnailSource, $"Thumbnail has wrong width"));
-
-                //reference
-                if (string.IsNullOrWhiteSpace(source.Value))
-                    validationErrors.Add(new ValidationError(ValidationErrorType.InvalidThumbnailSource, $"Thumbnail has empty reference"));
             }
 
             // Throws validation exception.
@@ -68,10 +65,10 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV1
         // Properties.
         public virtual float AspectRatio { get; set; }
         public virtual string Blurhash { get; set; }
-        public virtual IReadOnlyDictionary<string, string> Sources
+        public virtual IReadOnlyDictionary<string, SwarmHash> Sources
         {
             get => _sources;
-            protected set => _sources = new Dictionary<string, string>(value ?? new Dictionary<string, string>());
+            protected set => _sources = new Dictionary<string, SwarmHash>(value ?? new Dictionary<string, SwarmHash>());
         }
 
         // Methods.
