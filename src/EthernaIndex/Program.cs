@@ -23,11 +23,13 @@ using Etherna.EthernaIndex.Configs.MongODM;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.ElasticSearch;
 using Etherna.EthernaIndex.Extensions;
+using Etherna.EthernaIndex.JsonConverters;
 using Etherna.EthernaIndex.Persistence;
 using Etherna.EthernaIndex.Services;
 using Etherna.EthernaIndex.Services.Settings;
 using Etherna.EthernaIndex.Services.Tasks;
 using Etherna.EthernaIndex.Swagger;
+using Etherna.EthernaIndex.Swagger.SchemaFilters;
 using Etherna.EthernaIndex.Swarm;
 using Etherna.MongODM;
 using Etherna.MongODM.AspNetCore.UI;
@@ -182,7 +184,13 @@ namespace Etherna.EthernaIndex
             });
             services.AddControllers()
                 .AddJsonOptions(options =>
-                    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+                {
+                    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                    options.JsonSerializerOptions.Converters.Add(new PostageBatchIdJsonConverter());
+                    options.JsonSerializerOptions.Converters.Add(new SwarmAddressJsonConverter());
+                    options.JsonSerializerOptions.Converters.Add(new SwarmHashJsonConverter());
+                    options.JsonSerializerOptions.Converters.Add(new SwarmUriJsonConverter());
+                });
             services.AddApiVersioning(options =>
             {
                 options.ReportApiVersions = true;
@@ -339,6 +347,12 @@ namespace Etherna.EthernaIndex
 
                 //add a custom operation filter which sets default values
                 options.OperationFilter<SwaggerDefaultValues>();
+                
+                //add schema filters
+                options.SchemaFilter<PostageBatchIdSchemaFilter>();
+                options.SchemaFilter<SwarmAddressSchemaFilter>();
+                options.SchemaFilter<SwarmHashSchemaFilter>();
+                options.SchemaFilter<SwarmUriSchemaFilter>();
 
                 //integrate xml comments
                 var xmlFile = typeof(Program).GetTypeInfo().Assembly.GetName().Name + ".xml";
