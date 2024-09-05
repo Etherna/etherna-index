@@ -26,7 +26,6 @@ namespace Etherna.EthernaIndex.Swarm
 
 #if DEBUG_MOCKUP_SWARM
         void SetupHashMockup(string hash, object returnedObject);
-        VideoManifestMetadataBase SetupNewMetadataV1VideoMockup(string manifestHash);
         VideoManifestMetadataBase SetupNewMetadataV2VideoMockup(string manifestHash);
 #endif
     }

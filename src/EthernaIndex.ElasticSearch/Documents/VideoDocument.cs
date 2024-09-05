@@ -51,7 +51,7 @@ namespace Etherna.EthernaIndex.ElasticSearch.Documents
                     Description = metadataV1.Description;
                     Duration = metadataV1.Duration;
                     PersonalData = metadataV1.PersonalData;
-                    Sources = metadataV1.Sources.Select(i => new SourceVideoDocument(i.Reference.ToString(), i.Quality, i.Size ?? 0, "mp4"));
+                    Sources = metadataV1.Sources.Select(i => new SourceVideoDocument(i.Reference, i.Quality, i.Size ?? 0, "mp4"));
                     Title = metadataV1.Title;
 
                     if (metadataV1.Thumbnail is not null)
@@ -61,7 +61,7 @@ namespace Etherna.EthernaIndex.ElasticSearch.Documents
                             metadataV1.Thumbnail.Sources.Select(s =>
                                 new SourceImageDocument(
                                     int.Parse(s.Key.Replace("w", "", StringComparison.OrdinalIgnoreCase), CultureInfo.InvariantCulture),
-                                    s.Value.ToString(),
+                                    s.Value,
                                     null)));
                     break;
 
@@ -70,7 +70,8 @@ namespace Etherna.EthernaIndex.ElasticSearch.Documents
                     Description = metadataV2.Description;
                     Duration = metadataV2.Duration;
                     PersonalData = metadataV2.PersonalData;
-                    Sources = metadataV2.Sources.Select(i => new SourceVideoDocument(i.Path.ToString(), i.Quality, i.Size, i.Type));
+                    Sources = metadataV2.Sources.Select(i => new SourceVideoDocument(
+                        i.Path.ToSwarmAddress(video.LastValidManifest.ManifestHash), i.Quality, i.Size, i.Type));
                     Title = metadataV2.Title;
 
                     if (metadataV2.Thumbnail is not null)

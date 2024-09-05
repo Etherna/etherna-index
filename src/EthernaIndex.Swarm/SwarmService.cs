@@ -36,10 +36,9 @@ using System.Collections.Generic;
 
 namespace Etherna.EthernaIndex.Swarm
 {
-    public class SwarmService : ISwarmService
+    public class SwarmService(IBeeClient beeClient) : ISwarmService
     {
         // Fields.
-        private readonly IBeeClient BeeClient;
         private readonly JsonSerializerOptions jsonSerializerOptions = new()
         {
             Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) },
@@ -49,13 +48,6 @@ namespace Etherna.EthernaIndex.Swarm
 #if DEBUG_MOCKUP_SWARM
         private readonly Dictionary<SwarmHash, object> SwarmObjectMockups = new(); //hash->object
 #endif
-
-        // Constructors.
-        public SwarmService(
-            IBeeClient beeClient)
-        {
-            BeeClient = beeClient;
-        }
 
         // Methods.
         public async Task<VideoManifestMetadataBase> DeserializeVideoMetadataAsync(
@@ -93,32 +85,14 @@ namespace Etherna.EthernaIndex.Swarm
         public void SetupHashMockup(string hash, object returnedObject) =>
             SwarmObjectMockups[hash] = returnedObject;
 
-        public VideoManifestMetadataBase SetupNewMetadataV1VideoMockup(string manifestHash)
-        {
-            var manifest = new VideoManifestMetadataV1(
-                "Mocked sample video",
-                "Test description",
-                420,
-                [new VideoSourceV1(42, "720", SwarmHash.Zero, 100000000)],
-                new ThumbnailV1(1.77f, "LEHV6nWB2yk8pyo0adR*.7kCMdnj", new Dictionary<string, SwarmHash> { { "480", SwarmHash.Zero } }),
-                "36b7efd913ca4cf880b8eeac5093fa27b0825906c600685b6abdd6566e6cfe8f",
-                123456,
-                234567,
-                $$"""{"test":"sample"}""");
-
-            SetupHashMockup(manifestHash, manifest);
-
-            return manifest;
-        }
-
         public VideoManifestMetadataBase SetupNewMetadataV2VideoMockup(string manifestHash)
         {
             var manifest = new VideoManifestMetadataV2(
                 "Mocked sample video",
                 "Test description",
                 420,
-                [new VideoSourceV2(SwarmHash.Zero, "720", 100000000, "mp4")],
-                new ThumbnailV2(1.77f, "LEHV6nWB2yk8pyo0adR*.7kCMdnj", [new ImageSourceV2(480, SwarmHash.Zero, "jpeg")]),
+                [new VideoSourceV2("sources/playlist.m3u8", "720", 100000000, "hls")],
+                new ThumbnailV2(1.77f, "LEHV6nWB2yk8pyo0adR*.7kCMdnj", [new ImageSourceV2(480, "thumbs/myThumb.jpg", "jpeg")]),
                 1.77f,
                 "36b7efd913ca4cf880b8eeac5093fa27b0825906c600685b6abdd6566e6cfe8f",
                 123456,
@@ -162,7 +136,7 @@ namespace Etherna.EthernaIndex.Swarm
                 ?? throw new VideoManifestValidationException([new ValidationError(ValidationErrorType.JsonConvert, "Empty json preview")]);
 
             // Get detail dto.
-            using var manifestDetailStream = (await BeeClient.GetFileAsync($"{manifestHash}/details")).Stream;
+            using var manifestDetailStream = (await beeClient.GetFileAsync($"{manifestHash}/details")).Stream;
             var manifestDetailDto = await JsonSerializer.DeserializeAsync<VideoManifestDetailV2Dto>(
                 manifestDetailStream,
                 jsonSerializerOptions) ??
