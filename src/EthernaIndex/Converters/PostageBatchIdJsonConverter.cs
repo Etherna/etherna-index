@@ -17,11 +17,11 @@ using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Etherna.EthernaIndex.JsonConverters
+namespace Etherna.EthernaIndex.Converters
 {
-    public class SwarmHashJsonConverter : JsonConverter<SwarmHash>
+    public class PostageBatchIdJsonConverter : JsonConverter<PostageBatchId>
     {
-        public override SwarmHash Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override PostageBatchId Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             if (reader.TokenType != JsonTokenType.String)
                 throw new JsonException();
@@ -29,7 +29,7 @@ namespace Etherna.EthernaIndex.JsonConverters
             return reader.GetString()!;
         }
 
-        public override void Write(Utf8JsonWriter writer, SwarmHash value, JsonSerializerOptions options)
+        public override void Write(Utf8JsonWriter writer, PostageBatchId value, JsonSerializerOptions options)
         {
             ArgumentNullException.ThrowIfNull(writer, nameof(writer));
             

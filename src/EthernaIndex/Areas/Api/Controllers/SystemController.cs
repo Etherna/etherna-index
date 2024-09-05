@@ -13,6 +13,7 @@
 // If not, see <https://www.gnu.org/licenses/>.
 
 using Asp.Versioning;
+using Etherna.BeeNet.Models;
 using Etherna.EthernaIndex.Areas.Api.DtoModels;
 using Etherna.EthernaIndex.Areas.Api.Services;
 using Etherna.EthernaIndex.Attributes;
@@ -28,18 +29,8 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
     [ApiController]
     [ApiVersion("0.3")]
     [Route("api/v{api-version:apiVersion}/[controller]")]
-    public class SystemController : ControllerBase
+    public class SystemController(ISystemControllerService service) : ControllerBase
     {
-        // Fields.
-        private readonly ISystemControllerService service;
-
-        // Constructor.
-        public SystemController(
-            ISystemControllerService service)
-        {
-            this.service = service;
-        }
-
         // Get.
         /// <summary>
         /// Get list of configuration parameters.
@@ -63,7 +54,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public Task ForceVideoManifestValidationAsync(
-            [Required] string hash) =>
+            [Required] SwarmHash hash) =>
             service.ForceVideoManifestValidationAsync(hash);
 
         /// <summary>
