@@ -25,7 +25,7 @@ namespace Etherna.EthernaIndex.ElasticSearch.Documents
             long size,
             string type)
         {
-            Path = path;
+            Path = path.ToString();
             Quality = quality;
             Size = size;
             Type = type;
@@ -35,7 +35,7 @@ namespace Etherna.EthernaIndex.ElasticSearch.Documents
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         // Properties.
-        public SwarmAddress Path { get; set; }
+        public string Path { get; set; }
         public string? Quality { get; set; }
         public long Size { get; set; }
         public string Type { get; set; }

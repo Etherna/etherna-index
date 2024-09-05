@@ -47,7 +47,7 @@ namespace Etherna.EthernaIndex.ElasticSearch.Documents
             switch (video.LastValidManifest.Metadata)
             {
                 case VideoManifestMetadataV1 metadataV1:
-                    BatchId = metadataV1.BatchId;
+                    BatchId = metadataV1.BatchId.ToString();
                     Description = metadataV1.Description;
                     Duration = metadataV1.Duration;
                     PersonalData = metadataV1.PersonalData;
@@ -93,11 +93,11 @@ namespace Etherna.EthernaIndex.ElasticSearch.Documents
         // Properties.
         public string Id { get; set; }
         public DateTime CreationDateTime { get; set; }
-        public PostageBatchId? BatchId { get; set; }
+        public string? BatchId { get; set; }
         public string Description { get; set; }
         public long Duration { get; set; }
         public bool IsFrozen { get; set; }
-        public SwarmHash ManifestHash { get; set; }
+        public string ManifestHash { get; set; }
         public string? OriginalQuality { get; set; }
         public string OwnerSharedInfoId { get; set; }
         public string? PersonalData { get; set; }

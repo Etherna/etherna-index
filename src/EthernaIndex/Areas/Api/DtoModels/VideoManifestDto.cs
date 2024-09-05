@@ -97,7 +97,7 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
         {
             ArgumentNullException.ThrowIfNull(videoDocument, nameof(videoDocument));
 
-            BatchId = videoDocument.BatchId;
+            BatchId = videoDocument.BatchId is null ? (PostageBatchId?)null : PostageBatchId.FromString(videoDocument.BatchId);
             Description = videoDocument.Description;
             Duration = videoDocument.Duration;
             Hash = videoDocument.ManifestHash;
@@ -116,7 +116,7 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
                     videoDocument.Thumbnail.Blurhash,
                     videoDocument.Thumbnail.Sources.ToDictionary(
                         s => $"{s.Width}w",
-                        s => s.Path));
+                        s => SwarmAddress.FromString(s.Path)));
 
             Title = videoDocument.Title;
         }

@@ -57,7 +57,9 @@ namespace Etherna.EthernaIndex.ElasticSearch
 
             var document = new VideoDocument(video);
 
-            await elasticClient.IndexDocumentAsync(document);
+            var response = await elasticClient.IndexDocumentAsync(document);
+            if (!response.IsValid)
+                throw response.OriginalException;
         }
 
         public async Task RemoveCommentIndexAsync(Comment comment)
@@ -86,8 +88,7 @@ namespace Etherna.EthernaIndex.ElasticSearch
                 throw new ArgumentNullException(query);
             ArgumentOutOfRangeException.ThrowIfNegative(page, nameof(page));
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(take, nameof(take));
-
-
+            
             var searchResponse = await elasticClient.SearchAsync<VideoDocument>(s =>
                 s.Query(q => q.Bool(b =>
                     b.Must(mu => mu.Wildcard(f => f.Title, $"*{query.ToLowerInvariant()}*") ||
