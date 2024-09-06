@@ -63,7 +63,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                 // "a846e95a-f99b-4d66-91a8-807a1ef34140" - v0.3.9
                 {
                     var sourceDocument =
-                        $$"""
+                        """
                         {
                             "_id" : ObjectId("621d377079200245673f1071"),
                             "_m" : "a846e95a-f99b-4d66-91a8-807a1ef34140",
@@ -118,7 +118,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                 // "8e509e8e-5c2b-4874-a734-ada4e2b91f92" - dev (pre v0.3.0), published for WAM event
                 {
                     var sourceDocument =
-                        $$"""
+                        """
                         { 
                             "_id" : ObjectId("621d377079200245673f1071"), 
                             "_m" : "8e509e8e-5c2b-4874-a734-ada4e2b91f92", 
@@ -176,7 +176,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                 // "e3e734ab-d845-4ec2-8920-68956eba950d" - v0.3.0
                 {
                     var sourceDocument =
-                        $$"""
+                        """
                         { 
                             "_id" : ObjectId("625e913775060536d8a75a8c"), 
                             "_m" : "e3e734ab-d845-4ec2-8920-68956eba950d", 
@@ -227,7 +227,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                 // "39e398d3-3199-43e1-8147-2876b534fbec" - v0.3.0
                 {
                     var sourceDocument =
-                        $$"""
+                        """
                         { 
                             "_id" : ObjectId("625e910375060536d8a75a8b"), 
                             "_m" : "39e398d3-3199-43e1-8147-2876b534fbec", 
@@ -279,7 +279,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                 // "91e7a66a-d1e2-48eb-9627-3c3c2ceb5e2d" - dev (pre v0.3.0), published for WAM event
                 {
                     var sourceDocument =
-                        $$"""
+                        """
                         { 
                             "_id" : ObjectId("621e32b14075df3daa1a34d5"), 
                             "_m" : "91e7a66a-d1e2-48eb-9627-3c3c2ceb5e2d", 
@@ -357,7 +357,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                 // "9a2d9664-31d5-4394-9a20-c8789cf0600d" - v0.3.0
                 {
                     var sourceDocument =
-                        $$"""
+                        """
                         { 
                             "_id" : ObjectId("625df43c74679c25b6c157eb"), 
                             "_m" : "9a2d9664-31d5-4394-9a20-c8789cf0600d", 
@@ -396,7 +396,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                 // "a547abdc-420c-41f9-b496-e6cf704a3844" - dev (pre v0.3.0), published for WAM event
                 {
                     var sourceDocument =
-                        $$"""
+                        """
                         { 
                             "_id" : ObjectId("6217ce3489618456527854e4"), 
                             "_m" : "a547abdc-420c-41f9-b496-e6cf704a3844", 
@@ -439,7 +439,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                 // "d0c48dd8-0887-4ac5-80e5-9b08c5dc77f1" - v0.3.0
                 {
                     var sourceDocument =
-                        $$"""
+                        """
                         { 
                             "_id" : ObjectId("625df43c74679c25b6c157ec"), 
                             "_m" : "d0c48dd8-0887-4ac5-80e5-9b08c5dc77f1", 
@@ -482,7 +482,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                         var manifest0Mock = new Mock<VideoManifest>();
                         manifest0Mock.Setup(m => m.Id).Returns("625df43c74679c25b6c157ed");
                         expectedVideoMock.Setup(v => v.LastValidManifest).Returns(manifest0Mock.Object);
-                        expectedVideoMock.Setup(v => v.VideoManifests).Returns(new[] { manifest0Mock.Object });
+                        expectedVideoMock.Setup(v => v.VideoManifests).Returns([manifest0Mock.Object]);
                     }
                     {
                         var ownerMock = new Mock<User>();
@@ -498,7 +498,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                 // "abfbd104-35ff-4429-9afc-79304a11efc0" - dev (pre v0.3.0), published for WAM event
                 {
                     var sourceDocument =
-                        $$"""
+                        """
                         { 
                             "_id" : ObjectId("6229f4e50a4567231a0ec7af"), 
                             "_m" : "abfbd104-35ff-4429-9afc-79304a11efc0", 
@@ -580,12 +580,96 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
             get
             {
                 var tests = new List<DeserializationTestElement<VideoManifest>>();
+                
+                // "4d75fd4f-157a-4c0f-a5fa-e8a17ed28887" - v0.3.12
+                // valid manifest v2 (omit variants because metadata is unchanged since v0.3.9)
+                {
+                    var sourceDocument =
+                        """
+                        {
+                            "_id" : ObjectId("66d9fc4221511c9bec47bf0a"),
+                            "_m" : "4d75fd4f-157a-4c0f-a5fa-e8a17ed28887",
+                            "CreationDateTime" : ISODate("2024-09-05T18:45:22.328+0000"),
+                            "IsValid" : true,
+                            "ManifestHash" : "bedaab2bd0d90f1afcfe5e45dea72d9fbe8aeddc63c175c08c4a926d235a2a3b",
+                            "Metadata" : {
+                                "_m" : "eff75fd8-54ea-437f-862b-782a153416bc",
+                                "_t" : "VideoManifestMetadataV2",
+                                "AspectRatio" : 1.7699999809265137,
+                                "BatchId" : "36b7efd913ca4cf880b8eeac5093fa27b0825906c600685b6abdd6566e6cfe8f",
+                                "CreatedAt" : NumberLong(123456),
+                                "Description" : "Test description",
+                                "Duration" : NumberLong(420),
+                                "PersonalData" : "{\"test\":\"sample\"}",
+                                "Sources" : [
+                                    {
+                                        "_m" : "91231db0-aded-453e-8178-f28a0a19776a",
+                                        "Path" : "sources/playlist.m3u8",
+                                        "Quality" : "720",
+                                        "Size" : NumberLong(100000000),
+                                        "Type" : "hls"
+                                    }
+                                ],
+                                "Thumbnail" : {
+                                    "_m" : "36966654-d85c-455b-b870-7b49e1124e6d",
+                                    "AspectRatio" : 1.7699999809265137,
+                                    "Blurhash" : "LEHV6nWB2yk8pyo0adR*.7kCMdnj",
+                                    "Sources" : [
+                                        {
+                                            "_m" : "1fbae0a8-9ee0-40f0-a8ad-21a0083fcb66",
+                                            "Path" : "thumbs/myThumb.jpg",
+                                            "Type" : "jpeg",
+                                            "Width" : NumberInt(480)
+                                        }
+                                    ]
+                                },
+                                "Title" : "Mocked sample video",
+                                "UpdatedAt" : NumberLong(234567)
+                            },
+                            "ValidationErrors" : [
+                        
+                            ],
+                            "ValidationTime" : ISODate("2024-09-05T18:45:22.917+0000")
+                        }
+                        """;
+                    
+                    var expectedManifestMock = new Mock<VideoManifest>();
+                    expectedManifestMock.Setup(m => m.Id).Returns("66d9fc4221511c9bec47bf0a");
+                    expectedManifestMock.Setup(m => m.CreationDateTime).Returns(new DateTime(2024, 09, 05, 18, 45, 22, 328));
+                    expectedManifestMock.Setup(m => m.IsValid).Returns(true);
+                    expectedManifestMock.Setup(m => m.ManifestHash).Returns(new SwarmHash("bedaab2bd0d90f1afcfe5e45dea72d9fbe8aeddc63c175c08c4a926d235a2a3b"));
+                    {
+                        var metadataMock = new Mock<VideoManifestMetadataV2>();
+                        metadataMock.Setup(m => m.AspectRatio).Returns(1.7699999809265137f);
+                        metadataMock.Setup(m => m.BatchId).Returns("36b7efd913ca4cf880b8eeac5093fa27b0825906c600685b6abdd6566e6cfe8f");
+                        metadataMock.Setup(m => m.CreatedAt).Returns(123456);
+                        metadataMock.Setup(m => m.Description).Returns("Test description");
+                        metadataMock.Setup(m => m.Duration).Returns(420);
+                        metadataMock.Setup(m => m.PersonalData).Returns("{\"test\":\"sample\"}");
+                        metadataMock.Setup(m => m.Sources).Returns(
+                        [
+                            new VideoSourceV2("sources/playlist.m3u8", "720", 100000000, "hls")
+                        ]);
+                        metadataMock.Setup(m => m.Thumbnail).Returns(new ThumbnailV2(1.7699999809265137f, "LEHV6nWB2yk8pyo0adR*.7kCMdnj",
+                        [
+                            new ImageSourceV2(480, "thumbs/myThumb.jpg", "jpeg")
+                        ]));
+                        metadataMock.Setup(m => m.Title).Returns("Mocked sample video");
+                        metadataMock.Setup(m => m.UpdatedAt).Returns(234567);
+
+                        expectedManifestMock.Setup(m => m.Metadata).Returns(metadataMock.Object);
+                    }
+                    expectedManifestMock.Setup(m => m.ValidationErrors).Returns(Array.Empty<ValidationError>());
+                    expectedManifestMock.Setup(m => m.ValidationTime).Returns(new DateTime(2024, 09, 05, 18, 45, 22, 917));
+
+                    tests.Add(new DeserializationTestElement<VideoManifest>(sourceDocument, expectedManifestMock.Object));
+                }
 
                 // "c32a815b-4667-4534-8276-eb3c1d812d09" - v0.3.9
                 // invalid manifest
                 {
                     var sourceDocument = 
-                        $$"""
+                        """
                         {
                             "_id" : ObjectId("64b407f64a709a0ceb86b07c"),
                             "_m" : "c32a815b-4667-4534-8276-eb3c1d812d09",
@@ -622,7 +706,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                 // valid manifest v1
                 {
                     var sourceDocument =
-                        $$"""
+                        """
                         {
                             "_id" : ObjectId("64b3ff1f70673319b83d4343"),
                             "_m" : "c32a815b-4667-4534-8276-eb3c1d812d09",
@@ -661,7 +745,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                                 "PersonalData" : "{\"test\":\"sample\"}"
                             },
                             "ValidationErrors" : [
-
+                        
                             ],
                             "ValidationTime" : ISODate("2023-07-16T14:32:14.321+0000")
                         }
@@ -702,7 +786,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                 // valid manifest v2
                 {
                     var sourceDocument =
-                        $$"""
+                        """
                         {
                             "_id" : ObjectId("64b3ff1f70673319b83d4343"),
                             "_m" : "c32a815b-4667-4534-8276-eb3c1d812d09",
@@ -747,7 +831,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                                 "UpdatedAt" : NumberLong(234567)
                             },
                             "ValidationErrors" : [
-
+                        
                             ],
                             "ValidationTime" : ISODate("2023-07-16T15:14:27.404+0000")
                         }
@@ -788,7 +872,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                 //invalid manifest
                 {
                     var sourceDocument =
-                        $$"""
+                        """
                         {
                             "_id" : ObjectId("630fad72a93c1417a162417e"),
                             "_m" : "a48b92d6-c02d-4b1e-b1b0-0526c4bcaa6e",
@@ -844,7 +928,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                 //valid manifest
                 {
                     var sourceDocument =
-                        $$"""
+                        """
                         {
                             "_id" : ObjectId("630fad72a93c1417a162417e"),
                             "_m" : "a48b92d6-c02d-4b1e-b1b0-0526c4bcaa6e",
@@ -914,7 +998,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                 //invalid manifest
                 {
                     var sourceDocument =
-                        $$"""
+                        """
                         { 
                             "_id" : ObjectId("625df43c74679c25b6c157ed"), 
                             "_m" : "dc33442b-ae1e-428b-8b63-5dafbf192ba8", 
@@ -968,7 +1052,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                 //valid manifest
                 {
                     var sourceDocument =
-                        $$"""
+                        """
                         { 
                             "_id" : ObjectId("625df43c74679c25b6c157ed"), 
                             "_m" : "dc33442b-ae1e-428b-8b63-5dafbf192ba8", 
@@ -1035,7 +1119,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                 //invalid manifest
                 {
                     var sourceDocument =
-                        $$"""
+                        """
                         { 
                             "_id" : ObjectId("622e619a0a7a47231a0ec7b5"), 
                             "_m" : "ec578080-ccd2-4d49-8a76-555b10a5dad5", 
@@ -1094,7 +1178,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                 //valid manifest
                 {
                     var sourceDocument =
-                        $$"""
+                        """
                         { 
                             "_id" : ObjectId("622e619a0a7a47231a0ec7b5"), 
                             "_m" : "ec578080-ccd2-4d49-8a76-555b10a5dad5", 
@@ -1178,7 +1262,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                 // "624955bf-8c09-427f-93da-fc6ddb9668a6" - dev (pre v0.3.0), published for WAM event
                 {
                     var sourceDocument =
-                        $$"""
+                        """
                         { 
                             "_id" : ObjectId("621e90110a7a47231a0ec797"), 
                             "_m" : "624955bf-8c09-427f-93da-fc6ddb9668a6", 

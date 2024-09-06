@@ -34,9 +34,9 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
         public void Register(IDbContext dbContext)
         {
             dbContext.MapRegistry.AddModelMap<VideoManifest>(
-                "4d75fd4f-157a-4c0f-a5fa-e8a17ed28887") //0.3.12
+                "4d75fd4f-157a-4c0f-a5fa-e8a17ed28887") //v0.3.12
                 .AddSecondarySchema(
-                    "c32a815b-4667-4534-8276-eb3c1d812d09", //0.3.9
+                    "c32a815b-4667-4534-8276-eb3c1d812d09", //v0.3.9
                     fixDeserializedModelFunc: m =>
                     {
                         if (m.ExtraElements is null)
