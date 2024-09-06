@@ -123,7 +123,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
                 task => task.RunAsync(video.Id, videoInput.ManifestHash.ToString()),
                 new EnqueuedState(Queues.METADATA_VIDEO_VALIDATOR));
 
-            logger.VideoCreated(currentUser.Id, videoInput.ManifestHash.ToString());
+            logger.VideoCreated(currentUser.Id, video.Id);
 
             return video.Id;
         }
