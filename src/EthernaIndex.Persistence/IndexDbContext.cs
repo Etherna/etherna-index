@@ -93,7 +93,10 @@ namespace Etherna.EthernaIndex.Persistence
             });
 
         //other properties
-        public override IEnumerable<DocumentMigration> DocumentMigrationList => Array.Empty<DocumentMigration>();
+        public override IEnumerable<DocumentMigration> DocumentMigrationList =>
+            [
+                new DocumentMigration<VideoManifest, string>(VideoManifests)
+            ];
         public IEventDispatcher EventDispatcher { get; } = eventDispatcher;
 
         // Protected properties.
