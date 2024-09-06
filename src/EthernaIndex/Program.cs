@@ -351,6 +351,7 @@ namespace Etherna.EthernaIndex
             services.AddSwaggerGen(options =>
             {
                 options.SupportNonNullableReferenceTypes();
+                options.UseAllOfToExtendReferenceSchemas();
                 options.UseInlineDefinitionsForEnums();
 
                 //add a custom operation filter which sets default values
