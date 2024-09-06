@@ -29,17 +29,8 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
     [ApiController]
     [ApiVersion("0.3")]
     [Route("api/v{api-version:apiVersion}/[controller]")]
-    public class UsersController : ControllerBase
+    public class UsersController(IUsersControllerService service) : ControllerBase
     {
-        // Fields.
-        private readonly IUsersControllerService controllerService;
-
-        // Constructors.
-        public UsersController(IUsersControllerService controllerService)
-        {
-            this.controllerService = controllerService;
-        }
-
         // Get.
 
         /// <summary>
@@ -56,7 +47,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         public async Task<IEnumerable<UserDto>> GetUsersAsync(
             [Range(0, int.MaxValue)] int page,
             [Range(1, 100)] int take = 25) =>
-            (await controllerService.GetUsersAsync(page, take)).Elements;
+            (await service.GetUsersAsync(page, take)).Elements;
 
         /// <summary>
         /// Get a complete list of users.
@@ -71,7 +62,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         public Task<PaginatedEnumerableDto<UserDto>> GetUsers2Async(
             [Range(0, int.MaxValue)] int page,
             [Range(1, 100)] int take = 25) =>
-            controllerService.GetUsersAsync(page, take);
+            service.GetUsersAsync(page, take);
 
         /// <summary>
         /// Get user info by address.
@@ -84,7 +75,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public Task<UserDto> FindByAddressAsync(
             string address) =>
-            controllerService.FindByAddressAsync(address);
+            service.FindByAddressAsync(address);
 
         /// <summary>
         /// Get list of videos uploaded by an user.
@@ -104,7 +95,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
             [Required] string address,
             [Range(0, int.MaxValue)] int page,
             [Range(1, 100)] int take = 25) =>
-            (await controllerService.GetVideosAsync_old(address, page, take)).Elements;
+            (await service.GetVideosAsync_old(address, page, take)).Elements;
 
         /// <summary>
         /// Get list of videos uploaded by an user.
@@ -124,7 +115,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
             [Required] string address,
             [Range(0, int.MaxValue)] int page,
             [Range(1, 100)] int take = 25) =>
-            controllerService.GetVideosAsync_old(address, page, take);
+            service.GetVideosAsync_old(address, page, take);
 
         /// <summary>
         /// Get list of videos uploaded by an user.
@@ -143,13 +134,13 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
             [Required] string address,
             [Range(0, int.MaxValue)] int page,
             [Range(1, 100)] int take = 25) =>
-            controllerService.GetVideosAsync(address, page, take);
+            service.GetVideosAsync(address, page, take);
 
         [HttpGet("current")]
         [Authorize]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public Task<CurrentUserDto> GetCurrentUserAsync() =>
-            controllerService.GetCurrentUserAsync();
+            service.GetCurrentUserAsync();
     }
 }

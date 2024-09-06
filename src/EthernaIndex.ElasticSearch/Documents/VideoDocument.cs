@@ -12,6 +12,7 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
+using Etherna.BeeNet.Models;
 using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV1;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2;
@@ -40,13 +41,13 @@ namespace Etherna.EthernaIndex.ElasticSearch.Documents
             Id = video.Id;
             CreationDateTime = video.LastValidManifest.CreationDateTime;
             IsFrozen = video.IsFrozen;
-            ManifestHash = video.LastValidManifest.Manifest.Hash;
+            ManifestHash = video.LastValidManifest.ManifestHash.ToString();
             OwnerSharedInfoId = video.Owner.SharedInfoId;
 
             switch (video.LastValidManifest.Metadata)
             {
                 case VideoManifestMetadataV1 metadataV1:
-                    BatchId = metadataV1.BatchId;
+                    BatchId = metadataV1.BatchId.ToString();
                     Description = metadataV1.Description;
                     Duration = metadataV1.Duration;
                     PersonalData = metadataV1.PersonalData;
@@ -65,18 +66,22 @@ namespace Etherna.EthernaIndex.ElasticSearch.Documents
                     break;
 
                 case VideoManifestMetadataV2 metadataV2:
-                    BatchId = metadataV2.BatchId;
+                    BatchId = metadataV2.BatchId.ToString();
                     Description = metadataV2.Description;
                     Duration = metadataV2.Duration;
                     PersonalData = metadataV2.PersonalData;
-                    Sources = metadataV2.Sources.Select(i => new SourceVideoDocument(i.Path, i.Quality, i.Size, i.Type));
+                    Sources = metadataV2.Sources.Select(i => new SourceVideoDocument(
+                        i.Path.ToSwarmAddress(video.LastValidManifest.ManifestHash), i.Quality, i.Size, i.Type));
                     Title = metadataV2.Title;
 
                     if (metadataV2.Thumbnail is not null)
                         Thumbnail = new ImageDocument(
                             metadataV2.Thumbnail.AspectRatio,
                             metadataV2.Thumbnail.Blurhash,
-                            metadataV2.Thumbnail.Sources.Select(s => new SourceImageDocument(s.Width, s.Path, s.Type)));
+                            metadataV2.Thumbnail.Sources.Select(s => new SourceImageDocument(
+                                s.Width,
+                                s.Path.ToSwarmAddress(video.LastValidManifest.ManifestHash),
+                                s.Type)));
                     break;
 
                 default: throw new InvalidOperationException();

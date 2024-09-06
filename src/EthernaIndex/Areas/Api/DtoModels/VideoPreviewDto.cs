@@ -12,6 +12,7 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
+using Etherna.BeeNet.Models;
 using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.Domain.Models.UserAgg;
 using Etherna.EthernaIndex.ElasticSearch.Documents;
@@ -67,7 +68,7 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
         public string Id { get; }
         public long? CreatedAt { get; }
         public long? Duration { get; }
-        public string? Hash { get; }
+        public SwarmHash? Hash { get; }
         public string OwnerAddress { get; }
         public Image2Dto? Thumbnail { get; }
         public string? Title { get; }

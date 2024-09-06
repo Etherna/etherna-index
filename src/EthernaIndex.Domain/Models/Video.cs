@@ -64,10 +64,10 @@ namespace Etherna.EthernaIndex.Domain.Models
             if (IsFrozen)
                 throw new InvalidOperationException("Video is frozen");
 
-            if (_videoManifests.Any(i => i.Manifest.Hash == videoManifest.Manifest.Hash))
+            if (_videoManifests.Any(i => i.ManifestHash == videoManifest.ManifestHash))
             {
                 var ex = new InvalidOperationException("AddManifest duplicate");
-                ex.Data.Add("ManifestHash", videoManifest.Manifest.Hash);
+                ex.Data.Add("ManifestHash", videoManifest.ManifestHash.ToString());
                 throw ex;
             }
 
@@ -87,7 +87,7 @@ namespace Etherna.EthernaIndex.Domain.Models
             if (!VideoManifests.Contains(manifest))
             {
                 var ex = new InvalidOperationException("The manifest is not owned by this video");
-                ex.Data.Add("ManifestHash", manifest.Manifest.Hash);
+                ex.Data.Add("ManifestHash", manifest.ManifestHash.ToString());
                 throw ex;
             }
 
@@ -134,7 +134,7 @@ namespace Etherna.EthernaIndex.Domain.Models
             if (!VideoManifests.Contains(manifest))
             {
                 var ex = new InvalidOperationException("The manifest is not owned by this video");
-                ex.Data.Add("ManifestHash", manifest.Manifest.Hash);
+                ex.Data.Add("ManifestHash", manifest.ManifestHash.ToString());
                 throw ex;
             }
 

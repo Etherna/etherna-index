@@ -24,45 +24,26 @@ using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoModeration
 {
-    public class IndexModel : PageModel
+    public class IndexModel(IIndexDbContext indexDbContext) : PageModel
     {
         // Models.
-        public class VideoReportsAggregateDto
+        public class VideoReportsAggregateDto(
+            int totalReports,
+            string videoId,
+            DateTime? videoCreationDateTime,
+            string? videoTitle)
         {
-            public VideoReportsAggregateDto(
-                int totalReports,
-                string videoId,
-                DateTime? videoCreationDateTime,
-                string? videoTitle)
-            {
-                TotalReports = totalReports;
-                VideoCreationDateTime = videoCreationDateTime;
-                VideoId = videoId ?? throw new ArgumentNullException(nameof(videoId));
-                VideoTitle = videoTitle;
-            }
-
-            public int TotalReports { get; }
-            public DateTime? VideoCreationDateTime { get; }
-            public string VideoId { get; }
-            public string? VideoTitle { get; }
+            public int TotalReports { get; } = totalReports;
+            public DateTime? VideoCreationDateTime { get; } = videoCreationDateTime;
+            public string VideoId { get; } = videoId ?? throw new ArgumentNullException(nameof(videoId));
+            public string? VideoTitle { get; } = videoTitle;
         }
 
         // Consts.
         private const int PageSize = 20;
 
-        // Fields.
-        private readonly IIndexDbContext indexDbContext;
-
-        // Constructor.
-        public IndexModel(
-            IIndexDbContext indexDbContext)
-        {
-            this.indexDbContext = indexDbContext;
-            ErrorMessage = "";
-        }
-
         // Properties.
-        public string ErrorMessage { get; private set; }
+        public string ErrorMessage { get; private set; } = "";
         public int CurrentPage { get; private set; }
         public long MaxPage { get; private set; }
         public IEnumerable<VideoReportsAggregateDto> VideoUnsuitableReports { get; private set; } = default!;

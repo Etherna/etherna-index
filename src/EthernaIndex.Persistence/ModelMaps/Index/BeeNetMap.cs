@@ -12,27 +12,32 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
-using Etherna.EthernaIndex.Domain.Models.Swarm;
+using Etherna.BeeNet.Models;
+using Etherna.EthernaIndex.Persistence.Serializers;
 using Etherna.MongODM.Core;
 using Etherna.MongODM.Core.Serialization;
 
 namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
 {
-    internal sealed class SwarmHashMap : IModelMapsCollector
+    internal sealed class BeeNetMap : IModelMapsCollector
     {
         public void Register(IDbContext dbContext)
         {
-            dbContext.MapRegistry.AddModelMap<SwarmContentBase>(
-                "813cf8b6-df89-4a5d-8c2d-a9a9e08b6922"); //v0.3.0
+            dbContext.MapRegistry.AddModelMap<PostageBatchId>( //v0.3.12
+                "f9ba7202-e790-43c4-99b6-a213d1f54b82",
+                customSerializer: new PostageBatchIdSerializer());
+            
+            dbContext.MapRegistry.AddModelMap<SwarmAddress>( //v0.3.12
+                "20629304-9845-49d4-beb1-0588ae4a5abe",
+                customSerializer: new SwarmAddressSerializer());
+            
+            dbContext.MapRegistry.AddModelMap<SwarmHash>( //v0.3.12
+                "f30ef1d8-af84-4ef3-a4bb-83a4bf60e681",
+                customSerializer: new SwarmHashSerializer());
 
-            dbContext.MapRegistry.AddModelMap<SwarmBytes>(
-                "aa2fac3c-7362-4c1c-96ec-dafaa6327322"); //v0.3.0
-
-            dbContext.MapRegistry.AddModelMap<SwarmBzz>(
-                "27edd50c-dd67-44d8-84ea-1eedcfe481e8"); //v0.3.0
-
-            dbContext.MapRegistry.AddModelMap<SwarmSoc>(
-                "2feca50a-3009-4fe1-a9d3-b9549de29d1d"); //v0.3.0
+            dbContext.MapRegistry.AddModelMap<SwarmUri>( //v0.3.12
+                "2e563350-3127-4647-b730-8b9f44b20604",
+                customSerializer: new SwarmUriSerializer());
         }
     }
 }

@@ -12,24 +12,18 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
+using Etherna.BeeNet.Models;
+
 namespace Etherna.EthernaIndex.Areas.Api.DtoModels
 {
-    public class ImageSourceDto
+    public class ImageSourceDto(
+        string? type,
+        SwarmAddress path,
+        int width)
     {
-        // Constructors.
-        public ImageSourceDto(
-            string? type,
-            string path,
-            int width)
-        {
-            Type = type;
-            Path = path;
-            Width = width;
-        }
-
         // Properties.
-        public string? Type { get; private set; }
-        public string Path { get; private set; }
-        public int Width { get; private set; }
+        public string? Type { get; private set; } = type;
+        public SwarmAddress Path { get; private set; } = path;
+        public int Width { get; private set; } = width;
     }
 }

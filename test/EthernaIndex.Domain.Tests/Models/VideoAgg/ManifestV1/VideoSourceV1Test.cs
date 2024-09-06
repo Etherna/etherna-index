@@ -12,6 +12,7 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
+using Etherna.BeeNet.Models;
 using Etherna.EthernaIndex.Domain.Exceptions;
 using Xunit;
 
@@ -25,26 +26,12 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV1
         {
             // Action.
             var exception = Assert.Throws<VideoManifestValidationException>(
-                () => new VideoSourceV1(32, "", "Ref1080", null));
+                () => new VideoSourceV1(32, "", SwarmHash.Zero, null));
 
             // Assert.
             Assert.IsType<VideoManifestValidationException>(exception);
             Assert.Contains(exception.ValidationErrors,
                 i => i.ErrorMessage == "Video source has empty quality" &&
-                    i.ErrorType == ValidationErrorType.InvalidVideoSource);
-        }
-
-        [Fact]
-        public void VerifyNotWrongReferenceSources()
-        {
-            // Action.
-            var exception = Assert.Throws<VideoManifestValidationException>(
-                () => new VideoSourceV1(32, "1080", "", null));
-
-            // Assert.
-            Assert.IsType<VideoManifestValidationException>(exception);
-            Assert.Contains(exception.ValidationErrors,
-                i => i.ErrorMessage == "Video source has empty reference" &&
                     i.ErrorType == ValidationErrorType.InvalidVideoSource);
         }
     }

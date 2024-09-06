@@ -12,17 +12,14 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
+using Etherna.BeeNet.Models;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Services.Exceptions
 {
     public class DuplicatedManifestHashException : Exception
     {
-        public DuplicatedManifestHashException(string manifestHash) :
+        public DuplicatedManifestHashException(SwarmHash manifestHash) :
             base ($"hash {manifestHash} is duplicated")
         {
 
@@ -34,6 +31,10 @@ namespace Etherna.EthernaIndex.Services.Exceptions
         }
 
         public DuplicatedManifestHashException(string message, Exception innerException) : base(message, innerException)
+        {
+        }
+
+        public DuplicatedManifestHashException(string message) : base(message)
         {
         }
     }

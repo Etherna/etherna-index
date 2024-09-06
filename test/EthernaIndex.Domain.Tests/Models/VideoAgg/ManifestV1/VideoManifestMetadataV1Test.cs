@@ -12,6 +12,7 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
+using Etherna.BeeNet.Models;
 using Etherna.EthernaIndex.Domain.Exceptions;
 using System.Collections.Generic;
 using Xunit;
@@ -55,7 +56,7 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV1
                     "Titletest",
                     null!,
                     1234,
-                    new[] { new VideoSourceV1(null, "720", "ref", null) },
+                    [new VideoSourceV1(null, "720", SwarmHash.Zero, null)],
                     null,
                     null,
                     null,
@@ -77,7 +78,7 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV1
                     "",
                     "Description",
                     1234,
-                    new[] { new VideoSourceV1(null, "720", "ref", null) },
+                    [new VideoSourceV1(null, "720", SwarmHash.Zero, null)],
                     null,
                     null,
                     null,

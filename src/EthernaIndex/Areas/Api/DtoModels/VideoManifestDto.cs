@@ -12,6 +12,7 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
+using Etherna.BeeNet.Models;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV1;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2;
@@ -31,7 +32,7 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
         {
             ArgumentNullException.ThrowIfNull(videoManifest, nameof(videoManifest));
 
-            Hash = videoManifest.Manifest.Hash;
+            Hash = videoManifest.ManifestHash;
 
             switch (videoManifest.Metadata)
             {
@@ -56,7 +57,9 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
                         Thumbnail = new ImageDto(
                             metadataV1.Thumbnail.AspectRatio,
                             metadataV1.Thumbnail.Blurhash,
-                            metadataV1.Thumbnail.Sources);
+                            metadataV1.Thumbnail.Sources.ToDictionary(
+                                s => s.Key,
+                                s => (SwarmAddress)s.Value));
 
                     Title = metadataV1.Title;
                     break;
@@ -70,14 +73,16 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
                         .Select(s => new SourceDto(
                             null,
                             s.Quality ?? "",
-                            s.Path,
+                            s.Path.ToSwarmAddress(videoManifest.ManifestHash),
                             s.Size));
 
                     if (metadataV2.Thumbnail is not null)
                         Thumbnail = new ImageDto(
                             metadataV2.Thumbnail.AspectRatio,
                             metadataV2.Thumbnail.Blurhash,
-                            metadataV2.Thumbnail.Sources.ToDictionary(s => $"{s.Width}w", s => s.Path));
+                            metadataV2.Thumbnail.Sources.ToDictionary(
+                                s => $"{s.Width}w",
+                                s => s.Path.ToSwarmAddress(videoManifest.ManifestHash)));
 
                     Title = metadataV2.Title;
                     break;
@@ -92,7 +97,7 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
         {
             ArgumentNullException.ThrowIfNull(videoDocument, nameof(videoDocument));
 
-            BatchId = videoDocument.BatchId;
+            BatchId = videoDocument.BatchId is null ? (PostageBatchId?)null : PostageBatchId.FromString(videoDocument.BatchId);
             Description = videoDocument.Description;
             Duration = videoDocument.Duration;
             Hash = videoDocument.ManifestHash;
@@ -109,16 +114,18 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
                 Thumbnail = new ImageDto(
                     videoDocument.Thumbnail.AspectRatio,
                     videoDocument.Thumbnail.Blurhash,
-                    videoDocument.Thumbnail.Sources.ToDictionary(s => $"{s.Width}w", s => s.Path));
+                    videoDocument.Thumbnail.Sources.ToDictionary(
+                        s => $"{s.Width}w",
+                        s => SwarmAddress.FromString(s.Path)));
 
             Title = videoDocument.Title;
         }
 
         // Properties.
-        public string? BatchId { get; }
+        public PostageBatchId? BatchId { get; }
         public string? Description { get; }
         public long? Duration { get; }
-        public string Hash { get; }
+        public SwarmHash Hash { get; }
         public string? OriginalQuality { get; }
         public string? PersonalData { get; }
         public IEnumerable<SourceDto> Sources { get; }

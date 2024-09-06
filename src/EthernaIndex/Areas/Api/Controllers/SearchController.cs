@@ -30,17 +30,8 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
     [ApiController]
     [ApiVersion("0.3")]
     [Route("api/v{api-version:apiVersion}/[controller]")]
-    public class SearchController : ControllerBase
+    public class SearchController(ISearchControllerService service) : ControllerBase
     {
-        // Fields.
-        private readonly ISearchControllerService service;
-
-        // Constructor.
-        public SearchController(ISearchControllerService service)
-        {
-            this.service = service;
-        }
-
         // Get.
 
         /// <summary>

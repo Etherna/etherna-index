@@ -12,6 +12,7 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
+using Etherna.BeeNet.Models;
 using Etherna.EthernaIndex.Domain.Exceptions;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,7 +37,7 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2
             IEnumerable<VideoSourceV2> sources,
             ThumbnailV2? thumbnail,
             float aspectRatio,
-            string batchId,
+            PostageBatchId batchId,
             long createdAt,
             long? updatedAt,
             string? personalData)
@@ -67,10 +68,6 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2
             //aspect ratio
             if (aspectRatio <= 0)
                 validationErrors.Add(new ValidationError(ValidationErrorType.InvalidAspectRatio));
-
-            //batchId
-            if (string.IsNullOrWhiteSpace(batchId))
-                validationErrors.Add(new ValidationError(ValidationErrorType.InvalidBatchId, "Missing batch Id"));
 
             //createdAt
             if (createdAt <= 0)
@@ -104,7 +101,7 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2
         // Properties.
         //from v2.0
         public virtual float AspectRatio { get; protected set; }
-        public virtual string BatchId { get; protected set; }
+        public virtual PostageBatchId BatchId { get; protected set; }
         public virtual long CreatedAt { get; protected set; }
         public virtual string Description { get; protected set; }
         public virtual long Duration { get; protected set; }

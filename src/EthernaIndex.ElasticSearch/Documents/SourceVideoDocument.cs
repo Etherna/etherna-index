@@ -12,18 +12,20 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
+using Etherna.BeeNet.Models;
+
 namespace Etherna.EthernaIndex.ElasticSearch.Documents
 {
     public class SourceVideoDocument
     {
         // Constructors.
         public SourceVideoDocument(
-            string path,
+            SwarmAddress path,
             string? quality,
             long size,
             string type)
         {
-            Path = path;
+            Path = path.ToString();
             Quality = quality;
             Size = size;
             Type = type;

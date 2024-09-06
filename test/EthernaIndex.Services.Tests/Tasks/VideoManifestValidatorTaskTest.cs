@@ -12,6 +12,7 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
+using Etherna.BeeNet.Models;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Exceptions;
 using Etherna.EthernaIndex.Domain.Models;
@@ -79,11 +80,10 @@ namespace EthernaIndex.Services.Tests.Tasks
                 "Titletest",
                 "Description",
                 1234,
-                new List<VideoSourceV1>
-                {
-                    new VideoSourceV1(32, "1080", "Ref1080", null),
-                    new VideoSourceV1(32, "720", "Ref720", null)
-                },
+                [
+                    new VideoSourceV1(32, "1080", SwarmHash.Zero, null),
+                    new VideoSourceV1(32, "720", SwarmHash.Zero, null)
+                ],
                 null,
                 null,
                 null,
@@ -100,10 +100,9 @@ namespace EthernaIndex.Services.Tests.Tasks
                 "Titletest",
                 "Description2",
                 1234,
-                new List<VideoSourceV1>
-                {
-                    new VideoSourceV1(98, "1080", "Ref1080-2", null)
-                },
+                [
+                    new VideoSourceV1(98, "1080", SwarmHash.Zero, null)
+                ],
                 null,
                 null,
                 null,
@@ -130,10 +129,10 @@ namespace EthernaIndex.Services.Tests.Tasks
             Assert.NotNull(secondVideoManifest.ValidationTime);
             Assert.Equal(2, video.VideoManifests.Count());
             Assert.Contains(video.VideoManifests,
-                i => i.Manifest.Hash == manifestHash);
+                i => i.ManifestHash == manifestHash);
             Assert.Contains(video.VideoManifests,
-                i => i.Manifest.Hash == secondManifestHash);
-            Assert.Equal(secondManifestHash, video.LastValidManifest!.Manifest.Hash);
+                i => i.ManifestHash == secondManifestHash);
+            Assert.Equal(secondManifestHash, video.LastValidManifest!.ManifestHash);
         }
 
         [Fact]
@@ -147,7 +146,7 @@ namespace EthernaIndex.Services.Tests.Tasks
                         "Titletest",
                         "Description",
                         1234,
-                        new List<VideoSourceV1>(),
+                        [],
                         null,
                         null,
                         null,
@@ -161,7 +160,7 @@ namespace EthernaIndex.Services.Tests.Tasks
             Assert.False(videoManifest.IsValid);
             Assert.NotNull(videoManifest.ValidationTime);
             Assert.Contains(video.VideoManifests,
-                i => i.Manifest.Hash == manifestHash);
+                i => i.ManifestHash == manifestHash);
             Assert.Null(video.LastValidManifest);
         }
 
@@ -184,7 +183,7 @@ namespace EthernaIndex.Services.Tests.Tasks
                 i => i.ErrorMessage == "Unable to parse json" &&
                     i.ErrorType == ValidationErrorType.JsonConvert);
             Assert.Contains(video.VideoManifests,
-                i => i.Manifest.Hash == manifestHash);
+                i => i.ManifestHash == manifestHash);
             Assert.Null(video.LastValidManifest);
         }
 
@@ -198,7 +197,7 @@ namespace EthernaIndex.Services.Tests.Tasks
                     "",
                     "Description",
                     1234,
-                    new[] { new VideoSourceV1(null, "720", "ref", null) },
+                    [new VideoSourceV1(null, "720", SwarmHash.Zero, null)],
                     null,
                     null,
                     null,
@@ -212,7 +211,7 @@ namespace EthernaIndex.Services.Tests.Tasks
             Assert.False(videoManifest.IsValid);
             Assert.NotNull(videoManifest.ValidationTime);
             Assert.Contains(video.VideoManifests,
-                i => i.Manifest.Hash == manifestHash);
+                i => i.ManifestHash == manifestHash);
             Assert.Null(video.LastValidManifest);
         }
 
@@ -224,7 +223,7 @@ namespace EthernaIndex.Services.Tests.Tasks
                 "title",
                 "Description",
                 1234,
-                new[] { new VideoSourceV1(null, "720", "ref", null) },
+                [new VideoSourceV1(null, "720", SwarmHash.Zero, null)],
                 null,
                 null,
                 null,
@@ -243,8 +242,8 @@ namespace EthernaIndex.Services.Tests.Tasks
             Assert.Equal(metadataVideoDto, videoManifest.Metadata);
             Assert.Empty(videoManifest.ValidationErrors);
             Assert.Contains(video.VideoManifests,
-                i => i.Manifest.Hash == manifestHash);
-            Assert.Equal(manifestHash, video.LastValidManifest!.Manifest.Hash);
+                i => i.ManifestHash == manifestHash);
+            Assert.Equal(manifestHash, video.LastValidManifest!.ManifestHash);
         }
     }
 }

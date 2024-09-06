@@ -12,6 +12,7 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
+using Etherna.BeeNet.Models;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -26,14 +27,14 @@ namespace Etherna.EthernaIndex.Services.Extensions
     {
         // Fields.
         //*** DEBUG LOGS ***
-        private static readonly Action<ILogger, string, string, Exception> _videoManifestValidationRetrievedManifest =
-            LoggerMessage.Define<string, string>(
+        private static readonly Action<ILogger, string, SwarmHash, Exception> _videoManifestValidationRetrievedManifest =
+            LoggerMessage.Define<string, SwarmHash>(
                 LogLevel.Debug,
                 new EventId(7, nameof(VideoManifestValidationRetrievedManifest)),
                 "Validation of video Id {VideoId} with manifest {ManifestHash} retrieved manifest");
 
-        private static readonly Action<ILogger, string, string, Exception> _videoManifestValidationStarted =
-            LoggerMessage.Define<string, string>(
+        private static readonly Action<ILogger, string, SwarmHash, Exception> _videoManifestValidationStarted =
+            LoggerMessage.Define<string, SwarmHash>(
                 LogLevel.Debug,
                 new EventId(6, nameof(VideoManifestValidationStarted)),
                 "Validation of video Id {VideoId} with manifest {ManifestHash} started");
@@ -45,8 +46,8 @@ namespace Etherna.EthernaIndex.Services.Extensions
                 new EventId(3, nameof(AuthorDeleteVideo)),
                 "Video with Id {VideoId} deleted by author");
 
-        private static readonly Action<ILogger, string, string, Exception> _changeVideoReportDescription =
-            LoggerMessage.Define<string, string>(
+        private static readonly Action<ILogger, string, SwarmHash, Exception> _changeVideoReportDescription =
+            LoggerMessage.Define<string, SwarmHash>(
                 LogLevel.Information,
                 new EventId(24, nameof(ChangeVideoReportDescription)),
                 "Change reported description for video id {VideoId} with Manifest Hash {ManifestHash}");
@@ -57,14 +58,14 @@ namespace Etherna.EthernaIndex.Services.Extensions
                 new EventId(1, nameof(CreateVideoComment)),
                 "User Id '{UserId}' created new comment for video with Id {VideoId}");
 
-        private static readonly Action<ILogger, string, string, Exception> _createVideoReport =
-            LoggerMessage.Define<string, string>(
+        private static readonly Action<ILogger, string, SwarmHash, Exception> _createVideoReport =
+            LoggerMessage.Define<string, SwarmHash>(
                 LogLevel.Information,
                 new EventId(25, nameof(CreateVideoReport)),
                 "Reported video id {VideoId} with Manifest Hash {ManifestHash}");
 
-        private static readonly Action<ILogger, string, Exception> _findManifestByHash =
-            LoggerMessage.Define<string>(
+        private static readonly Action<ILogger, SwarmHash, Exception> _findManifestByHash =
+            LoggerMessage.Define<SwarmHash>(
                 LogLevel.Information,
                 new EventId(21, nameof(FindManifestByHash)),
                 "Find video by Manifest Hash {ManifestHash}");
@@ -81,14 +82,14 @@ namespace Etherna.EthernaIndex.Services.Extensions
                 new EventId(15, nameof(FindVideoById)),
                 "Find video by Id {VideoId}");
 
-        private static readonly Action<ILogger, string, string, IEnumerable<string>, Exception> _forcedVideoManifestsValidation =
-            LoggerMessage.Define<string, string, IEnumerable<string>>(
+        private static readonly Action<ILogger, string, string, IEnumerable<SwarmHash>, Exception> _forcedVideoManifestsValidation =
+            LoggerMessage.Define<string, string, IEnumerable<SwarmHash>>(
                 LogLevel.Information,
                 new EventId(28, nameof(ForcedVideoManifestsValidation)),
                 "User {UserId} forced validation of video {VideoId} on manifests {ManifestHashes}");
 
-        private static readonly Action<ILogger, IEnumerable<string>, Exception> _getBulkVideoManifestValidationStatusByHashes =
-            LoggerMessage.Define<IEnumerable<string>>(
+        private static readonly Action<ILogger, IEnumerable<SwarmHash>, Exception> _getBulkVideoManifestValidationStatusByHashes =
+            LoggerMessage.Define<IEnumerable<SwarmHash>>(
                 LogLevel.Information,
                 new EventId(27, nameof(GetBulkVideoManifestValidationStatusByHashes)),
                 "Get bulk validation status by video manifests hashes {ManifestHashes}");
@@ -129,8 +130,8 @@ namespace Etherna.EthernaIndex.Services.Extensions
                 new EventId(16, nameof(GetVideoComments)),
                 "Get comments from video id {VideoId} paginated Page: {Page} Take: {Take}");
 
-        private static readonly Action<ILogger, string, Exception> _getVideoManifestValidationStatusByHash =
-            LoggerMessage.Define<string>(
+        private static readonly Action<ILogger, SwarmHash, Exception> _getVideoManifestValidationStatusByHash =
+            LoggerMessage.Define<SwarmHash>(
                 LogLevel.Information,
                 new EventId(18, nameof(GetVideoManifestValidationStatusByHash)),
                 "Get validation status by manifest hash {ManifestHash}");
@@ -165,8 +166,8 @@ namespace Etherna.EthernaIndex.Services.Extensions
                 new EventId(29, nameof(UpdatedComment)),
                 "Comment Id {CommentId} updated  by author");
 
-        private static readonly Action<ILogger, string, string, Exception> _updatedVideo =
-            LoggerMessage.Define<string, string>(
+        private static readonly Action<ILogger, string, SwarmHash, Exception> _updatedVideo =
+            LoggerMessage.Define<string, SwarmHash>(
                 LogLevel.Information,
                 new EventId(5, nameof(UpdatedVideo)),
                 "Video Id {VideoId} updated with manifest {NewHash} by author");
@@ -177,8 +178,8 @@ namespace Etherna.EthernaIndex.Services.Extensions
                 new EventId(2, nameof(VideoCreated)),
                 "User Id '{UserId}' created new video with Id {VideoId}");
 
-        private static readonly Action<ILogger, string, string, Exception> _videoManifestValidationSucceeded =
-            LoggerMessage.Define<string, string>(
+        private static readonly Action<ILogger, string, SwarmHash, Exception> _videoManifestValidationSucceeded =
+            LoggerMessage.Define<string, SwarmHash>(
                 LogLevel.Information,
                 new EventId(10, nameof(VideoManifestValidationSucceeded)),
                 "Validation of video Id {VideoId} with manifest {ManifestHash} succeeded");
@@ -198,14 +199,14 @@ namespace Etherna.EthernaIndex.Services.Extensions
                 new EventId(0, nameof(RequestThrowedError)),
                 "Request {RequestId} throwed error");
 
-        private static readonly Action<ILogger, string, string, Exception> _videoManifestValidationCantRetrieveManifest =
-            LoggerMessage.Define<string, string>(
+        private static readonly Action<ILogger, string, SwarmHash, Exception> _videoManifestValidationCantRetrieveManifest =
+            LoggerMessage.Define<string, SwarmHash>(
                 LogLevel.Error,
                 new EventId(8, nameof(VideoManifestValidationCantRetrieveManifest)),
                 "Validation of video Id {VideoId} with manifest {ManifestHash} can't retrie manifest");
 
-        private static readonly Action<ILogger, string, string, Exception> _videoManifestValidationFailedWithErrors =
-            LoggerMessage.Define<string, string>(
+        private static readonly Action<ILogger, string, SwarmHash, Exception> _videoManifestValidationFailedWithErrors =
+            LoggerMessage.Define<string, SwarmHash>(
                 LogLevel.Error,
                 new EventId(9, nameof(VideoManifestValidationFailedWithErrors)),
                 "Validation of video Id {VideoId} with manifest {ManifestHash} failed with errors");
@@ -214,16 +215,16 @@ namespace Etherna.EthernaIndex.Services.Extensions
         public static void AuthorDeleteVideo(this ILogger logger, string videoId) =>
             _authorDeleteVideo(logger, videoId, null!);
 
-        public static void ChangeVideoReportDescription(this ILogger logger, string videoId, string manifestHash) =>
+        public static void ChangeVideoReportDescription(this ILogger logger, string videoId, SwarmHash manifestHash) =>
             _changeVideoReportDescription(logger, videoId, manifestHash, null!);
 
         public static void CreateVideoComment(this ILogger logger, string userId, string videoId) =>
             _createVideoComment(logger, userId, videoId, null!);
 
-        public static void CreateVideoReport(this ILogger logger, string videoId, string manifestHash) =>
+        public static void CreateVideoReport(this ILogger logger, string videoId, SwarmHash manifestHash) =>
             _createVideoReport(logger, videoId, manifestHash, null!);
 
-        public static void FindManifestByHash(this ILogger logger, string manifestHash) =>
+        public static void FindManifestByHash(this ILogger logger, SwarmHash manifestHash) =>
             _findManifestByHash(logger, manifestHash, null!);
 
         public static void FindUserByAddress(this ILogger logger, string address) =>
@@ -232,10 +233,10 @@ namespace Etherna.EthernaIndex.Services.Extensions
         public static void FindVideoById(this ILogger logger, string videoId) =>
             _findVideoById(logger, videoId, null!);
 
-        public static void ForcedVideoManifestsValidation(this ILogger logger, string userId, string videoid, IEnumerable<string> manifestHashes) =>
+        public static void ForcedVideoManifestsValidation(this ILogger logger, string userId, string videoid, IEnumerable<SwarmHash> manifestHashes) =>
             _forcedVideoManifestsValidation(logger, userId, videoid, manifestHashes, null!);
 
-        public static void GetBulkVideoManifestValidationStatusByHashes(this ILogger logger, IEnumerable<string> manifestHashes) =>
+        public static void GetBulkVideoManifestValidationStatusByHashes(this ILogger logger, IEnumerable<SwarmHash> manifestHashes) =>
             _getBulkVideoManifestValidationStatusByHashes(logger, manifestHashes, null!);
 
         public static void GetBulkVideoValidationStatusByIds(this ILogger logger, IEnumerable<string> videoIds) =>
@@ -256,7 +257,7 @@ namespace Etherna.EthernaIndex.Services.Extensions
         public static void GetVideoComments(this ILogger logger, string videoId, int page, int take) =>
             _getVideoComments(logger, videoId, page, take, null!);
 
-        public static void GetVideoManifestValidationStatusByHash(this ILogger logger, string manifestHash) =>
+        public static void GetVideoManifestValidationStatusByHash(this ILogger logger, SwarmHash manifestHash) =>
              _getVideoManifestValidationStatusByHash(logger, manifestHash, null!);
 
         public static void GetVideoValidationStatusById(this ILogger logger, string videoId) =>
@@ -277,25 +278,25 @@ namespace Etherna.EthernaIndex.Services.Extensions
         public static void UpdatedComment(this ILogger logger, string commentId) =>
             _updatedComment(logger, commentId, null!);
 
-        public static void UpdatedVideo(this ILogger logger, string videoId, string newHash) =>
+        public static void UpdatedVideo(this ILogger logger, string videoId, SwarmHash newHash) =>
             _updatedVideo(logger, videoId, newHash, null!);
 
         public static void VideoCreated(this ILogger logger, string userId, string videoId) =>
             _videoCreated(logger, userId, videoId, null!);
 
-        public static void VideoManifestValidationCantRetrieveManifest(this ILogger logger, string videoId, string manifestHash, Exception? exception) =>
+        public static void VideoManifestValidationCantRetrieveManifest(this ILogger logger, string videoId, SwarmHash manifestHash, Exception? exception) =>
             _videoManifestValidationCantRetrieveManifest(logger, videoId, manifestHash, exception!);
 
-        public static void VideoManifestValidationFailedWithErrors(this ILogger logger, string videoId, string manifestHash, Exception? exception) =>
+        public static void VideoManifestValidationFailedWithErrors(this ILogger logger, string videoId, SwarmHash manifestHash, Exception? exception) =>
             _videoManifestValidationFailedWithErrors(logger, videoId, manifestHash, exception!);
 
-        public static void VideoManifestValidationRetrievedManifest(this ILogger logger, string videoId, string manifestHash) =>
+        public static void VideoManifestValidationRetrievedManifest(this ILogger logger, string videoId, SwarmHash manifestHash) =>
             _videoManifestValidationRetrievedManifest(logger, videoId, manifestHash, null!);
 
-        public static void VideoManifestValidationStarted(this ILogger logger, string videoId, string manifestHash) =>
+        public static void VideoManifestValidationStarted(this ILogger logger, string videoId, SwarmHash manifestHash) =>
             _videoManifestValidationStarted(logger, videoId, manifestHash, null!);
 
-        public static void VideoManifestValidationSucceeded(this ILogger logger, string videoId, string manifestHash) =>
+        public static void VideoManifestValidationSucceeded(this ILogger logger, string videoId, SwarmHash manifestHash) =>
             _videoManifestValidationSucceeded(logger, videoId, manifestHash, null!);
 
         public static void VideoVoted(this ILogger logger, string userId, string videoId) =>

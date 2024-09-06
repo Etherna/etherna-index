@@ -12,6 +12,8 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
+using Etherna.BeeNet.Models;
+
 namespace Etherna.EthernaIndex.ElasticSearch.Documents
 {
     public class SourceImageDocument
@@ -19,11 +21,11 @@ namespace Etherna.EthernaIndex.ElasticSearch.Documents
         // Constructors.
         public SourceImageDocument(
             int width,
-            string path,
+            SwarmAddress path,
             string? type)
         {
             Width = width;
-            Path = path;
+            Path = path.ToString();
             Type = type;
         }
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.

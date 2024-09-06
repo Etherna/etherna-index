@@ -12,6 +12,7 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
+using Etherna.BeeNet.Models;
 using System.ComponentModel.DataAnnotations;
 
 namespace Etherna.EthernaIndex.Areas.Api.InputModels
@@ -19,6 +20,6 @@ namespace Etherna.EthernaIndex.Areas.Api.InputModels
     public class VideoCreateInput
     {
         [Required]
-        public string ManifestHash { get; set; } = default!;
+        public SwarmHash ManifestHash { get; set; } = default!;
     }
 }

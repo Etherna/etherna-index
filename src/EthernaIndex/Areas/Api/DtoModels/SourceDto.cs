@@ -12,30 +12,22 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
+using Etherna.BeeNet.Models;
 using System;
 
 namespace Etherna.EthernaIndex.Areas.Api.DtoModels
 {
     [Obsolete("Used only for API backwards compatibility")]
-    public class SourceDto
+    public class SourceDto(
+        int? bitrate,
+        string? quality,
+        SwarmAddress reference,
+        long size)
     {
-        // Constructors.
-        public SourceDto(
-            int? bitrate,
-            string? quality,
-            string reference,
-            long size)
-        {
-            Bitrate = bitrate;
-            Quality = quality;
-            Reference = reference;
-            Size = size;
-        }
-
         // Properties.
-        public int? Bitrate { get; private set; }
-        public string? Quality { get; private set; }
-        public string Reference { get; private set; }
-        public long Size { get; private set; }
+        public int? Bitrate { get; private set; } = bitrate;
+        public string? Quality { get; private set; } = quality;
+        public SwarmAddress Reference { get; private set; } = reference;
+        public long Size { get; private set; } = size;
     }
 }

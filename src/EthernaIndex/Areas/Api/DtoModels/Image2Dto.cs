@@ -16,22 +16,14 @@ using System.Collections.Generic;
 
 namespace Etherna.EthernaIndex.Areas.Api.DtoModels
 {
-    public class Image2Dto
+    public class Image2Dto(
+        float aspectRatio,
+        string blurhash,
+        IEnumerable<ImageSourceDto> sources)
     {
-        // Constructors.
-        public Image2Dto(
-            float aspectRatio,
-            string blurhash,
-            IEnumerable<ImageSourceDto> sources)
-        {
-            AspectRatio = aspectRatio;
-            Blurhash = blurhash;
-            Sources = sources;
-        }
-
         // Properties.
-        public float AspectRatio { get; private set; }
-        public string Blurhash { get; private set; }
-        public IEnumerable<ImageSourceDto> Sources { get; private set; }
+        public float AspectRatio { get; private set; } = aspectRatio;
+        public string Blurhash { get; private set; } = blurhash;
+        public IEnumerable<ImageSourceDto> Sources { get; private set; } = sources;
     }
 }

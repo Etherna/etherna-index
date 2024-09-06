@@ -28,17 +28,8 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
     [ApiVersion("0.3")]
     [Authorize(CommonConsts.RequireAdministratorClaimPolicy)]
     [Route("api/v{api-version:apiVersion}/[controller]")]
-    public class ModerationController : ControllerBase
+    public class ModerationController(IModerationControllerService service) : ControllerBase
     {
-        // Fields.
-        private readonly IModerationControllerService service;
-
-        // Constructor.
-        public ModerationController(IModerationControllerService service)
-        {
-            this.service = service;
-        }
-
         // Delete.
 
         /// <summary>

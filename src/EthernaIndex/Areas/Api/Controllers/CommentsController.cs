@@ -26,18 +26,8 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
     [ApiController]
     [ApiVersion("0.3")]
     [Route("api/v{api-version:apiVersion}/[controller]")]
-    public class CommentsController : ControllerBase
+    public class CommentsController(ICommentsControllerService service) : ControllerBase
     {
-        // Fields.
-        private readonly ICommentsControllerService service;
-
-        // Constructor.
-        public CommentsController(
-            ICommentsControllerService service)
-        {
-            this.service = service;
-        }
-
         // Delete.
 
         /// <summary>

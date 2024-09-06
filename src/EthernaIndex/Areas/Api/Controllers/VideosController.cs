@@ -13,6 +13,7 @@
 // If not, see <https://www.gnu.org/licenses/>.
 
 using Asp.Versioning;
+using Etherna.BeeNet.Models;
 using Etherna.EthernaIndex.Areas.Api.DtoModels;
 using Etherna.EthernaIndex.Areas.Api.InputModels;
 using Etherna.EthernaIndex.Areas.Api.Services;
@@ -31,17 +32,8 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
     [ApiController]
     [ApiVersion("0.3")]
     [Route("api/v{api-version:apiVersion}/[controller]")]
-    public class VideosController : ControllerBase
+    public class VideosController(IVideosControllerService service) : ControllerBase
     {
-        // Fields.
-        private readonly IVideosControllerService service;
-
-        // Constructors.
-        public VideosController(IVideosControllerService controllerService)
-        {
-            this.service = controllerService;
-        }
-
         // Get.
 
         /// <summary>
@@ -226,7 +218,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public Task<VideoDto> FindByManifestHashAsync_old(
-            [Required] string hash) =>
+            [Required] SwarmHash hash) =>
             service.FindByManifestHashAsync_old(hash);
 
         /// <summary>
@@ -239,7 +231,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public Task<Video2Dto> FindByManifestHashAsync(
-            [Required] string hash) =>
+            [Required] SwarmHash hash) =>
             service.FindByManifestHashAsync(hash);
 
         /// <summary>
@@ -252,7 +244,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public Task<VideoManifestStatusDto> ValidationStatusByHashAsync(
-            [Required] string hash) =>
+            [Required] SwarmHash hash) =>
             service.GetValidationStatusByHashAsync(hash);
 
         // Post.
@@ -319,7 +311,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public Task ReportVideoAsync(
             [Required] string id,
-            [Required] string hash,
+            [Required] SwarmHash hash,
             [Required] string description) =>
             service.ReportVideoAsync(id, hash, description);
 
@@ -350,7 +342,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public Task<IEnumerable<VideoManifestStatusDto>> GetBulkValidationStatusByHashesAsync(
-            [Required][FromBody] IEnumerable<string> hashes) =>
+            [Required][FromBody] IEnumerable<SwarmHash> hashes) =>
             service.GetBulkValidationStatusByHashesAsync(hashes);
 
         /// <summary>
@@ -410,7 +402,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public Task<VideoManifestDto> UpdateAsync_old(
             [Required] string id,
-            [Required] string newHash) =>
+            [Required] SwarmHash newHash) =>
             service.UpdateAsync_old(id, newHash);
 
         /// <summary>
@@ -427,7 +419,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public Task<VideoManifest2Dto> UpdateAsync(
             [Required] string id,
-            [Required] string newHash) =>
+            [Required] SwarmHash newHash) =>
             service.UpdateAsync(id, newHash);
 
         // Delete.

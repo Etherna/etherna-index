@@ -19,7 +19,6 @@ using Etherna.EthernaIndex.Services.Extensions;
 using Etherna.EthernaIndex.Swarm;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Services.Tasks
@@ -53,7 +52,7 @@ namespace Etherna.EthernaIndex.Services.Tasks
             var validationErrors = new List<ValidationError>();
 
             // Get manifest.
-            var videoManifest = await indexDbContext.VideoManifests.FindOneAsync(u => u.Manifest.Hash == manifestHash);
+            var videoManifest = await indexDbContext.VideoManifests.FindOneAsync(u => u.ManifestHash == manifestHash);
 
             // Get metadata.
             try

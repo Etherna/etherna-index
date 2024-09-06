@@ -1,4 +1,4 @@
-﻿// Copyright 2021-present Etherna SA
+// Copyright 2021-present Etherna SA
 // This file is part of Etherna Index.
 // 
 // Etherna Index is free software: you can redistribute it and/or modify it under the terms of the
@@ -12,15 +12,25 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
-namespace Etherna.EthernaIndex.Domain.Models.Swarm
+using Etherna.BeeNet.Models;
+using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.SwaggerGen;
+using System;
+
+namespace Etherna.EthernaIndex.Swagger.SchemaFilters
 {
-    public class SwarmBzz : SwarmContentBase
+    public class SwarmUriSchemaFilter : ISchemaFilter
     {
-        // Constructors.
-        public SwarmBzz(
-            string hash)
-            : base(hash)
-        { }
-        protected SwarmBzz() { }
+        public void Apply(OpenApiSchema schema, SchemaFilterContext context)
+        {
+            ArgumentNullException.ThrowIfNull(schema, nameof(schema));
+            ArgumentNullException.ThrowIfNull(context, nameof(context));
+            
+            if (context.Type == typeof(SwarmHash))
+            {
+                schema.Type = "string";
+                schema.Format = null;
+            }
+        }
     }
 }

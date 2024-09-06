@@ -16,10 +16,12 @@ using Asp.Versioning.ApiExplorer;
 using Etherna.ACR.Exceptions;
 using Etherna.ACR.Middlewares.DebugPages;
 using Etherna.Authentication.AspNetCore;
+using Etherna.BeeNet.Models;
 using Etherna.DomainEvents;
 using Etherna.EthernaIndex.Configs;
 using Etherna.EthernaIndex.Configs.Authorization;
 using Etherna.EthernaIndex.Configs.MongODM;
+using Etherna.EthernaIndex.Converters;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.ElasticSearch;
 using Etherna.EthernaIndex.Extensions;
@@ -28,6 +30,7 @@ using Etherna.EthernaIndex.Services;
 using Etherna.EthernaIndex.Services.Settings;
 using Etherna.EthernaIndex.Services.Tasks;
 using Etherna.EthernaIndex.Swagger;
+using Etherna.EthernaIndex.Swagger.SchemaFilters;
 using Etherna.EthernaIndex.Swarm;
 using Etherna.MongODM;
 using Etherna.MongODM.AspNetCore.UI;
@@ -53,6 +56,7 @@ using Serilog.Exceptions;
 using Serilog.Sinks.Elasticsearch;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
+using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -143,6 +147,12 @@ namespace Etherna.EthernaIndex
             var services = builder.Services;
             var config = builder.Configuration;
             var env = builder.Environment;
+            
+            // Register global TypeConverters.
+            TypeDescriptor.AddAttributes(typeof(PostageBatchId), new TypeConverterAttribute(typeof(PostageBatchIdTypeConverter)));
+            TypeDescriptor.AddAttributes(typeof(SwarmAddress), new TypeConverterAttribute(typeof(SwarmAddressTypeConverter)));
+            TypeDescriptor.AddAttributes(typeof(SwarmHash), new TypeConverterAttribute(typeof(SwarmHashTypeConverter)));
+            TypeDescriptor.AddAttributes(typeof(SwarmUri), new TypeConverterAttribute(typeof(SwarmUriTypeConverter)));
 
             // Configure Asp.Net Core framework services.
             services.AddDataProtection()
@@ -182,7 +192,13 @@ namespace Etherna.EthernaIndex
             });
             services.AddControllers()
                 .AddJsonOptions(options =>
-                    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+                {
+                    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                    options.JsonSerializerOptions.Converters.Add(new PostageBatchIdJsonConverter());
+                    options.JsonSerializerOptions.Converters.Add(new SwarmAddressJsonConverter());
+                    options.JsonSerializerOptions.Converters.Add(new SwarmHashJsonConverter());
+                    options.JsonSerializerOptions.Converters.Add(new SwarmUriJsonConverter());
+                });
             services.AddApiVersioning(options =>
             {
                 options.ReportApiVersions = true;
@@ -339,6 +355,12 @@ namespace Etherna.EthernaIndex
 
                 //add a custom operation filter which sets default values
                 options.OperationFilter<SwaggerDefaultValues>();
+                
+                //add schema filters
+                options.SchemaFilter<PostageBatchIdSchemaFilter>();
+                options.SchemaFilter<SwarmAddressSchemaFilter>();
+                options.SchemaFilter<SwarmHashSchemaFilter>();
+                options.SchemaFilter<SwarmUriSchemaFilter>();
 
                 //integrate xml comments
                 var xmlFile = typeof(Program).GetTypeInfo().Assembly.GetName().Name + ".xml";
@@ -468,9 +490,6 @@ namespace Etherna.EthernaIndex
             // Add pages and controllers.
             app.MapControllers();
             app.MapRazorPages();
-
-            // Seed db.
-            app.SeedDbContexts();
         }
     }
 }

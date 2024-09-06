@@ -12,6 +12,7 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
+using Etherna.BeeNet.Models;
 using Etherna.EthernaIndex.Areas.Api.DtoModels;
 using Etherna.EthernaIndex.Areas.Api.InputModels;
 using Etherna.EthernaIndex.Domain.Models;
@@ -27,15 +28,15 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         Task<string> CreateAsync(VideoCreateInput videoInput);
         Task<Comment2Dto> CreateCommentAsync(string id, string text);
         Task<Video2Dto> FindByIdAsync(string id);
-        Task<Video2Dto> FindByManifestHashAsync(string hash);
-        Task<IEnumerable<VideoManifestStatusDto>> GetBulkValidationStatusByHashesAsync(IEnumerable<string> manifestHashes);
+        Task<Video2Dto> FindByManifestHashAsync(SwarmHash hash);
+        Task<IEnumerable<VideoManifestStatusDto>> GetBulkValidationStatusByHashesAsync(IEnumerable<SwarmHash> manifestHashes);
         Task<IEnumerable<VideoManifestStatusDto>> GetBulkValidationStatusByIdsAsync(IEnumerable<string> ids);
         Task<PaginatedEnumerableDto<VideoPreviewDto>> GetLastUploadedVideosAsync(int page, int take);
-        Task<VideoManifestStatusDto> GetValidationStatusByHashAsync(string manifestHash);
+        Task<VideoManifestStatusDto> GetValidationStatusByHashAsync(SwarmHash manifestHash);
         Task<IEnumerable<VideoManifestStatusDto>> GetValidationStatusByIdAsync(string id);
         Task<PaginatedEnumerableDto<Comment2Dto>> GetVideoCommentsAsync(string id, int page, int take);
-        Task ReportVideoAsync(string videoId, string manifestHash, string description);
-        Task<VideoManifest2Dto> UpdateAsync(string id, string newHash);
+        Task ReportVideoAsync(string videoId, SwarmHash manifestHash, string description);
+        Task<VideoManifest2Dto> UpdateAsync(string id, SwarmHash newHash);
         Task UpdateCommentAsync(string commentId, string text);
         Task VoteVideAsync(string id, VoteValue value);
 
@@ -44,7 +45,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         Task<VideoDto> FindByIdAsync_old(string id);
 
         [Obsolete("Used only for API backwards compatibility")]
-        Task<VideoDto> FindByManifestHashAsync_old(string hash);
+        Task<VideoDto> FindByManifestHashAsync_old(SwarmHash hash);
 
         [Obsolete("Used only for API backwards compatibility")]
         Task<IEnumerable<VideoStatusDto>> GetBulkValidationStatusByIdsAsync_old(IEnumerable<string> ids);
@@ -59,6 +60,6 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         Task<PaginatedEnumerableDto<CommentDto>> GetVideoCommentsAsync_old(string id, int page, int take);
 
         [Obsolete("Used only for API backwards compatibility")]
-        Task<VideoManifestDto> UpdateAsync_old(string id, string newHash);
+        Task<VideoManifestDto> UpdateAsync_old(string id, SwarmHash newHash);
     }
 }

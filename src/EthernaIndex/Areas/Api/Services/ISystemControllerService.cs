@@ -12,13 +12,14 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
+using Etherna.BeeNet.Models;
 using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Areas.Api.Services
 {
     public interface ISystemControllerService
     {
-        Task ForceVideoManifestValidationAsync(string manifestHash);
+        Task ForceVideoManifestValidationAsync(SwarmHash manifestHash);
         Task ForceVideoManifestsValidationAsync(string videoId);
     }
 }

@@ -15,6 +15,7 @@
 using Etherna.EthernaIndex.Domain.Exceptions;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2
@@ -60,6 +61,7 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2
         }
 
         // Methods.
+        [SuppressMessage("Maintainability", "CA1508:Avoid dead conditional code")]
         public override bool Equals(object? obj)
         {
             if (ReferenceEquals(this, obj)) return true;

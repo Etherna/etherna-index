@@ -12,9 +12,8 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
+using Etherna.BeeNet.Models;
 using Etherna.EthernaIndex.Domain;
-using Etherna.EthernaIndex.Domain.Models.VideoAgg;
-using Etherna.MongoDB.Driver.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System;
@@ -24,55 +23,33 @@ using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
 {
-    public class IndexModel : PageModel
+    public class IndexModel(IIndexDbContext indexDbContext) : PageModel
     {
         // Models.
-        public class VideoManifestDto
+        public class VideoManifestDto(SwarmHash manifestHash, string title)
         {
-            public VideoManifestDto(
-                string manifestHash,
-                string title)
-            {
-                ArgumentNullException.ThrowIfNull(manifestHash, nameof(manifestHash));
-                ArgumentNullException.ThrowIfNull(title, nameof(title));
-
-                ManifestHash = manifestHash;
-                Title = title;
-            }
-
-            public string ManifestHash { get; }
-            public string Title { get; }
+            public SwarmHash ManifestHash { get; } = manifestHash;
+            public string Title { get; } = title;
         }
 
         // Consts.
         private const int PageSize = 20;
 
-        // Fields.
-        private readonly IIndexDbContext indexDbContext;
-
-        // Constructor.
-        public IndexModel(
-            IIndexDbContext indexDbContext)
-        {
-            this.indexDbContext = indexDbContext;
-            ErrorMessage = "";
-        }
-
         // Properties.
         public int CurrentPage { get; private set; }
-        public string ErrorMessage { get; private set; }
+        public string ErrorMessage { get; private set; } = "";
         public long MaxPage { get; private set; }
         public IEnumerable<VideoManifestDto> VideoManifests { get; set; } = default!;
 
         // Methods.
         public async Task<IActionResult> OnGetAsync(
-            string? manifestHash,
+            SwarmHash? manifestHash,
             int? p)
         {
             CurrentPage = p ?? 0;
-            if (!string.IsNullOrWhiteSpace(manifestHash))
+            if (manifestHash.HasValue)
             {
-                var videoManifests = await indexDbContext.VideoManifests.TryFindOneAsync(v => v.Manifest.Hash == manifestHash);
+                var videoManifests = await indexDbContext.VideoManifests.TryFindOneAsync(v => v.ManifestHash == manifestHash);
 
                 if (videoManifests is not null)
                     return RedirectToPage("Manifest", new { manifestHash });
@@ -92,7 +69,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
 
                 VideoManifests = paginatedVideoManifests.Elements.Select(
                     e => new VideoManifestDto(
-                        e.Manifest.Hash,
+                        e.ManifestHash,
                     e.TryGetTitle() ?? ""));
             }
 
