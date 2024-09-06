@@ -15,7 +15,6 @@
 using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.Domain.Models.UserAgg;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg;
-using Etherna.EthernaIndex.ElasticSearch.Documents;
 using System;
 
 namespace Etherna.EthernaIndex.Areas.Api.DtoModels
