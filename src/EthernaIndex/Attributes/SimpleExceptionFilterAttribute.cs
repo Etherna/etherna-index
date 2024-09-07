@@ -34,8 +34,8 @@ namespace Etherna.EthernaIndex.Attributes
                 case MongodmInvalidEntityTypeException _:
                     context.Result = new BadRequestObjectResult(context.Exception.Message);
                     break;
-                case MongodmEntityNotFoundException _:
                 case KeyNotFoundException _:
+                case MongodmEntityNotFoundException _:
                     context.Result = new NotFoundObjectResult(context.Exception.Message);
                     break;
                 case UnauthorizedAccessException _:

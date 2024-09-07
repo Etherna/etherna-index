@@ -41,6 +41,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// <response code="200">Current page on list</response>
         [HttpGet]
         [Obsolete("Use \"list2\" instead")]
+        [AllowAnonymous]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -56,6 +57,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// <param name="take">Number of items to retrieve. Max 100</param>
         /// <response code="200">Current page on list</response>
         [HttpGet("list2")]
+        [AllowAnonymous]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -69,6 +71,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// </summary>
         /// <param name="address">The user ether address</param>
         [HttpGet("{address}")]
+        [AllowAnonymous]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -87,6 +90,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// <response code="404">User not found</response>
         [HttpGet("{address}/videos")]
         [Obsolete("Use \"videos3\" instead")]
+        [AllowAnonymous]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -107,6 +111,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// <response code="404">User not found</response>
         [HttpGet("{address}/videos2")]
         [Obsolete("Use \"videos3\" instead")]
+        [AllowAnonymous]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -126,6 +131,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// <response code="200">List of user's videos</response>
         /// <response code="404">User not found</response>
         [HttpGet("{address}/videos3")]
+        [AllowAnonymous]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -137,7 +143,6 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
             service.GetVideosAsync(address, page, take);
 
         [HttpGet("current")]
-        [Authorize]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public Task<CurrentUserDto> GetCurrentUserAsync() =>

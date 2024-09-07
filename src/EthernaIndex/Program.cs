@@ -13,6 +13,7 @@
 // If not, see <https://www.gnu.org/licenses/>.
 
 using Asp.Versioning.ApiExplorer;
+using Etherna.ACR.Conventions;
 using Etherna.ACR.Exceptions;
 using Etherna.ACR.Middlewares.DebugPages;
 using Etherna.Authentication.AspNetCore;
@@ -62,7 +63,6 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
-using System.Security.Claims;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using DashboardOptions = Etherna.MongODM.AspNetCore.UI.DashboardOptions;
@@ -188,9 +188,17 @@ namespace Etherna.EthernaIndex
             services.AddCors();
             services.AddRazorPages(options =>
             {
-                options.Conventions.AuthorizeAreaFolder(CommonConsts.AdminArea, "/", CommonConsts.RequireAdministratorClaimPolicy);
+                options.Conventions.AuthorizeAreaFolder(
+                    CommonConsts.AdminArea, "/", CommonConsts.RequireAdministratorClaimPolicy);
             });
-            services.AddControllers()
+            services.AddControllers(options =>
+                {
+                    //api by default requires authentication with user interact policy
+                    options.Conventions.Add(
+                        new RouteTemplateAuthorizationConvention(
+                            CommonConsts.ApiArea,
+                            CommonConsts.UserInteractApiScopePolicy));
+                })
                 .AddJsonOptions(options =>
                 {
                     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
@@ -300,11 +308,10 @@ namespace Etherna.EthernaIndex
             {
                 //default policy
                 options.DefaultPolicy = new AuthorizationPolicy(
-                    new IAuthorizationRequirement[]
-                    {
+                    [
                         new DenyAnonymousAuthorizationRequirement(),
                         new DenyBannedAuthorizationRequirement()
-                    },
+                    ],
                     Array.Empty<string>());
 
                 //other policies
@@ -312,15 +319,25 @@ namespace Etherna.EthernaIndex
                     policy =>
                     {
                         policy.RequireAuthenticatedUser();
-                        policy.RequireClaim(ClaimTypes.Role, CommonConsts.AdministratorRoleName);
+                        policy.RequireRole(CommonConsts.AdministratorRoleName);
+                        policy.AddRequirements(new DenyBannedAuthorizationRequirement());
                     });
 
                 options.AddPolicy(CommonConsts.RequireSuperModeratorClaimPolicy,
                     policy =>
                     {
                         policy.RequireAuthenticatedUser();
-                        policy.RequireClaim(ClaimTypes.Role, CommonConsts.AdministratorRoleName);
-                    });
+                        policy.RequireRole(CommonConsts.AdministratorRoleName);
+                        policy.AddRequirements(new DenyBannedAuthorizationRequirement());
+                    });      
+                
+                options.AddPolicy(CommonConsts.UserInteractApiScopePolicy, policy =>
+                {
+                    policy.AuthenticationSchemes = [CommonConsts.UserAuthenticationJwtScheme];
+                    policy.RequireAuthenticatedUser();
+                    policy.RequireClaim("scope", "userApi.index");
+                    policy.AddRequirements(new DenyBannedAuthorizationRequirement());
+                });
             });
 
             //requirement handlers

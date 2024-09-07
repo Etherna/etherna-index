@@ -37,6 +37,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// </summary>
         /// <response code="200">Configuration parameters</response>
         [HttpGet("parameters")]
+        [AllowAnonymous]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public SystemParametersDto GetParameters() => new();
