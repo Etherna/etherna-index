@@ -42,6 +42,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// <param name="id">The video id</param>
         [HttpGet("{id}")]
         [Obsolete("Use \"find2\" instead")]
+        [AllowAnonymous]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -55,6 +56,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// </summary>
         /// <param name="id">The video id</param>
         [HttpGet("{id}/find2")]
+        [AllowAnonymous]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -72,6 +74,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// <response code="200">Current page on list</response>
         [HttpGet("{id}/comments")]
         [Obsolete("Use \"{id}/comments3\" instead")]
+        [AllowAnonymous]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -91,6 +94,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// <response code="200">Current page on list</response>
         [HttpGet("{id}/comments2")]
         [Obsolete("Use \"{id}/comments3\" instead")]
+        [AllowAnonymous]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -109,6 +113,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// <param name="take">Number of items to retrieve. Max 100</param>
         /// <response code="200">Current page on list</response>
         [HttpGet("{id}/comments3")]
+        [AllowAnonymous]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -125,6 +130,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// <param name="id">The video id</param>
         [HttpGet("{id}/validations")]
         [Obsolete("Use \"{id}/validation2\" instead")]
+        [AllowAnonymous]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -139,6 +145,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// <param name="id">The video id</param>
         [HttpGet("{id}/validation")]
         [Obsolete("Use \"{id}/validation2\" instead")]
+        [AllowAnonymous]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -152,6 +159,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// </summary>
         /// <param name="id">The video id</param>
         [HttpGet("{id}/validation2")]
+        [AllowAnonymous]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -168,6 +176,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// <response code="200">Current page on list</response>
         [HttpGet("latest")]
         [Obsolete("Use \"latest3\" instead")]
+        [AllowAnonymous]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -184,6 +193,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// <response code="200">Current page on list</response>
         [HttpGet("latest2")]
         [Obsolete("Use \"latest3\" instead")]
+        [AllowAnonymous]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -199,6 +209,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// <param name="take">Number of items to retrieve. Max 100</param>
         /// <response code="200">Current page on list</response>
         [HttpGet("latest3")]
+        [AllowAnonymous]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -213,6 +224,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// <param name="hash">The video hash</param>
         [HttpGet("manifest/{hash}")]
         [Obsolete("Use \"manifest2\" instead")]
+        [AllowAnonymous]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -226,6 +238,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// </summary>
         /// <param name="hash">The video hash</param>
         [HttpGet("manifest2/{hash}")]
+        [AllowAnonymous]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -239,6 +252,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// </summary>
         /// <param name="hash">The video hash</param>
         [HttpGet("manifest/{hash}/validation")]
+        [AllowAnonymous]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -254,7 +268,6 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// </summary>
         /// <param name="videoInput">Info of new video</param>
         [HttpPost]
-        [Authorize]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -271,7 +284,6 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// <param name="text">Comment text</param>
         [HttpPost("{id}/comments")]
         [Obsolete("Use \"{id}/comments2\" instead")]
-        [Authorize]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -287,7 +299,6 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// <param name="id">Video id</param>
         /// <param name="text">Comment text</param>
         [HttpPost("{id}/comments2")]
-        [Authorize]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -304,7 +315,6 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// <param name="hash">Hash manifest</param>
         /// <param name="description">Report description</param>
         [HttpPost("{id}/manifest/{hash}/reports")]
-        [Authorize]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -321,7 +331,6 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// <param name="id">Video id</param>
         /// <param name="value">Vote value</param>
         [HttpPost("{id}/votes")]
-        [Authorize]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -338,6 +347,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// </summary>
         /// <param name="hashes">The list of video manifest hashes</param>
         [HttpPut("manifest/bulkValidation")]
+        [AllowAnonymous]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -351,6 +361,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// <param name="ids">The list of video id</param>
         [HttpPut("bulkValidation")]
         [Obsolete("Use \"bulkValidation2\" instead")]
+        [AllowAnonymous]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -363,6 +374,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// </summary>
         /// <param name="ids">The list of video id</param>
         [HttpPut("bulkValidation2")]
+        [AllowAnonymous]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -376,7 +388,6 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// <param name="commentId">Comment id</param>
         /// <param name="text">Comment text</param>
         [HttpPut("comments/{commentId}")]
-        [Authorize]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -394,7 +405,6 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// <param name="newHash">The new video manifest hash</param>
         [HttpPut("{id}")]
         [Obsolete("Use \"update2\" instead")]
-        [Authorize]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -411,7 +421,6 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// <param name="id">The video id</param>
         /// <param name="newHash">The new video manifest hash</param>
         [HttpPut("{id}/update2")]
-        [Authorize]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -429,7 +438,6 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// </summary>
         /// <param name="id">Id of the video</param>
         [HttpDelete("{id}")]
-        [Authorize]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

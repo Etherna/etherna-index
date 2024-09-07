@@ -15,7 +15,6 @@
 using Asp.Versioning;
 using Etherna.EthernaIndex.Areas.Api.Services;
 using Etherna.EthernaIndex.Attributes;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
@@ -35,7 +34,6 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// </summary>
         /// <param name="id">Comment id</param>
         [HttpDelete("{id}")]
-        [Authorize]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

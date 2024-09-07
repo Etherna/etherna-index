@@ -29,6 +29,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
 {
     [ApiController]
     [ApiVersion("0.3")]
+    [AllowAnonymous]
     [Route("api/v{api-version:apiVersion}/[controller]")]
     public class SearchController(ISearchControllerService service) : ControllerBase
     {

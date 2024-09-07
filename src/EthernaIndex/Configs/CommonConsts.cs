@@ -17,12 +17,14 @@ namespace Etherna.EthernaIndex.Configs
     public static class CommonConsts
     {
         public const string AdminArea = "Admin";
+        public const string ApiArea = "Api";
 
         public const string DatabaseAdminPath = "/admin/db";
         public const string HangfireAdminPath = "/admin/hangfire";
 
         public const string RequireAdministratorClaimPolicy = "RequireAdministratorClaimPolicy";
         public const string RequireSuperModeratorClaimPolicy = "RequireSuperModeratorClaimPolicy";
+        public const string UserInteractApiScopePolicy = "UserInteractApiScopePolicy";
 
         public const string AdministratorRoleName = "ADMINISTRATOR";
 
