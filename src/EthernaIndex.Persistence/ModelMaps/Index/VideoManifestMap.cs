@@ -1,17 +1,19 @@
-﻿//   Copyright 2021-present Etherna Sagl
-//
-//   Licensed under the Apache License, Version 2.0 (the "License");
-//   you may not use this file except in compliance with the License.
-//   You may obtain a copy of the License at
-//
-//       http://www.apache.org/licenses/LICENSE-2.0
-//
-//   Unless required by applicable law or agreed to in writing, software
-//   distributed under the License is distributed on an "AS IS" BASIS,
-//   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//   See the License for the specific language governing permissions and
-//   limitations under the License.
+﻿// Copyright 2021-present Etherna SA
+// This file is part of Etherna Index.
+// 
+// Etherna Index is free software: you can redistribute it and/or modify it under the terms of the
+// GNU Affero General Public License as published by the Free Software Foundation,
+// either version 3 of the License, or (at your option) any later version.
+// 
+// Etherna Index is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+// without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU Affero General Public License for more details.
+// 
+// You should have received a copy of the GNU Affero General Public License along with Etherna Index.
+// If not, see <https://www.gnu.org/licenses/>.
 
+using Etherna.BeeNet.Models;
+using Etherna.EthernaIndex.Domain.Exceptions;
 using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV1;
@@ -32,13 +34,38 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
         public void Register(IDbContext dbContext)
         {
             dbContext.MapRegistry.AddModelMap<VideoManifest>(
-                "c32a815b-4667-4534-8276-eb3c1d812d09") //0.3.9
+                "4d75fd4f-157a-4c0f-a5fa-e8a17ed28887") //v0.3.12
+                .AddSecondarySchema(
+                    "c32a815b-4667-4534-8276-eb3c1d812d09", //v0.3.9
+                    fixDeserializedModelFunc: m =>
+                    {
+                        if (m.ExtraElements is null)
+                            return Task.FromResult(m);
+                        
+                        //manifest hash
+                        if (m.ExtraElements.TryGetValue("Manifest", out var manifestObj))
+                        {
+                            var manifestDictionary = (Dictionary<string, object>)manifestObj;
+                            if (manifestDictionary.TryGetValue("Hash", out var hashObj))
+                                ReflectionHelper.SetValue(m, vm => vm.ManifestHash, SwarmHash.FromString((string)hashObj));
+                        }
+                        
+                        return Task.FromResult(m);
+                    })
                 .AddSecondarySchema(
                     "a48b92d6-c02d-4b1e-b1b0-0526c4bcaa6e", //v0.3.4
                     fixDeserializedModelFunc: m =>
                     {
-                    if (m.ExtraElements is null)
-                        return Task.FromResult(m);
+                        if (m.ExtraElements is null)
+                            return Task.FromResult(m);
+                        
+                        //manifest hash
+                        if (m.ExtraElements.TryGetValue("Manifest", out var manifestObj))
+                        {
+                            var manifestDictionary = (Dictionary<string, object>)manifestObj;
+                            if (manifestDictionary.TryGetValue("Hash", out var hashObj))
+                                ReflectionHelper.SetValue(m, vm => vm.ManifestHash, SwarmHash.FromString((string)hashObj));
+                        }
 
                         // Verify if there isn't any validation error.
                         if (!m.ValidationErrors.Any())
@@ -48,7 +75,8 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                                 (string)titleObj : "";
                             var description = m.ExtraElements.TryGetValue("Description", out var descriptionObj) ?
                                 (string)descriptionObj : "";
-                            var duration = (long)m.ExtraElements["Duration"];
+                            var duration = m.ExtraElements.TryGetValue("Duration", out var durationObj) ?
+                                (long)(durationObj ?? 0L) : 0L;
                             var sources = m.ExtraElements.TryGetValue("Sources", out var sourcesObj) ?
                                 new ExtraElementsSerializer(dbContext).DeserializeValue<List<VideoSourceV1>>(sourcesObj) :
                                 new List<VideoSourceV1>();
@@ -61,17 +89,24 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                                 (string?)personalDataObj : null;
 
                             // Update model.
-                            var metadata = new VideoManifestMetadataV1(
-                                title,
-                                description,
-                                duration,
-                                sources,
-                                thumbnail,
-                                batchId,
-                                null,
-                                null,
-                                personalData);
-                            ReflectionHelper.SetValue(m, vm => vm.Metadata!, metadata);
+                            try
+                            {
+                                var metadata = new VideoManifestMetadataV1(
+                                    title,
+                                    description,
+                                    duration,
+                                    sources,
+                                    thumbnail,
+                                    batchId is null ? (PostageBatchId?)null : PostageBatchId.FromString(batchId),
+                                    null,
+                                    null,
+                                    personalData);
+                                ReflectionHelper.SetValue(m, vm => vm.Metadata!, metadata);
+                            }
+                            catch (VideoManifestValidationException e)
+                            {
+                                m.FailedValidation(e.ValidationErrors);
+                            }
                         }
 
                         return Task.FromResult(m);
@@ -87,8 +122,16 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                     },
                     fixDeserializedModelFunc: m =>
                     {
-                    if (m.ExtraElements is null)
-                        return Task.FromResult(m);
+                        if (m.ExtraElements is null)
+                            return Task.FromResult(m);
+                        
+                        //manifest hash
+                        if (m.ExtraElements.TryGetValue("Manifest", out var manifestObj))
+                        {
+                            var manifestDictionary = (Dictionary<string, object>)manifestObj;
+                            if (manifestDictionary.TryGetValue("Hash", out var hashObj))
+                                ReflectionHelper.SetValue(m, vm => vm.ManifestHash, SwarmHash.FromString((string)hashObj));
+                        }
 
                         // Verify if there isn't any validation error.
                         if (!m.ValidationErrors.Any())
@@ -98,7 +141,8 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                                 (string)titleObj : "";
                             var description = m.ExtraElements.TryGetValue("Description", out var descriptionObj) ?
                                 (string)descriptionObj : "";
-                            var duration = (long)(double)m.ExtraElements["Duration"]; //was double
+                            var duration = m.ExtraElements.TryGetValue("Duration", out var durationObj) ?
+                                (long)(double)(durationObj ?? 0.0) : 0L; //was double
                             var sources = m.ExtraElements.TryGetValue("Sources", out var sourcesObj) ?
                                 new ExtraElementsSerializer(dbContext).DeserializeValue<List<VideoSourceV1>>(sourcesObj) :
                                 new List<VideoSourceV1>();
@@ -111,17 +155,24 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                                 (string?)personalDataObj : null;
 
                             // Update model.
-                            var metadata = new VideoManifestMetadataV1(
-                                title,
-                                description,
-                                duration,
-                                sources,
-                                thumbnail,
-                                batchId,
-                                null,
-                                null,
-                                personalData);
-                            ReflectionHelper.SetValue(m, vm => vm.Metadata!, metadata);
+                            try
+                            {
+                                var metadata = new VideoManifestMetadataV1(
+                                    title,
+                                    description,
+                                    duration,
+                                    sources,
+                                    thumbnail,
+                                    batchId is null ? (PostageBatchId?)null : PostageBatchId.FromString(batchId),
+                                    null,
+                                    null,
+                                    personalData);
+                                ReflectionHelper.SetValue(m, vm => vm.Metadata!, metadata);
+                            }
+                            catch (VideoManifestValidationException e)
+                            {
+                                m.FailedValidation(e.ValidationErrors);
+                            }
                         }
 
                         return Task.FromResult(m);
@@ -139,6 +190,14 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                     {
                         if (m.ExtraElements is null)
                             return Task.FromResult(m);
+                        
+                        //manifest hash
+                        if (m.ExtraElements.TryGetValue("Manifest", out var manifestObj))
+                        {
+                            var manifestDictionary = (Dictionary<string, object>)manifestObj;
+                            if (manifestDictionary.TryGetValue("Hash", out var hashObj))
+                                ReflectionHelper.SetValue(m, vm => vm.ManifestHash, SwarmHash.FromString((string)hashObj));
+                        }
 
                         // Verify if there isn't any validation error.
                         if (!m.ValidationErrors.Any())
@@ -148,7 +207,8 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                                 (string)titleObj : "";
                             var description = m.ExtraElements.TryGetValue("Description", out var descriptionObj) ?
                                 (string)descriptionObj : "";
-                            var duration = (long)(double)m.ExtraElements["Duration"]; //was double
+                            var duration = m.ExtraElements.TryGetValue("Duration", out var durationObj) ?
+                                (long)(double)(durationObj ?? 0.0) : 0L; //was double
                             var sources = m.ExtraElements.TryGetValue("Sources", out var sourcesObj) ?
                                 new ExtraElementsSerializer(dbContext).DeserializeValue<List<VideoSourceV1>>(sourcesObj) :
                                 new List<VideoSourceV1>();
@@ -161,17 +221,24 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                                 (string?)personalDataObj : null;
 
                             // Update model.
-                            var metadata = new VideoManifestMetadataV1(
-                                title,
-                                description,
-                                duration,
-                                sources,
-                                thumbnail,
-                                batchId,
-                                null,
-                                null,
-                                personalData);
-                            ReflectionHelper.SetValue(m, vm => vm.Metadata!, metadata);
+                            try
+                            {
+                                var metadata = new VideoManifestMetadataV1(
+                                    title,
+                                    description,
+                                    duration,
+                                    sources,
+                                    thumbnail,
+                                    batchId is null ? (PostageBatchId?)null : PostageBatchId.FromString(batchId),
+                                    null,
+                                    null,
+                                    personalData);
+                                ReflectionHelper.SetValue(m, vm => vm.Metadata!, metadata);
+                            }
+                            catch(VideoManifestValidationException e)
+                            {
+                                m.FailedValidation(e.ValidationErrors);
+                            }
                         }
 
                         return Task.FromResult(m);
@@ -233,7 +300,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                 config.AddModelMap<VideoManifest>("f7966611-14aa-4f18-92f4-8697b4927fb6", mm =>
                 {
                     mm.MapMember(m => m.IsValid);
-                    mm.MapMember(m => m.Manifest);
+                    mm.MapMember(m => m.ManifestHash);
 
                     //*** Add again after https://etherna.atlassian.net/browse/MODM-163
                     //mm.MapMember(m => m.Duration).SetSerializer( //could be float in old documents
@@ -252,13 +319,13 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
             new(dbContext, config =>
             {
                 config.AddModelMap<ModelBase>("753d17b7-20b9-40d2-a076-3df48b463465");
-                config.AddModelMap<EntityModelBase>("7f7d2ecf-6950-4577-8a83-6d803353d762", mm => { });
+                config.AddModelMap<EntityModelBase>("7f7d2ecf-6950-4577-8a83-6d803353d762", _ => { });
                 config.AddModelMap<EntityModelBase<string>>("e70b01d6-fec4-4cb6-9a1b-24406ccb058d", mm =>
                 {
                     mm.MapIdMember(m => m.Id);
                     mm.IdMemberMap.SetSerializer(new StringSerializer(BsonType.ObjectId));
                 });
-                config.AddModelMap<VideoManifest>("1ca89e6c-716c-4936-b7dc-908c057a3e41", mm => { });
+                config.AddModelMap<VideoManifest>("1ca89e6c-716c-4936-b7dc-908c057a3e41", _ => { });
             });
     }
 }

@@ -1,24 +1,28 @@
-//   Copyright 2021-present Etherna Sagl
-//
-//   Licensed under the Apache License, Version 2.0 (the "License");
-//   you may not use this file except in compliance with the License.
-//   You may obtain a copy of the License at
-//
-//       http://www.apache.org/licenses/LICENSE-2.0
-//
-//   Unless required by applicable law or agreed to in writing, software
-//   distributed under the License is distributed on an "AS IS" BASIS,
-//   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//   See the License for the specific language governing permissions and
-//   limitations under the License.
+// Copyright 2021-present Etherna SA
+// This file is part of Etherna Index.
+// 
+// Etherna Index is free software: you can redistribute it and/or modify it under the terms of the
+// GNU Affero General Public License as published by the Free Software Foundation,
+// either version 3 of the License, or (at your option) any later version.
+// 
+// Etherna Index is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+// without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU Affero General Public License for more details.
+// 
+// You should have received a copy of the GNU Affero General Public License along with Etherna Index.
+// If not, see <https://www.gnu.org/licenses/>.
 
+using Asp.Versioning.ApiExplorer;
+using Etherna.ACR.Conventions;
 using Etherna.ACR.Exceptions;
 using Etherna.ACR.Middlewares.DebugPages;
 using Etherna.Authentication.AspNetCore;
+using Etherna.BeeNet.Models;
 using Etherna.DomainEvents;
 using Etherna.EthernaIndex.Configs;
 using Etherna.EthernaIndex.Configs.Authorization;
-using Etherna.EthernaIndex.Configs.Hangfire;
+using Etherna.EthernaIndex.Configs.MongODM;
+using Etherna.EthernaIndex.Converters;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.ElasticSearch;
 using Etherna.EthernaIndex.Extensions;
@@ -27,6 +31,7 @@ using Etherna.EthernaIndex.Services;
 using Etherna.EthernaIndex.Services.Settings;
 using Etherna.EthernaIndex.Services.Tasks;
 using Etherna.EthernaIndex.Swagger;
+using Etherna.EthernaIndex.Swagger.SchemaFilters;
 using Etherna.EthernaIndex.Swarm;
 using Etherna.MongODM;
 using Etherna.MongODM.AspNetCore.UI;
@@ -41,7 +46,6 @@ using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -54,14 +58,16 @@ using Serilog.Exceptions;
 using Serilog.Sinks.Elasticsearch;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
+using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
-using System.Security.Claims;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using DashboardOptions = Etherna.MongODM.AspNetCore.UI.DashboardOptions;
+using IPNetwork = Microsoft.AspNetCore.HttpOverrides.IPNetwork;
 
 namespace Etherna.EthernaIndex
 {
@@ -142,6 +148,12 @@ namespace Etherna.EthernaIndex
             var services = builder.Services;
             var config = builder.Configuration;
             var env = builder.Environment;
+            
+            // Register global TypeConverters.
+            TypeDescriptor.AddAttributes(typeof(PostageBatchId), new TypeConverterAttribute(typeof(PostageBatchIdTypeConverter)));
+            TypeDescriptor.AddAttributes(typeof(SwarmAddress), new TypeConverterAttribute(typeof(SwarmAddressTypeConverter)));
+            TypeDescriptor.AddAttributes(typeof(SwarmHash), new TypeConverterAttribute(typeof(SwarmHashTypeConverter)));
+            TypeDescriptor.AddAttributes(typeof(SwarmUri), new TypeConverterAttribute(typeof(SwarmUriTypeConverter)));
 
             // Configure Asp.Net Core framework services.
             services.AddDataProtection()
@@ -177,25 +189,40 @@ namespace Etherna.EthernaIndex
             services.AddCors();
             services.AddRazorPages(options =>
             {
-                options.Conventions.AuthorizeAreaFolder(CommonConsts.AdminArea, "/", CommonConsts.RequireAdministratorClaimPolicy);
+                options.Conventions.AuthorizeAreaFolder(
+                    CommonConsts.AdminArea, "/", CommonConsts.RequireAdministratorClaimPolicy);
             });
-            services.AddControllers()
+            services.AddControllers(options =>
+                {
+                    //api by default requires authentication with user interact policy
+                    options.Conventions.Add(
+                        new RouteTemplateAuthorizationConvention(
+                            CommonConsts.ApiArea,
+                            CommonConsts.UserInteractApiScopePolicy));
+                })
                 .AddJsonOptions(options =>
-                    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+                {
+                    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                    options.JsonSerializerOptions.Converters.Add(new PostageBatchIdJsonConverter());
+                    options.JsonSerializerOptions.Converters.Add(new SwarmAddressJsonConverter());
+                    options.JsonSerializerOptions.Converters.Add(new SwarmHashJsonConverter());
+                    options.JsonSerializerOptions.Converters.Add(new SwarmUriJsonConverter());
+                });
             services.AddApiVersioning(options =>
             {
                 options.ReportApiVersions = true;
             });
-            services.AddVersionedApiExplorer(options =>
-            {
-                // add the versioned api explorer, which also adds IApiVersionDescriptionProvider service
-                // note: the specified format code will format the version as "'v'major[.minor][-status]"
-                options.GroupNameFormat = "'v'VVV";
+            services.AddApiVersioning()
+                .AddApiExplorer(options =>
+                {
+                    // add the versioned api explorer, which also adds IApiVersionDescriptionProvider service
+                    // note: the specified format code will format the version as "'v'major[.minor][-status]"
+                    options.GroupNameFormat = "'v'VVV";
 
-                // note: this option is only necessary when versioning by url segment. the SubstitutionFormat
-                // can also be used to control the format of the API version in route templates
-                options.SubstituteApiVersionInUrl = true;
-            });
+                    // note: this option is only necessary when versioning by url segment. the SubstitutionFormat
+                    // can also be used to control the format of the API version in route templates
+                    options.SubstituteApiVersionInUrl = true;
+                });
 
             // Configure authentication.
             var allowUnsafeAuthorityConnection = false;
@@ -282,11 +309,10 @@ namespace Etherna.EthernaIndex
             {
                 //default policy
                 options.DefaultPolicy = new AuthorizationPolicy(
-                    new IAuthorizationRequirement[]
-                    {
+                    [
                         new DenyAnonymousAuthorizationRequirement(),
                         new DenyBannedAuthorizationRequirement()
-                    },
+                    ],
                     Array.Empty<string>());
 
                 //other policies
@@ -294,15 +320,25 @@ namespace Etherna.EthernaIndex
                     policy =>
                     {
                         policy.RequireAuthenticatedUser();
-                        policy.RequireClaim(ClaimTypes.Role, CommonConsts.AdministratorRoleName);
+                        policy.RequireRole(CommonConsts.AdministratorRoleName);
+                        policy.AddRequirements(new DenyBannedAuthorizationRequirement());
                     });
 
                 options.AddPolicy(CommonConsts.RequireSuperModeratorClaimPolicy,
                     policy =>
                     {
                         policy.RequireAuthenticatedUser();
-                        policy.RequireClaim(ClaimTypes.Role, CommonConsts.AdministratorRoleName);
-                    });
+                        policy.RequireRole(CommonConsts.AdministratorRoleName);
+                        policy.AddRequirements(new DenyBannedAuthorizationRequirement());
+                    });      
+                
+                options.AddPolicy(CommonConsts.UserInteractApiScopePolicy, policy =>
+                {
+                    policy.AuthenticationSchemes = [CommonConsts.UserAuthenticationJwtScheme];
+                    policy.RequireAuthenticatedUser();
+                    policy.RequireClaim("scope", "userApi.index");
+                    policy.AddRequirements(new DenyBannedAuthorizationRequirement());
+                });
             });
 
             //requirement handlers
@@ -333,10 +369,17 @@ namespace Etherna.EthernaIndex
             services.AddSwaggerGen(options =>
             {
                 options.SupportNonNullableReferenceTypes();
+                options.UseAllOfToExtendReferenceSchemas();
                 options.UseInlineDefinitionsForEnums();
 
                 //add a custom operation filter which sets default values
                 options.OperationFilter<SwaggerDefaultValues>();
+                
+                //add schema filters
+                options.SchemaFilter<PostageBatchIdSchemaFilter>();
+                options.SchemaFilter<SwarmAddressSchemaFilter>();
+                options.SchemaFilter<SwarmHashSchemaFilter>();
+                options.SchemaFilter<SwarmUriSchemaFilter>();
 
                 //integrate xml comments
                 var xmlFile = typeof(Program).GetTypeInfo().Assembly.GetName().Name + ".xml";
@@ -403,9 +446,9 @@ namespace Etherna.EthernaIndex
                     options.ConnectionString = config["ConnectionStrings:ServiceSharedDb"] ?? throw new ServiceConfigurationException();
                 });
 
-            services.AddMongODMAdminDashboard(new MongODM.AspNetCore.UI.DashboardOptions
+            services.AddMongODMAdminDashboard(new DashboardOptions
             {
-                AuthFilters = new[] { new Configs.MongODM.AdminAuthFilter() },
+                AuthFilters = [new AdminAuthFilter()],
                 BasePath = CommonConsts.DatabaseAdminPath
             });
 
@@ -470,7 +513,7 @@ namespace Etherna.EthernaIndex
                 CommonConsts.HangfireAdminPath,
                 new Hangfire.DashboardOptions
                 {
-                    Authorization = new[] { new AdminAuthFilter() }
+                    Authorization = [new Configs.Hangfire.AdminAuthFilter()]
                 });
 
             // Add Swagger and SwaggerUI.
@@ -489,9 +532,6 @@ namespace Etherna.EthernaIndex
             // Add pages and controllers.
             app.MapControllers();
             app.MapRazorPages();
-
-            // Seed db.
-            app.SeedDbContexts();
         }
     }
 }

@@ -1,4 +1,19 @@
-﻿using Etherna.EthernaIndex.Domain.Exceptions;
+﻿// Copyright 2021-present Etherna SA
+// This file is part of Etherna Index.
+// 
+// Etherna Index is free software: you can redistribute it and/or modify it under the terms of the
+// GNU Affero General Public License as published by the Free Software Foundation,
+// either version 3 of the License, or (at your option) any later version.
+// 
+// Etherna Index is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+// without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU Affero General Public License for more details.
+// 
+// You should have received a copy of the GNU Affero General Public License along with Etherna Index.
+// If not, see <https://www.gnu.org/licenses/>.
+
+using Etherna.BeeNet.Models;
+using Etherna.EthernaIndex.Domain.Exceptions;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -21,7 +36,7 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV1
             long duration,
             IEnumerable<VideoSourceV1> sources,
             ThumbnailV1? thumbnail,
-            string? batchId,
+            PostageBatchId? batchId,
             long? createdAt,
             long? updatedAt,
             string? personalData)
@@ -55,7 +70,7 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV1
                 validationErrors.Add(new ValidationError(ValidationErrorType.InvalidPersonalData, "Personal data is too long"));
 
             // Throws validation exception.
-            if (validationErrors.Any())
+            if (validationErrors.Count != 0)
                 throw new VideoManifestValidationException(validationErrors);
 
             // Assign properties.
@@ -86,7 +101,7 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV1
         public virtual string Title { get; protected set; }
 
         //from v1.1
-        public virtual string? BatchId { get; protected set; }
+        public virtual PostageBatchId? BatchId { get; protected set; }
         public virtual long? CreatedAt { get; protected set; }
         public virtual long? UpdatedAt { get; protected set; }
 

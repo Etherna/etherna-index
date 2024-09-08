@@ -1,21 +1,21 @@
-﻿//   Copyright 2021-present Etherna Sagl
-//
-//   Licensed under the Apache License, Version 2.0 (the "License");
-//   you may not use this file except in compliance with the License.
-//   You may obtain a copy of the License at
-//
-//       http://www.apache.org/licenses/LICENSE-2.0
-//
-//   Unless required by applicable law or agreed to in writing, software
-//   distributed under the License is distributed on an "AS IS" BASIS,
-//   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//   See the License for the specific language governing permissions and
-//   limitations under the License.
+﻿// Copyright 2021-present Etherna SA
+// This file is part of Etherna Index.
+// 
+// Etherna Index is free software: you can redistribute it and/or modify it under the terms of the
+// GNU Affero General Public License as published by the Free Software Foundation,
+// either version 3 of the License, or (at your option) any later version.
+// 
+// Etherna Index is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+// without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU Affero General Public License for more details.
+// 
+// You should have received a copy of the GNU Affero General Public License along with Etherna Index.
+// If not, see <https://www.gnu.org/licenses/>.
 
+using Etherna.BeeNet.Models;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV1;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2;
-using Etherna.EthernaIndex.ElasticSearch.Documents;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -29,10 +29,9 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
         public VideoManifest2Dto(
             VideoManifest videoManifest)
         {
-            if (videoManifest is null)
-                throw new ArgumentNullException(nameof(videoManifest));
+            ArgumentNullException.ThrowIfNull(videoManifest, nameof(videoManifest));
 
-            Hash = videoManifest.Manifest.Hash;
+            Hash = videoManifest.ManifestHash;
 
             switch (videoManifest.Metadata)
             {
@@ -42,11 +41,13 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
 
                 case VideoManifestMetadataV1 metadataV1:
                     BatchId = metadataV1.BatchId;
+                    CreatedAt = metadataV1.CreatedAt ?? 0;
                     Description = metadataV1.Description;
                     Duration = metadataV1.Duration;
                     PersonalData = metadataV1.PersonalData;
                     Sources = metadataV1.Sources
                         .Select(s => new VideoSourceDto(
+                            "mp4",
                             s.Quality,
                             s.Reference,
                             s.Size ?? 0));
@@ -61,68 +62,51 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
                                 int.Parse(s.Key.Replace("w", "", StringComparison.OrdinalIgnoreCase), CultureInfo.InvariantCulture))));
 
                     Title = metadataV1.Title;
+                    UpdatedAt = metadataV1.UpdatedAt;
                     break;
 
                 case VideoManifestMetadataV2 metadataV2:
+                    AspectRatio = metadataV2.AspectRatio;
                     BatchId = metadataV2.BatchId;
+                    CreatedAt = metadataV2.CreatedAt;
                     Description = metadataV2.Description;
                     Duration = metadataV2.Duration;
                     PersonalData = metadataV2.PersonalData;
                     Sources = metadataV2.Sources
                         .Select(s => new VideoSourceDto(
+                            s.Type,
                             s.Quality,
-                            s.Path,
+                            s.Path.ToSwarmAddress(videoManifest.ManifestHash),
                             s.Size));
 
                     if (metadataV2.Thumbnail is not null)
                         Thumbnail = new Image2Dto(
                             metadataV2.Thumbnail.AspectRatio,
                             metadataV2.Thumbnail.Blurhash,
-                            metadataV2.Thumbnail.Sources.Select(s => new ImageSourceDto(s.Type, s.Path, s.Width)));
+                            metadataV2.Thumbnail.Sources.Select(s => new ImageSourceDto(
+                                s.Type,
+                                s.Path.ToSwarmAddress(videoManifest.ManifestHash),
+                                s.Width)));
 
                     Title = metadataV2.Title;
+                    UpdatedAt = metadataV2.UpdatedAt;
                     break;
 
                 default: throw new InvalidOperationException();
             }
         }
 
-        public VideoManifest2Dto(
-            VideoDocument videoDocument)
-        {
-            if (videoDocument is null)
-                throw new ArgumentNullException(nameof(videoDocument));
-
-            BatchId = videoDocument.BatchId;
-            Description = videoDocument.Description;
-            Duration = videoDocument.Duration;
-            Hash = videoDocument.ManifestHash;
-            PersonalData = videoDocument.PersonalData;
-            OriginalQuality = videoDocument.OriginalQuality;
-            Sources = videoDocument.Sources
-                .Select(i => new VideoSourceDto(
-                    i.Quality,
-                    i.Path,
-                    i.Size));
-
-            if (videoDocument.Thumbnail is not null)
-                Thumbnail = new Image2Dto(
-                    videoDocument.Thumbnail.AspectRatio,
-                    videoDocument.Thumbnail.Blurhash,
-                    videoDocument.Thumbnail.Sources.Select(s => new ImageSourceDto(s.Type, s.Path, s.Width)));
-
-            Title = videoDocument.Title;
-        }
-
         // Properties.
-        public string? BatchId { get; }
+        public float AspectRatio { get; }
+        public PostageBatchId? BatchId { get; }
+        public long CreatedAt { get; }
         public string? Description { get; }
         public long? Duration { get; }
-        public string Hash { get; }
-        public string? OriginalQuality { get; }
+        public SwarmHash Hash { get; }
         public string? PersonalData { get; }
         public IEnumerable<VideoSourceDto> Sources { get; }
         public Image2Dto? Thumbnail { get; }
         public string? Title { get; }
+        public long? UpdatedAt { get; }
     }
 }

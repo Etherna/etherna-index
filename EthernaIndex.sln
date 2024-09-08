@@ -24,9 +24,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 		.gitignore = .gitignore
 		Dockerfile = Dockerfile
-		EthernaIndex.sln.licenseheader = EthernaIndex.sln.licenseheader
-		GitVersion.yml = GitVersion.yml
-		LICENSE = LICENSE
 		nuget.config = nuget.config
 		README.md = README.md
 	EndProjectSection
@@ -42,6 +39,12 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EthernaIndex.Swarm.Tests", "test\EthernaIndex.Swarm.Tests\EthernaIndex.Swarm.Tests.csproj", "{11E9DB15-40F0-405C-8889-46269C88C41B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EthernaIndex.ElasticSearch", "src\EthernaIndex.ElasticSearch\EthernaIndex.ElasticSearch.csproj", "{D57A04DA-2046-43B8-B398-EFC71E1DF02A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{C3B79272-FB70-4BC2-9C4E-FFA67A293A02}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\stable-release.yml = .github\workflows\stable-release.yml
+		.github\workflows\unstable-release.yml = .github\workflows\unstable-release.yml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -127,6 +130,7 @@ Global
 		{55F3DAD7-3092-4F76-B668-3F39E1F7E278} = {A97F8160-ADCD-4B37-8EB7-E8782BF88315}
 		{11E9DB15-40F0-405C-8889-46269C88C41B} = {A97F8160-ADCD-4B37-8EB7-E8782BF88315}
 		{D57A04DA-2046-43B8-B398-EFC71E1DF02A} = {552815A3-3072-492B-B3D4-B5E115B8038C}
+		{C3B79272-FB70-4BC2-9C4E-FFA67A293A02} = {532935A2-7A67-4F11-8072-3468B837697E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {465D7329-3E56-44B5-A500-E557EA259014}

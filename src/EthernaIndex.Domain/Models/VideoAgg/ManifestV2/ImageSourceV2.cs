@@ -1,7 +1,21 @@
-﻿using Etherna.EthernaIndex.Domain.Exceptions;
+﻿// Copyright 2021-present Etherna SA
+// This file is part of Etherna Index.
+// 
+// Etherna Index is free software: you can redistribute it and/or modify it under the terms of the
+// GNU Affero General Public License as published by the Free Software Foundation,
+// either version 3 of the License, or (at your option) any later version.
+// 
+// Etherna Index is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+// without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU Affero General Public License for more details.
+// 
+// You should have received a copy of the GNU Affero General Public License along with Etherna Index.
+// If not, see <https://www.gnu.org/licenses/>.
+
+using Etherna.BeeNet.Models;
+using Etherna.EthernaIndex.Domain.Exceptions;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2
 {
@@ -10,7 +24,7 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2
         // Constructors.
         public ImageSourceV2(
             int width,
-            string path,
+            SwarmUri path,
             string type)
         {
             // Validate args.
@@ -20,16 +34,12 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2
             if (width <= 0)
                 validationErrors.Add(new ValidationError(ValidationErrorType.InvalidThumbnailSource, $"Thumbnail has wrong width"));
 
-            //path
-            if (string.IsNullOrWhiteSpace(path))
-                validationErrors.Add(new ValidationError(ValidationErrorType.InvalidThumbnailSource, $"Thumbnail has empty path"));
-
             //type
             if (string.IsNullOrWhiteSpace(type))
                 validationErrors.Add(new ValidationError(ValidationErrorType.InvalidThumbnailSource, $"Thumbnail has empty type"));
 
             // Throws validation exception.
-            if (validationErrors.Any())
+            if (validationErrors.Count != 0)
                 throw new VideoManifestValidationException(validationErrors);
 
             // Assign properties.
@@ -42,7 +52,7 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         // Properties.
-        public virtual string Path { get; set; }
+        public virtual SwarmUri Path { get; set; }
         public virtual string Type { get; set; }
         public virtual int Width { get; set; }
 
@@ -54,11 +64,11 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2
             return GetType() == obj.GetType() &&
                 EqualityComparer<int?>.Default.Equals(Width, (obj as ImageSourceV2)!.Width) &&
                 EqualityComparer<string>.Default.Equals(Type, (obj as ImageSourceV2)!.Type) &&
-                EqualityComparer<string>.Default.Equals(Path, (obj as ImageSourceV2)!.Path);
+                EqualityComparer<SwarmUri>.Default.Equals(Path, (obj as ImageSourceV2)!.Path);
         }
 
         public override int GetHashCode() =>
-            Path.GetHashCode(StringComparison.Ordinal) ^
+            Path.GetHashCode() ^
             Type.GetHashCode(StringComparison.Ordinal) ^
             Width.GetHashCode();
     }

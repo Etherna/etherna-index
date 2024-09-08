@@ -1,16 +1,16 @@
-﻿//   Copyright 2021-present Etherna Sagl
-//
-//   Licensed under the Apache License, Version 2.0 (the "License");
-//   you may not use this file except in compliance with the License.
-//   You may obtain a copy of the License at
-//
-//       http://www.apache.org/licenses/LICENSE-2.0
-//
-//   Unless required by applicable law or agreed to in writing, software
-//   distributed under the License is distributed on an "AS IS" BASIS,
-//   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//   See the License for the specific language governing permissions and
-//   limitations under the License.
+﻿// Copyright 2021-present Etherna SA
+// This file is part of Etherna Index.
+// 
+// Etherna Index is free software: you can redistribute it and/or modify it under the terms of the
+// GNU Affero General Public License as published by the Free Software Foundation,
+// either version 3 of the License, or (at your option) any later version.
+// 
+// Etherna Index is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+// without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU Affero General Public License for more details.
+// 
+// You should have received a copy of the GNU Affero General Public License along with Etherna Index.
+// If not, see <https://www.gnu.org/licenses/>.
 
 using Etherna.DomainEvents;
 using Etherna.EthernaIndex.Domain;
@@ -32,29 +32,23 @@ using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Persistence
 {
-    public class IndexDbContext : DbContext, IEventDispatcherDbContext, IIndexDbContext
+    public class IndexDbContext(
+        IEventDispatcher eventDispatcher,
+        ILogger<IndexDbContext> logger)
+        : DbContext(logger), IEventDispatcherDbContext, IIndexDbContext
     {
         // Consts.
         private const string ModelMapsNamespace = "Etherna.EthernaIndex.Persistence.ModelMaps.Index";
-
-        // Constructor.
-        public IndexDbContext(
-            IEventDispatcher eventDispatcher,
-            ILogger<IndexDbContext> logger)
-            : base(logger)
-        {
-            EventDispatcher = eventDispatcher;
-        }
 
         // Properties.
         //repositories
         public IRepository<Comment, string> Comments { get; } = new DomainRepository<Comment, string>(
             new RepositoryOptions<Comment>("comments")
             {
-                IndexBuilders = new[]
-                {
+                IndexBuilders =
+                [
                     (Builders<Comment>.IndexKeys.Ascending(c => c.Video.Id), new CreateIndexOptions<Comment>())
-                }
+                ]
             });
         public IRepository<ManualVideoReview, string> ManualVideoReviews { get; } =
             new DomainRepository<ManualVideoReview, string>("manualVideoReviews");
@@ -63,44 +57,47 @@ namespace Etherna.EthernaIndex.Persistence
         public IRepository<User, string> Users { get; } = new DomainRepository<User, string>(
             new RepositoryOptions<User>("users")
             {
-                IndexBuilders = new[]
-                {
+                IndexBuilders =
+                [
                     (Builders<User>.IndexKeys.Ascending(u => u.SharedInfoId), new CreateIndexOptions<User> { Unique = true })
-                }
+                ]
             });
         public IRepository<VideoManifest, string> VideoManifests { get; } = new DomainRepository<VideoManifest, string>(
             new RepositoryOptions<VideoManifest>("videoManifests")
             {
-                IndexBuilders = new[]
-                {
-                    (Builders<VideoManifest>.IndexKeys.Ascending(c => c.Manifest.Hash), new CreateIndexOptions<VideoManifest> { Unique = true }),
+                IndexBuilders =
+                [
+                    (Builders<VideoManifest>.IndexKeys.Ascending(c => c.ManifestHash), new CreateIndexOptions<VideoManifest> { Unique = true }),
                     (Builders<VideoManifest>.IndexKeys.Descending(c => c.CreationDateTime), new CreateIndexOptions<VideoManifest>()),
                     (Builders<VideoManifest>.IndexKeys.Ascending(c => c.IsValid), new CreateIndexOptions<VideoManifest>())
-                }
+                ]
             });
         public IRepository<Video, string> Videos { get; } = new DomainRepository<Video, string>(
             new RepositoryOptions<Video>("videos")
             {
-                IndexBuilders = new[]
-                {
-                    (Builders<Video>.IndexKeys.Descending(c => c.Owner.Id), new CreateIndexOptions<Video>()),
-                }
+                IndexBuilders =
+                [
+                    (Builders<Video>.IndexKeys.Descending(c => c.Owner.Id), new CreateIndexOptions<Video>())
+                ]
             });
         public IRepository<VideoVote, string> Votes { get; } = new DomainRepository<VideoVote, string>(
             new RepositoryOptions<VideoVote>("votes")
             {
-                IndexBuilders = new[]
-                {
+                IndexBuilders =
+                [
                     (Builders<VideoVote>.IndexKeys.Ascending(v => v.Owner.Id)
                                                   .Ascending(v => v.Video.Id), new CreateIndexOptions<VideoVote>{ Unique = true }),
                     (Builders<VideoVote>.IndexKeys.Ascending(v => v.Video.Id), new CreateIndexOptions<VideoVote>()),
-                    (Builders<VideoVote>.IndexKeys.Ascending(v => v.Value), new CreateIndexOptions<VideoVote>()),
-                }
+                    (Builders<VideoVote>.IndexKeys.Ascending(v => v.Value), new CreateIndexOptions<VideoVote>())
+                ]
             });
 
         //other properties
-        public override IEnumerable<DocumentMigration> DocumentMigrationList => Array.Empty<DocumentMigration>();
-        public IEventDispatcher EventDispatcher { get; }
+        public override IEnumerable<DocumentMigration> DocumentMigrationList =>
+            [
+                new DocumentMigration<VideoManifest, string>(VideoManifests)
+            ];
+        public IEventDispatcher EventDispatcher { get; } = eventDispatcher;
 
         // Protected properties.
         protected override IEnumerable<IModelMapsCollector> ModelMapsCollectors =>

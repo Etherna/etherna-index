@@ -1,17 +1,18 @@
-﻿//   Copyright 2021-present Etherna Sagl
-//
-//   Licensed under the Apache License, Version 2.0 (the "License");
-//   you may not use this file except in compliance with the License.
-//   You may obtain a copy of the License at
-//
-//       http://www.apache.org/licenses/LICENSE-2.0
-//
-//   Unless required by applicable law or agreed to in writing, software
-//   distributed under the License is distributed on an "AS IS" BASIS,
-//   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//   See the License for the specific language governing permissions and
-//   limitations under the License.
+﻿// Copyright 2021-present Etherna SA
+// This file is part of Etherna Index.
+// 
+// Etherna Index is free software: you can redistribute it and/or modify it under the terms of the
+// GNU Affero General Public License as published by the Free Software Foundation,
+// either version 3 of the License, or (at your option) any later version.
+// 
+// Etherna Index is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+// without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU Affero General Public License for more details.
+// 
+// You should have received a copy of the GNU Affero General Public License along with Etherna Index.
+// If not, see <https://www.gnu.org/licenses/>.
 
+using Etherna.BeeNet.Models;
 using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV1;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2;
@@ -27,11 +28,9 @@ namespace Etherna.EthernaIndex.ElasticSearch.Documents
         // Constructors.
         public VideoDocument(
             Video video)
-        { 
-            if (video is null)
-            {
-                throw new ArgumentNullException(nameof(video));
-            }
+        {
+            ArgumentNullException.ThrowIfNull(video, nameof(video));
+            
             if (video.LastValidManifest?.Metadata is null)
             {
                 var ex = new InvalidOperationException("Null last valid manifest");
@@ -42,13 +41,13 @@ namespace Etherna.EthernaIndex.ElasticSearch.Documents
             Id = video.Id;
             CreationDateTime = video.LastValidManifest.CreationDateTime;
             IsFrozen = video.IsFrozen;
-            ManifestHash = video.LastValidManifest.Manifest.Hash;
+            ManifestHash = video.LastValidManifest.ManifestHash.ToString();
             OwnerSharedInfoId = video.Owner.SharedInfoId;
 
             switch (video.LastValidManifest.Metadata)
             {
                 case VideoManifestMetadataV1 metadataV1:
-                    BatchId = metadataV1.BatchId;
+                    BatchId = metadataV1.BatchId.ToString();
                     Description = metadataV1.Description;
                     Duration = metadataV1.Duration;
                     PersonalData = metadataV1.PersonalData;
@@ -67,18 +66,22 @@ namespace Etherna.EthernaIndex.ElasticSearch.Documents
                     break;
 
                 case VideoManifestMetadataV2 metadataV2:
-                    BatchId = metadataV2.BatchId;
+                    BatchId = metadataV2.BatchId.ToString();
                     Description = metadataV2.Description;
                     Duration = metadataV2.Duration;
                     PersonalData = metadataV2.PersonalData;
-                    Sources = metadataV2.Sources.Select(i => new SourceVideoDocument(i.Path, i.Quality, i.Size, i.Type));
+                    Sources = metadataV2.Sources.Select(i => new SourceVideoDocument(
+                        i.Path.ToSwarmAddress(video.LastValidManifest.ManifestHash), i.Quality, i.Size, i.Type));
                     Title = metadataV2.Title;
 
                     if (metadataV2.Thumbnail is not null)
                         Thumbnail = new ImageDocument(
                             metadataV2.Thumbnail.AspectRatio,
                             metadataV2.Thumbnail.Blurhash,
-                            metadataV2.Thumbnail.Sources.Select(s => new SourceImageDocument(s.Width, s.Path, s.Type)));
+                            metadataV2.Thumbnail.Sources.Select(s => new SourceImageDocument(
+                                s.Width,
+                                s.Path.ToSwarmAddress(video.LastValidManifest.ManifestHash),
+                                s.Type)));
                     break;
 
                 default: throw new InvalidOperationException();

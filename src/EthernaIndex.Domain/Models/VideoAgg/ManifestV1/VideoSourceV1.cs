@@ -1,7 +1,21 @@
-﻿using Etherna.EthernaIndex.Domain.Exceptions;
+﻿// Copyright 2021-present Etherna SA
+// This file is part of Etherna Index.
+// 
+// Etherna Index is free software: you can redistribute it and/or modify it under the terms of the
+// GNU Affero General Public License as published by the Free Software Foundation,
+// either version 3 of the License, or (at your option) any later version.
+// 
+// Etherna Index is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+// without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU Affero General Public License for more details.
+// 
+// You should have received a copy of the GNU Affero General Public License along with Etherna Index.
+// If not, see <https://www.gnu.org/licenses/>.
+
+using Etherna.BeeNet.Models;
+using Etherna.EthernaIndex.Domain.Exceptions;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV1
 {
@@ -11,7 +25,7 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV1
         public VideoSourceV1(
             int? bitrate,
             string quality,
-            string reference,
+            SwarmHash reference,
             long? size)
         {
             // Validate args.
@@ -21,12 +35,8 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV1
             if (string.IsNullOrWhiteSpace(quality))
                 validationErrors.Add(new ValidationError(ValidationErrorType.InvalidVideoSource, "Video source has empty quality"));
 
-            //reference
-            if (string.IsNullOrWhiteSpace(reference))
-                validationErrors.Add(new ValidationError(ValidationErrorType.InvalidVideoSource, "Video source has empty reference"));
-
             // Throws validation exception.
-            if (validationErrors.Any())
+            if (validationErrors.Count != 0)
                 throw new VideoManifestValidationException(validationErrors);
 
             // Assign properties.
@@ -44,7 +54,7 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV1
         //from v1.0
         public virtual int? Bitrate { get; set; }
         public virtual string Quality { get; set; }
-        public virtual string Reference { get; set; }
+        public virtual SwarmHash Reference { get; set; }
         public virtual long? Size { get; set; }
 
         // Methods.
@@ -55,14 +65,14 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV1
             return GetType() == obj.GetType() &&
                 EqualityComparer<int?>.Default.Equals(Bitrate, (obj as VideoSourceV1)!.Bitrate) &&
                 EqualityComparer<string>.Default.Equals(Quality, (obj as VideoSourceV1)!.Quality) &&
-                EqualityComparer<string>.Default.Equals(Reference, (obj as VideoSourceV1)!.Reference) &&
+                EqualityComparer<SwarmHash>.Default.Equals(Reference, (obj as VideoSourceV1)!.Reference) &&
                 Size.Equals((obj as VideoSourceV1)?.Size);
         }
 
         public override int GetHashCode() =>
             Bitrate.GetHashCode() ^
             Quality.GetHashCode(StringComparison.Ordinal) ^
-            Reference.GetHashCode(StringComparison.Ordinal) ^
+            Reference.GetHashCode() ^
             Size.GetHashCode();
     }
 }

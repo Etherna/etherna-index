@@ -1,17 +1,19 @@
-﻿//   Copyright 2021-present Etherna Sagl
-//
-//   Licensed under the Apache License, Version 2.0 (the "License");
-//   you may not use this file except in compliance with the License.
-//   You may obtain a copy of the License at
-//
-//       http://www.apache.org/licenses/LICENSE-2.0
-//
-//   Unless required by applicable law or agreed to in writing, software
-//   distributed under the License is distributed on an "AS IS" BASIS,
-//   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//   See the License for the specific language governing permissions and
-//   limitations under the License.
+﻿// Copyright 2021-present Etherna SA
+// This file is part of Etherna Index.
+// 
+// Etherna Index is free software: you can redistribute it and/or modify it under the terms of the
+// GNU Affero General Public License as published by the Free Software Foundation,
+// either version 3 of the License, or (at your option) any later version.
+// 
+// Etherna Index is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+// without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU Affero General Public License for more details.
+// 
+// You should have received a copy of the GNU Affero General Public License along with Etherna Index.
+// If not, see <https://www.gnu.org/licenses/>.
 
+using Asp.Versioning;
+using Etherna.BeeNet.Models;
 using Etherna.EthernaIndex.Areas.Api.DtoModels;
 using Etherna.EthernaIndex.Areas.Api.InputModels;
 using Etherna.EthernaIndex.Areas.Api.Services;
@@ -30,17 +32,8 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
     [ApiController]
     [ApiVersion("0.3")]
     [Route("api/v{api-version:apiVersion}/[controller]")]
-    public class VideosController : ControllerBase
+    public class VideosController(IVideosControllerService service) : ControllerBase
     {
-        // Fields.
-        private readonly IVideosControllerService service;
-
-        // Constructors.
-        public VideosController(IVideosControllerService controllerService)
-        {
-            this.service = controllerService;
-        }
-
         // Get.
 
         /// <summary>
@@ -49,6 +42,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// <param name="id">The video id</param>
         [HttpGet("{id}")]
         [Obsolete("Use \"find2\" instead")]
+        [AllowAnonymous]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -62,6 +56,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// </summary>
         /// <param name="id">The video id</param>
         [HttpGet("{id}/find2")]
+        [AllowAnonymous]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -78,7 +73,8 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// <param name="take">Number of items to retrieve. Max 100</param>
         /// <response code="200">Current page on list</response>
         [HttpGet("{id}/comments")]
-        [Obsolete("Use \"{id}/comments2\" instead")]
+        [Obsolete("Use \"{id}/comments3\" instead")]
+        [AllowAnonymous]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -87,7 +83,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
             [Required] string id,
             [Range(0, int.MaxValue)] int page,
             [Range(1, 100)] int take = 25) =>
-            (await service.GetVideoCommentsAsync(id, page, take)).Elements;
+            (await service.GetVideoCommentsAsync_old(id, page, take)).Elements;
 
         /// <summary>
         /// Get paginated video comments by id
@@ -97,11 +93,32 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// <param name="take">Number of items to retrieve. Max 100</param>
         /// <response code="200">Current page on list</response>
         [HttpGet("{id}/comments2")]
+        [Obsolete("Use \"{id}/comments3\" instead")]
+        [AllowAnonymous]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public Task<PaginatedEnumerableDto<CommentDto>> GetVideoComments2Async(
+            [Required] string id,
+            [Range(0, int.MaxValue)] int page,
+            [Range(1, 100)] int take = 25) =>
+            service.GetVideoCommentsAsync_old(id, page, take);
+        
+        /// <summary>
+        /// Get paginated video comments by id
+        /// </summary>
+        /// <param name="id">Video id</param>
+        /// <param name="page">Current page of results</param>
+        /// <param name="take">Number of items to retrieve. Max 100</param>
+        /// <response code="200">Current page on list</response>
+        [HttpGet("{id}/comments3")]
+        [AllowAnonymous]
+        [SimpleExceptionFilter]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public Task<PaginatedEnumerableDto<Comment2Dto>> GetVideoComments3Async(
             [Required] string id,
             [Range(0, int.MaxValue)] int page,
             [Range(1, 100)] int take = 25) =>
@@ -112,6 +129,37 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// </summary>
         /// <param name="id">The video id</param>
         [HttpGet("{id}/validations")]
+        [Obsolete("Use \"{id}/validation2\" instead")]
+        [AllowAnonymous]
+        [SimpleExceptionFilter]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IEnumerable<VideoManifestStatusDto>> ValidationsStatusByIdAsync_old(
+            [Required] string id) =>
+            (await service.GetValidationStatusByIdAsync_old(id)).ManifestsStatus;
+
+        /// <summary>
+        /// Get validation info by id.
+        /// </summary>
+        /// <param name="id">The video id</param>
+        [HttpGet("{id}/validation")]
+        [Obsolete("Use \"{id}/validation2\" instead")]
+        [AllowAnonymous]
+        [SimpleExceptionFilter]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public Task<VideoStatusDto> ValidationsStatusByIdAsync_old2(
+            [Required] string id) =>
+            service.GetValidationStatusByIdAsync_old(id);
+
+        /// <summary>
+        /// Get validation info by id.
+        /// </summary>
+        /// <param name="id">The video id</param>
+        [HttpGet("{id}/validation2")]
+        [AllowAnonymous]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -128,6 +176,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// <response code="200">Current page on list</response>
         [HttpGet("latest")]
         [Obsolete("Use \"latest3\" instead")]
+        [AllowAnonymous]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -144,6 +193,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// <response code="200">Current page on list</response>
         [HttpGet("latest2")]
         [Obsolete("Use \"latest3\" instead")]
+        [AllowAnonymous]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -159,10 +209,11 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// <param name="take">Number of items to retrieve. Max 100</param>
         /// <response code="200">Current page on list</response>
         [HttpGet("latest3")]
+        [AllowAnonymous]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public Task<PaginatedEnumerableDto<Video2Dto>> GetLastUploadedVideosAsync(
+        public Task<PaginatedEnumerableDto<VideoPreviewDto>> GetLastUploadedVideosAsync(
             [Range(0, int.MaxValue)] int page,
             [Range(1, 100)] int take = 25) =>
             service.GetLastUploadedVideosAsync(page, take);
@@ -173,12 +224,13 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// <param name="hash">The video hash</param>
         [HttpGet("manifest/{hash}")]
         [Obsolete("Use \"manifest2\" instead")]
+        [AllowAnonymous]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public Task<VideoDto> FindByManifestHashAsync_old(
-            [Required] string hash) =>
+            [Required] SwarmHash hash) =>
             service.FindByManifestHashAsync_old(hash);
 
         /// <summary>
@@ -186,12 +238,13 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// </summary>
         /// <param name="hash">The video hash</param>
         [HttpGet("manifest2/{hash}")]
+        [AllowAnonymous]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public Task<Video2Dto> FindByManifestHashAsync(
-            [Required] string hash) =>
+            [Required] SwarmHash hash) =>
             service.FindByManifestHashAsync(hash);
 
         /// <summary>
@@ -199,12 +252,13 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// </summary>
         /// <param name="hash">The video hash</param>
         [HttpGet("manifest/{hash}/validation")]
+        [AllowAnonymous]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public Task<VideoManifestStatusDto> ValidationStatusByHashAsync(
-            [Required] string hash) =>
+            [Required] SwarmHash hash) =>
             service.GetValidationStatusByHashAsync(hash);
 
         // Post.
@@ -214,7 +268,6 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// </summary>
         /// <param name="videoInput">Info of new video</param>
         [HttpPost]
-        [Authorize]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -230,12 +283,27 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// <param name="id">Video id</param>
         /// <param name="text">Comment text</param>
         [HttpPost("{id}/comments")]
-        [Authorize]
+        [Obsolete("Use \"{id}/comments2\" instead")]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public Task<CommentDto> CreateCommentAsync(
+        public async Task<CommentDto> CreateCommentAsync(
+            [Required] string id,
+            [Required][FromBody] string text) =>
+            new(await service.CreateCommentAsync(id, text));
+
+        /// <summary>
+        /// Create a new comment on a video with current user.
+        /// </summary>
+        /// <param name="id">Video id</param>
+        /// <param name="text">Comment text</param>
+        [HttpPost("{id}/comments2")]
+        [SimpleExceptionFilter]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public Task<Comment2Dto> CreateComment2Async(
             [Required] string id,
             [Required][FromBody] string text) =>
             service.CreateCommentAsync(id, text);
@@ -247,14 +315,13 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// <param name="hash">Hash manifest</param>
         /// <param name="description">Report description</param>
         [HttpPost("{id}/manifest/{hash}/reports")]
-        [Authorize]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public Task ReportVideoAsync(
             [Required] string id,
-            [Required] string hash,
+            [Required] SwarmHash hash,
             [Required] string description) =>
             service.ReportVideoAsync(id, hash, description);
 
@@ -264,7 +331,6 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// <param name="id">Video id</param>
         /// <param name="value">Vote value</param>
         [HttpPost("{id}/votes")]
-        [Authorize]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -277,13 +343,68 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         // Put.
 
         /// <summary>
+        /// Get bulk validation info by multiple manifest hashes.
+        /// </summary>
+        /// <param name="hashes">The list of video manifest hashes</param>
+        [HttpPut("manifest/bulkValidation")]
+        [AllowAnonymous]
+        [SimpleExceptionFilter]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public Task<IEnumerable<VideoManifestStatusDto>> GetBulkValidationStatusByHashesAsync(
+            [Required][FromBody] IEnumerable<SwarmHash> hashes) =>
+            service.GetBulkValidationStatusByHashesAsync(hashes);
+
+        /// <summary>
+        /// Get bulk validation info by multiple video ids.
+        /// </summary>
+        /// <param name="ids">The list of video id</param>
+        [HttpPut("bulkValidation")]
+        [Obsolete("Use \"bulkValidation2\" instead")]
+        [AllowAnonymous]
+        [SimpleExceptionFilter]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public Task<IEnumerable<VideoStatusDto>> GetBulkValidationStatusByIdsAsync_old(
+            [Required][FromBody] IEnumerable<string> ids) =>
+            service.GetBulkValidationStatusByIdsAsync_old(ids);
+
+        /// <summary>
+        /// Get bulk validation info by multiple video ids.
+        /// </summary>
+        /// <param name="ids">The list of video id</param>
+        [HttpPut("bulkValidation2")]
+        [AllowAnonymous]
+        [SimpleExceptionFilter]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public Task<IEnumerable<VideoManifestStatusDto>> GetBulkValidationStatusByIdsAsync(
+            [Required][FromBody] IEnumerable<string> ids) =>
+            service.GetBulkValidationStatusByIdsAsync(ids);
+
+        /// <summary>
+        /// Edit a video comment with current author user.
+        /// </summary>
+        /// <param name="commentId">Comment id</param>
+        /// <param name="text">Comment text</param>
+        [HttpPut("comments/{commentId}")]
+        [SimpleExceptionFilter]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public Task UpdateCommentAsync(
+            [Required] string commentId,
+            [Required][FromBody] string text) =>
+            service.UpdateCommentAsync(commentId, text);
+
+        /// <summary>
         /// Update video manifest.
         /// </summary>
         /// <param name="id">The video id</param>
         /// <param name="newHash">The new video manifest hash</param>
         [HttpPut("{id}")]
         [Obsolete("Use \"update2\" instead")]
-        [Authorize]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -291,7 +412,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public Task<VideoManifestDto> UpdateAsync_old(
             [Required] string id,
-            [Required] string newHash) =>
+            [Required] SwarmHash newHash) =>
             service.UpdateAsync_old(id, newHash);
 
         /// <summary>
@@ -300,7 +421,6 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// <param name="id">The video id</param>
         /// <param name="newHash">The new video manifest hash</param>
         [HttpPut("{id}/update2")]
-        [Authorize]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -308,7 +428,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public Task<VideoManifest2Dto> UpdateAsync(
             [Required] string id,
-            [Required] string newHash) =>
+            [Required] SwarmHash newHash) =>
             service.UpdateAsync(id, newHash);
 
         // Delete.
@@ -318,7 +438,6 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// </summary>
         /// <param name="id">Id of the video</param>
         [HttpDelete("{id}")]
-        [Authorize]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
