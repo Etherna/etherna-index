@@ -31,6 +31,7 @@ using Etherna.EthernaIndex.Services;
 using Etherna.EthernaIndex.Services.Settings;
 using Etherna.EthernaIndex.Services.Tasks;
 using Etherna.EthernaIndex.Swagger;
+using Etherna.EthernaIndex.Swagger.OperationFilters;
 using Etherna.EthernaIndex.Swagger.SchemaFilters;
 using Etherna.EthernaIndex.Swarm;
 using Etherna.MongODM;
@@ -52,6 +53,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
+using Microsoft.OpenApi.Models;
 using Serilog;
 using Serilog.Exceptions;
 using Serilog.Sinks.Elasticsearch;
@@ -352,13 +354,13 @@ namespace Etherna.EthernaIndex
                 //register hangfire server
                 services.AddHangfireServer(options =>
                 {
-                    options.Queues = new[]
-                    {
+                    options.Queues =
+                    [
                         Queues.DB_MAINTENANCE,
                         Queues.METADATA_VIDEO_VALIDATOR,
                         Queues.ELASTIC_SEARCH_MAINTENANCE,
                         "default"
-                    };
+                    ];
                     options.WorkerCount = Environment.ProcessorCount * 2;
                 });
             }
@@ -371,8 +373,9 @@ namespace Etherna.EthernaIndex
                 options.UseAllOfToExtendReferenceSchemas();
                 options.UseInlineDefinitionsForEnums();
 
-                //add a custom operation filter which sets default values
-                options.OperationFilter<SwaggerDefaultValues>();
+                //add a custom operation filters
+                options.OperationFilter<ApiMethodNeedsAuthFilter>();
+                options.OperationFilter<SwaggerDefaultValuesFilter>();
                 
                 //add schema filters
                 options.SchemaFilter<PostageBatchIdSchemaFilter>();
@@ -384,6 +387,24 @@ namespace Etherna.EthernaIndex
                 var xmlFile = typeof(Program).GetTypeInfo().Assembly.GetName().Name + ".xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 options.IncludeXmlComments(xmlPath);
+                
+                var ssoBaseUrl = config["SsoServer:BaseUrl"] ?? throw new ServiceConfigurationException();
+                var scheme = new OpenApiSecurityScheme
+                {
+                    In = ParameterLocation.Header,
+                    Name = "Authorization",
+                    Flows = new OpenApiOAuthFlows
+                    {
+                        AuthorizationCode = new OpenApiOAuthFlow
+                        {
+                            AuthorizationUrl = new Uri($"{ssoBaseUrl}/connect/authorize"),
+                            TokenUrl = new Uri($"{ssoBaseUrl}/connect/token")
+                        }
+                    },
+                    Type = SecuritySchemeType.OAuth2
+                };
+
+                options.AddSecurityDefinition("OAuth", scheme);
             });
 
             // Configure setting.
@@ -442,6 +463,7 @@ namespace Etherna.EthernaIndex
         private static void ConfigureApplication(WebApplication app)
         {
             var env = app.Environment;
+            var config = app.Configuration;
             var apiProvider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
 
             if (env.IsDevelopment())
@@ -503,6 +525,11 @@ namespace Etherna.EthernaIndex
                 {
                     options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json", description.GroupName.ToUpperInvariant());
                 }
+                
+                options.OAuthClientId(config["SsoServer:Clients:Swagger:ClientId"] ?? throw new ServiceConfigurationException());
+                options.OAuthScopes("openid", "profile", "ether_accounts", "role", "userApi.index");
+                options.OAuthUsePkce();
+                options.EnablePersistAuthorization();
             });
 
             // Add pages and controllers.
