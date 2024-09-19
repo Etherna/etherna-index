@@ -13,11 +13,11 @@
 // If not, see <https://www.gnu.org/licenses/>.
 
 using Etherna.BeeNet.Models;
-using Etherna.EthernaIndex.Domain.Models.VideoAgg;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2;
+using Etherna.Sdk.Tools.Video.Models;
 using System;
-using System.Collections.Generic;
 using Xunit;
+using VideoManifest = Etherna.EthernaIndex.Domain.Models.VideoAgg.VideoManifest;
 
 namespace Etherna.EthernaIndex.Domain.Models
 {
@@ -46,10 +46,11 @@ namespace Etherna.EthernaIndex.Domain.Models
         public void FailedValidation_SetValidationFields()
         {
             // Action.
-            manifest.FailedValidation(new List<ValidationError> {
-                { new ValidationError(ValidationErrorType.Unknown, "Unknown Error") },
-                { new ValidationError(ValidationErrorType.InvalidVideoSource, "Invalid Source Video") }
-            });
+            manifest.FailedValidation(
+            [
+                new(ValidationErrorType.Unknown, "Unknown Error"),
+                new(ValidationErrorType.InvalidVideoSource, "Invalid Source Video")
+            ]);
 
             // Assert.
             Assert.False(manifest.IsValid);
@@ -71,7 +72,7 @@ namespace Etherna.EthernaIndex.Domain.Models
                     "TitleTest",
                     "DescTest",
                     12345,
-                    new[] { new VideoSourceV2("myPath", "720", 32, "mp4") },
+                    [new VideoSourceV2("myPath", "720", 32, "mp4")],
                     null,
                     1,
                     PostageBatchId.Zero, 
@@ -93,7 +94,7 @@ namespace Etherna.EthernaIndex.Domain.Models
                 "FeddTopicTest",
                 "DescTest",
                 1,
-                new[] { new VideoSourceV2("path1", "10801", 4, "type1") },
+                [new VideoSourceV2("path1", "10801", 4, "type1")],
                 new ThumbnailV2(1.78f, "BlurTst", new[] { new ImageSourceV2(1080, "Test1", "image") }),
                 1.78f,
                 PostageBatchId.Zero, 

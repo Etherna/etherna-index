@@ -13,7 +13,6 @@
 // If not, see <https://www.gnu.org/licenses/>.
 
 using Etherna.BeeNet.Models;
-using Etherna.EthernaIndex.Domain.Exceptions;
 using System;
 using System.Collections.Generic;
 
@@ -28,18 +27,6 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV1
             SwarmHash reference,
             long? size)
         {
-            // Validate args.
-            var validationErrors = new List<ValidationError>();
-
-            //quality
-            if (string.IsNullOrWhiteSpace(quality))
-                validationErrors.Add(new ValidationError(ValidationErrorType.InvalidVideoSource, "Video source has empty quality"));
-
-            // Throws validation exception.
-            if (validationErrors.Count != 0)
-                throw new VideoManifestValidationException(validationErrors);
-
-            // Assign properties.
             Bitrate = bitrate;
             Quality = quality;
             Reference = reference;

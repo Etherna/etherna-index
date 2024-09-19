@@ -13,7 +13,6 @@
 // If not, see <https://www.gnu.org/licenses/>.
 
 using Etherna.BeeNet.Models;
-using Etherna.EthernaIndex.Domain.Exceptions;
 using System;
 using System.Collections.Generic;
 
@@ -27,22 +26,6 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2
             SwarmUri path,
             string type)
         {
-            // Validate args.
-            var validationErrors = new List<ValidationError>();
-
-            //width
-            if (width <= 0)
-                validationErrors.Add(new ValidationError(ValidationErrorType.InvalidThumbnailSource, $"Thumbnail has wrong width"));
-
-            //type
-            if (string.IsNullOrWhiteSpace(type))
-                validationErrors.Add(new ValidationError(ValidationErrorType.InvalidThumbnailSource, $"Thumbnail has empty type"));
-
-            // Throws validation exception.
-            if (validationErrors.Count != 0)
-                throw new VideoManifestValidationException(validationErrors);
-
-            // Assign properties.
             Width = width;
             Type = type;
             Path = path;

@@ -12,7 +12,6 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
-using Etherna.EthernaIndex.Domain.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -31,18 +30,6 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2
             string blurhash,
             IEnumerable<ImageSourceV2> sources)
         {
-            // Validate args.
-            var validationErrors = new List<ValidationError>();
-
-            //sources
-            if (sources is null || !sources.Any())
-                validationErrors.Add(new ValidationError(ValidationErrorType.InvalidThumbnailSource, "Thumbnail has missing sources"));
-
-            // Throws validation exception.
-            if (validationErrors.Count != 0)
-                throw new VideoManifestValidationException(validationErrors);
-
-            // Assign properties.
             AspectRatio = aspectRatio;
             Blurhash = blurhash;
             _sources.AddRange(sources!);

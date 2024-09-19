@@ -33,7 +33,6 @@ using Etherna.EthernaIndex.Services.Tasks;
 using Etherna.EthernaIndex.Swagger;
 using Etherna.EthernaIndex.Swagger.OperationFilters;
 using Etherna.EthernaIndex.Swagger.SchemaFilters;
-using Etherna.EthernaIndex.Swarm;
 using Etherna.MongODM;
 using Etherna.MongODM.AspNetCore.UI;
 using Etherna.MongODM.Core.Options;
@@ -450,14 +449,13 @@ namespace Etherna.EthernaIndex
             });
 
             // Configure infrastructure.
-            services.AddSwarmServices(config);
             services.AddElasticSearchServices(config.GetSection("Elastic:Urls").Get<string[]>()!, opts =>
             {
                 opts.IndexesPrefix = "etherna-mainindex-";
             });
 
             // Configure domain services.
-            services.AddDomainServices();
+            services.AddDomainServices(config);
         }
 
         private static void ConfigureApplication(WebApplication app)

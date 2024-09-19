@@ -21,7 +21,9 @@ using System.Linq;
 
 namespace Etherna.EthernaIndex.Domain.Models
 {
+#pragma warning disable CA1724
     public class Video : EntityModelBase<string>
+#pragma warning restore CA1724
     {
         // Fields.
         private VideoManifest? _lastValidManifest;

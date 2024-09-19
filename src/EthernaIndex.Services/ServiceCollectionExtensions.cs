@@ -12,11 +12,16 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
+using Etherna.BeeNet;
 using Etherna.DomainEvents;
 using Etherna.DomainEvents.AspNetCore;
 using Etherna.EthernaIndex.Services.Domain;
+using Etherna.EthernaIndex.Services.Infrastructure;
+using Etherna.EthernaIndex.Services.Options;
 using Etherna.EthernaIndex.Services.Tasks;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using System;
 using System.Linq;
 using System.Reflection;
@@ -27,8 +32,10 @@ namespace Etherna.EthernaIndex.Services
     {
         private const string EventHandlersSubNamespace = "EventHandlers";
 
-        public static void AddDomainServices(this IServiceCollection services)
+        public static void AddDomainServices(this IServiceCollection services, IConfiguration configuration)
         {
+            ArgumentNullException.ThrowIfNull(configuration, nameof(configuration));
+            
             var currentType = typeof(ServiceCollectionExtensions).GetTypeInfo();
             var eventHandlersNamespace = $"{currentType.Namespace}.{EventHandlersSubNamespace}";
 
@@ -40,15 +47,27 @@ namespace Etherna.EthernaIndex.Services
                                     select t;
 
             services.AddDomainEvents(eventHandlerTypes);
+            
+            // Options.
+            services.Configure<SwarmOptions>(configuration.GetSection("Swarm"));
 
             // Services.
             //domain
+            services.AddScoped<ISwarmService, SwarmService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IVideoService, VideoService>();
 
             // Tasks.
             services.AddTransient<IFullVideoReindexTask, FullVideoReindexTask>();
             services.AddTransient<IVideoManifestValidatorTask, VideoManifestValidatorTask>();
+            
+            // Clients.
+            services.AddSingleton<IBeeClient>(sp =>
+            {
+                var options = sp.GetRequiredService<IOptions<SwarmOptions>>();
+                return new BeeClient(
+                    baseUrl: options.Value.GatewayUrl);
+            });
         }
     }
 }

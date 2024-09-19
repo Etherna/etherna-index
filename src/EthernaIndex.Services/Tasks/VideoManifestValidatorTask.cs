@@ -13,12 +13,13 @@
 // If not, see <https://www.gnu.org/licenses/>.
 
 using Etherna.EthernaIndex.Domain;
-using Etherna.EthernaIndex.Domain.Exceptions;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg;
+using Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2;
 using Etherna.EthernaIndex.Services.Extensions;
-using Etherna.EthernaIndex.Swarm;
+using Etherna.EthernaIndex.Services.Infrastructure;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Services.Tasks
@@ -54,24 +55,50 @@ namespace Etherna.EthernaIndex.Services.Tasks
             // Get manifest.
             var videoManifest = await indexDbContext.VideoManifests.FindOneAsync(u => u.ManifestHash == manifestHash);
 
-            // Get metadata.
-            try
-            {
+            // Get video manifest.
 #if DEBUG_MOCKUP_SWARM
-                swarmService.SetupNewMetadataV2VideoMockup(manifestHash);
+            swarmService.SetupNewPublishedVideoManifestMockup(manifestHash);
 #endif
-                videoMetadata = await swarmService.GetVideoMetadataAsync(manifestHash);
+            var publishedVideoManifest = await swarmService.GetPublishedVideoManifestAsync(manifestHash);
+
+            if (publishedVideoManifest.Manifest is not null)
+            {
+                //assume is manifest v2, until https://etherna.atlassian.net/browse/EID-240
+                videoMetadata = new VideoManifestMetadataV2(
+                    publishedVideoManifest.Manifest.Title,
+                    publishedVideoManifest.Manifest.Description,
+                    (long)publishedVideoManifest.Manifest.Duration.TotalSeconds,
+                    publishedVideoManifest.Manifest.VideoSources.Select(vs =>
+                        new VideoSourceV2(
+                            vs.Uri,
+                            vs.Metadata.Quality,
+                            vs.Metadata.TotalSourceSize,
+                            vs.Metadata.VideoType.ToString())),
+                    new ThumbnailV2(
+                        publishedVideoManifest.Manifest.Thumbnail.AspectRatio,
+                        publishedVideoManifest.Manifest.Thumbnail.Blurhash,
+                        publishedVideoManifest.Manifest.Thumbnail.Sources.Select(ts =>
+                            new ImageSourceV2(
+                                ts.Metadata.Width,
+                                ts.Uri,
+                                ts.Metadata.ImageType.ToString()))),
+                    publishedVideoManifest.Manifest.AspectRatio,
+                    publishedVideoManifest.Manifest.BatchId,
+                    publishedVideoManifest.Manifest.CreatedAt.ToUnixTimeSeconds(),
+                    publishedVideoManifest.Manifest.UpdatedAt?.ToUnixTimeSeconds(),
+                    publishedVideoManifest.Manifest.PersonalDataRaw);
 
                 logger.VideoManifestValidationRetrievedManifest(videoId, manifestHash);
             }
-            catch (VideoManifestValidationException ex)
+            else
             {
-                validationErrors.AddRange(ex.ValidationErrors);
+                validationErrors.AddRange(publishedVideoManifest.ValidationErrors
+                    .Select(ve => new ValidationError(ve.ErrorType, ve.ErrorMessage)));
 
                 video.FailedManifestValidation(videoManifest, validationErrors);
                 await indexDbContext.SaveChangesAsync().ConfigureAwait(false);
 
-                logger.VideoManifestValidationCantRetrieveManifest(videoId, manifestHash, ex);
+                logger.VideoManifestValidationCantRetrieveManifest(videoId, manifestHash, null);
 
                 return;
             }

@@ -13,7 +13,6 @@
 // If not, see <https://www.gnu.org/licenses/>.
 
 using Etherna.BeeNet.Models;
-using Etherna.EthernaIndex.Domain.Exceptions;
 using System;
 using System.Collections.Generic;
 
@@ -28,31 +27,6 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2
             long size,
             string type)
         {
-            // Validate args.
-            var validationErrors = new List<ValidationError>();
-
-            //quality
-            if (quality is not null &&
-                string.IsNullOrWhiteSpace(quality))
-                validationErrors.Add(new ValidationError(ValidationErrorType.InvalidVideoSource, "Video source has empty quality"));
-
-            //path
-            if (path is { UriKind: UriKind.Relative, HasPath: false })
-                validationErrors.Add(new ValidationError(ValidationErrorType.InvalidVideoSource, "Video source has empty path"));
-
-            //type
-            if (string.IsNullOrWhiteSpace(type))
-                validationErrors.Add(new ValidationError(ValidationErrorType.InvalidVideoSource, "Video source has empty type"));
-
-            //size
-            if (size <= 0 && !path.ToString().EndsWith("/manifest.m3u8", StringComparison.InvariantCultureIgnoreCase))
-                validationErrors.Add(new ValidationError(ValidationErrorType.InvalidVideoSource, "Video source has invalid size"));
-
-            // Throws validation exception.
-            if (validationErrors.Count != 0)
-                throw new VideoManifestValidationException(validationErrors);
-
-            // Assign properties.
             Path = path;
             Quality = quality;
             Size = size;

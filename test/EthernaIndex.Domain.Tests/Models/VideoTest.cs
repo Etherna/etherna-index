@@ -14,13 +14,13 @@
 
 using Etherna.BeeNet.Models;
 using Etherna.EthernaIndex.Domain.Models.UserAgg;
-using Etherna.EthernaIndex.Domain.Models.VideoAgg;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV1;
+using Etherna.Sdk.Tools.Video.Models;
 using Moq;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Xunit;
+using VideoManifest = Etherna.EthernaIndex.Domain.Models.VideoAgg.VideoManifest;
 
 namespace Etherna.EthernaIndex.Domain.Models
 {
@@ -100,7 +100,7 @@ namespace Etherna.EthernaIndex.Domain.Models
                     null,
                     null));
             else
-                videoManifest.FailedValidation(new List<ValidationError> { new(ValidationErrorType.Unknown, "test") });
+                videoManifest.FailedValidation([new(ValidationErrorType.Unknown, "test")]);
 
             return videoManifest;
         }

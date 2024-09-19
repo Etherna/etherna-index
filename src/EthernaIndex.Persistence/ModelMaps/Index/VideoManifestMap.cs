@@ -13,7 +13,6 @@
 // If not, see <https://www.gnu.org/licenses/>.
 
 using Etherna.BeeNet.Models;
-using Etherna.EthernaIndex.Domain.Exceptions;
 using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV1;
@@ -89,24 +88,17 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                                 (string?)personalDataObj : null;
 
                             // Update model.
-                            try
-                            {
-                                var metadata = new VideoManifestMetadataV1(
-                                    title,
-                                    description,
-                                    duration,
-                                    sources,
-                                    thumbnail,
-                                    batchId is null ? (PostageBatchId?)null : PostageBatchId.FromString(batchId),
-                                    null,
-                                    null,
-                                    personalData);
-                                ReflectionHelper.SetValue(m, vm => vm.Metadata!, metadata);
-                            }
-                            catch (VideoManifestValidationException e)
-                            {
-                                m.FailedValidation(e.ValidationErrors);
-                            }
+                            var metadata = new VideoManifestMetadataV1(
+                                title,
+                                description,
+                                duration,
+                                sources,
+                                thumbnail,
+                                batchId is null ? (PostageBatchId?)null : PostageBatchId.FromString(batchId),
+                                null,
+                                null,
+                                personalData);
+                            ReflectionHelper.SetValue(m, vm => vm.Metadata!, metadata);
                         }
 
                         return Task.FromResult(m);
@@ -155,24 +147,17 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                                 (string?)personalDataObj : null;
 
                             // Update model.
-                            try
-                            {
-                                var metadata = new VideoManifestMetadataV1(
-                                    title,
-                                    description,
-                                    duration,
-                                    sources,
-                                    thumbnail,
-                                    batchId is null ? (PostageBatchId?)null : PostageBatchId.FromString(batchId),
-                                    null,
-                                    null,
-                                    personalData);
-                                ReflectionHelper.SetValue(m, vm => vm.Metadata!, metadata);
-                            }
-                            catch (VideoManifestValidationException e)
-                            {
-                                m.FailedValidation(e.ValidationErrors);
-                            }
+                            var metadata = new VideoManifestMetadataV1(
+                                title,
+                                description,
+                                duration,
+                                sources,
+                                thumbnail,
+                                batchId is null ? (PostageBatchId?)null : PostageBatchId.FromString(batchId),
+                                null,
+                                null,
+                                personalData);
+                            ReflectionHelper.SetValue(m, vm => vm.Metadata!, metadata);
                         }
 
                         return Task.FromResult(m);
@@ -221,24 +206,17 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                                 (string?)personalDataObj : null;
 
                             // Update model.
-                            try
-                            {
-                                var metadata = new VideoManifestMetadataV1(
-                                    title,
-                                    description,
-                                    duration,
-                                    sources,
-                                    thumbnail,
-                                    batchId is null ? (PostageBatchId?)null : PostageBatchId.FromString(batchId),
-                                    null,
-                                    null,
-                                    personalData);
-                                ReflectionHelper.SetValue(m, vm => vm.Metadata!, metadata);
-                            }
-                            catch(VideoManifestValidationException e)
-                            {
-                                m.FailedValidation(e.ValidationErrors);
-                            }
+                            var metadata = new VideoManifestMetadataV1(
+                                title,
+                                description,
+                                duration,
+                                sources,
+                                thumbnail,
+                                batchId is null ? (PostageBatchId?)null : PostageBatchId.FromString(batchId),
+                                null,
+                                null,
+                                personalData);
+                            ReflectionHelper.SetValue(m, vm => vm.Metadata!, metadata);
                         }
 
                         return Task.FromResult(m);
