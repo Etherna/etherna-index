@@ -13,12 +13,14 @@
 // If not, see <https://www.gnu.org/licenses/>.
 
 using Etherna.BeeNet;
+using Etherna.BeeNet.Services;
 using Etherna.DomainEvents;
 using Etherna.DomainEvents.AspNetCore;
 using Etherna.EthernaIndex.Services.Domain;
 using Etherna.EthernaIndex.Services.Infrastructure;
 using Etherna.EthernaIndex.Services.Options;
 using Etherna.EthernaIndex.Services.Tasks;
+using Etherna.Sdk.Tools.Video.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -56,6 +58,10 @@ namespace Etherna.EthernaIndex.Services
             services.AddScoped<ISwarmService, SwarmService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IVideoService, VideoService>();
+            
+            //tools
+            services.AddScoped<IChunkService, ChunkService>();
+            services.AddScoped<IVideoManifestService, VideoManifestService>();
 
             // Tasks.
             services.AddTransient<IFullVideoReindexTask, FullVideoReindexTask>();

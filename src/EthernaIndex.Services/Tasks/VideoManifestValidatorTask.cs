@@ -24,24 +24,12 @@ using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Services.Tasks
 {
-    public class VideoManifestValidatorTask : IVideoManifestValidatorTask
+    public class VideoManifestValidatorTask(
+        IIndexDbContext indexDbContext,
+        ILogger<VideoManifestValidatorTask> logger,
+        ISwarmService swarmService)
+        : IVideoManifestValidatorTask
     {
-        // Fields.
-        private readonly IIndexDbContext indexDbContext;
-        private readonly ILogger<VideoManifestValidatorTask> logger;
-        private readonly ISwarmService swarmService;
-
-        // Constructors.
-        public VideoManifestValidatorTask(
-            IIndexDbContext indexDbContext,
-            ILogger<VideoManifestValidatorTask> logger,
-            ISwarmService swarmService)
-        {
-            this.indexDbContext = indexDbContext;
-            this.logger = logger;
-            this.swarmService = swarmService;
-        }
-
         // Methods.
         public async Task RunAsync(string videoId, string manifestHash)
         {
