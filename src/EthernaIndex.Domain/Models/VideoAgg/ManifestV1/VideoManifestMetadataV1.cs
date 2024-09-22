@@ -13,19 +13,12 @@
 // If not, see <https://www.gnu.org/licenses/>.
 
 using Etherna.BeeNet.Models;
-using Etherna.EthernaIndex.Domain.Exceptions;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV1
 {
     public class VideoManifestMetadataV1 : VideoManifestMetadataBase
     {
-        // Consts.
-        public const int DescriptionMaxLength = 5000;
-        public const int PersonalDataMaxLength = 200;
-        public const int TitleMaxLength = 200;
-
         // Fields.
         private List<VideoSourceV1> _sources = new();
 
@@ -41,39 +34,6 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV1
             long? updatedAt,
             string? personalData)
         {
-            // Validate args.
-            var validationErrors = new List<ValidationError>();
-
-            //title
-            if (string.IsNullOrWhiteSpace(title))
-                validationErrors.Add(new ValidationError(ValidationErrorType.MissingTitle));
-            else if (title.Length > int.Max(TitleMaxLength, VideoManifest.CurrentTitleMaxLength))
-                validationErrors.Add(new ValidationError(ValidationErrorType.InvalidTitle, "Title is too long"));
-
-            //description
-            if (description is null)
-                validationErrors.Add(new ValidationError(ValidationErrorType.MissingDescription));
-            else if (description.Length > int.Max(DescriptionMaxLength, VideoManifest.CurrentDescriptionMaxLength))
-                validationErrors.Add(new ValidationError(ValidationErrorType.InvalidDescription, "Description is too long"));
-
-            //duration
-            if (duration == 0)
-                validationErrors.Add(new ValidationError(ValidationErrorType.MissingDuration));
-
-            //video sources
-            if (sources is null || !sources.Any())
-                validationErrors.Add(new ValidationError(ValidationErrorType.InvalidVideoSource, "Missing sources"));
-
-            //personal data
-            if (personalData is not null &&
-                personalData.Length > int.Max(PersonalDataMaxLength, VideoManifest.CurrentPersonalDataMaxLength))
-                validationErrors.Add(new ValidationError(ValidationErrorType.InvalidPersonalData, "Personal data is too long"));
-
-            // Throws validation exception.
-            if (validationErrors.Count != 0)
-                throw new VideoManifestValidationException(validationErrors);
-
-            // Assign properties.
             BatchId = batchId;
             CreatedAt = createdAt;
             Description = description!;

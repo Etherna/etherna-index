@@ -16,7 +16,6 @@ using Etherna.BeeNet.Models;
 using Etherna.DomainEvents;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
-using Etherna.EthernaIndex.Domain.Models.VideoAgg;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV1;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2;
 using Etherna.EthernaIndex.Persistence.Helpers;
@@ -25,6 +24,7 @@ using Etherna.MongoDB.Bson.Serialization;
 using Etherna.MongoDB.Driver;
 using Etherna.MongODM.Core.Serialization.Serializers;
 using Etherna.MongODM.Core.Utility;
+using Etherna.Sdk.Tools.Video.Models;
 using Microsoft.Extensions.Logging;
 using Moq;
 using System;
@@ -32,6 +32,8 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Xunit;
+using ValidationError = Etherna.EthernaIndex.Domain.Models.VideoAgg.ValidationError;
+using VideoManifest = Etherna.EthernaIndex.Domain.Models.VideoAgg.VideoManifest;
 
 namespace Etherna.EthernaIndex.Persistence.ModelMaps
 {

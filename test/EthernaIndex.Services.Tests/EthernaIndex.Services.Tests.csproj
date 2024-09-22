@@ -27,7 +27,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\EthernaIndex.Domain\EthernaIndex.Domain.csproj" />
     <ProjectReference Include="..\..\src\EthernaIndex.Services\EthernaIndex.Services.csproj" />
-    <ProjectReference Include="..\..\src\EthernaIndex.Swarm\EthernaIndex.Swarm.csproj" />
   </ItemGroup>
 
 </Project>

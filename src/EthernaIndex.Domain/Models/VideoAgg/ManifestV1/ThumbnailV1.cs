@@ -13,7 +13,6 @@
 // If not, see <https://www.gnu.org/licenses/>.
 
 using Etherna.BeeNet.Models;
-using Etherna.EthernaIndex.Domain.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,31 +30,11 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV1
             string blurhash,
             IDictionary<string, SwarmHash> sources)
         {
-            // Validate args.
-            var validationErrors = new List<ValidationError>();
-
-            //sources
-            if (sources is null || !sources.Any())
-                validationErrors.Add(new ValidationError(ValidationErrorType.InvalidThumbnailSource, "Thumbnail has missing sources"));
-
-            foreach (var source in sources ?? new Dictionary<string, SwarmHash>())
-            {
-                //width
-                if (string.IsNullOrWhiteSpace(source.Key))
-                    validationErrors.Add(new ValidationError(ValidationErrorType.InvalidThumbnailSource, $"Thumbnail has source with missing width"));
-                if (!int.TryParse(source.Key.Replace("w", "", StringComparison.OrdinalIgnoreCase), out var width) ||
-                    width <= 0)
-                    validationErrors.Add(new ValidationError(ValidationErrorType.InvalidThumbnailSource, $"Thumbnail has wrong width"));
-            }
-
-            // Throws validation exception.
-            if (validationErrors.Count != 0)
-                throw new VideoManifestValidationException(validationErrors);
-
-            // Assign properties.
+            ArgumentNullException.ThrowIfNull(sources, nameof(sources));
+            
             AspectRatio = aspectRatio;
             Blurhash = blurhash;
-            foreach (var s in sources!)
+            foreach (var s in sources)
                 _sources.Add(s.Key, s.Value);
         }
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.

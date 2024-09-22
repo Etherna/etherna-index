@@ -12,21 +12,10 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
-using Etherna.BeeNet.Models;
-using Etherna.EthernaIndex.Domain.Models.VideoAgg;
-using System.Text.Json;
-using System.Threading.Tasks;
-
-namespace Etherna.EthernaIndex.Swarm
+namespace Etherna.EthernaIndex.Services.Options
 {
-    public interface ISwarmService
+    public class SwarmOptions
     {
-        Task<VideoManifestMetadataBase> DeserializeVideoMetadataAsync(SwarmHash manifestHash, JsonElement jsonElementManifest);
-        Task<VideoManifestMetadataBase> GetVideoMetadataAsync(SwarmHash manifestHash);
-
-#if DEBUG_MOCKUP_SWARM
-        void SetupHashMockup(string hash, object returnedObject);
-        VideoManifestMetadataBase SetupNewMetadataV2VideoMockup(string manifestHash);
-#endif
+        public string GatewayUrl { get; set; } = default!;
     }
 }

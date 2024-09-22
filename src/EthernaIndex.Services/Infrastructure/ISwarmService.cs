@@ -1,4 +1,4 @@
-﻿// Copyright 2021-present Etherna SA
+// Copyright 2021-present Etherna SA
 // This file is part of Etherna Index.
 // 
 // Etherna Index is free software: you can redistribute it and/or modify it under the terms of the
@@ -12,6 +12,19 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
-using System.Diagnostics.CodeAnalysis;
+using Etherna.BeeNet.Models;
+using Etherna.Sdk.Tools.Video.Models;
+using System.Threading.Tasks;
 
-[assembly: SuppressMessage("Usage", "CA2227:Collection properties should be read only", Justification = "Dto models needs setters", Scope = "NamespaceAndDescendants", Target = "~N:Etherna.EthernaIndex.Swarm.DtoModels")]
+namespace Etherna.EthernaIndex.Services.Infrastructure
+{
+    public interface ISwarmService
+    {
+        Task<PublishedVideoManifest> GetPublishedVideoManifestAsync(SwarmHash manifestHash);
+        
+#if DEBUG_MOCKUP_SWARM
+        void SetupHashMockup(SwarmHash hash, object returnedObject);
+        PublishedVideoManifest SetupNewPublishedVideoManifestMockup(SwarmHash manifestHash);
+#endif
+    }
+}
