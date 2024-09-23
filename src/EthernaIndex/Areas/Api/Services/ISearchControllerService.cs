@@ -21,7 +21,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
 {
     public interface ISearchControllerService
     {
-        void ReindexAllVideos();
+        void RebuildElasticIndexes();
         Task<PaginatedEnumerableDto<VideoPreviewDto>> SearchVideoAsync(string query, int page, int take);
 
         //deprecated

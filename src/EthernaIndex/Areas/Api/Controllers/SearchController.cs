@@ -29,7 +29,6 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
 {
     [ApiController]
     [ApiVersion("0.3")]
-    [AllowAnonymous]
     [Route("api/v{api-version:apiVersion}/[controller]")]
     public class SearchController(ISearchControllerService service) : ControllerBase
     {
@@ -44,6 +43,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// <response code="200">Videos</response>
         [HttpGet("query")]
         [Obsolete("Use \"query2\" instead")]
+        [AllowAnonymous]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -62,6 +62,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// <param name="take">Number of items to retrieve. Max 100</param>
         /// <response code="200">Videos</response>
         [HttpGet("query2")]
+        [AllowAnonymous]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -73,12 +74,15 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
             service.SearchVideoAsync(query, page, take);
 
         // Post.
-        [HttpPost("videos/reindex")]
+        /// <summary>
+        /// Rebuild search indexes. Only for admins.
+        /// </summary>
+        [HttpPost("rebuild")]
         [Authorize(CommonConsts.RequireAdministratorClaimPolicy)]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public void ReindexAllVideos() =>
-            service.ReindexAllVideos();
+        public void RebuildElasticIndexes() =>
+            service.RebuildElasticIndexes();
     }
 }

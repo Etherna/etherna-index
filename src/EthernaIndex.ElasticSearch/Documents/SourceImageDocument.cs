@@ -26,7 +26,7 @@ namespace Etherna.EthernaIndex.ElasticSearch.Documents
         {
             Width = width;
             Path = path.ToString();
-            Type = type;
+            Type = type ?? "Jpeg";
         }
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         public SourceImageDocument() { }
@@ -35,6 +35,6 @@ namespace Etherna.EthernaIndex.ElasticSearch.Documents
         // Properties.
         public int Width { get; set; }
         public string Path { get; set; }
-        public string? Type { get; set; }
+        public string Type { get; set; }
     }
 }

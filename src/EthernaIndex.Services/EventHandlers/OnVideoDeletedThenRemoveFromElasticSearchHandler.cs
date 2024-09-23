@@ -35,7 +35,7 @@ namespace Etherna.EthernaIndex.Services.EventHandlers
         // Methods.
         public override async Task HandleAsync(EntityDeletedEvent<Video> @event)
         {
-            await elasticSearchService.RemoveVideoIndexAsync(@event.Entity.Id);
+            await elasticSearchService.DeleteVideoAsync(@event.Entity);
         }
     }
 }

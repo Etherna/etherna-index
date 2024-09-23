@@ -56,11 +56,10 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
             Duration = videoDocument.Duration;
             Hash = videoDocument.ManifestHash;
             OwnerAddress = ownerSharedInfo.EtherAddress;
-            if (videoDocument.Thumbnail is not null)
-                Thumbnail = new Image2Dto(
-                    videoDocument.Thumbnail.AspectRatio,
-                    videoDocument.Thumbnail.Blurhash,
-                    videoDocument.Thumbnail.Sources.Select(s => new ImageSourceDto(s.Type, s.Path, s.Width)));
+            Thumbnail = new Image2Dto(
+                videoDocument.Thumbnail.AspectRatio,
+                videoDocument.Thumbnail.Blurhash,
+                videoDocument.Thumbnail.Sources.Select(s => new ImageSourceDto(s.Type, s.Path, s.Width)));
             Title = videoDocument.Title;
         }
 

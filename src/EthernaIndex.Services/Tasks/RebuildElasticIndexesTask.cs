@@ -22,29 +22,31 @@ using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Services.Tasks
 {
-    internal sealed class FullVideoReindexTask : IFullVideoReindexTask
+    internal sealed class RebuildElasticIndexesTask(
+        IIndexDbContext dbContext,
+        IElasticSearchService elasticSearchService)
+        : IRebuildElasticIndexesTask
     {
-        // Fields.
-        private readonly IIndexDbContext dbContext;
-        private readonly IElasticSearchService elasticSearchService;
-
-        // Constructor.
-        public FullVideoReindexTask(
-            IIndexDbContext dbContext,
-            IElasticSearchService elasticSearchService)
-        {
-            this.dbContext = dbContext;
-            this.elasticSearchService = elasticSearchService;
-        }
-
         // Methods.
         public async Task RunAsync()
         {
+            // Destroy and recreate indexes.
+            await elasticSearchService.DestroyIndexesAsync();
+            await elasticSearchService.CreateIndexesAsync();
+            
+            // Reindex documents.
+            //comments
+            var commentsCursor = await dbContext.Comments.FindAsync<Comment>(Builders<Comment>.Filter.Empty, new() { NoCursorTimeout = true });
+            while (await commentsCursor.MoveNextAsync())
+                foreach (var comment in commentsCursor.Current)
+                    await elasticSearchService.AddCommentAsync(comment);
+            
+            //videos
             using var dbExecutionContext = new DbExecutionContextHandler(dbContext); //run into a db execution context
             var videosCursor = await dbContext.Videos.FindAsync<Video>(Builders<Video>.Filter.Empty, new() { NoCursorTimeout = true });
             while (await videosCursor.MoveNextAsync())
-                foreach (var element in videosCursor.Current.Where(v => v.LastValidManifest != null))
-                    await elasticSearchService.IndexVideoAsync(element);
+                foreach (var video in videosCursor.Current.Where(v => v.LastValidManifest != null))
+                    await elasticSearchService.AddVideoAsync(video);
         }
     }
 }

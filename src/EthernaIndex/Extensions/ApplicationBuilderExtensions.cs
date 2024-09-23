@@ -1,4 +1,4 @@
-﻿// Copyright 2021-present Etherna SA
+// Copyright 2021-present Etherna SA
 // This file is part of Etherna Index.
 // 
 // Etherna Index is free software: you can redistribute it and/or modify it under the terms of the
@@ -12,21 +12,26 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
-using Etherna.EthernaIndex.Domain.Models;
-using Etherna.EthernaIndex.ElasticSearch.Documents;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using Etherna.EthernaIndex.ElasticSearch;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using System;
 
-namespace Etherna.EthernaIndex.ElasticSearch
+namespace Etherna.EthernaIndex.Extensions
 {
-    public interface IElasticSearchService
+    public static class ApplicationBuilderExtensions
     {
-        Task AddCommentAsync(Comment comment);
-        Task AddVideoAsync(Video video);
-        Task CreateIndexesAsync();
-        Task DeleteCommentAsync(Comment comment);
-        Task DeleteVideoAsync(Video video);
-        Task DestroyIndexesAsync();
-        Task<(IEnumerable<VideoDocument> Results, long TotalElements)> SearchVideoAsync(string query, int page, int take);
+        public static IApplicationBuilder CreateElasticIndexes(
+            this IApplicationBuilder builder)
+        {
+            ArgumentNullException.ThrowIfNull(builder, nameof(builder));
+
+            var serviceProvider = builder.ApplicationServices;
+            var service = serviceProvider.GetRequiredService<IElasticSearchService>();
+
+            service.CreateIndexesAsync().Wait();
+
+            return builder;
+        }
     }
 }
