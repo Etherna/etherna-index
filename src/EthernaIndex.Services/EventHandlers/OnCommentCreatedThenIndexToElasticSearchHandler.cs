@@ -35,7 +35,7 @@ namespace Etherna.EthernaIndex.Services.EventHandlers
         // Methods.
         public override async Task HandleAsync(EntityCreatedEvent<Comment> @event)
         {
-            await elasticSearchService.IndexCommentAsync(@event.Entity);
+            await elasticSearchService.AddCommentAsync(@event.Entity);
         }
     }
 }

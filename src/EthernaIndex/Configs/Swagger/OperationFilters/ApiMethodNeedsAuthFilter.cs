@@ -19,7 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Etherna.EthernaIndex.Swagger.OperationFilters
+namespace Etherna.EthernaIndex.Configs.Swagger.OperationFilters
 {
     public class ApiMethodNeedsAuthFilter : IOperationFilter
     {

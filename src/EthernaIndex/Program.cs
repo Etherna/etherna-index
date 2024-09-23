@@ -22,6 +22,9 @@ using Etherna.DomainEvents;
 using Etherna.EthernaIndex.Configs;
 using Etherna.EthernaIndex.Configs.Authorization;
 using Etherna.EthernaIndex.Configs.MongODM;
+using Etherna.EthernaIndex.Configs.Swagger;
+using Etherna.EthernaIndex.Configs.Swagger.OperationFilters;
+using Etherna.EthernaIndex.Configs.Swagger.SchemaFilters;
 using Etherna.EthernaIndex.Converters;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.ElasticSearch;
@@ -30,9 +33,6 @@ using Etherna.EthernaIndex.Persistence;
 using Etherna.EthernaIndex.Services;
 using Etherna.EthernaIndex.Services.Settings;
 using Etherna.EthernaIndex.Services.Tasks;
-using Etherna.EthernaIndex.Swagger;
-using Etherna.EthernaIndex.Swagger.OperationFilters;
-using Etherna.EthernaIndex.Swagger.SchemaFilters;
 using Etherna.MongODM;
 using Etherna.MongODM.AspNetCore.UI;
 using Etherna.MongODM.Core.Options;
@@ -95,6 +95,7 @@ namespace Etherna.EthernaIndex
 
                 // First operations.
                 app.SeedDbContexts();
+                app.CreateElasticIndexes();
 
                 // Run application.
                 app.Run();
@@ -449,9 +450,10 @@ namespace Etherna.EthernaIndex
             });
 
             // Configure infrastructure.
-            services.AddElasticSearchServices(config.GetSection("Elastic:Urls").Get<string[]>()!, opts =>
+            services.AddElasticSearchServices(opts =>
             {
                 opts.IndexesPrefix = "etherna-mainindex-";
+                opts.Urls = config.GetSection("Elastic:Urls").Get<string[]>() ?? throw new ServiceConfigurationException();
             });
 
             // Configure domain services.

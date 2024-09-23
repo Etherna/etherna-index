@@ -12,16 +12,16 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
-using Elasticsearch.Net;
+using Elastic.Clients.Elasticsearch;
+using Elastic.Transport;
 using Etherna.EthernaIndex.ElasticSearch.Documents;
-using Etherna.EthernaIndex.ElasticSearch.Configs;
+using Etherna.EthernaIndex.ElasticSearch.Options;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Nest;
+using Microsoft.Extensions.Options;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 
 namespace Etherna.EthernaIndex.ElasticSearch
 {
@@ -30,30 +30,27 @@ namespace Etherna.EthernaIndex.ElasticSearch
         [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "They can't be disposed")]
         public static void AddElasticSearchServices(
             this IServiceCollection services,
-            IEnumerable<string> urls,
             Action<ElasticSearchOptions> elasticSearchOptionsConfig)
         {
-            var options = new ElasticSearchOptions(urls);
-            elasticSearchOptionsConfig?.Invoke(options);
+            ArgumentNullException.ThrowIfNull(elasticSearchOptionsConfig, nameof(elasticSearchOptionsConfig));
+            
+            services.Configure(elasticSearchOptionsConfig);
 
-            var pool = new StickyConnectionPool(options.Urls.Select(i => new Uri(i)));
-            var settings = new ConnectionSettings(pool)
-                .DefaultIndex(options.VideosIndexName)
-                .DefaultMappingFor<VideoDocument>(vm => vm.IdProperty(p => p.Id)
-            );
-            var client = new ElasticClient(settings);
+            // Add client.
+            services.TryAddSingleton(sp =>
+            {
+                var options = sp.GetRequiredService<IOptions<ElasticSearchOptions>>().Value;
+                
+                var pool = new StaticNodePool(options.Urls.Select(i => new Uri(i)));
+                var settings = new ElasticsearchClientSettings(pool)
+                    .DefaultIndex(options.VideosIndexName)
+                    .DefaultMappingFor<VideoDocument>(vm => vm.IdProperty(p => p.Id));
+                
+                return new ElasticsearchClient(settings);
+            });
 
             // Add services.
-            services.TryAddSingleton<IElasticClient>(client);
-            services.TryAddScoped<IElasticSearchService, ElasticSearchService>();
-
-            // Create indexes.
-            client.Indices.Create(options.CommentsIndexName,
-                index => index.Map<CommentDocument>(x => x.AutoMap())
-            );
-            client.Indices.Create(options.VideosIndexName,
-                index => index.Map<VideoDocument>(x => x.AutoMap())
-            );
+            services.TryAddTransient<IElasticSearchService, ElasticSearchService>();
         }
     }
 }

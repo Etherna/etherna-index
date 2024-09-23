@@ -17,22 +17,22 @@ using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
 
-namespace Etherna.EthernaIndex.Swagger.SchemaFilters
+namespace Etherna.EthernaIndex.Configs.Swagger.SchemaFilters
 {
-    public class PostageBatchIdSchemaFilter : ISchemaFilter
+    public class SwarmAddressSchemaFilter : ISchemaFilter
     {
         public void Apply(OpenApiSchema schema, SchemaFilterContext context)
         {
             ArgumentNullException.ThrowIfNull(schema, nameof(schema));
             ArgumentNullException.ThrowIfNull(context, nameof(context));
             
-            if (context.Type == typeof(PostageBatchId))
+            if (context.Type == typeof(SwarmAddress))
             {
                 schema.Type = "string";
                 schema.Format = null;
-                schema.MinLength = PostageBatchId.BatchIdSize * 2;
-                schema.MaxLength = PostageBatchId.BatchIdSize * 2;
-                schema.Pattern = $"^[a-fA-F0-9]{{{PostageBatchId.BatchIdSize * 2}}}$";
+                schema.MinLength = SwarmHash.HashSize * 2;
+                schema.Pattern = $"^[a-fA-F0-9]{{{SwarmHash.HashSize * 2}}}.*$";
+                schema.Properties.Clear();
             }
         }
     }

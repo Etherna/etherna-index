@@ -12,44 +12,45 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
+using Elastic.Clients.Elasticsearch;
+using Elastic.Clients.Elasticsearch.Core.Search;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.ElasticSearch.Documents;
-using Nest;
+using Etherna.EthernaIndex.ElasticSearch.Options;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.ElasticSearch
 {
-    public class ElasticSearchService : IElasticSearchService
+    public class ElasticSearchService(
+        ElasticsearchClient client,
+        IOptions<ElasticSearchOptions> options,
+        ISharedDbContext sharedDbContext)
+        : IElasticSearchService
     {
+        // Consts.
+        public const string CommentsIndexBaseName = "comments";
+        public const string VideosIndexBaseName = "videos";
+        
         // Fields.
-        private readonly IElasticClient elasticClient;
-        private readonly ISharedDbContext sharedDbContext;
-
-        // Constructors.
-        public ElasticSearchService(
-            IElasticClient elasticClient,
-            ISharedDbContext sharedDbContext)
-        {
-            this.elasticClient = elasticClient;
-            this.sharedDbContext = sharedDbContext;
-        }
-
-        // Public methods.
-        public async Task IndexCommentAsync(Comment comment)
+        private readonly ElasticSearchOptions options = options.Value;
+        
+        // Methods.
+        public async Task AddCommentAsync(Comment comment)
         {
             ArgumentNullException.ThrowIfNull(comment, nameof(comment));
 
             var ownerSharedInfo = await sharedDbContext.UsersInfo.FindOneAsync(comment.Author.SharedInfoId);
-
             var document = new CommentDocument(comment, ownerSharedInfo);
 
-            await elasticClient.IndexDocumentAsync(document);
+            await client.IndexAsync(document);;
         }
 
-        public async Task IndexVideoAsync(Video video)
+        public async Task AddVideoAsync(Video video)
         {
             ArgumentNullException.ThrowIfNull(video, nameof(video));
             if (video.LastValidManifest is null)
@@ -57,30 +58,83 @@ namespace Etherna.EthernaIndex.ElasticSearch
 
             var document = new VideoDocument(video);
 
-            var response = await elasticClient.IndexDocumentAsync(document);
-            if (!response.IsValid)
-                throw response.OriginalException;
+            var response = await client.IndexAsync(document);
+            if (!response.IsValidResponse &&
+                response.TryGetOriginalException(out var exception) &&
+                exception is not null)
+                throw exception;
         }
 
-        public async Task RemoveCommentIndexAsync(Comment comment)
+        public async Task CreateIndexesAsync()
+        {
+            await client.Indices.CreateAsync<CommentDocument>(options.CommentsIndexName,
+                index => index.Mappings(maps =>
+                    maps.Properties(props =>
+                    {
+                        props.Text(c => c.Id);
+                        props.Date(c => c.CreationDateTime);
+                        props.Boolean(c => c.IsFrozen);
+                        props.Date(c => c.LastUpdateDateTime);
+                        props.Text(c => c.OwnerAddress);
+                        props.Text(c => c.Text);
+                        props.Text(c => c.VideoId);
+                    })));
+            await client.Indices.CreateAsync<VideoDocument>(options.VideosIndexName,
+                index => index.Mappings(maps =>
+                    maps.Properties(props =>
+                    {
+                        props.Text(v => v.Id);
+                        props.Date(v => v.CreationDateTime);
+                        props.Text(v => v.Description);
+                        props.LongNumber(v => v.Duration);
+                        props.Boolean(v => v.IsFrozen);
+                        props.Text(v => v.ManifestHash);
+                        props.Text(v => v.OwnerSharedInfoId);
+                        props.Object(v => v.Thumbnail, thumbConf =>
+                        {
+                            thumbConf.Properties(tProps =>
+                            {
+                                tProps.FloatNumber(v => v.Thumbnail.AspectRatio);
+                                tProps.Text(v => v.Thumbnail.Blurhash);
+                                tProps.Object(v => v.Thumbnail.Sources, tSourceConf =>
+                                {
+                                    tSourceConf.Properties(tsProps =>
+                                    {
+                                        tsProps.IntegerNumber(v => v.Thumbnail.Sources.First().Width);
+                                        tsProps.Text(v => v.Thumbnail.Sources.First().Path);
+                                        tsProps.Text(v => v.Thumbnail.Sources.First().Type);
+                                    });
+                                });
+                            });
+                        });
+                        props.Text(v => v.Title);
+                        props.LongNumber(v => v.TotDownvotes);
+                        props.LongNumber(v => v.TotUpvotes);
+                    })));
+        }
+
+        public async Task DeleteCommentAsync(Comment comment)
         {
             ArgumentNullException.ThrowIfNull(comment, nameof(comment));
 
-            await RemoveCommentIndexAsync(comment.Id);
+            await client.DeleteAsync<CommentDocument>(comment.Id);
         }
 
-        public async Task RemoveCommentIndexAsync(string commentId) =>
-            await elasticClient.DeleteAsync<CommentDocument>(commentId);
-
-        public async Task RemoveVideoIndexAsync(Video video)
+        public async Task DeleteVideoAsync(Video video)
         {
             ArgumentNullException.ThrowIfNull(video, nameof(video));
 
-            await RemoveVideoIndexAsync(video.Id);
+            await client.DeleteAsync<VideoDocument>(video.Id);
         }
 
-        public async Task RemoveVideoIndexAsync(string videoId) =>
-            await elasticClient.DeleteAsync<VideoDocument>(videoId);
+        public async Task DestroyIndexesAsync()
+        {
+            await client.Indices.DeleteAsync(new[]
+            {
+                options.CommentsIndexName,
+                options.VideosIndexName
+            });
+        }
 
         public async Task<(IEnumerable<VideoDocument> Results, long TotalElements)> SearchVideoAsync(string query, int page, int take)
         {
@@ -89,14 +143,16 @@ namespace Etherna.EthernaIndex.ElasticSearch
             ArgumentOutOfRangeException.ThrowIfNegative(page, nameof(page));
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(take, nameof(take));
             
-            var searchResponse = await elasticClient.SearchAsync<VideoDocument>(s =>
+            var searchResponse = await client.SearchAsync<VideoDocument>(s =>
                 s.Query(q => q.Bool(b =>
-                    b.Must(mu => mu.Wildcard(f => f.Title, $"*{query.ToLowerInvariant()}*") ||
-                    mu.Wildcard(f => f.Description, $"*{query.ToLowerInvariant()}*"))
+                    b.Should(
+                        mu => mu.Wildcard(wc => wc.Field(f => f.Title).Value($"*{query.ToLowerInvariant()}*")),
+                        mu => mu.Wildcard(wc => wc.Field(f => f.Description).Value($"*{query.ToLowerInvariant()}*")))
+                        .MinimumShouldMatch(1)
                 ))
                 .From(page * take)
                 .Size(take)
-                .TrackTotalHits(true));
+                .TrackTotalHits(new TrackHits(true)));
 
             return (searchResponse.Documents, searchResponse.Total);
         }

@@ -97,18 +97,13 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
         {
             ArgumentNullException.ThrowIfNull(videoDocument, nameof(videoDocument));
 
-            BatchId = videoDocument.BatchId is null ? (PostageBatchId?)null : PostageBatchId.FromString(videoDocument.BatchId);
+            BatchId = null;
             Description = videoDocument.Description;
             Duration = videoDocument.Duration;
             Hash = videoDocument.ManifestHash;
-            PersonalData = videoDocument.PersonalData;
-            OriginalQuality = videoDocument.OriginalQuality;
-            Sources = videoDocument.Sources
-                .Select(i => new SourceDto(
-                    null,
-                    i.Quality,
-                    i.Path,
-                    i.Size));
+            PersonalData = null;
+            OriginalQuality = null;
+            Sources = [];
 
             if (videoDocument.Thumbnail is not null)
                 Thumbnail = new ImageDto(

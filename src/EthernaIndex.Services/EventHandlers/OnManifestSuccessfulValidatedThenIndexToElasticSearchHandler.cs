@@ -34,7 +34,7 @@ namespace Etherna.EthernaIndex.Services.EventHandlers
         // Methods.
         public override async Task HandleAsync(ManifestSuccessfulValidatedEvent @event)
         {
-            await elasticSearchService.IndexVideoAsync(@event.Video);
+            await elasticSearchService.AddVideoAsync(@event.Video);
         }
     }
 }

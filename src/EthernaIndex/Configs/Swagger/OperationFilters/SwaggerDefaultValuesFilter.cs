@@ -19,7 +19,7 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
 using System.Linq;
 
-namespace Etherna.EthernaIndex.Swagger.OperationFilters
+namespace Etherna.EthernaIndex.Configs.Swagger.OperationFilters
 {
     /// <summary>
     /// Represents the Swagger/Swashbuckle operation filter used to document the implicit API version parameter.

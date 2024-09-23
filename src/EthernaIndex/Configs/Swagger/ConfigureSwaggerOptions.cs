@@ -18,7 +18,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
-namespace Etherna.EthernaIndex.Swagger
+namespace Etherna.EthernaIndex.Configs.Swagger
 {
     /// <summary>
     /// Configures the Swagger generation options.

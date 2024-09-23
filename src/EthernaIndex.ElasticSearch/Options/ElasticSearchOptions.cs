@@ -12,32 +12,17 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
-using System;
 using System.Collections.Generic;
-using System.Linq;
 
-namespace Etherna.EthernaIndex.ElasticSearch.Configs
+namespace Etherna.EthernaIndex.ElasticSearch.Options
 {
     public class ElasticSearchOptions
     {
-        // Consts.
-        private const string commentsIndexBaseName = "comments";
-        private const string videosIndexBaseName = "videos";
-
-        // Constructor.
-        public ElasticSearchOptions(IEnumerable<string> urls)
-        {
-            ArgumentNullException.ThrowIfNull(urls, nameof(urls));
-            if (!urls.Any())
-                throw new ArgumentException("Urls arg can't be empty", nameof(urls));
-
-            Urls = urls;
-        }
-
         // Properties.
-        public string CommentsIndexName => (IndexesPrefix ?? "") + commentsIndexBaseName;
         public string? IndexesPrefix { get; set; }
-        public IEnumerable<string> Urls { get; }
-        public string VideosIndexName => (IndexesPrefix ?? "") + videosIndexBaseName;
+        public IEnumerable<string> Urls { get; set; } = [];
+        
+        public string CommentsIndexName => (IndexesPrefix ?? "") + ElasticSearchService.CommentsIndexBaseName;
+        public string VideosIndexName => (IndexesPrefix ?? "") + ElasticSearchService.VideosIndexBaseName;
     }
 }

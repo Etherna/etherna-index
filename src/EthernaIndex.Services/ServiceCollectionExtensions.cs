@@ -64,7 +64,7 @@ namespace Etherna.EthernaIndex.Services
             services.AddScoped<IVideoManifestService, VideoManifestService>();
 
             // Tasks.
-            services.AddTransient<IFullVideoReindexTask, FullVideoReindexTask>();
+            services.AddTransient<IRebuildElasticIndexesTask, RebuildElasticIndexesTask>();
             services.AddTransient<IVideoManifestValidatorTask, VideoManifestValidatorTask>();
             
             // Clients.

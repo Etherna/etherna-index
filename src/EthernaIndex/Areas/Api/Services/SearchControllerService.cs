@@ -24,27 +24,15 @@ using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Areas.Api.Services
 {
-    internal sealed class SearchControllerService : ISearchControllerService
+    internal sealed class SearchControllerService(
+        IBackgroundJobClient backgroundJobClient,
+        IElasticSearchService elasticSearchService,
+        ISharedDbContext sharedDbContext)
+        : ISearchControllerService
     {
-        // Fields.
-        private readonly IBackgroundJobClient backgroundJobClient;
-        private readonly IElasticSearchService elasticSearchService;
-        private readonly ISharedDbContext sharedDbContext;
-
-        // Constructors.
-        public SearchControllerService(
-            IBackgroundJobClient backgroundJobClient,
-            IElasticSearchService elasticSearchService,
-            ISharedDbContext sharedDbContext)
-        {
-            this.backgroundJobClient = backgroundJobClient;
-            this.elasticSearchService = elasticSearchService;
-            this.sharedDbContext = sharedDbContext;
-        }
-
         // Methods.
-        public void ReindexAllVideos() =>
-            backgroundJobClient.Enqueue<IFullVideoReindexTask>(t => t.RunAsync());
+        public void RebuildElasticIndexes() =>
+            backgroundJobClient.Enqueue<IRebuildElasticIndexesTask>(t => t.RunAsync());
 
         public async Task<PaginatedEnumerableDto<VideoPreviewDto>> SearchVideoAsync(string query, int page, int take)
         {

@@ -17,7 +17,7 @@ using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
 
-namespace Etherna.EthernaIndex.Swagger.SchemaFilters
+namespace Etherna.EthernaIndex.Configs.Swagger.SchemaFilters
 {
     public class SwarmHashSchemaFilter : ISchemaFilter
     {
