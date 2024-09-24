@@ -1,18 +1,19 @@
-﻿//   Copyright 2021-present Etherna Sagl
+﻿// Copyright 2021-present Etherna SA
+// This file is part of Etherna Index.
 // 
-//   Licensed under the Apache License, Version 2.0 (the "License");
-//   you may not use this file except in compliance with the License.
-//   You may obtain a copy of the License at
+// Etherna Index is free software: you can redistribute it and/or modify it under the terms of the
+// GNU Affero General Public License as published by the Free Software Foundation,
+// either version 3 of the License, or (at your option) any later version.
 // 
-//       http://www.apache.org/licenses/LICENSE-2.0
+// Etherna Index is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+// without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU Affero General Public License for more details.
 // 
-//   Unless required by applicable law or agreed to in writing, software
-//   distributed under the License is distributed on an "AS IS" BASIS,
-//   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//   See the License for the specific language governing permissions and
-//   limitations under the License.
+// You should have received a copy of the GNU Affero General Public License along with Etherna Index.
+// If not, see <https://www.gnu.org/licenses/>.
 
 using Etherna.Authentication;
+using Etherna.BeeNet.Models;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Services.Extensions;
 using Etherna.EthernaIndex.Services.Tasks;
@@ -46,13 +47,13 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         }
 
         // Methods.
-        public async Task ForceVideoManifestValidationAsync(string manifestHash)
+        public async Task ForceVideoManifestValidationAsync(SwarmHash manifestHash)
         {
-            var videoManifest = await indexDbContext.VideoManifests.FindOneAsync(c => c.Manifest.Hash == manifestHash);
+            var videoManifest = await indexDbContext.VideoManifests.FindOneAsync(c => c.ManifestHash == manifestHash);
             var video = await indexDbContext.Videos.FindOneAsync(v => v.VideoManifests.Any(vm => vm.Id == videoManifest.Id));
 
             backgroundJobClient.Create<IVideoManifestValidatorTask>(
-                task => task.RunAsync(video.Id, manifestHash),
+                task => task.RunAsync(video.Id, manifestHash.ToString()),
                 new EnqueuedState(Queues.METADATA_VIDEO_VALIDATOR));
 
             logger.ForcedVideoManifestsValidation(await ethernaOidcClient.GetClientIdAsync(), video.Id, new[] { manifestHash });
@@ -65,11 +66,14 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             foreach (var manifest in video.VideoManifests)
             {
                 backgroundJobClient.Create<IVideoManifestValidatorTask>(
-                    task => task.RunAsync(video.Id, manifest.Manifest.Hash),
+                    task => task.RunAsync(video.Id, manifest.ManifestHash.ToString()),
                     new EnqueuedState(Queues.METADATA_VIDEO_VALIDATOR));
             }
 
-            logger.ForcedVideoManifestsValidation(await ethernaOidcClient.GetClientIdAsync(), video.Id, video.VideoManifests.Select(m => m.Id));
+            logger.ForcedVideoManifestsValidation(
+                await ethernaOidcClient.GetClientIdAsync(),
+                video.Id,
+                video.VideoManifests.Select(m => m.ManifestHash));
         }
     }
 }

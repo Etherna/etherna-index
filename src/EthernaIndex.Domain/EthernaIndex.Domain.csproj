@@ -1,10 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <RootNamespace>Etherna.EthernaIndex.Domain</RootNamespace>
 
-    <Authors>Etherna Sagl</Authors>
+    <Authors>Etherna SA</Authors>
     
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <Nullable>enable</Nullable>
@@ -15,8 +15,9 @@
 
   <ItemGroup>
     <PackageReference Include="Etherna.DomainEvents" Version="1.4.0" />
-    <PackageReference Include="MongODM.Core" Version="0.24.0-alpha.100" />
-    <PackageReference Include="Nethereum.Util" Version="4.16.0" />
+    <PackageReference Include="EthernaSdk.Tools.Video" Version="0.4.0-alpha.138" />
+    <PackageReference Include="MongODM.Core" Version="0.24.0" />
+    <PackageReference Include="Nethereum.Util" Version="4.25.0" />
   </ItemGroup>
 
 </Project>

@@ -1,16 +1,16 @@
-﻿//   Copyright 2021-present Etherna Sagl
+﻿// Copyright 2021-present Etherna SA
+// This file is part of Etherna Index.
 // 
-//   Licensed under the Apache License, Version 2.0 (the "License");
-//   you may not use this file except in compliance with the License.
-//   You may obtain a copy of the License at
+// Etherna Index is free software: you can redistribute it and/or modify it under the terms of the
+// GNU Affero General Public License as published by the Free Software Foundation,
+// either version 3 of the License, or (at your option) any later version.
 // 
-//       http://www.apache.org/licenses/LICENSE-2.0
+// Etherna Index is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+// without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU Affero General Public License for more details.
 // 
-//   Unless required by applicable law or agreed to in writing, software
-//   distributed under the License is distributed on an "AS IS" BASIS,
-//   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//   See the License for the specific language governing permissions and
-//   limitations under the License.
+// You should have received a copy of the GNU Affero General Public License along with Etherna Index.
+// If not, see <https://www.gnu.org/licenses/>.
 
 using Etherna.EthernaIndex.Domain.Events;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg;
@@ -21,7 +21,9 @@ using System.Linq;
 
 namespace Etherna.EthernaIndex.Domain.Models
 {
+#pragma warning disable CA1724
     public class Video : EntityModelBase<string>
+#pragma warning restore CA1724
     {
         // Fields.
         private VideoManifest? _lastValidManifest;
@@ -60,15 +62,14 @@ namespace Etherna.EthernaIndex.Domain.Models
         [PropertyAlterer(nameof(VideoManifests))]
         public virtual void AddManifest(VideoManifest videoManifest)
         {
-            if (videoManifest is null)
-                throw new ArgumentNullException(nameof(videoManifest));
+            ArgumentNullException.ThrowIfNull(videoManifest, nameof(videoManifest));
             if (IsFrozen)
                 throw new InvalidOperationException("Video is frozen");
 
-            if (_videoManifests.Any(i => i.Manifest.Hash == videoManifest.Manifest.Hash))
+            if (_videoManifests.Any(i => i.ManifestHash == videoManifest.ManifestHash))
             {
                 var ex = new InvalidOperationException("AddManifest duplicate");
-                ex.Data.Add("ManifestHash", videoManifest.Manifest.Hash);
+                ex.Data.Add("ManifestHash", videoManifest.ManifestHash.ToString());
                 throw ex;
             }
 
@@ -82,15 +83,13 @@ namespace Etherna.EthernaIndex.Domain.Models
             VideoManifest manifest,
             IEnumerable<ValidationError> validationErrors)
         {
-            if (manifest is null)
-                throw new ArgumentNullException(nameof(manifest));
-            if (validationErrors is null)
-                throw new ArgumentNullException(nameof(validationErrors));
+            ArgumentNullException.ThrowIfNull(manifest, nameof(manifest));
+            ArgumentNullException.ThrowIfNull(validationErrors, nameof(validationErrors));
 
             if (!VideoManifests.Contains(manifest))
             {
                 var ex = new InvalidOperationException("The manifest is not owned by this video");
-                ex.Data.Add("ManifestHash", manifest.Manifest.Hash);
+                ex.Data.Add("ManifestHash", manifest.ManifestHash.ToString());
                 throw ex;
             }
 
@@ -103,8 +102,7 @@ namespace Etherna.EthernaIndex.Domain.Models
         [PropertyAlterer(nameof(VideoManifests))]
         public virtual bool RemoveManifest(VideoManifest videoManifest)
         {
-            if (videoManifest is null)
-                throw new ArgumentNullException(nameof(videoManifest));
+            ArgumentNullException.ThrowIfNull(videoManifest, nameof(videoManifest));
             if (IsFrozen)
                 throw new InvalidOperationException("Video is frozen");
 
@@ -132,15 +130,13 @@ namespace Etherna.EthernaIndex.Domain.Models
             VideoManifest manifest,
             VideoManifestMetadataBase metadata)
         {
-            if (manifest is null)
-                throw new ArgumentNullException(nameof(manifest));
-            if (metadata is null)
-                throw new ArgumentNullException(nameof(metadata));
+            ArgumentNullException.ThrowIfNull(manifest, nameof(manifest));
+            ArgumentNullException.ThrowIfNull(metadata, nameof(metadata));
 
             if (!VideoManifests.Contains(manifest))
             {
                 var ex = new InvalidOperationException("The manifest is not owned by this video");
-                ex.Data.Add("ManifestHash", manifest.Manifest.Hash);
+                ex.Data.Add("ManifestHash", manifest.ManifestHash.ToString());
                 throw ex;
             }
 

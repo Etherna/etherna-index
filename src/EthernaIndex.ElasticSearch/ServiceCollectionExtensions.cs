@@ -1,27 +1,27 @@
-﻿//   Copyright 2021-present Etherna Sagl
+﻿// Copyright 2021-present Etherna SA
+// This file is part of Etherna Index.
 // 
-//   Licensed under the Apache License, Version 2.0 (the "License");
-//   you may not use this file except in compliance with the License.
-//   You may obtain a copy of the License at
+// Etherna Index is free software: you can redistribute it and/or modify it under the terms of the
+// GNU Affero General Public License as published by the Free Software Foundation,
+// either version 3 of the License, or (at your option) any later version.
 // 
-//       http://www.apache.org/licenses/LICENSE-2.0
+// Etherna Index is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+// without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU Affero General Public License for more details.
 // 
-//   Unless required by applicable law or agreed to in writing, software
-//   distributed under the License is distributed on an "AS IS" BASIS,
-//   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//   See the License for the specific language governing permissions and
-//   limitations under the License.
+// You should have received a copy of the GNU Affero General Public License along with Etherna Index.
+// If not, see <https://www.gnu.org/licenses/>.
 
-using Elasticsearch.Net;
+using Elastic.Clients.Elasticsearch;
+using Elastic.Transport;
 using Etherna.EthernaIndex.ElasticSearch.Documents;
-using Etherna.EthernaIndex.ElasticSearch.Configs;
+using Etherna.EthernaIndex.ElasticSearch.Options;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Nest;
+using Microsoft.Extensions.Options;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 
 namespace Etherna.EthernaIndex.ElasticSearch
 {
@@ -30,30 +30,27 @@ namespace Etherna.EthernaIndex.ElasticSearch
         [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "They can't be disposed")]
         public static void AddElasticSearchServices(
             this IServiceCollection services,
-            IEnumerable<string> urls,
             Action<ElasticSearchOptions> elasticSearchOptionsConfig)
         {
-            var options = new ElasticSearchOptions(urls);
-            elasticSearchOptionsConfig?.Invoke(options);
+            ArgumentNullException.ThrowIfNull(elasticSearchOptionsConfig, nameof(elasticSearchOptionsConfig));
+            
+            services.Configure(elasticSearchOptionsConfig);
 
-            var pool = new StickyConnectionPool(options.Urls.Select(i => new Uri(i)));
-            var settings = new ConnectionSettings(pool)
-                .DefaultIndex(options.VideosIndexName)
-                .DefaultMappingFor<VideoDocument>(vm => vm.IdProperty(p => p.Id)
-            );
-            var client = new ElasticClient(settings);
+            // Add client.
+            services.TryAddSingleton(sp =>
+            {
+                var options = sp.GetRequiredService<IOptions<ElasticSearchOptions>>().Value;
+                
+                var pool = new StaticNodePool(options.Urls.Select(i => new Uri(i)));
+                var settings = new ElasticsearchClientSettings(pool)
+                    .DefaultIndex(options.VideosIndexName)
+                    .DefaultMappingFor<VideoDocument>(vm => vm.IdProperty(p => p.Id));
+                
+                return new ElasticsearchClient(settings);
+            });
 
             // Add services.
-            services.TryAddSingleton<IElasticClient>(client);
-            services.TryAddScoped<IElasticSearchService, ElasticSearchService>();
-
-            // Create indexes.
-            client.Indices.Create(options.CommentsIndexName,
-                index => index.Map<CommentDocument>(x => x.AutoMap())
-            );
-            client.Indices.Create(options.VideosIndexName,
-                index => index.Map<VideoDocument>(x => x.AutoMap())
-            );
+            services.TryAddTransient<IElasticSearchService, ElasticSearchService>();
         }
     }
 }

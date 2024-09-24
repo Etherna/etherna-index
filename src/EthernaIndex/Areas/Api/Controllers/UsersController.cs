@@ -1,17 +1,18 @@
-﻿//   Copyright 2021-present Etherna Sagl
+﻿// Copyright 2021-present Etherna SA
+// This file is part of Etherna Index.
 // 
-//   Licensed under the Apache License, Version 2.0 (the "License");
-//   you may not use this file except in compliance with the License.
-//   You may obtain a copy of the License at
+// Etherna Index is free software: you can redistribute it and/or modify it under the terms of the
+// GNU Affero General Public License as published by the Free Software Foundation,
+// either version 3 of the License, or (at your option) any later version.
 // 
-//       http://www.apache.org/licenses/LICENSE-2.0
+// Etherna Index is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+// without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU Affero General Public License for more details.
 // 
-//   Unless required by applicable law or agreed to in writing, software
-//   distributed under the License is distributed on an "AS IS" BASIS,
-//   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//   See the License for the specific language governing permissions and
-//   limitations under the License.
+// You should have received a copy of the GNU Affero General Public License along with Etherna Index.
+// If not, see <https://www.gnu.org/licenses/>.
 
+using Asp.Versioning;
 using Etherna.EthernaIndex.Areas.Api.DtoModels;
 using Etherna.EthernaIndex.Areas.Api.Services;
 using Etherna.EthernaIndex.Attributes;
@@ -28,17 +29,8 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
     [ApiController]
     [ApiVersion("0.3")]
     [Route("api/v{api-version:apiVersion}/[controller]")]
-    public class UsersController : ControllerBase
+    public class UsersController(IUsersControllerService service) : ControllerBase
     {
-        // Fields.
-        private readonly IUsersControllerService controllerService;
-
-        // Constructors.
-        public UsersController(IUsersControllerService controllerService)
-        {
-            this.controllerService = controllerService;
-        }
-
         // Get.
 
         /// <summary>
@@ -49,13 +41,14 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// <response code="200">Current page on list</response>
         [HttpGet]
         [Obsolete("Use \"list2\" instead")]
+        [AllowAnonymous]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IEnumerable<UserDto>> GetUsersAsync(
             [Range(0, int.MaxValue)] int page,
             [Range(1, 100)] int take = 25) =>
-            (await controllerService.GetUsersAsync(page, take)).Elements;
+            (await service.GetUsersAsync(page, take)).Elements;
 
         /// <summary>
         /// Get a complete list of users.
@@ -64,26 +57,28 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// <param name="take">Number of items to retrieve. Max 100</param>
         /// <response code="200">Current page on list</response>
         [HttpGet("list2")]
+        [AllowAnonymous]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public Task<PaginatedEnumerableDto<UserDto>> GetUsers2Async(
             [Range(0, int.MaxValue)] int page,
             [Range(1, 100)] int take = 25) =>
-            controllerService.GetUsersAsync(page, take);
+            service.GetUsersAsync(page, take);
 
         /// <summary>
         /// Get user info by address.
         /// </summary>
         /// <param name="address">The user ether address</param>
         [HttpGet("{address}")]
+        [AllowAnonymous]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public Task<UserDto> FindByAddressAsync(
             string address) =>
-            controllerService.FindByAddressAsync(address);
+            service.FindByAddressAsync(address);
 
         /// <summary>
         /// Get list of videos uploaded by an user.
@@ -95,6 +90,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// <response code="404">User not found</response>
         [HttpGet("{address}/videos")]
         [Obsolete("Use \"videos3\" instead")]
+        [AllowAnonymous]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -103,7 +99,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
             [Required] string address,
             [Range(0, int.MaxValue)] int page,
             [Range(1, 100)] int take = 25) =>
-            (await controllerService.GetVideosAsync_old(address, page, take)).Elements;
+            (await service.GetVideosAsync_old(address, page, take)).Elements;
 
         /// <summary>
         /// Get list of videos uploaded by an user.
@@ -115,6 +111,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// <response code="404">User not found</response>
         [HttpGet("{address}/videos2")]
         [Obsolete("Use \"videos3\" instead")]
+        [AllowAnonymous]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -123,7 +120,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
             [Required] string address,
             [Range(0, int.MaxValue)] int page,
             [Range(1, 100)] int take = 25) =>
-            controllerService.GetVideosAsync_old(address, page, take);
+            service.GetVideosAsync_old(address, page, take);
 
         /// <summary>
         /// Get list of videos uploaded by an user.
@@ -134,6 +131,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// <response code="200">List of user's videos</response>
         /// <response code="404">User not found</response>
         [HttpGet("{address}/videos3")]
+        [AllowAnonymous]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -142,13 +140,12 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
             [Required] string address,
             [Range(0, int.MaxValue)] int page,
             [Range(1, 100)] int take = 25) =>
-            controllerService.GetVideosAsync(address, page, take);
+            service.GetVideosAsync(address, page, take);
 
         [HttpGet("current")]
-        [Authorize]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public Task<CurrentUserDto> GetCurrentUserAsync() =>
-            controllerService.GetCurrentUserAsync();
+            service.GetCurrentUserAsync();
     }
 }

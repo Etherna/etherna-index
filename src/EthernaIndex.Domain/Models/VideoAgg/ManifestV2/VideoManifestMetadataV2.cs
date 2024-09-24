@@ -1,20 +1,19 @@
-﻿//   Copyright 2021-present Etherna Sagl
+﻿// Copyright 2021-present Etherna SA
+// This file is part of Etherna Index.
 // 
-//   Licensed under the Apache License, Version 2.0 (the "License");
-//   you may not use this file except in compliance with the License.
-//   You may obtain a copy of the License at
+// Etherna Index is free software: you can redistribute it and/or modify it under the terms of the
+// GNU Affero General Public License as published by the Free Software Foundation,
+// either version 3 of the License, or (at your option) any later version.
 // 
-//       http://www.apache.org/licenses/LICENSE-2.0
+// Etherna Index is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+// without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU Affero General Public License for more details.
 // 
-//   Unless required by applicable law or agreed to in writing, software
-//   distributed under the License is distributed on an "AS IS" BASIS,
-//   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//   See the License for the specific language governing permissions and
-//   limitations under the License.
+// You should have received a copy of the GNU Affero General Public License along with Etherna Index.
+// If not, see <https://www.gnu.org/licenses/>.
 
-using Etherna.EthernaIndex.Domain.Exceptions;
+using Etherna.BeeNet.Models;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2
 {
@@ -36,56 +35,11 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2
             IEnumerable<VideoSourceV2> sources,
             ThumbnailV2? thumbnail,
             float aspectRatio,
-            string batchId,
+            PostageBatchId batchId,
             long createdAt,
             long? updatedAt,
             string? personalData)
         {
-            // Validate args.
-            var validationErrors = new List<ValidationError>();
-
-            //title
-            if (string.IsNullOrWhiteSpace(title))
-                validationErrors.Add(new ValidationError(ValidationErrorType.MissingTitle));
-            else if (title.Length > int.Max(TitleMaxLength, VideoManifest.CurrentTitleMaxLength))
-                validationErrors.Add(new ValidationError(ValidationErrorType.InvalidTitle, "Title is too long"));
-
-            //description
-            if (description is null)
-                validationErrors.Add(new ValidationError(ValidationErrorType.MissingDescription));
-            else if (description.Length > int.Max(DescriptionMaxLength, VideoManifest.CurrentDescriptionMaxLength))
-                validationErrors.Add(new ValidationError(ValidationErrorType.InvalidDescription, "Description is too long"));
-
-            //duration
-            if (duration == 0)
-                validationErrors.Add(new ValidationError(ValidationErrorType.MissingDuration));
-
-            //video sources
-            if (sources is null || !sources.Any())
-                validationErrors.Add(new ValidationError(ValidationErrorType.InvalidVideoSource, "Missing sources"));
-
-            //aspect ratio
-            if (aspectRatio <= 0)
-                validationErrors.Add(new ValidationError(ValidationErrorType.InvalidAspectRatio));
-
-            //batchId
-            if (string.IsNullOrWhiteSpace(batchId))
-                validationErrors.Add(new ValidationError(ValidationErrorType.InvalidBatchId, "Missing batch Id"));
-
-            //createdAt
-            if (createdAt <= 0)
-                validationErrors.Add(new ValidationError(ValidationErrorType.MissingManifestCreationTime));
-
-            //personal data
-            if (personalData is not null &&
-                personalData.Length > int.Max(PersonalDataMaxLength, VideoManifest.CurrentPersonalDataMaxLength))
-                validationErrors.Add(new ValidationError(ValidationErrorType.InvalidPersonalData, "Personal data is too long"));
-
-            // Throws validation exception.
-            if (validationErrors.Any())
-                throw new VideoManifestValidationException(validationErrors);
-
-            // Assign properties.
             AspectRatio = aspectRatio;
             BatchId = batchId;
             CreatedAt = createdAt;
@@ -104,7 +58,7 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2
         // Properties.
         //from v2.0
         public virtual float AspectRatio { get; protected set; }
-        public virtual string BatchId { get; protected set; }
+        public virtual PostageBatchId BatchId { get; protected set; }
         public virtual long CreatedAt { get; protected set; }
         public virtual string Description { get; protected set; }
         public virtual long Duration { get; protected set; }
