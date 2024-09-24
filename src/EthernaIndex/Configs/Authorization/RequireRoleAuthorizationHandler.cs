@@ -1,4 +1,4 @@
-﻿// Copyright 2021-present Etherna SA
+// Copyright 2021-present Etherna SA
 // This file is part of Etherna Index.
 // 
 // Etherna Index is free software: you can redistribute it and/or modify it under the terms of the
@@ -13,38 +13,32 @@
 // If not, see <https://www.gnu.org/licenses/>.
 
 using Etherna.Authentication;
-using Etherna.EthernaIndex.Services.Domain;
 using Microsoft.AspNetCore.Authorization;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Configs.Authorization
 {
-    public class DenyBannedAuthorizationHandler(
-        IEthernaOpenIdConnectClient ethernaOidcClient,
-        IUserService userService)
-        : AuthorizationHandler<DenyBannedAuthorizationRequirement>
+    public class RequireRoleAuthorizationHandler(
+        IEthernaOpenIdConnectClient ethernaOidcClient)
+        : AuthorizationHandler<RequireRoleAuthorizationRequirement>
     {
         // Methods.
         protected override async Task HandleRequirementAsync(
             AuthorizationHandlerContext context,
-            DenyBannedAuthorizationRequirement requirement)
+            RequireRoleAuthorizationRequirement requirement)
         {
             ArgumentNullException.ThrowIfNull(context, nameof(context));
+            ArgumentNullException.ThrowIfNull(requirement, nameof(requirement));
 
             if (context.User.Identity?.IsAuthenticated == true)
             {
-                var sharedInfo = await userService.TryFindUserSharedInfoByAddressAsync(await ethernaOidcClient.GetEtherAddressAsync());
-                if (sharedInfo is null)
-                {
-                    context.Fail();
-                    return;
-                }
-
-                if (sharedInfo.IsLockedOutNow)
-                    context.Fail();
-                else
+                var roles = await ethernaOidcClient.GetRolesAsync();
+                if (roles.Contains(requirement.RoleName))
                     context.Succeed(requirement);
+                else
+                    context.Fail();
             }
         }
     }

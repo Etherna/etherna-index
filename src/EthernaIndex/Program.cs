@@ -321,16 +321,18 @@ namespace Etherna.EthernaIndex
                     policy =>
                     {
                         policy.RequireAuthenticatedUser();
-                        policy.RequireRole(CommonConsts.AdministratorRoleName);
                         policy.AddRequirements(new DenyBannedAuthorizationRequirement());
+                        policy.AddRequirements(new RequireRoleAuthorizationRequirement(
+                            CommonConsts.AdministratorRoleName));
                     });
 
                 options.AddPolicy(CommonConsts.RequireSuperModeratorClaimPolicy,
                     policy =>
                     {
                         policy.RequireAuthenticatedUser();
-                        policy.RequireRole(CommonConsts.AdministratorRoleName);
                         policy.AddRequirements(new DenyBannedAuthorizationRequirement());
+                        policy.AddRequirements(new RequireRoleAuthorizationRequirement(
+                            CommonConsts.AdministratorRoleName));
                     });      
                 
                 options.AddPolicy(CommonConsts.UserInteractApiScopePolicy, policy =>
@@ -344,6 +346,7 @@ namespace Etherna.EthernaIndex
 
             //requirement handlers
             services.AddScoped<IAuthorizationHandler, DenyBannedAuthorizationHandler>();
+            services.AddScoped<IAuthorizationHandler, RequireRoleAuthorizationHandler>();
 
             // Configure token management.
             services.AddOpenIdConnectAccessTokenManagement();
