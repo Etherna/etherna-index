@@ -34,8 +34,8 @@ namespace Etherna.EthernaIndex.Configs.Authorization
 
             if (context.User.Identity?.IsAuthenticated == true)
             {
-                var roles = await ethernaOidcClient.GetRolesAsync();
-                if (roles.Contains(requirement.RoleName))
+                var roles = await ethernaOidcClient.TryGetRolesAsync();
+                if (roles?.Contains(requirement.RoleName) == true)
                     context.Succeed(requirement);
                 else
                     context.Fail();
