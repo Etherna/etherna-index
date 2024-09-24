@@ -1,17 +1,18 @@
-﻿//   Copyright 2021-present Etherna Sagl
+﻿// Copyright 2021-present Etherna SA
+// This file is part of Etherna Index.
 // 
-//   Licensed under the Apache License, Version 2.0 (the "License");
-//   you may not use this file except in compliance with the License.
-//   You may obtain a copy of the License at
+// Etherna Index is free software: you can redistribute it and/or modify it under the terms of the
+// GNU Affero General Public License as published by the Free Software Foundation,
+// either version 3 of the License, or (at your option) any later version.
 // 
-//       http://www.apache.org/licenses/LICENSE-2.0
+// Etherna Index is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+// without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU Affero General Public License for more details.
 // 
-//   Unless required by applicable law or agreed to in writing, software
-//   distributed under the License is distributed on an "AS IS" BASIS,
-//   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//   See the License for the specific language governing permissions and
-//   limitations under the License.
+// You should have received a copy of the GNU Affero General Public License along with Etherna Index.
+// If not, see <https://www.gnu.org/licenses/>.
 
+using Etherna.BeeNet.Models;
 using Etherna.EthernaIndex.Areas.Api.DtoModels;
 using Etherna.EthernaIndex.Areas.Api.InputModels;
 using Etherna.EthernaIndex.Domain.Models;
@@ -27,15 +28,15 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         Task<string> CreateAsync(VideoCreateInput videoInput);
         Task<Comment2Dto> CreateCommentAsync(string id, string text);
         Task<Video2Dto> FindByIdAsync(string id);
-        Task<Video2Dto> FindByManifestHashAsync(string hash);
-        Task<IEnumerable<VideoManifestStatusDto>> GetBulkValidationStatusByHashesAsync(IEnumerable<string> manifestHashes);
+        Task<Video2Dto> FindByManifestHashAsync(SwarmHash hash);
+        Task<IEnumerable<VideoManifestStatusDto>> GetBulkValidationStatusByHashesAsync(IEnumerable<SwarmHash> manifestHashes);
         Task<IEnumerable<VideoManifestStatusDto>> GetBulkValidationStatusByIdsAsync(IEnumerable<string> ids);
         Task<PaginatedEnumerableDto<VideoPreviewDto>> GetLastUploadedVideosAsync(int page, int take);
-        Task<VideoManifestStatusDto> GetValidationStatusByHashAsync(string manifestHash);
+        Task<VideoManifestStatusDto> GetValidationStatusByHashAsync(SwarmHash manifestHash);
         Task<IEnumerable<VideoManifestStatusDto>> GetValidationStatusByIdAsync(string id);
         Task<PaginatedEnumerableDto<Comment2Dto>> GetVideoCommentsAsync(string id, int page, int take);
-        Task ReportVideoAsync(string videoId, string manifestHash, string description);
-        Task<VideoManifest2Dto> UpdateAsync(string id, string newHash);
+        Task ReportVideoAsync(string videoId, SwarmHash manifestHash, string description);
+        Task<VideoManifest2Dto> UpdateAsync(string id, SwarmHash newHash);
         Task UpdateCommentAsync(string commentId, string text);
         Task VoteVideAsync(string id, VoteValue value);
 
@@ -44,7 +45,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         Task<VideoDto> FindByIdAsync_old(string id);
 
         [Obsolete("Used only for API backwards compatibility")]
-        Task<VideoDto> FindByManifestHashAsync_old(string hash);
+        Task<VideoDto> FindByManifestHashAsync_old(SwarmHash hash);
 
         [Obsolete("Used only for API backwards compatibility")]
         Task<IEnumerable<VideoStatusDto>> GetBulkValidationStatusByIdsAsync_old(IEnumerable<string> ids);
@@ -59,6 +60,6 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         Task<PaginatedEnumerableDto<CommentDto>> GetVideoCommentsAsync_old(string id, int page, int take);
 
         [Obsolete("Used only for API backwards compatibility")]
-        Task<VideoManifestDto> UpdateAsync_old(string id, string newHash);
+        Task<VideoManifestDto> UpdateAsync_old(string id, SwarmHash newHash);
     }
 }

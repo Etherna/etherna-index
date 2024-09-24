@@ -1,17 +1,18 @@
-﻿//   Copyright 2021-present Etherna Sagl
+﻿// Copyright 2021-present Etherna SA
+// This file is part of Etherna Index.
 // 
-//   Licensed under the Apache License, Version 2.0 (the "License");
-//   you may not use this file except in compliance with the License.
-//   You may obtain a copy of the License at
+// Etherna Index is free software: you can redistribute it and/or modify it under the terms of the
+// GNU Affero General Public License as published by the Free Software Foundation,
+// either version 3 of the License, or (at your option) any later version.
 // 
-//       http://www.apache.org/licenses/LICENSE-2.0
+// Etherna Index is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+// without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU Affero General Public License for more details.
 // 
-//   Unless required by applicable law or agreed to in writing, software
-//   distributed under the License is distributed on an "AS IS" BASIS,
-//   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//   See the License for the specific language governing permissions and
-//   limitations under the License.
+// You should have received a copy of the GNU Affero General Public License along with Etherna Index.
+// If not, see <https://www.gnu.org/licenses/>.
 
+using Etherna.BeeNet.Models;
 using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.Domain.Models.UserAgg;
 using Etherna.EthernaIndex.ElasticSearch.Documents;
@@ -27,10 +28,8 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
             Video video,
             UserSharedInfo ownerSharedInfo)
         {
-            if (ownerSharedInfo is null)
-                throw new ArgumentNullException(nameof(ownerSharedInfo));
-            if (video is null)
-                throw new ArgumentNullException(nameof(video));
+            ArgumentNullException.ThrowIfNull(ownerSharedInfo, nameof(ownerSharedInfo));
+            ArgumentNullException.ThrowIfNull(video, nameof(video));
 
             Id = video.Id;
             if (video.LastValidManifest is not null)
@@ -50,20 +49,17 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
             VideoDocument videoDocument,
             UserSharedInfo ownerSharedInfo)
         {
-            if (videoDocument is null)
-                throw new ArgumentNullException(nameof(videoDocument));
-            if (ownerSharedInfo is null)
-                throw new ArgumentNullException(nameof(ownerSharedInfo));
+            ArgumentNullException.ThrowIfNull(videoDocument, nameof(videoDocument));
+            ArgumentNullException.ThrowIfNull(ownerSharedInfo, nameof(ownerSharedInfo));
 
             Id = videoDocument.Id;
             Duration = videoDocument.Duration;
             Hash = videoDocument.ManifestHash;
             OwnerAddress = ownerSharedInfo.EtherAddress;
-            if (videoDocument.Thumbnail is not null)
-                Thumbnail = new Image2Dto(
-                    videoDocument.Thumbnail.AspectRatio,
-                    videoDocument.Thumbnail.Blurhash,
-                    videoDocument.Thumbnail.Sources.Select(s => new ImageSourceDto(s.Type, s.Path, s.Width)));
+            Thumbnail = new Image2Dto(
+                videoDocument.Thumbnail.AspectRatio,
+                videoDocument.Thumbnail.Blurhash,
+                videoDocument.Thumbnail.Sources.Select(s => new ImageSourceDto(s.Type, s.Path, s.Width)));
             Title = videoDocument.Title;
         }
 
@@ -71,7 +67,7 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
         public string Id { get; }
         public long? CreatedAt { get; }
         public long? Duration { get; }
-        public string? Hash { get; }
+        public SwarmHash? Hash { get; }
         public string OwnerAddress { get; }
         public Image2Dto? Thumbnail { get; }
         public string? Title { get; }

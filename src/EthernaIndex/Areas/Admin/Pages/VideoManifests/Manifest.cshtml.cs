@@ -1,25 +1,24 @@
-//   Copyright 2021-present Etherna Sagl
+// Copyright 2021-present Etherna SA
+// This file is part of Etherna Index.
 // 
-//   Licensed under the Apache License, Version 2.0 (the "License");
-//   you may not use this file except in compliance with the License.
-//   You may obtain a copy of the License at
+// Etherna Index is free software: you can redistribute it and/or modify it under the terms of the
+// GNU Affero General Public License as published by the Free Software Foundation,
+// either version 3 of the License, or (at your option) any later version.
 // 
-//       http://www.apache.org/licenses/LICENSE-2.0
+// Etherna Index is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+// without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU Affero General Public License for more details.
 // 
-//   Unless required by applicable law or agreed to in writing, software
-//   distributed under the License is distributed on an "AS IS" BASIS,
-//   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//   See the License for the specific language governing permissions and
-//   limitations under the License.
+// You should have received a copy of the GNU Affero General Public License along with Etherna Index.
+// If not, see <https://www.gnu.org/licenses/>.
 
+using Etherna.BeeNet.Models;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV1;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2;
 using Etherna.EthernaIndex.Services.Tasks;
-using Etherna.MongoDB.Driver;
-using Etherna.MongoDB.Driver.Linq;
 using Hangfire;
 using Hangfire.States;
 using Microsoft.AspNetCore.Mvc;
@@ -42,14 +41,13 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
                 Video? video,
                 VideoManifest videoManifest)
             {
-                if (videoManifest == null)
-                    throw new ArgumentNullException(nameof(videoManifest));
+                ArgumentNullException.ThrowIfNull(videoManifest, nameof(videoManifest));
 
                 Id = videoManifest.Id;
                 CreationDateTime = videoManifest.CreationDateTime;
                 ErrorsDetails = videoManifest.ValidationErrors.Select(i => $"[{i.ErrorType}]: {i.ErrorMessage}");
                 IsValid = videoManifest.IsValid;
-                ManifestHash = videoManifest.Manifest.Hash;
+                ManifestHash = videoManifest.ManifestHash;
                 OwnerAddress = videoManifest.Id;
                 VideoInfo = video is null ? null : new VideoInfoDto(video);
                 ValidationTime = videoManifest.ValidationTime;
@@ -73,24 +71,27 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
                             new SwarmImageRawDto(
                                 metadataV1.Thumbnail.AspectRatio,
                                 metadataV1.Thumbnail.Blurhash,
-                                metadataV1.Thumbnail.Sources) :
+                                metadataV1.Thumbnail.Sources.ToDictionary(
+                                    s => s.Key,
+                                    s => (SwarmAddress)s.Value)) :
                             null;
                         break;
 
                     case VideoManifestMetadataV2 metadataV2:
-
                         Description = metadataV2.Description;
                         Duration = metadataV2.Duration;
                         Title = metadataV2.Title;
                         Sources = metadataV2.Sources.Select(i => new MetadataVideoSourceDto(
-                                i.Path,
+                                i.Path.ToSwarmAddress(videoManifest.ManifestHash),
                                 i.Size,
                                 i.Quality ?? ""));
                         Thumbnail = metadataV2.Thumbnail != null ?
                             new SwarmImageRawDto(
                                 metadataV2.Thumbnail.AspectRatio,
                                 metadataV2.Thumbnail.Blurhash,
-                                metadataV2.Thumbnail.Sources.ToDictionary(i => i.Width.ToString(CultureInfo.InvariantCulture), i => i.Path ?? "")) :
+                                metadataV2.Thumbnail.Sources.ToDictionary(
+                                    s => s.Width.ToString(CultureInfo.InvariantCulture),
+                                    s => s.Path.ToSwarmAddress(videoManifest.ManifestHash))) :
                             null;
                         break;
 
@@ -99,66 +100,44 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
             }
 
             // Properties.
-            public string Id { get; set; } = default!;
+            public string Id { get; set; }
             public DateTime CreationDateTime { get; set; }
-            public string? Description { get; set; } = default!;
+            public string? Description { get; set; }
             public float? Duration { get; set; }
-            public IEnumerable<string> ErrorsDetails { get; set; } = default!;
+            public IEnumerable<string> ErrorsDetails { get; set; }
             public bool? IsValid { get; set; }
-            public string ManifestHash { get; set; } = default!;
-            public string OwnerAddress { get; set; } = default!;
+            public SwarmHash ManifestHash { get; set; }
+            public string OwnerAddress { get; set; }
             public IEnumerable<MetadataVideoSourceDto> Sources { get; set; }
             public SwarmImageRawDto? Thumbnail { get; set; }
-            public string? Title { get; set; } = default!;
+            public string? Title { get; set; }
             public VideoInfoDto? VideoInfo { get; set; }
             public DateTime? ValidationTime { get; set; }
         }
 
-        public class MetadataVideoSourceDto
+        public class MetadataVideoSourceDto(
+            SwarmAddress address,
+            long size,
+            string quality)
         {
-            public MetadataVideoSourceDto(
-                string reference,
-                long size,
-                string quality)
-            {
-                Reference = reference;
-                Size = size;
-                Quality = quality;
-            }
-
-            public string Reference { get; set; } = default!;
-            public long Size { get; set; }
-            public string Quality { get; set; } = default!;
+            public SwarmAddress Address { get; set; } = address;
+            public long Size { get; set; } = size;
+            public string Quality { get; set; } = quality;
         }
 
-        public class SwarmImageRawDto
+        public class SwarmImageRawDto(
+            float aspectRatio,
+            string blurhash,
+            IReadOnlyDictionary<string, SwarmAddress> sources)
         {
-            public SwarmImageRawDto(
-                float aspectRatio,
-                string blurhash,
-                IReadOnlyDictionary<string, string> sources)
-            {
-                AspectRatio = aspectRatio;
-                Blurhash = blurhash;
-                Sources = sources;
-            }
-
-            public float AspectRatio { get; set; }
-            public string Blurhash { get; set; } = default!;
-            public IReadOnlyDictionary<string, string> Sources { get; set; } = default!;
+            public float AspectRatio { get; set; } = aspectRatio;
+            public string Blurhash { get; set; } = blurhash;
+            public IReadOnlyDictionary<string, SwarmAddress> Sources { get; set; } = sources;
         }
 
-        public class VideoInfoDto
+        public class VideoInfoDto(Video video)
         {
-            public VideoInfoDto(Video video)
-            {
-                if (video is null)
-                    throw new ArgumentNullException(nameof(video));
-
-                VideoId = video.Id;
-            }
-
-            public string VideoId { get; set; }
+            public string VideoId { get; set; } = video.Id;
         }
 
         // Fields.
@@ -170,8 +149,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
             IBackgroundJobClient backgroundJobClient,
             IIndexDbContext indexDbContext)
         {
-            if (indexDbContext is null)
-                throw new ArgumentNullException(nameof(indexDbContext));
+            ArgumentNullException.ThrowIfNull(indexDbContext, nameof(indexDbContext));
 
             this.backgroundJobClient = backgroundJobClient;
             this.indexDbContext = indexDbContext;
@@ -181,10 +159,10 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
         public VideoManifestDto VideoManifest { get; private set; } = default!;
 
         // Methods.
-        public async Task OnGetAsync(string manifestHash)
+        public async Task OnGetAsync(SwarmHash manifestHash)
         {
             // Video info
-            var videoManifest = await indexDbContext.VideoManifests.FindOneAsync(vm => vm.Manifest.Hash == manifestHash);
+            var videoManifest = await indexDbContext.VideoManifests.FindOneAsync(vm => vm.ManifestHash == manifestHash);
             var video = await indexDbContext.Videos.TryFindOneAsync(v => v.VideoManifests.Any(vm => vm.Id == videoManifest.Id));
 
             VideoManifest = new VideoManifestDto(video, videoManifest);
@@ -193,13 +171,13 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
         public async Task<IActionResult> OnPostForceNewValidationAsync(string manifestHash)
         {
             // Get Manifest & Video data.
-            var videoManifest = await indexDbContext.VideoManifests.FindOneAsync(c => c.Manifest.Hash == manifestHash);
+            var videoManifest = await indexDbContext.VideoManifests.FindOneAsync(c => c.ManifestHash == manifestHash);
             var video = await indexDbContext.Videos.FindOneAsync(v => v.VideoManifests.Any(vm => vm.Id == videoManifest.Id));
 
             // Background Validator.
             backgroundJobClient.Create<IVideoManifestValidatorTask>(
-                    task => task.RunAsync(video.Id, videoManifest.Manifest.Hash),
-                    new EnqueuedState(Queues.METADATA_VIDEO_VALIDATOR));
+                task => task.RunAsync(video.Id, videoManifest.ManifestHash.ToString()),
+                new EnqueuedState(Queues.METADATA_VIDEO_VALIDATOR));
 
             return RedirectToPage("Index");
         }

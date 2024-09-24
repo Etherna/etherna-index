@@ -1,16 +1,16 @@
-//   Copyright 2021-present Etherna Sagl
+// Copyright 2021-present Etherna SA
+// This file is part of Etherna Index.
 // 
-//   Licensed under the Apache License, Version 2.0 (the "License");
-//   you may not use this file except in compliance with the License.
-//   You may obtain a copy of the License at
+// Etherna Index is free software: you can redistribute it and/or modify it under the terms of the
+// GNU Affero General Public License as published by the Free Software Foundation,
+// either version 3 of the License, or (at your option) any later version.
 // 
-//       http://www.apache.org/licenses/LICENSE-2.0
+// Etherna Index is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+// without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU Affero General Public License for more details.
 // 
-//   Unless required by applicable law or agreed to in writing, software
-//   distributed under the License is distributed on an "AS IS" BASIS,
-//   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//   See the License for the specific language governing permissions and
-//   limitations under the License.
+// You should have received a copy of the GNU Affero General Public License along with Etherna Index.
+// If not, see <https://www.gnu.org/licenses/>.
 
 using System;
 using System.Collections.Generic;
@@ -29,7 +29,11 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoModeration
 {
-    public class VideoModel : PageModel
+    public class VideoModel(
+        IEthernaOpenIdConnectClient ethernaOidcClient,
+        IIndexDbContext indexDbContext,
+        IUserService userService)
+        : PageModel
     {
         // Models.
         public abstract class HistoryElementBase
@@ -52,7 +56,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoModeration
             // Constructor.
             public ReportHistoryElement(UnsuitableVideoReport report)
             {
-                if (report == null) throw new ArgumentNullException(nameof(report));
+                ArgumentNullException.ThrowIfNull(report, nameof(report));
 
                 Id = report.Id;
                 AuthorSharedInfoId = report.ReporterAuthor.SharedInfoId;
@@ -66,7 +70,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoModeration
             // Constructors.
             public ReviewHistoryElement(ManualVideoReview review)
             {
-                if (review == null) throw new ArgumentNullException(nameof(review));
+                ArgumentNullException.ThrowIfNull(review, nameof(review));
 
                 Id = review.Id;
                 AuthorSharedInfoId = review.Author.SharedInfoId;
@@ -77,22 +81,6 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoModeration
 
             // Properties.
             public bool IsValid { get; }
-        }
-
-        // Fields.
-        private readonly IEthernaOpenIdConnectClient ethernaOidcClient;
-        private readonly IIndexDbContext indexDbContext;
-        private readonly IUserService userService;
-
-        // Constructor.
-        public VideoModel(
-            IEthernaOpenIdConnectClient ethernaOidcClient,
-            IIndexDbContext indexDbContext,
-            IUserService userService)
-        {
-            this.ethernaOidcClient = ethernaOidcClient;
-            this.indexDbContext = indexDbContext;
-            this.userService = userService;
         }
 
         // Properties.

@@ -1,18 +1,18 @@
-﻿//   Copyright 2021-present Etherna Sagl
+﻿// Copyright 2021-present Etherna SA
+// This file is part of Etherna Index.
 // 
-//   Licensed under the Apache License, Version 2.0 (the "License");
-//   you may not use this file except in compliance with the License.
-//   You may obtain a copy of the License at
+// Etherna Index is free software: you can redistribute it and/or modify it under the terms of the
+// GNU Affero General Public License as published by the Free Software Foundation,
+// either version 3 of the License, or (at your option) any later version.
 // 
-//       http://www.apache.org/licenses/LICENSE-2.0
+// Etherna Index is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+// without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU Affero General Public License for more details.
 // 
-//   Unless required by applicable law or agreed to in writing, software
-//   distributed under the License is distributed on an "AS IS" BASIS,
-//   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//   See the License for the specific language governing permissions and
-//   limitations under the License.
+// You should have received a copy of the GNU Affero General Public License along with Etherna Index.
+// If not, see <https://www.gnu.org/licenses/>.
 
-using Etherna.EthernaIndex.Domain.Exceptions;
+using Etherna.BeeNet.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,43 +22,19 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV1
     public class ThumbnailV1 : ModelBase
     {
         // Fields.
-        private Dictionary<string, string> _sources = new();
+        private Dictionary<string, SwarmHash> _sources = new();
 
         // Constructors.
         public ThumbnailV1(
             float aspectRatio,
             string blurhash,
-            IDictionary<string, string> sources)
+            IDictionary<string, SwarmHash> sources)
         {
-            // Validate args.
-            var validationErrors = new List<ValidationError>();
-
-            //sources
-            if (sources is null || !sources.Any())
-                validationErrors.Add(new ValidationError(ValidationErrorType.InvalidThumbnailSource, "Thumbnail has missing sources"));
-
-            foreach (var source in sources ?? new Dictionary<string, string>())
-            {
-                //width
-                if (string.IsNullOrWhiteSpace(source.Key))
-                    validationErrors.Add(new ValidationError(ValidationErrorType.InvalidThumbnailSource, $"Thumbnail has source with missing width"));
-                if (!int.TryParse(source.Key.Replace("w", "", StringComparison.OrdinalIgnoreCase), out var width) ||
-                    width <= 0)
-                    validationErrors.Add(new ValidationError(ValidationErrorType.InvalidThumbnailSource, $"Thumbnail has wrong width"));
-
-                //reference
-                if (string.IsNullOrWhiteSpace(source.Value))
-                    validationErrors.Add(new ValidationError(ValidationErrorType.InvalidThumbnailSource, $"Thumbnail has empty reference"));
-            }
-
-            // Throws validation exception.
-            if (validationErrors.Any())
-                throw new VideoManifestValidationException(validationErrors);
-
-            // Assign properties.
+            ArgumentNullException.ThrowIfNull(sources, nameof(sources));
+            
             AspectRatio = aspectRatio;
             Blurhash = blurhash;
-            foreach (var s in sources!)
+            foreach (var s in sources)
                 _sources.Add(s.Key, s.Value);
         }
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
@@ -68,10 +44,10 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV1
         // Properties.
         public virtual float AspectRatio { get; set; }
         public virtual string Blurhash { get; set; }
-        public virtual IReadOnlyDictionary<string, string> Sources
+        public virtual IReadOnlyDictionary<string, SwarmHash> Sources
         {
             get => _sources;
-            protected set => _sources = new Dictionary<string, string>(value ?? new Dictionary<string, string>());
+            protected set => _sources = new Dictionary<string, SwarmHash>(value ?? new Dictionary<string, SwarmHash>());
         }
 
         // Methods.

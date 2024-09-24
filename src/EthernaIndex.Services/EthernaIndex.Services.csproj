@@ -1,10 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <RootNamespace>Etherna.EthernaIndex.Services</RootNamespace>
 
-    <Authors>Etherna Sagl</Authors>
+    <Authors>Etherna SA</Authors>
     
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <Nullable>enable</Nullable>
@@ -15,13 +15,12 @@
 
   <ItemGroup>
     <PackageReference Include="Etherna.DomainEvents.AspNetCore" Version="1.4.0" />
-    <PackageReference Include="MongODM.Hangfire" Version="0.24.0-alpha.100" />
+    <PackageReference Include="MongODM.Hangfire" Version="0.24.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\EthernaIndex.Domain\EthernaIndex.Domain.csproj" />
     <ProjectReference Include="..\EthernaIndex.ElasticSearch\EthernaIndex.ElasticSearch.csproj" />
-    <ProjectReference Include="..\EthernaIndex.Swarm\EthernaIndex.Swarm.csproj" />
   </ItemGroup>
 
 </Project>

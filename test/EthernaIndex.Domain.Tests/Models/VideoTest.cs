@@ -1,25 +1,26 @@
-﻿//   Copyright 2021-present Etherna Sagl
+﻿// Copyright 2021-present Etherna SA
+// This file is part of Etherna Index.
 // 
-//   Licensed under the Apache License, Version 2.0 (the "License");
-//   you may not use this file except in compliance with the License.
-//   You may obtain a copy of the License at
+// Etherna Index is free software: you can redistribute it and/or modify it under the terms of the
+// GNU Affero General Public License as published by the Free Software Foundation,
+// either version 3 of the License, or (at your option) any later version.
 // 
-//       http://www.apache.org/licenses/LICENSE-2.0
+// Etherna Index is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+// without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU Affero General Public License for more details.
 // 
-//   Unless required by applicable law or agreed to in writing, software
-//   distributed under the License is distributed on an "AS IS" BASIS,
-//   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//   See the License for the specific language governing permissions and
-//   limitations under the License.
+// You should have received a copy of the GNU Affero General Public License along with Etherna Index.
+// If not, see <https://www.gnu.org/licenses/>.
 
+using Etherna.BeeNet.Models;
 using Etherna.EthernaIndex.Domain.Models.UserAgg;
-using Etherna.EthernaIndex.Domain.Models.VideoAgg;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV1;
+using Etherna.Sdk.Tools.Video.Models;
 using Moq;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Xunit;
+using VideoManifest = Etherna.EthernaIndex.Domain.Models.VideoAgg.VideoManifest;
 
 namespace Etherna.EthernaIndex.Domain.Models
 {
@@ -27,8 +28,8 @@ namespace Etherna.EthernaIndex.Domain.Models
     {
         // Fields.
         private readonly string address = "0x300a31dBAB42863F4b0bEa3E03d0aa89D47DB3f0";
-        private readonly string manifestHash = "5d942a1d73fd8f28d71e6b03d2e42f44721db94b734c2edcfe6fcd48b76a74f9";
-        private readonly string secondManifestHash = "2b678a1d73fd8f28d71e6b03d2e42f44721db94b734c2edcfe6fcd48b76a74f9";
+        private readonly SwarmHash manifestHash = "5d942a1d73fd8f28d71e6b03d2e42f44721db94b734c2edcfe6fcd48b76a74f9";
+        private readonly SwarmHash secondManifestHash = "2b678a1d73fd8f28d71e6b03d2e42f44721db94b734c2edcfe6fcd48b76a74f9";
         private readonly User owner;
         private readonly Mock<UserSharedInfo> userSharedInfoMock = new();
         private readonly Video video;
@@ -77,13 +78,13 @@ namespace Etherna.EthernaIndex.Domain.Models
             // Assert.
             Assert.Equal(2, video.VideoManifests.Count());
             Assert.Contains(video.VideoManifests,
-                i => i.Manifest.Hash == manifestHash);
+                i => i.ManifestHash == manifestHash);
             Assert.Contains(video.VideoManifests,
-                i => i.Manifest.Hash == secondManifestHash);
+                i => i.ManifestHash == secondManifestHash);
         }
 
         // Helpers.
-        private VideoManifest CreateManifest(string hash, bool valid)
+        private VideoManifest CreateManifest(SwarmHash hash, bool valid)
         {
             var videoManifest = new VideoManifest(hash);
 
@@ -92,14 +93,14 @@ namespace Etherna.EthernaIndex.Domain.Models
                     "FeddTopicTest",
                     "DescTest",
                     1,
-                    new[] { new VideoSourceV1(null, "1080", "ref", 4) },
+                    [new VideoSourceV1(null, "1080", SwarmHash.Zero, 4)],
                     null,
                     null,
                     null,
                     null,
                     null));
             else
-                videoManifest.FailedValidation(new List<ValidationError> { new ValidationError(ValidationErrorType.Unknown, "test") });
+                videoManifest.FailedValidation([new(ValidationErrorType.Unknown, "test")]);
 
             return videoManifest;
         }

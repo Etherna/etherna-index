@@ -1,29 +1,30 @@
-﻿//   Copyright 2021-present Etherna Sagl
+﻿// Copyright 2021-present Etherna SA
+// This file is part of Etherna Index.
 // 
-//   Licensed under the Apache License, Version 2.0 (the "License");
-//   you may not use this file except in compliance with the License.
-//   You may obtain a copy of the License at
+// Etherna Index is free software: you can redistribute it and/or modify it under the terms of the
+// GNU Affero General Public License as published by the Free Software Foundation,
+// either version 3 of the License, or (at your option) any later version.
 // 
-//       http://www.apache.org/licenses/LICENSE-2.0
+// Etherna Index is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+// without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU Affero General Public License for more details.
 // 
-//   Unless required by applicable law or agreed to in writing, software
-//   distributed under the License is distributed on an "AS IS" BASIS,
-//   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//   See the License for the specific language governing permissions and
-//   limitations under the License.
+// You should have received a copy of the GNU Affero General Public License along with Etherna Index.
+// If not, see <https://www.gnu.org/licenses/>.
 
-using Etherna.EthernaIndex.Domain.Models.VideoAgg;
+using Etherna.BeeNet.Models;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2;
+using Etherna.Sdk.Tools.Video.Models;
 using System;
-using System.Collections.Generic;
 using Xunit;
+using VideoManifest = Etherna.EthernaIndex.Domain.Models.VideoAgg.VideoManifest;
 
 namespace Etherna.EthernaIndex.Domain.Models
 {
     public class VideoManifestTest
     {
         // Fields.
-        readonly string hash = "5d942a1d73fd8f28d71e6b03d2e42f44721db94b734c2edcfe6fcd48b76a74f9";
+        readonly SwarmHash hash = "5d942a1d73fd8f28d71e6b03d2e42f44721db94b734c2edcfe6fcd48b76a74f9";
         readonly VideoManifest manifest;
 
         // Constructors.
@@ -36,7 +37,7 @@ namespace Etherna.EthernaIndex.Domain.Models
         public void Create_Manifest_WithDefaultValue()
         {
             // Assert.
-            Assert.Equal(hash, manifest.Manifest.Hash);
+            Assert.Equal(hash, manifest.ManifestHash);
             Assert.Null(manifest.IsValid);
             Assert.Null(manifest.ValidationTime);
         }
@@ -45,10 +46,11 @@ namespace Etherna.EthernaIndex.Domain.Models
         public void FailedValidation_SetValidationFields()
         {
             // Action.
-            manifest.FailedValidation(new List<ValidationError> {
-                { new ValidationError(ValidationErrorType.Unknown, "Unknown Error") },
-                { new ValidationError(ValidationErrorType.InvalidVideoSource, "Invalid Source Video") }
-            });
+            manifest.FailedValidation(
+            [
+                new(ValidationErrorType.Unknown, "Unknown Error"),
+                new(ValidationErrorType.InvalidVideoSource, "Invalid Source Video")
+            ]);
 
             // Assert.
             Assert.False(manifest.IsValid);
@@ -70,10 +72,10 @@ namespace Etherna.EthernaIndex.Domain.Models
                     "TitleTest",
                     "DescTest",
                     12345,
-                    new[] { new VideoSourceV2("myPath", "720", 32, "mp4") },
+                    [new VideoSourceV2("myPath", "720", 32, "mp4")],
                     null,
                     1,
-                    "myBatchId",
+                    PostageBatchId.Zero, 
                     456,
                     null,
                     null));
@@ -92,10 +94,10 @@ namespace Etherna.EthernaIndex.Domain.Models
                 "FeddTopicTest",
                 "DescTest",
                 1,
-                new[] { new VideoSourceV2("path1", "10801", 4, "type1") },
+                [new VideoSourceV2("path1", "10801", 4, "type1")],
                 new ThumbnailV2(1.78f, "BlurTst", new[] { new ImageSourceV2(1080, "Test1", "image") }),
                 1.78f,
-                "myBatchId",
+                PostageBatchId.Zero, 
                 12345,
                 54321,
                 "{}");
