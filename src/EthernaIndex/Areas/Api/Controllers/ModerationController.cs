@@ -26,7 +26,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
 {
     [ApiController]
     [ApiVersion("0.3")]
-    [Authorize(CommonConsts.RequireAdministratorClaimPolicy)]
+    [Authorize(CommonConsts.RequireAdministratorRolePolicy)]
     [Route("api/v{api-version:apiVersion}/[controller]")]
     public class ModerationController(IModerationControllerService service) : ControllerBase
     {

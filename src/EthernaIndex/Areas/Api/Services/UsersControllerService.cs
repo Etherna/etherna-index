@@ -80,7 +80,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             var (user, sharedInfo) = await userService.FindUserAsync(address);
 
             var isSuperModeratorResult = await authorizationService.AuthorizeAsync(
-                httpContextAccessor.HttpContext!.User, CommonConsts.RequireSuperModeratorClaimPolicy);
+                httpContextAccessor.HttpContext!.User, CommonConsts.RequireSuperModeratorRolePolicy);
 
             logger.GetCurrentUser(address);
 

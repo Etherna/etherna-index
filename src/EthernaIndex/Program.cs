@@ -191,7 +191,7 @@ namespace Etherna.EthernaIndex
             services.AddRazorPages(options =>
             {
                 options.Conventions.AuthorizeAreaFolder(
-                    CommonConsts.AdminArea, "/", CommonConsts.RequireAdministratorClaimPolicy);
+                    CommonConsts.AdminArea, "/", CommonConsts.RequireAdministratorRolePolicy);
             });
             services.AddControllers(options =>
                 {
@@ -317,7 +317,7 @@ namespace Etherna.EthernaIndex
                     Array.Empty<string>());
 
                 //other policies
-                options.AddPolicy(CommonConsts.RequireAdministratorClaimPolicy,
+                options.AddPolicy(CommonConsts.RequireAdministratorRolePolicy,
                     policy =>
                     {
                         policy.RequireAuthenticatedUser();
@@ -326,7 +326,7 @@ namespace Etherna.EthernaIndex
                             CommonConsts.AdministratorRoleName));
                     });
 
-                options.AddPolicy(CommonConsts.RequireSuperModeratorClaimPolicy,
+                options.AddPolicy(CommonConsts.RequireSuperModeratorRolePolicy,
                     policy =>
                     {
                         policy.RequireAuthenticatedUser();

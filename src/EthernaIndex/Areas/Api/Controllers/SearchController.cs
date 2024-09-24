@@ -78,7 +78,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// Rebuild search indexes. Only for admins.
         /// </summary>
         [HttpPost("rebuild")]
-        [Authorize(CommonConsts.RequireAdministratorClaimPolicy)]
+        [Authorize(CommonConsts.RequireAdministratorRolePolicy)]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]

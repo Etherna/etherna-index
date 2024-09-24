@@ -48,7 +48,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// </summary>
         /// <param name="hash">Hash manifest</param>
         [HttpPut("validate/manifest/{hash}")]
-        [Authorize(CommonConsts.RequireAdministratorClaimPolicy)]
+        [Authorize(CommonConsts.RequireAdministratorRolePolicy)]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -63,7 +63,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// </summary>
         /// <param name="id">Video id</param>
         [HttpPut("validate/video/{id}")]
-        [Authorize(CommonConsts.RequireAdministratorClaimPolicy)]
+        [Authorize(CommonConsts.RequireAdministratorRolePolicy)]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
