@@ -532,7 +532,6 @@ namespace Etherna.EthernaIndex
                 options.OAuthClientId(config["SsoServer:Clients:Swagger:ClientId"] ?? throw new ServiceConfigurationException());
                 options.OAuthScopes("openid", "profile", "ether_accounts", "role", "userApi.index");
                 options.OAuthUsePkce();
-                options.EnablePersistAuthorization();
             });
 
             // Add pages and controllers.
