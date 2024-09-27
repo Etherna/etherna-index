@@ -1,4 +1,4 @@
-﻿// Copyright 2021-present Etherna SA
+// Copyright 2021-present Etherna SA
 // This file is part of Etherna Index.
 // 
 // Etherna Index is free software: you can redistribute it and/or modify it under the terms of the
@@ -12,13 +12,15 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
-namespace Etherna.EthernaIndex.Services.Tasks
+using Etherna.BeeNet.Models;
+
+namespace Etherna.EthernaIndex.Areas.Api.InputModels
 {
-    public static class Queues
+    public class VideoCreateFromRawInput
     {
-        public const string DB_MAINTENANCE = "db_maintenance";
-        public const string ELASTIC_SEARCH_MAINTENANCE = "elastic_search_maintenance";
-        public const string METADATA_VIDEO_DEPOLOYER = "metadata_video_deployer";
-        public const string METADATA_VIDEO_VALIDATOR = "metadata_video_validator";
+        public string Descritpion { get; set; } = default!;
+        public SwarmHash? ThumbnailRawHash { get; set; }
+        public string Title { get; set; } = default!;
+        public SwarmHash VideoRawHash { get; set; }
     }
 }

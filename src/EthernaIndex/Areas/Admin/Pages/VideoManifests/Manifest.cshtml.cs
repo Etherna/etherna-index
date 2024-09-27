@@ -175,7 +175,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
             var video = await indexDbContext.Videos.FindOneAsync(v => v.VideoManifests.Any(vm => vm.Id == videoManifest.Id));
 
             // Background Validator.
-            backgroundJobClient.Create<IVideoManifestValidatorTask>(
+            backgroundJobClient.Create<IValidateVideoManifestTask>(
                 task => task.RunAsync(video.Id, videoManifest.ManifestHash.ToString()),
                 new EnqueuedState(Queues.METADATA_VIDEO_VALIDATOR));
 

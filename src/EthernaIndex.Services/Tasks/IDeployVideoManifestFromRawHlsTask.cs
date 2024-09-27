@@ -1,4 +1,4 @@
-﻿// Copyright 2021-present Etherna SA
+// Copyright 2021-present Etherna SA
 // This file is part of Etherna Index.
 // 
 // Etherna Index is free software: you can redistribute it and/or modify it under the terms of the
@@ -16,8 +16,13 @@ using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Services.Tasks
 {
-    public interface IVideoManifestValidatorTask
+    public interface IDeployVideoManifestFromRawHlsTask
     {
-        Task RunAsync(string videoId, string manifestHash);
+        Task RunAsync(
+            string videoId,
+            string hlsRawPlaylistHash,
+            string? thumbnailRawHash,
+            string title,
+            string description);
     }
 }

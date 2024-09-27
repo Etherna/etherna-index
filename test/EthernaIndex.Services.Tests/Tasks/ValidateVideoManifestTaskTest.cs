@@ -32,10 +32,10 @@ using VideoManifest = Etherna.EthernaIndex.Domain.Models.VideoAgg.VideoManifest;
 
 namespace Etherna.EthernaIndex.Services.Tasks
 {
-    public class VideoManifestValidatorTaskTest
+    public class ValidateVideoManifestTaskTest
     {
         // Fields.
-        private readonly VideoManifestValidatorTask videoManifestValidatorTask;
+        private readonly ValidateVideoManifestTask validateVideoManifestTask;
         private readonly SwarmHash manifestHash = "1a345a1d73fd8f28d71e6b03d2e42f44721db94b734c2edcfe6fcd48b76a74f9";
         private readonly string videoId = "videoId";
         private readonly string address = "0x300a31dBAB42863F4b0bEa3E03d0aa89D47DB3f0";
@@ -43,11 +43,11 @@ namespace Etherna.EthernaIndex.Services.Tasks
         private readonly Video video;
         private readonly VideoManifest videoManifest;
         private readonly Mock<IIndexDbContext> indexContext;
-        private readonly Mock<ILogger<VideoManifestValidatorTask>> loggerMock;
+        private readonly Mock<ILogger<ValidateVideoManifestTask>> loggerMock;
         private readonly Mock<ISwarmService> swarmServiceMock;
 
         // Constructor.
-        public VideoManifestValidatorTaskTest()
+        public ValidateVideoManifestTaskTest()
         {
             userSharedInfoMock.Setup(s => s.EtherAddress).Returns(address);
             var owner = new User(userSharedInfoMock.Object);
@@ -55,7 +55,7 @@ namespace Etherna.EthernaIndex.Services.Tasks
             videoManifest = new VideoManifest(manifestHash);
             video.AddManifest(videoManifest);
 
-            loggerMock = new Mock<ILogger<VideoManifestValidatorTask>>();
+            loggerMock = new Mock<ILogger<ValidateVideoManifestTask>>();
             swarmServiceMock = new Mock<ISwarmService>();
 
             // Mock Db Data.
@@ -66,7 +66,7 @@ namespace Etherna.EthernaIndex.Services.Tasks
                 .ReturnsAsync(video);
 
             // Inizialize.
-            videoManifestValidatorTask = new VideoManifestValidatorTask(indexContext.Object, loggerMock.Object, swarmServiceMock.Object);
+            validateVideoManifestTask = new ValidateVideoManifestTask(indexContext.Object, loggerMock.Object, swarmServiceMock.Object);
         }
 
         // Tests.
@@ -95,7 +95,7 @@ namespace Etherna.EthernaIndex.Services.Tasks
             swarmServiceMock
                 .Setup(x => x.GetPublishedVideoManifestAsync(manifestHash))
                 .ReturnsAsync(firstManifest);
-            await videoManifestValidatorTask.RunAsync(videoId, manifestHash.ToString());
+            await validateVideoManifestTask.RunAsync(videoId, manifestHash.ToString());
 
             //second manifest for same video
             SwarmHash secondManifestHash = "2b678a1d73fd8f28d71e6b03d2e42f44721db94b734c2edcfe6fcd48b76a74f9";
@@ -128,7 +128,7 @@ namespace Etherna.EthernaIndex.Services.Tasks
             secondSwarmService
                 .Setup(x => x.GetPublishedVideoManifestAsync(secondManifestHash))
                 .ReturnsAsync(secondManifest);
-            var secondMetadataVideoValidatorTask = new VideoManifestValidatorTask(secondIndexContext.Object, loggerMock.Object, secondSwarmService.Object);
+            var secondMetadataVideoValidatorTask = new ValidateVideoManifestTask(secondIndexContext.Object, loggerMock.Object, secondSwarmService.Object);
 
             // Action.
             await secondMetadataVideoValidatorTask.RunAsync(videoId, secondManifestHash.ToString());
@@ -152,7 +152,7 @@ namespace Etherna.EthernaIndex.Services.Tasks
                 .ReturnsAsync(new PublishedVideoManifest(manifestHash, null, [new ValidationError(ValidationErrorType.Unknown)]));
         
             // Action.
-            await videoManifestValidatorTask.RunAsync(videoId, manifestHash.ToString());
+            await validateVideoManifestTask.RunAsync(videoId, manifestHash.ToString());
         
             // Assert.
             Assert.False(videoManifest.IsValid);
@@ -170,7 +170,7 @@ namespace Etherna.EthernaIndex.Services.Tasks
                     manifestHash, null, [new(ValidationErrorType.JsonConvert, "Unable to parse json")])));
 
             // Action.
-            await videoManifestValidatorTask.RunAsync(videoId, manifestHash.ToString());
+            await validateVideoManifestTask.RunAsync(videoId, manifestHash.ToString());
 
             // Assert.
             Assert.False(videoManifest.IsValid);
@@ -209,7 +209,7 @@ namespace Etherna.EthernaIndex.Services.Tasks
                 .ReturnsAsync(publishedVideoManifest);
         
             // Action.
-            await videoManifestValidatorTask.RunAsync(videoId, manifestHash.ToString());
+            await validateVideoManifestTask.RunAsync(videoId, manifestHash.ToString());
         
             // Assert.
             Assert.True(videoManifest.IsValid);

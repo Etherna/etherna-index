@@ -65,7 +65,7 @@ namespace Etherna.EthernaIndex.Services
 
             // Tasks.
             services.AddTransient<IRebuildElasticIndexesTask, RebuildElasticIndexesTask>();
-            services.AddTransient<IVideoManifestValidatorTask, VideoManifestValidatorTask>();
+            services.AddTransient<IValidateVideoManifestTask, ValidateVideoManifestTask>();
             
             // Clients.
             services.AddSingleton<IBeeClient>(sp =>

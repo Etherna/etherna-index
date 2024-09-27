@@ -52,7 +52,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             var videoManifest = await indexDbContext.VideoManifests.FindOneAsync(c => c.ManifestHash == manifestHash);
             var video = await indexDbContext.Videos.FindOneAsync(v => v.VideoManifests.Any(vm => vm.Id == videoManifest.Id));
 
-            backgroundJobClient.Create<IVideoManifestValidatorTask>(
+            backgroundJobClient.Create<IValidateVideoManifestTask>(
                 task => task.RunAsync(video.Id, manifestHash.ToString()),
                 new EnqueuedState(Queues.METADATA_VIDEO_VALIDATOR));
 
@@ -65,7 +65,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
 
             foreach (var manifest in video.VideoManifests)
             {
-                backgroundJobClient.Create<IVideoManifestValidatorTask>(
+                backgroundJobClient.Create<IValidateVideoManifestTask>(
                     task => task.RunAsync(video.Id, manifest.ManifestHash.ToString()),
                     new EnqueuedState(Queues.METADATA_VIDEO_VALIDATOR));
             }

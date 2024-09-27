@@ -25,8 +25,9 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
     public interface IVideosControllerService
     {
         Task AuthorDeleteAsync(string id);
-        Task<string> CreateAsync(VideoCreateInput videoInput);
         Task<Comment2Dto> CreateCommentAsync(string id, string text);
+        Task<string> CreateFromManifestAsync(SwarmHash manifestHash);
+        Task<string> CreateFromRawHlsAsync(VideoCreateFromRawInput input);
         Task<Video2Dto> FindByIdAsync(string id);
         Task<Video2Dto> FindByManifestHashAsync(SwarmHash hash);
         Task<IEnumerable<VideoManifestStatusDto>> GetBulkValidationStatusByHashesAsync(IEnumerable<SwarmHash> manifestHashes);

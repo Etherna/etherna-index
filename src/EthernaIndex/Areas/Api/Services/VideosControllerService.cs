@@ -84,50 +84,6 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             logger.AuthorDeleteVideo(id);
         }
 
-        public async Task<string> CreateAsync(VideoCreateInput videoInput)
-        {
-            var address = await ethernaOidcClient.GetEtherAddressAsync();
-            var (currentUser, _) = await userService.FindUserAsync(address);
-
-            var videoManifest = await indexDbContext.VideoManifests.TryFindOneAsync(c => c.ManifestHash == videoInput.ManifestHash);
-
-            if (videoManifest is not null)
-            {
-                // Act as an idempotent call if video and creator are the same.
-                var existingVideo = await indexDbContext.Videos
-                    .TryFindOneAsync(v => v.VideoManifests.Any(vm => vm.Id == videoManifest.Id));
-
-                if (existingVideo is null ||
-                    existingVideo.Owner.Id != currentUser.Id)
-                    throw new DuplicatedManifestHashException(videoInput.ManifestHash);
-
-                return existingVideo.Id;
-            }
-
-            // Create Video.
-            var video = new Video(currentUser);
-
-            await indexDbContext.Videos.CreateAsync(video);
-
-            // Create video manifest.
-            videoManifest = new VideoManifest(videoInput.ManifestHash);
-            await indexDbContext.VideoManifests.CreateAsync(videoManifest);
-
-            // Add manifest to video.
-            video = await indexDbContext.Videos.FindOneAsync(video.Id); //find again because needs to be a proxy for update (see: MODM-83)
-            video.AddManifest(videoManifest);
-            await indexDbContext.SaveChangesAsync();
-
-            // Create Validation Manifest Task.
-            backgroundJobClient.Create<IVideoManifestValidatorTask>(
-                task => task.RunAsync(video.Id, videoInput.ManifestHash.ToString()),
-                new EnqueuedState(Queues.METADATA_VIDEO_VALIDATOR));
-
-            logger.VideoCreated(currentUser.Id, video.Id);
-
-            return video.Id;
-        }
-
         public async Task<Comment2Dto> CreateCommentAsync(string id, string text)
         {
             var address = await ethernaOidcClient.GetEtherAddressAsync();
@@ -141,6 +97,76 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             logger.CreateVideoComment(user.Id, id);
 
             return new Comment2Dto(comment, userSharedInfo);
+        }
+
+        public async Task<string> CreateFromManifestAsync(SwarmHash manifestHash)
+        {
+            var address = await ethernaOidcClient.GetEtherAddressAsync();
+            var (currentUser, _) = await userService.FindUserAsync(address);
+
+            var videoManifest = await indexDbContext.VideoManifests.TryFindOneAsync(c => c.ManifestHash == manifestHash);
+
+            if (videoManifest is not null)
+            {
+                // Act as an idempotent call if video and creator are the same.
+                var existingVideo = await indexDbContext.Videos
+                    .TryFindOneAsync(v => v.VideoManifests.Any(vm => vm.Id == videoManifest.Id));
+
+                if (existingVideo is null ||
+                    existingVideo.Owner.Id != currentUser.Id)
+                    throw new DuplicatedManifestHashException(manifestHash);
+
+                return existingVideo.Id;
+            }
+
+            // Create Video.
+            var video = new Video(currentUser);
+            await indexDbContext.Videos.CreateAsync(video);
+
+            // Create video manifest.
+            videoManifest = new VideoManifest(manifestHash);
+            await indexDbContext.VideoManifests.CreateAsync(videoManifest);
+
+            // Add manifest to video.
+            video = await indexDbContext.Videos.FindOneAsync(video.Id); //find again because needs to be a proxy for update (see: MODM-83)
+            video.AddManifest(videoManifest);
+            await indexDbContext.SaveChangesAsync();
+
+            // Create Validation Manifest Task.
+            backgroundJobClient.Create<IValidateVideoManifestTask>(
+                task => task.RunAsync(video.Id, manifestHash.ToString()),
+                new EnqueuedState(Queues.METADATA_VIDEO_VALIDATOR));
+
+            logger.VideoCreated(currentUser.Id, video.Id);
+
+            return video.Id;
+        }
+
+        public async Task<string> CreateFromRawHlsAsync(VideoCreateFromRawInput input)
+        {
+            ArgumentNullException.ThrowIfNull(input, nameof(input));
+            
+            var address = await ethernaOidcClient.GetEtherAddressAsync();
+            var (currentUser, _) = await userService.FindUserAsync(address);
+
+            // Create Video.
+            var video = new Video(currentUser);
+            await indexDbContext.Videos.CreateAsync(video);
+
+            // Create video manifest.
+            backgroundJobClient.Create<IDeployVideoManifestFromRawHlsTask>(
+                task => task.RunAsync(
+                    video.Id,
+                    input.VideoRawHash.ToString(),
+                    input.ThumbnailRawHash.HasValue ?
+                        input.ThumbnailRawHash.ToString() : null,
+                    input.Title,
+                    input.Descritpion),
+                new EnqueuedState(Queues.METADATA_VIDEO_DEPOLOYER));
+
+            logger.VideoCreated(currentUser.Id, video.Id);
+
+            return video.Id;
         }
 
         public async Task<Video2Dto> FindByIdAsync(string id)
@@ -538,7 +564,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             await indexDbContext.SaveChangesAsync();
 
             // Create Validation Manifest Task.
-            backgroundJobClient.Create<IVideoManifestValidatorTask>(
+            backgroundJobClient.Create<IValidateVideoManifestTask>(
                 task => task.RunAsync(video.Id, newHash.ToString()),
                 new EnqueuedState(Queues.METADATA_VIDEO_VALIDATOR));
 

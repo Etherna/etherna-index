@@ -12,13 +12,12 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
+using System.Threading.Tasks;
+
 namespace Etherna.EthernaIndex.Services.Tasks
 {
-    public static class Queues
+    public interface IValidateVideoManifestTask
     {
-        public const string DB_MAINTENANCE = "db_maintenance";
-        public const string ELASTIC_SEARCH_MAINTENANCE = "elastic_search_maintenance";
-        public const string METADATA_VIDEO_DEPOLOYER = "metadata_video_deployer";
-        public const string METADATA_VIDEO_VALIDATOR = "metadata_video_validator";
+        Task RunAsync(string videoId, string manifestHash);
     }
 }

@@ -264,9 +264,9 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         // Post.
 
         /// <summary>
-        /// Create a new video with current user.
+        /// Create a new video from manifest hash
         /// </summary>
-        /// <param name="videoInput">Info of new video</param>
+        /// <param name="input">Info of new video</param>
         [HttpPost]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -274,8 +274,25 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [Produces("application/json")] //force because of https://github.com/RicoSuter/NSwag/issues/4132
         public Task<string> CreateAsync(
-            [Required] VideoCreateInput videoInput) =>
-            service.CreateAsync(videoInput);
+            [Required] VideoCreateInput input)
+        {
+            ArgumentNullException.ThrowIfNull(input, nameof(input));
+            return service.CreateFromManifestAsync(input.ManifestHash);
+        }
+
+        /// <summary>
+        /// Create a new video from hls playlist hash
+        /// </summary>
+        /// <param name="input">Info of new video</param>
+        [HttpPost]
+        [SimpleExceptionFilter]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [Produces("application/json")] //force because of https://github.com/RicoSuter/NSwag/issues/4132
+        public Task<string> CreateFromRawHlsAsync(
+            VideoCreateFromRawInput input) =>
+            service.CreateFromRawHlsAsync(input);
 
         /// <summary>
         /// Create a new comment on a video with current user.

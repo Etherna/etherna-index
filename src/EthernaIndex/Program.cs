@@ -361,6 +361,7 @@ namespace Etherna.EthernaIndex
                     [
                         Queues.DB_MAINTENANCE,
                         Queues.METADATA_VIDEO_VALIDATOR,
+                        Queues.METADATA_VIDEO_DEPOLOYER,
                         Queues.ELASTIC_SEARCH_MAINTENANCE,
                         "default"
                     ];
