@@ -26,8 +26,8 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
     {
         Task AuthorDeleteAsync(string id);
         Task<Comment2Dto> CreateCommentAsync(string id, string text);
+        Task<string> CreateFromHlsMasterPlaylistAsync(VideoCreateFromRawInput input);
         Task<string> CreateFromManifestAsync(SwarmHash manifestHash);
-        Task<string> CreateFromRawHlsAsync(VideoCreateFromRawInput input);
         Task<Video2Dto> FindByIdAsync(string id);
         Task<Video2Dto> FindByManifestHashAsync(SwarmHash hash);
         Task<IEnumerable<VideoManifestStatusDto>> GetBulkValidationStatusByHashesAsync(IEnumerable<SwarmHash> manifestHashes);

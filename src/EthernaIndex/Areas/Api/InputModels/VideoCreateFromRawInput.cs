@@ -19,8 +19,9 @@ namespace Etherna.EthernaIndex.Areas.Api.InputModels
     public class VideoCreateFromRawInput
     {
         public string Descritpion { get; set; } = default!;
-        public SwarmHash? ThumbnailRawHash { get; set; }
+        public int DurationSeconds { get; set; }
+        public SwarmAddress? ThumbnailRawAddress { get; set; }
         public string Title { get; set; } = default!;
-        public SwarmHash VideoRawHash { get; set; }
+        public SwarmAddress VideoRawAddress { get; set; }
     }
 }

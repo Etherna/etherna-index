@@ -284,15 +284,15 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// Create a new video from hls playlist hash
         /// </summary>
         /// <param name="input">Info of new video</param>
-        [HttpPost]
+        [HttpPost("hls/master")]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [Produces("application/json")] //force because of https://github.com/RicoSuter/NSwag/issues/4132
-        public Task<string> CreateFromRawHlsAsync(
+        public Task<string> CreateFromHlsMasterPlaylistAsync(
             VideoCreateFromRawInput input) =>
-            service.CreateFromRawHlsAsync(input);
+            service.CreateFromHlsMasterPlaylistAsync(input);
 
         /// <summary>
         /// Create a new comment on a video with current user.

@@ -20,9 +20,10 @@ namespace Etherna.EthernaIndex.Services.Tasks
     {
         Task RunAsync(
             string videoId,
-            string hlsRawPlaylistHash,
-            string? thumbnailRawHash,
+            string hlsRawPlaylistAddress,
+            string? thumbnailRawAddress,
             string title,
-            string description);
+            string description,
+            int durationSeconds);
     }
 }

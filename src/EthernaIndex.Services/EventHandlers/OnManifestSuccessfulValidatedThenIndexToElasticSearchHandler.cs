@@ -12,6 +12,7 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
+using Elastic.Transport;
 using Etherna.DomainEvents;
 using Etherna.EthernaIndex.Domain.Events;
 using Etherna.EthernaIndex.ElasticSearch;
@@ -34,7 +35,12 @@ namespace Etherna.EthernaIndex.Services.EventHandlers
         // Methods.
         public override async Task HandleAsync(ManifestSuccessfulValidatedEvent @event)
         {
-            await elasticSearchService.AddVideoAsync(@event.Video);
+            try
+            {
+                await elasticSearchService.AddVideoAsync(@event.Video);
+            }
+            catch (TransportException) //when disconnected
+            { }
         }
     }
 }

@@ -99,6 +99,34 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             return new Comment2Dto(comment, userSharedInfo);
         }
 
+        public async Task<string> CreateFromHlsMasterPlaylistAsync(VideoCreateFromRawInput input)
+        {
+            ArgumentNullException.ThrowIfNull(input, nameof(input));
+            
+            var address = await ethernaOidcClient.GetEtherAddressAsync();
+            var (currentUser, _) = await userService.FindUserAsync(address);
+
+            // Create Video.
+            var video = new Video(currentUser);
+            await indexDbContext.Videos.CreateAsync(video);
+
+            // Create video manifest.
+            backgroundJobClient.Create<IDeployVideoManifestFromRawHlsTask>(
+                task => task.RunAsync(
+                    video.Id,
+                    input.VideoRawAddress.ToString(),
+                    input.ThumbnailRawAddress.HasValue ?
+                        input.ThumbnailRawAddress.ToString() : null,
+                    input.Title,
+                    input.Descritpion,
+                    input.DurationSeconds),
+                new EnqueuedState(Queues.METADATA_VIDEO_DEPOLOYER));
+
+            logger.VideoCreated(currentUser.Id, video.Id);
+
+            return video.Id;
+        }
+
         public async Task<string> CreateFromManifestAsync(SwarmHash manifestHash)
         {
             var address = await ethernaOidcClient.GetEtherAddressAsync();
@@ -136,33 +164,6 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             backgroundJobClient.Create<IValidateVideoManifestTask>(
                 task => task.RunAsync(video.Id, manifestHash.ToString()),
                 new EnqueuedState(Queues.METADATA_VIDEO_VALIDATOR));
-
-            logger.VideoCreated(currentUser.Id, video.Id);
-
-            return video.Id;
-        }
-
-        public async Task<string> CreateFromRawHlsAsync(VideoCreateFromRawInput input)
-        {
-            ArgumentNullException.ThrowIfNull(input, nameof(input));
-            
-            var address = await ethernaOidcClient.GetEtherAddressAsync();
-            var (currentUser, _) = await userService.FindUserAsync(address);
-
-            // Create Video.
-            var video = new Video(currentUser);
-            await indexDbContext.Videos.CreateAsync(video);
-
-            // Create video manifest.
-            backgroundJobClient.Create<IDeployVideoManifestFromRawHlsTask>(
-                task => task.RunAsync(
-                    video.Id,
-                    input.VideoRawHash.ToString(),
-                    input.ThumbnailRawHash.HasValue ?
-                        input.ThumbnailRawHash.ToString() : null,
-                    input.Title,
-                    input.Descritpion),
-                new EnqueuedState(Queues.METADATA_VIDEO_DEPOLOYER));
 
             logger.VideoCreated(currentUser.Id, video.Id);
 

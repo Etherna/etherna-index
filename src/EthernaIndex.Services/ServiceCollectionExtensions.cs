@@ -21,11 +21,14 @@ using Etherna.EthernaIndex.Services.Infrastructure;
 using Etherna.EthernaIndex.Services.Options;
 using Etherna.EthernaIndex.Services.Tasks;
 using Etherna.Sdk.Tools.Video.Services;
+using Etherna.UniversalFiles;
+using Etherna.UniversalFiles.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using System;
 using System.Linq;
+using System.Net.Http;
 using System.Reflection;
 
 namespace Etherna.EthernaIndex.Services
@@ -64,8 +67,19 @@ namespace Etherna.EthernaIndex.Services
             services.AddScoped<IVideoManifestService, VideoManifestService>();
 
             // Tasks.
+            services.AddTransient<IDeployVideoManifestFromRawHlsTask, DeployVideoManifestFromRawHlsTask>();
             services.AddTransient<IRebuildElasticIndexesTask, RebuildElasticIndexesTask>();
             services.AddTransient<IValidateVideoManifestTask, ValidateVideoManifestTask>();
+            
+            services.AddTransient<IHlsService, HlsService>();
+            services.AddSingleton<IUFileProvider>(sp =>
+            {
+                var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
+                var beeClient = sp.GetRequiredService<IBeeClient>();
+                var ufileProvider = new UFileProvider(httpClientFactory);
+                ufileProvider.UseSwarmUFiles(beeClient);
+                return ufileProvider;
+            });
             
             // Clients.
             services.AddSingleton<IBeeClient>(sp =>
