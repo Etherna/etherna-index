@@ -22,18 +22,10 @@ using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Services.EventHandlers
 {
-    internal sealed class OnVideoDeletedThenRemoveVideoCommentsHandler : EventHandlerBase<EntityDeletedEvent<Video>>
+    internal sealed class OnVideoDeletedThenRemoveVideoCommentsHandler(
+        IIndexDbContext indexDbContext)
+        : EventHandlerBase<EntityDeletedEvent<Video>>
     {
-        // Fields.
-        private readonly IIndexDbContext indexDbContext;
-
-        // Constructor.
-        public OnVideoDeletedThenRemoveVideoCommentsHandler(
-            IIndexDbContext indexDbContext)
-        {
-            this.indexDbContext = indexDbContext;
-        }
-
         // Methods.
         public override async Task HandleAsync(EntityDeletedEvent<Video> @event)
         {

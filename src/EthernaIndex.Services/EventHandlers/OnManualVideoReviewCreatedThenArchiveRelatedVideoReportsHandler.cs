@@ -22,18 +22,10 @@ using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Services.EventHandlers
 {
-    internal sealed class OnManualVideoReviewCreatedThenArchiveRelatedVideoReportsHandler : EventHandlerBase<EntityCreatedEvent<ManualVideoReview>>
+    internal sealed class OnManualVideoReviewCreatedThenArchiveRelatedVideoReportsHandler(
+        IIndexDbContext indexDbContext)
+        : EventHandlerBase<EntityCreatedEvent<ManualVideoReview>>
     {
-        // Fields.
-        private readonly IIndexDbContext indexDbContext;
-
-        // Constructor.
-        public OnManualVideoReviewCreatedThenArchiveRelatedVideoReportsHandler(
-            IIndexDbContext indexDbContext)
-        {
-            this.indexDbContext = indexDbContext;
-        }
-
         // Methods.
         public override async Task HandleAsync(EntityCreatedEvent<ManualVideoReview> @event)
         {
