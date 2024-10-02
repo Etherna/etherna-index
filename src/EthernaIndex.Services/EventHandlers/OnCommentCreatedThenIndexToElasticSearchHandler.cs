@@ -12,6 +12,7 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
+using Elastic.Transport;
 using Etherna.DomainEvents;
 using Etherna.DomainEvents.Events;
 using Etherna.EthernaIndex.Domain.Models;
@@ -20,22 +21,19 @@ using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Services.EventHandlers
 {
-    internal sealed class OnCommentCreatedThenIndexToElasticSearchHandler : EventHandlerBase<EntityCreatedEvent<Comment>>
+    internal sealed class OnCommentCreatedThenIndexToElasticSearchHandler(
+        IElasticSearchService elasticSearchService)
+        : EventHandlerBase<EntityCreatedEvent<Comment>>
     {
-        // Fields.
-        private readonly IElasticSearchService elasticSearchService;
-
-        // Constructor.
-        public OnCommentCreatedThenIndexToElasticSearchHandler(
-            IElasticSearchService elasticSearchService)
-        {
-            this.elasticSearchService = elasticSearchService;
-        }
-
         // Methods.
         public override async Task HandleAsync(EntityCreatedEvent<Comment> @event)
         {
-            await elasticSearchService.AddCommentAsync(@event.Entity);
+            try
+            {
+                await elasticSearchService.AddCommentAsync(@event.Entity);
+            }
+            catch (TransportException)
+            { }
         }
     }
 }

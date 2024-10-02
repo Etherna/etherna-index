@@ -12,6 +12,7 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
+using Elastic.Transport;
 using Etherna.DomainEvents;
 using Etherna.EthernaIndex.Domain.Events;
 using Etherna.EthernaIndex.ElasticSearch;
@@ -19,22 +20,19 @@ using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Services.EventHandlers
 {
-    internal sealed class OnVideoModeratedThenRemoveFromElasticSearchHandler : EventHandlerBase<VideoModeratedEvent>
+    internal sealed class OnVideoModeratedThenRemoveFromElasticSearchHandler(
+        IElasticSearchService elasticSearchService)
+        : EventHandlerBase<VideoModeratedEvent>
     {
-        // Fields.
-        private readonly IElasticSearchService elasticSearchService;
-
-        // Constructor.
-        public OnVideoModeratedThenRemoveFromElasticSearchHandler(
-            IElasticSearchService elasticSearchService)
-        {
-            this.elasticSearchService = elasticSearchService;
-        }
-
         // Methods.
         public override async Task HandleAsync(VideoModeratedEvent @event)
         {
-            await elasticSearchService.DeleteVideoAsync(@event.Video);
+            try
+            {
+                await elasticSearchService.DeleteVideoAsync(@event.Video);
+            }
+            catch (TransportException)
+            { }
         }
     }
 }

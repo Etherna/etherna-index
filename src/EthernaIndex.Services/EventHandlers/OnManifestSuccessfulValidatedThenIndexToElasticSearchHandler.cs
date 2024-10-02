@@ -12,6 +12,7 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
+using Elastic.Transport;
 using Etherna.DomainEvents;
 using Etherna.EthernaIndex.Domain.Events;
 using Etherna.EthernaIndex.ElasticSearch;
@@ -19,22 +20,19 @@ using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Services.EventHandlers
 {
-    internal sealed class OnManifestSuccessfulValidatedThenIndexToElasticSearchHandler : EventHandlerBase<ManifestSuccessfulValidatedEvent>
+    internal sealed class OnManifestSuccessfulValidatedThenIndexToElasticSearchHandler(
+        IElasticSearchService elasticSearchService)
+        : EventHandlerBase<ManifestSuccessfulValidatedEvent>
     {
-        // Fields.
-        private readonly IElasticSearchService elasticSearchService;
-
-        // Constructor.
-        public OnManifestSuccessfulValidatedThenIndexToElasticSearchHandler(
-            IElasticSearchService elasticSearchService)
-        {
-            this.elasticSearchService = elasticSearchService;
-        }
-
         // Methods.
         public override async Task HandleAsync(ManifestSuccessfulValidatedEvent @event)
         {
-            await elasticSearchService.AddVideoAsync(@event.Video);
+            try
+            {
+                await elasticSearchService.AddVideoAsync(@event.Video);
+            }
+            catch (TransportException)
+            { }
         }
     }
 }

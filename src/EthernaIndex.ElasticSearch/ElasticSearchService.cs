@@ -14,6 +14,7 @@
 
 using Elastic.Clients.Elasticsearch;
 using Elastic.Clients.Elasticsearch.Core.Search;
+using Elastic.Clients.Elasticsearch.QueryDsl;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.ElasticSearch.Documents;
@@ -47,7 +48,11 @@ namespace Etherna.EthernaIndex.ElasticSearch
             var ownerSharedInfo = await sharedDbContext.UsersInfo.FindOneAsync(comment.Author.SharedInfoId);
             var document = new CommentDocument(comment, ownerSharedInfo);
 
-            await client.IndexAsync(document);;
+            var response = await client.IndexAsync(document, (IndexName)options.CommentsIndexName);
+            if (!response.IsValidResponse &&
+                response.TryGetOriginalException(out var exception) &&
+                exception is not null)
+                throw exception;
         }
 
         public async Task AddVideoAsync(Video video)
@@ -58,7 +63,7 @@ namespace Etherna.EthernaIndex.ElasticSearch
 
             var document = new VideoDocument(video);
 
-            var response = await client.IndexAsync(document);
+            var response = await client.IndexAsync(document, (IndexName)options.VideosIndexName);
             if (!response.IsValidResponse &&
                 response.TryGetOriginalException(out var exception) &&
                 exception is not null)
@@ -136,26 +141,35 @@ namespace Etherna.EthernaIndex.ElasticSearch
             });
         }
 
-        public async Task<(IEnumerable<VideoDocument> Results, long TotalElements)> SearchVideoAsync(string query, int page, int take)
+        public async Task<(IEnumerable<VideoDocument> Results, long TotalElements)> SearchVideoAsync(
+            string query,
+            int page,
+            int take)
         {
             if (string.IsNullOrWhiteSpace(query))
                 throw new ArgumentNullException(query);
             ArgumentOutOfRangeException.ThrowIfNegative(page, nameof(page));
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(take, nameof(take));
-            
+
             var searchResponse = await client.SearchAsync<VideoDocument>(s =>
                 s.Query(q => q.Bool(b =>
-                    b.Should(
-                        mu => mu.Wildcard(wc => wc.Field(f => f.Title).Value($"*{query.ToLowerInvariant()}*")),
-                        mu => mu.Wildcard(wc => wc.Field(f => f.Description).Value($"*{query.ToLowerInvariant()}*")))
-                        .MinimumShouldMatch(1)
-                ))
-                .From(page * take)
-                .Size(take)
-                .TrackTotalHits(new TrackHits(true)));
+                        b.Should(sh => sh.SimpleQueryString(sq =>
+                            {
+                                sq.Query(query);
+                                sq.Fields(Fields.FromFields(
+                                [
+                                    new Field("title", 2),
+                                    new Field("description")
+                                ]));
+                                sq.DefaultOperator(Operator.Or);
+                            }))
+                            .MinimumShouldMatch(1)
+                    ))
+                    .From(page * take)
+                    .Size(take)
+                    .TrackTotalHits(new TrackHits(true)));
 
             return (searchResponse.Documents, searchResponse.Total);
         }
-
     }
 }
