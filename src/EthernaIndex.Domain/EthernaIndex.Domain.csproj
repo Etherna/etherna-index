@@ -15,7 +15,7 @@
 
   <ItemGroup>
     <PackageReference Include="Etherna.DomainEvents" Version="1.4.0" />
-    <PackageReference Include="EthernaSdk.Tools.Video" Version="0.4.0-alpha.163" />
+    <PackageReference Include="EthernaSdk.Tools.Video" Version="0.4.0-alpha.165" />
     <PackageReference Include="MongODM.Core" Version="0.25.0-alpha.4" />
     <PackageReference Include="Nethereum.Util" Version="4.26.0" />
   </ItemGroup>

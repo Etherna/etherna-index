@@ -71,8 +71,7 @@ namespace Etherna.EthernaIndex.Services
             services.AddSingleton<IBeeClient>(sp =>
             {
                 var options = sp.GetRequiredService<IOptions<SwarmOptions>>();
-                return new BeeClient(
-                    baseUrl: options.Value.GatewayUrl);
+                return new BeeClient(new Uri(options.Value.GatewayUrl));
             });
         }
     }
