@@ -17,7 +17,7 @@
 
   <ItemGroup>
     <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" Version="8.1.0" />
-    <PackageReference Include="Duende.AccessTokenManagement.OpenIdConnect" Version="3.0.0" />
+    <PackageReference Include="Duende.AccessTokenManagement.OpenIdConnect" Version="3.0.1" />
     <PackageReference Include="Etherna.Authentication.AspNetCore" Version="0.4.0-alpha.29" />
     <PackageReference Include="EthernaACR" Version="0.4.0-alpha.60" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.8" />
