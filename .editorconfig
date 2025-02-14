@@ -31,6 +31,9 @@ dotnet_diagnostic.CA1303.severity = none    # Don't need translated exceptions
 # CA1308: Normalize strings to uppercase
 dotnet_diagnostic.CA1308.severity = none    # I want to choose when use upper or lower case
 
+# CA1515: Ensure correct assembly attribute for CLSCompliant
+dotnet_diagnostic.CA1515.severity = none
+
 # CA1707: Identifiers should not contain underscores
 dotnet_diagnostic.CA1707.severity = none    # I like underscores into constants name
 
