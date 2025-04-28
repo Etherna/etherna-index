@@ -48,7 +48,7 @@ namespace Etherna.EthernaIndex.ElasticSearch
             var ownerSharedInfo = await sharedDbContext.UsersInfo.FindOneAsync(comment.Author.SharedInfoId);
             var document = new CommentDocument(comment, ownerSharedInfo);
 
-            var response = await client.IndexAsync(document, (IndexName)options.CommentsIndexName);
+            var response = await client.IndexAsync(document, (IndexName)options.CommentsIndexName, null);
             if (!response.IsValidResponse &&
                 response.TryGetOriginalException(out var exception) &&
                 exception is not null)
@@ -63,7 +63,7 @@ namespace Etherna.EthernaIndex.ElasticSearch
 
             var document = new VideoDocument(video);
 
-            var response = await client.IndexAsync(document, (IndexName)options.VideosIndexName);
+            var response = await client.IndexAsync(document, (IndexName)options.VideosIndexName, null);
             if (!response.IsValidResponse &&
                 response.TryGetOriginalException(out var exception) &&
                 exception is not null)

@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using Etherna.BeeNet.Models;
+using Etherna.BeeNet.Stores;
 using Etherna.Sdk.Tools.Video.Models;
 using System.Threading.Tasks;
 
@@ -27,7 +28,9 @@ namespace Etherna.EthernaIndex.Services.Infrastructure
         private readonly Dictionary<SwarmHash, object> SwarmObjectMockups = new(); //hash->object
         
         // Methods.
-        public Task<PublishedVideoManifest> GetPublishedVideoManifestAsync(SwarmHash manifestHash) =>
+        public Task<PublishedVideoManifest> GetPublishedVideoManifestAsync(
+            SwarmHash manifestHash,
+            IReadOnlyChunkStore chunkStore) =>
             Task.FromResult((PublishedVideoManifest)SwarmObjectMockups[manifestHash]);
 
         public void SetupHashMockup(SwarmHash hash, object returnedObject) =>
@@ -61,6 +64,7 @@ namespace Etherna.EthernaIndex.Services.Infrastructure
 #else
 using Etherna.Sdk.Tools.Video.Services;
 using Etherna.BeeNet.Models;
+using Etherna.BeeNet.Stores;
 using Etherna.Sdk.Tools.Video.Models;
 using System.Threading.Tasks;
 
@@ -69,8 +73,10 @@ namespace Etherna.EthernaIndex.Services.Infrastructure
     public class SwarmService(IVideoManifestService videoManifestService) : ISwarmService
     {
         // Methods.
-        public Task<PublishedVideoManifest> GetPublishedVideoManifestAsync(SwarmHash manifestHash) =>
-            videoManifestService.GetPublishedVideoManifestAsync(manifestHash);
+        public Task<PublishedVideoManifest> GetPublishedVideoManifestAsync(
+            SwarmHash manifestHash,
+            IReadOnlyChunkStore chunkStore) =>
+            videoManifestService.GetPublishedVideoManifestAsync(manifestHash, chunkStore);
     }
 }
 #endif
