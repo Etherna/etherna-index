@@ -12,6 +12,8 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
+using Etherna.BeeNet;
+using Etherna.BeeNet.Stores;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2;
@@ -25,6 +27,7 @@ using System.Threading.Tasks;
 namespace Etherna.EthernaIndex.Services.Tasks
 {
     public class VideoManifestValidatorTask(
+        IBeeClient beeClient,
         IIndexDbContext indexDbContext,
         ILogger<VideoManifestValidatorTask> logger,
         ISwarmService swarmService)
@@ -44,10 +47,11 @@ namespace Etherna.EthernaIndex.Services.Tasks
             var videoManifest = await indexDbContext.VideoManifests.FindOneAsync(u => u.ManifestHash == manifestHash);
 
             // Get video manifest.
+            var chunkStore = new BeeClientChunkStore(beeClient);
 #if DEBUG_MOCKUP_SWARM
             swarmService.SetupNewPublishedVideoManifestMockup(manifestHash);
 #endif
-            var publishedVideoManifest = await swarmService.GetPublishedVideoManifestAsync(manifestHash);
+            var publishedVideoManifest = await swarmService.GetPublishedVideoManifestAsync(manifestHash, chunkStore);
 
             if (publishedVideoManifest.Manifest is not null)
             {

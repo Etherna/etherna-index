@@ -15,6 +15,7 @@
 using Etherna.DomainEvents;
 using Etherna.DomainEvents.Events;
 using Etherna.EthernaIndex.Domain.Models;
+using Etherna.MongoDB.Driver;
 using Etherna.MongODM.Core.Repositories;
 using System;
 using System.Collections.Generic;
@@ -82,12 +83,15 @@ namespace Etherna.EthernaIndex.Persistence.Repositories
             }
         }
 
-        public override async Task DeleteAsync(TModel model, CancellationToken cancellationToken = default)
+        public override async Task DeleteAsync(
+            TModel model,
+            FilterDefinition<TModel>[]? additionalFilters = null,
+            CancellationToken cancellationToken = new CancellationToken())
         {
             ArgumentNullException.ThrowIfNull(model, nameof(model));
 
             // Delete entity.
-            await base.DeleteAsync(model, cancellationToken);
+            await base.DeleteAsync(model, additionalFilters, cancellationToken);
 
             // Dispatch custom events.
             if (EventDispatcher != null)
