@@ -1,18 +1,19 @@
 ﻿// Copyright 2021-present Etherna SA
 // This file is part of Etherna Index.
-// 
+//
 // Etherna Index is free software: you can redistribute it and/or modify it under the terms of the
 // GNU Affero General Public License as published by the Free Software Foundation,
 // either version 3 of the License, or (at your option) any later version.
-// 
+//
 // Etherna Index is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
 // without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 // See the GNU Affero General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
 using Etherna.BeeNet;
+using Etherna.BeeNet.Models;
 using Etherna.BeeNet.Stores;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg;
@@ -27,7 +28,7 @@ using System.Threading.Tasks;
 namespace Etherna.EthernaIndex.Services.Tasks
 {
     public class VideoManifestValidatorTask(
-        IBeeClient beeClient,
+        ISwarmClient swarmClient,
         IIndexDbContext indexDbContext,
         ILogger<VideoManifestValidatorTask> logger,
         ISwarmService swarmService)
@@ -36,7 +37,7 @@ namespace Etherna.EthernaIndex.Services.Tasks
         // Methods.
         public async Task RunAsync(string videoId, string manifestHash)
         {
-            logger.VideoManifestValidationStarted(videoId, manifestHash);
+            logger.VideoManifestValidationStarted(videoId, new SwarmHash(manifestHash));
 
             var video = await indexDbContext.Videos.FindOneAsync(videoId);
 
@@ -47,11 +48,12 @@ namespace Etherna.EthernaIndex.Services.Tasks
             var videoManifest = await indexDbContext.VideoManifests.FindOneAsync(u => u.ManifestHash == manifestHash);
 
             // Get video manifest.
-            var chunkStore = new BeeClientChunkStore(beeClient);
+            var chunkStore = new SwarmClientChunkStore(swarmClient);
+            var manifestReference = SwarmReference.FromString(manifestHash);
 #if DEBUG_MOCKUP_SWARM
-            swarmService.SetupNewPublishedVideoManifestMockup(manifestHash);
+            swarmService.SetupNewPublishedVideoManifestMockup(manifestReference);
 #endif
-            var publishedVideoManifest = await swarmService.GetPublishedVideoManifestAsync(manifestHash, chunkStore);
+            var publishedVideoManifest = await swarmService.GetPublishedVideoManifestAsync(manifestReference, chunkStore);
 
             if (publishedVideoManifest.Manifest is not null)
             {
@@ -80,7 +82,7 @@ namespace Etherna.EthernaIndex.Services.Tasks
                     publishedVideoManifest.Manifest.UpdatedAt?.ToUnixTimeSeconds(),
                     publishedVideoManifest.Manifest.PersonalDataRaw);
 
-                logger.VideoManifestValidationRetrievedManifest(videoId, manifestHash);
+                logger.VideoManifestValidationRetrievedManifest(videoId, new SwarmHash(manifestHash));
             }
             else
             {
@@ -90,7 +92,7 @@ namespace Etherna.EthernaIndex.Services.Tasks
                 video.FailedManifestValidation(videoManifest, validationErrors);
                 await indexDbContext.SaveChangesAsync().ConfigureAwait(false);
 
-                logger.VideoManifestValidationCantRetrieveManifest(videoId, manifestHash, null);
+                logger.VideoManifestValidationCantRetrieveManifest(videoId, new SwarmHash(manifestHash), null);
 
                 return;
             }
@@ -100,13 +102,13 @@ namespace Etherna.EthernaIndex.Services.Tasks
             {
                 video.FailedManifestValidation(videoManifest, validationErrors);
 
-                logger.VideoManifestValidationFailedWithErrors(videoId, manifestHash, null);
+                logger.VideoManifestValidationFailedWithErrors(videoId, new SwarmHash(manifestHash), null);
             }
             else
             {
                 video.SucceededManifestValidation(videoManifest, videoMetadata);
 
-                logger.VideoManifestValidationSucceeded(videoId, manifestHash);
+                logger.VideoManifestValidationSucceeded(videoId, new SwarmHash(manifestHash));
             }
 
             // Complete task.

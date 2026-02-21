@@ -1,14 +1,14 @@
-﻿// Copyright 2021-present Etherna SA
+// Copyright 2021-present Etherna SA
 // This file is part of Etherna Index.
-// 
+//
 // Etherna Index is free software: you can redistribute it and/or modify it under the terms of the
 // GNU Affero General Public License as published by the Free Software Foundation,
 // either version 3 of the License, or (at your option) any later version.
-// 
+//
 // Etherna Index is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
 // without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 // See the GNU Affero General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
@@ -37,7 +37,7 @@ namespace Etherna.EthernaIndex.Services.Tasks
     public class VideoManifestValidatorTaskTest
     {
         // Fields.
-        private readonly Mock<IBeeClient> beeClientMock = new();
+        private readonly Mock<ISwarmClient> swarmClientMock = new();
         private readonly VideoManifestValidatorTask videoManifestValidatorTask;
         private readonly SwarmHash manifestHash = "1a345a1d73fd8f28d71e6b03d2e42f44721db94b734c2edcfe6fcd48b76a74f9";
         private readonly string videoId = "videoId";
@@ -70,7 +70,7 @@ namespace Etherna.EthernaIndex.Services.Tasks
 
             // Inizialize.
             videoManifestValidatorTask = new VideoManifestValidatorTask(
-                beeClientMock.Object,
+                swarmClientMock.Object,
                 indexContext.Object,
                 loggerMock.Object,
                 swarmServiceMock.Object);
@@ -83,60 +83,60 @@ namespace Etherna.EthernaIndex.Services.Tasks
             // Arrange.
             //first manifest
             var firstManifest = new PublishedVideoManifest(
-                manifestHash,
-                new(1,
+                SwarmReference.FromString(manifestHash.ToString()),
+                new(1f,
                     null,
                     DateTimeOffset.Now,
                     "Description",
-                    TimeSpan.FromSeconds(600), 
+                    TimeSpan.FromSeconds(600),
                     "Title",
                     AddressUtil.ZERO_ADDRESS,
                     null,
                     [
-                        new VideoManifestVideoSource("1080.mp4", VideoType.Mp4, "1080p", 32, [], SwarmHash.Zero),
-                        new VideoManifestVideoSource("720.mp4", VideoType.Mp4, "720p", 32, [], SwarmHash.Zero)
+                        new VideoManifestVideoSource("1080.mp4", VideoType.Mp4, "1080p", 32, [], SwarmReference.PlainZero),
+                        new VideoManifestVideoSource("720.mp4", VideoType.Mp4, "720p", 32, [], SwarmReference.PlainZero)
                     ],
-                    new VideoManifestImage(1, "", [new VideoManifestImageSource("thumb.jpg", ImageType.Jpeg, 100, SwarmHash.Zero)]),
+                    new VideoManifestImage(1f, "", [new VideoManifestImageSource("thumb.jpg", ImageType.Jpeg, 100, SwarmReference.PlainZero)]),
                     []),
                 []);
             swarmServiceMock
-                .Setup(x => x.GetPublishedVideoManifestAsync(manifestHash, It.IsAny<IReadOnlyChunkStore>()))
+                .Setup(x => x.GetPublishedVideoManifestAsync(SwarmReference.FromString(manifestHash.ToString()), It.IsAny<IReadOnlyChunkStore>()))
                 .ReturnsAsync(firstManifest);
             await videoManifestValidatorTask.RunAsync(videoId, manifestHash.ToString());
 
             //second manifest for same video
             SwarmHash secondManifestHash = "2b678a1d73fd8f28d71e6b03d2e42f44721db94b734c2edcfe6fcd48b76a74f9";
             var secondManifest = new PublishedVideoManifest(
-                manifestHash,
-                new(1,
+                SwarmReference.FromString(secondManifestHash.ToString()),
+                new(1f,
                     null,
                     DateTimeOffset.Now,
                     "Description2",
-                    TimeSpan.FromSeconds(600), 
+                    TimeSpan.FromSeconds(600),
                     "Title2",
                     AddressUtil.ZERO_ADDRESS,
                     null,
                     [
-                        new VideoManifestVideoSource("1080.mp4", VideoType.Mp4, "1080p", 98, [], SwarmHash.Zero)
+                        new VideoManifestVideoSource("1080.mp4", VideoType.Mp4, "1080p", 98, [], SwarmReference.PlainZero)
                     ],
-                    new VideoManifestImage(1, "", []),
+                    new VideoManifestImage(1f, "", []),
                     []),
                 []);
             var secondVideoManifest = new VideoManifest(secondManifestHash);
-            
+
             video.AddManifest(secondVideoManifest);
             var secondIndexContext = new Mock<IIndexDbContext>();
             secondIndexContext.Setup(_ => _.VideoManifests.FindOneAsync(It.IsAny<Expression<Func<VideoManifest, bool>>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(secondVideoManifest);
             secondIndexContext.Setup(_ => _.Videos.FindOneAsync(videoId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(video);
-            
+
             var secondSwarmService = new Mock<ISwarmService>();
             secondSwarmService
-                .Setup(x => x.GetPublishedVideoManifestAsync(secondManifestHash, It.IsAny<IReadOnlyChunkStore>()))
+                .Setup(x => x.GetPublishedVideoManifestAsync(SwarmReference.FromString(secondManifestHash.ToString()), It.IsAny<IReadOnlyChunkStore>()))
                 .ReturnsAsync(secondManifest);
             var secondMetadataVideoValidatorTask = new VideoManifestValidatorTask(
-                beeClientMock.Object,
+                swarmClientMock.Object,
                 secondIndexContext.Object,
                 loggerMock.Object,
                 secondSwarmService.Object);
@@ -159,12 +159,12 @@ namespace Etherna.EthernaIndex.Services.Tasks
         public async Task FailValidationWithInvalidMetadata()
         {
             // Arrange.
-            swarmServiceMock.Setup(x => x.GetPublishedVideoManifestAsync(manifestHash, It.IsAny<IReadOnlyChunkStore>()))
-                .ReturnsAsync(new PublishedVideoManifest(manifestHash, null, [new ValidationError(ValidationErrorType.Unknown)]));
-        
+            swarmServiceMock.Setup(x => x.GetPublishedVideoManifestAsync(SwarmReference.FromString(manifestHash.ToString()), It.IsAny<IReadOnlyChunkStore>()))
+                .ReturnsAsync(new PublishedVideoManifest(SwarmReference.FromString(manifestHash.ToString()), null, [new ValidationError(ValidationErrorType.Unknown)]));
+
             // Action.
             await videoManifestValidatorTask.RunAsync(videoId, manifestHash.ToString());
-        
+
             // Assert.
             Assert.False(videoManifest.IsValid);
             Assert.NotNull(videoManifest.ValidationTime);
@@ -176,9 +176,9 @@ namespace Etherna.EthernaIndex.Services.Tasks
         public async Task FailValidationWithWrongJson()
         {
             // Arrange.
-            swarmServiceMock.Setup(x => x.GetPublishedVideoManifestAsync(manifestHash, It.IsAny<IReadOnlyChunkStore>()))
+            swarmServiceMock.Setup(x => x.GetPublishedVideoManifestAsync(SwarmReference.FromString(manifestHash.ToString()), It.IsAny<IReadOnlyChunkStore>()))
                 .Returns(Task.FromResult(new PublishedVideoManifest(
-                    manifestHash, null, [new(ValidationErrorType.JsonConvert, "Unable to parse json")])));
+                    SwarmReference.FromString(manifestHash.ToString()), null, [new(ValidationErrorType.JsonConvert, "Unable to parse json")])));
 
             // Action.
             await videoManifestValidatorTask.RunAsync(videoId, manifestHash.ToString());
@@ -199,29 +199,29 @@ namespace Etherna.EthernaIndex.Services.Tasks
         {
             // Arrange.
             var publishedVideoManifest = new PublishedVideoManifest(
-                manifestHash,
+                SwarmReference.FromString(manifestHash.ToString()),
                 new Sdk.Tools.Video.Models.VideoManifest(
                     1,
                     null,
                     DateTimeOffset.Now,
                     "Description",
-                    TimeSpan.FromSeconds(600), 
+                    TimeSpan.FromSeconds(600),
                     "Title",
                     AddressUtil.ZERO_ADDRESS,
                     null,
                     [
-                        new VideoManifestVideoSource("720.mp4", VideoType.Mp4, "720p", 32, [], SwarmHash.Zero)
+                        new VideoManifestVideoSource("720.mp4", VideoType.Mp4, "720p", 32, [], SwarmReference.PlainZero)
                     ],
                     new VideoManifestImage(1, "", []),
                     []),
                 []);
             swarmServiceMock
-                .Setup(x => x.GetPublishedVideoManifestAsync(manifestHash, It.IsAny<IReadOnlyChunkStore>()))
+                .Setup(x => x.GetPublishedVideoManifestAsync(SwarmReference.FromString(manifestHash.ToString()), It.IsAny<IReadOnlyChunkStore>()))
                 .ReturnsAsync(publishedVideoManifest);
-        
+
             // Action.
             await videoManifestValidatorTask.RunAsync(videoId, manifestHash.ToString());
-        
+
             // Assert.
             Assert.True(videoManifest.IsValid);
             Assert.NotNull(videoManifest.ValidationTime);

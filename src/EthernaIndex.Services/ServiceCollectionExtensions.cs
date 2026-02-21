@@ -1,14 +1,14 @@
-﻿// Copyright 2021-present Etherna SA
+// Copyright 2021-present Etherna SA
 // This file is part of Etherna Index.
-// 
+//
 // Etherna Index is free software: you can redistribute it and/or modify it under the terms of the
 // GNU Affero General Public License as published by the Free Software Foundation,
 // either version 3 of the License, or (at your option) any later version.
-// 
+//
 // Etherna Index is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
 // without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 // See the GNU Affero General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
@@ -37,7 +37,7 @@ namespace Etherna.EthernaIndex.Services
         public static void AddDomainServices(this IServiceCollection services, IConfiguration configuration)
         {
             ArgumentNullException.ThrowIfNull(configuration, nameof(configuration));
-            
+
             var currentType = typeof(ServiceCollectionExtensions).GetTypeInfo();
             var eventHandlersNamespace = $"{currentType.Namespace}.{EventHandlersSubNamespace}";
 
@@ -49,7 +49,7 @@ namespace Etherna.EthernaIndex.Services
                                     select t;
 
             services.AddDomainEvents(eventHandlerTypes);
-            
+
             // Options.
             services.Configure<SwarmOptions>(configuration.GetSection("Swarm"));
 
@@ -58,7 +58,7 @@ namespace Etherna.EthernaIndex.Services
             services.AddScoped<ISwarmService, SwarmService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IVideoService, VideoService>();
-            
+
             //tools
             services.AddScoped<IChunkService, ChunkService>();
             services.AddScoped<IVideoManifestService, VideoManifestService>();
@@ -66,12 +66,17 @@ namespace Etherna.EthernaIndex.Services
             // Tasks.
             services.AddTransient<IRebuildElasticIndexesTask, RebuildElasticIndexesTask>();
             services.AddTransient<IVideoManifestValidatorTask, VideoManifestValidatorTask>();
-            
+
             // Clients.
-            services.AddSingleton<IBeeClient>(sp =>
+            services.AddSingleton<ISwarmClient>(sp =>
             {
                 var options = sp.GetRequiredService<IOptions<SwarmOptions>>();
-                return new BeeClient(new Uri(options.Value.GatewayUrl));
+                var httpClient = sp.GetService<System.Net.Http.IHttpClientFactory>()?.CreateClient("EthernaIndex")
+                    ?? new System.Net.Http.HttpClient();
+                return new SwarmClient(
+                    nodeUrl: new Uri(options.Value.GatewayUrl),
+                    apiCompatibility: SwarmClients.Bee,
+                    httpClient);
             });
         }
     }

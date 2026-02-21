@@ -1,14 +1,14 @@
 // Copyright 2021-present Etherna SA
 // This file is part of Etherna Index.
-// 
+//
 // Etherna Index is free software: you can redistribute it and/or modify it under the terms of the
 // GNU Affero General Public License as published by the Free Software Foundation,
 // either version 3 of the License, or (at your option) any later version.
-// 
+//
 // Etherna Index is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
 // without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 // See the GNU Affero General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
@@ -25,21 +25,21 @@ namespace Etherna.EthernaIndex.Services.Infrastructure
     public class SwarmService : ISwarmService
     {
         // Fields.
-        private readonly Dictionary<SwarmHash, object> SwarmObjectMockups = new(); //hash->object
-        
+        private readonly Dictionary<SwarmReference, object> SwarmObjectMockups = new();
+
         // Methods.
         public Task<PublishedVideoManifest> GetPublishedVideoManifestAsync(
-            SwarmHash manifestHash,
+            SwarmReference manifestReference,
             IReadOnlyChunkStore chunkStore) =>
-            Task.FromResult((PublishedVideoManifest)SwarmObjectMockups[manifestHash]);
+            Task.FromResult((PublishedVideoManifest)SwarmObjectMockups[manifestReference]);
 
-        public void SetupHashMockup(SwarmHash hash, object returnedObject) =>
-            SwarmObjectMockups[hash] = returnedObject;
+        public void SetupHashMockup(SwarmReference reference, object returnedObject) =>
+            SwarmObjectMockups[reference] = returnedObject;
 
-        public PublishedVideoManifest SetupNewPublishedVideoManifestMockup(SwarmHash manifestHash)
+        public PublishedVideoManifest SetupNewPublishedVideoManifestMockup(SwarmReference manifestReference)
         {
             var manifest = new PublishedVideoManifest(
-                manifestHash,
+                manifestReference,
                 new VideoManifest(
                     1.77f,
                     PostageBatchId.Zero,
@@ -49,13 +49,13 @@ namespace Etherna.EthernaIndex.Services.Infrastructure
                     "Mocked sample video",
                     Nethereum.Util.AddressUtil.ZERO_ADDRESS,
                     """{"test":"sample"}""",
-                    [new VideoManifestVideoSource("sources/playlist.m3u8", VideoType.Hls, null, 100000000, [], SwarmHash.Zero)],
-                    new VideoManifestImage(1.77f, "LEHV6nWB2yk8pyo0adR*.7kCMdnj", [new VideoManifestImageSource("myThumb.jpg", ImageType.Jpeg, 480, SwarmHash.Zero)]),
+                    [new VideoManifestVideoSource("sources/playlist.m3u8", VideoType.Hls, null, 100000000, [], SwarmReference.PlainZero)],
+                    new VideoManifestImage(1.77f, "LEHV6nWB2yk8pyo0adR*.7kCMdnj", [new VideoManifestImageSource("myThumb.jpg", ImageType.Jpeg, 480, SwarmReference.PlainZero)]),
                     []
                 ),
                 []);
 
-            SetupHashMockup(manifestHash, manifest);
+            SetupHashMockup(manifestReference, manifest);
 
             return manifest;
         }
@@ -74,9 +74,9 @@ namespace Etherna.EthernaIndex.Services.Infrastructure
     {
         // Methods.
         public Task<PublishedVideoManifest> GetPublishedVideoManifestAsync(
-            SwarmHash manifestHash,
+            SwarmReference manifestReference,
             IReadOnlyChunkStore chunkStore) =>
-            videoManifestService.GetPublishedVideoManifestAsync(manifestHash, chunkStore);
+            videoManifestService.GetPublishedVideoManifestAsync(manifestReference, chunkStore);
     }
 }
 #endif
