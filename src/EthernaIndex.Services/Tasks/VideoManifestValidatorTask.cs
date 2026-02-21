@@ -77,7 +77,6 @@ namespace Etherna.EthernaIndex.Services.Tasks
                                 ts.Uri,
                                 ts.Metadata.ImageType.ToString()))),
                     publishedVideoManifest.Manifest.AspectRatio,
-                    publishedVideoManifest.Manifest.BatchId,
                     publishedVideoManifest.Manifest.CreatedAt.ToUnixTimeSeconds(),
                     publishedVideoManifest.Manifest.UpdatedAt?.ToUnixTimeSeconds(),
                     publishedVideoManifest.Manifest.PersonalDataRaw);

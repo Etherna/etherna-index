@@ -1,14 +1,14 @@
-﻿// Copyright 2021-present Etherna SA
+// Copyright 2021-present Etherna SA
 // This file is part of Etherna Index.
-// 
+//
 // Etherna Index is free software: you can redistribute it and/or modify it under the terms of the
 // GNU Affero General Public License as published by the Free Software Foundation,
 // either version 3 of the License, or (at your option) any later version.
-// 
+//
 // Etherna Index is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
 // without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 // See the GNU Affero General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
@@ -61,7 +61,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
             get
             {
                 var tests = new List<DeserializationTestElement<Comment>>();
-                
+
                 // "a846e95a-f99b-4d66-91a8-807a1ef34140" - v0.3.9
                 {
                     var sourceDocument =
@@ -121,22 +121,22 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                 {
                     var sourceDocument =
                         """
-                        { 
-                            "_id" : ObjectId("621d377079200245673f1071"), 
-                            "_m" : "8e509e8e-5c2b-4874-a734-ada4e2b91f92", 
-                            "CreationDateTime" : ISODate("2022-02-28T20:58:24.825+0000"), 
+                        {
+                            "_id" : ObjectId("621d377079200245673f1071"),
+                            "_m" : "8e509e8e-5c2b-4874-a734-ada4e2b91f92",
+                            "CreationDateTime" : ISODate("2022-02-28T20:58:24.825+0000"),
                             "Author" : {
-                                "_m" : "caa0968f-4493-485b-b8d0-bc40942e8684", 
-                                "_id" : ObjectId("6217ce1f89618c1a512354a1"), 
+                                "_m" : "caa0968f-4493-485b-b8d0-bc40942e8684",
+                                "_id" : ObjectId("6217ce1f89618c1a512354a1"),
                                 "IdentityManifest" : {
                                     "Hash" : "e61f2a29a228b7f6374268b44b51cfa533ca42c2b14fffd47c2dc6ce123456f3"
-                                }, 
+                                },
                                 "SharedInfoId" : "61cdffb4fa7c4052d258123b"
-                            }, 
+                            },
                             "IsFrozen" : true,
-                            "Text" : "test", 
+                            "Text" : "test",
                             "Video" : {
-                                "_m" : "d4844740-472d-48b9-b066-67ba9a2acc9b", 
+                                "_m" : "d4844740-472d-48b9-b066-67ba9a2acc9b",
                                 "_id" : ObjectId("621caf06ce0a123b360e640a")
                             }
                         }
@@ -179,19 +179,19 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                 {
                     var sourceDocument =
                         """
-                        { 
-                            "_id" : ObjectId("625e913775060536d8a75a8c"), 
-                            "_m" : "e3e734ab-d845-4ec2-8920-68956eba950d", 
-                            "CreationDateTime" : ISODate("2022-04-19T10:38:47.311+0000"), 
+                        {
+                            "_id" : ObjectId("625e913775060536d8a75a8c"),
+                            "_m" : "e3e734ab-d845-4ec2-8920-68956eba950d",
+                            "CreationDateTime" : ISODate("2022-04-19T10:38:47.311+0000"),
                             "Author" : {
-                                "_m" : "caa0968f-4493-485b-b8d0-bc40942e8684", 
-                                "_id" : ObjectId("625df43c74679c25b6c157eb"), 
+                                "_m" : "caa0968f-4493-485b-b8d0-bc40942e8684",
+                                "_id" : ObjectId("625df43c74679c25b6c157eb"),
                                 "SharedInfoId" : "625da02c2752994b203d3681"
-                            }, 
-                            "Description" : "Sample description", 
-                            "IsValidResult" : true, 
+                            },
+                            "Description" : "Sample description",
+                            "IsValidResult" : true,
                             "Video" : {
-                                "_m" : "d4844740-472d-48b9-b066-67ba9a2acc9b", 
+                                "_m" : "d4844740-472d-48b9-b066-67ba9a2acc9b",
                                 "_id" : ObjectId("625df43c74679c25b6c157ec")
                             }
                         }
@@ -230,24 +230,24 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                 {
                     var sourceDocument =
                         """
-                        { 
-                            "_id" : ObjectId("625e910375060536d8a75a8b"), 
-                            "_m" : "39e398d3-3199-43e1-8147-2876b534fbec", 
-                            "CreationDateTime" : ISODate("2022-04-19T10:37:55.057+0000"), 
-                            "Description" : "illegal content", 
-                            "IsArchived" : true, 
-                            "LastUpdate" : ISODate("2022-04-01T14:50:25.134+0000"), 
+                        {
+                            "_id" : ObjectId("625e910375060536d8a75a8b"),
+                            "_m" : "39e398d3-3199-43e1-8147-2876b534fbec",
+                            "CreationDateTime" : ISODate("2022-04-19T10:37:55.057+0000"),
+                            "Description" : "illegal content",
+                            "IsArchived" : true,
+                            "LastUpdate" : ISODate("2022-04-01T14:50:25.134+0000"),
                             "ReporterAuthor" : {
-                                "_m" : "caa0968f-4493-485b-b8d0-bc40942e8684", 
-                                "_id" : ObjectId("625df43c74679c25b6c157eb"), 
+                                "_m" : "caa0968f-4493-485b-b8d0-bc40942e8684",
+                                "_id" : ObjectId("625df43c74679c25b6c157eb"),
                                 "SharedInfoId" : "625da02c2752994b203d3681"
-                            }, 
+                            },
                             "Video" : {
-                                "_m" : "d4844740-472d-48b9-b066-67ba9a2acc9b", 
+                                "_m" : "d4844740-472d-48b9-b066-67ba9a2acc9b",
                                 "_id" : ObjectId("625df43c74679c25b6c157ec")
-                            }, 
+                            },
                             "VideoManifest" : {
-                                "_m" : "1ca89e6c-716c-4936-b7dc-908c057a3e41", 
+                                "_m" : "1ca89e6c-716c-4936-b7dc-908c057a3e41",
                                 "_id" : ObjectId("625df43c74679c25b6c157ed")
                             }
                         }
@@ -282,32 +282,32 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                 {
                     var sourceDocument =
                         """
-                        { 
-                            "_id" : ObjectId("621e32b14075df3daa1a34d5"), 
-                            "_m" : "91e7a66a-d1e2-48eb-9627-3c3c2ceb5e2d", 
-                            "CreationDateTime" : ISODate("2022-03-01T14:50:25.134+0000"), 
-                            "Description" : "violence", 
-                            "LastUpdate" : ISODate("2022-04-01T14:50:25.134+0000"), 
+                        {
+                            "_id" : ObjectId("621e32b14075df3daa1a34d5"),
+                            "_m" : "91e7a66a-d1e2-48eb-9627-3c3c2ceb5e2d",
+                            "CreationDateTime" : ISODate("2022-03-01T14:50:25.134+0000"),
+                            "Description" : "violence",
+                            "LastUpdate" : ISODate("2022-04-01T14:50:25.134+0000"),
                             "ReporterAuthor" : {
-                                "_m" : "caa0968f-4493-485b-b8d0-bc40942e8684", 
-                                "_id" : ObjectId("621d38a179200252573a008e"), 
+                                "_m" : "caa0968f-4493-485b-b8d0-bc40942e8684",
+                                "_id" : ObjectId("621d38a179200252573a008e"),
                                 "IdentityManifest" : {
                                     "Hash" : "07ca616dfd12337455c386f377ee4647a99d6550af3033f9b5a12a9ed5262cf0"
-                                }, 
+                                },
                                 "SharedInfoId" : "62189f757a067d123b7c4ec3"
-                            }, 
+                            },
                             "VideoManifest" : {
-                                "_m" : "f7966611-14aa-4f18-92f4-8697b4927fb6", 
-                                "CreationDateTime" : ISODate("2022-02-28T23:03:07.658+0000"), 
-                                "_id" : ObjectId("621d54ab0a7a47231123c790"), 
-                                "IsValid" : true, 
+                                "_m" : "f7966611-14aa-4f18-92f4-8697b4927fb6",
+                                "CreationDateTime" : ISODate("2022-02-28T23:03:07.658+0000"),
+                                "_id" : ObjectId("621d54ab0a7a47231123c790"),
+                                "IsValid" : true,
                                 "Manifest" : {
                                     "Hash" : "653443644f0a0d3ed874dae2e1735df91237390bfe87096e437f28322f957d41"
-                                }, 
+                                },
                                 "Video" : {
-                                    "_m" : "d4844740-472d-48b9-b066-67ba9a2acc9b", 
+                                    "_m" : "d4844740-472d-48b9-b066-67ba9a2acc9b",
                                     "_id" : ObjectId("621d54ab0a7a47231123c78f")
-                                }, 
+                                },
                                 "Title" : "test"
                             }
                         }
@@ -360,26 +360,26 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                 {
                     var sourceDocument =
                         """
-                        { 
-                            "_id" : ObjectId("625df43c74679c25b6c157eb"), 
-                            "_m" : "9a2d9664-31d5-4394-9a20-c8789cf0600d", 
-                            "CreationDateTime" : ISODate("2022-04-18T23:29:00.718+0000"), 
-                            "SharedInfoId" : "625da02c2752994b203d3681", 
+                        {
+                            "_id" : ObjectId("625df43c74679c25b6c157eb"),
+                            "_m" : "9a2d9664-31d5-4394-9a20-c8789cf0600d",
+                            "CreationDateTime" : ISODate("2022-04-18T23:29:00.718+0000"),
+                            "SharedInfoId" : "625da02c2752994b203d3681",
                             "Videos" : [
                                 {
-                                    "_m" : "cd4517e3-809d-455c-b7da-ba07c9e7280f", 
-                                    "_id" : ObjectId("625df43c74679c25b6c157ec"), 
+                                    "_m" : "cd4517e3-809d-455c-b7da-ba07c9e7280f",
+                                    "_id" : ObjectId("625df43c74679c25b6c157ec"),
                                     "LastValidManifest" : {
-                                        "_m" : "f7966611-14aa-4f18-92f4-8697b4927fb6", 
-                                        "CreationDateTime" : ISODate("2022-04-18T23:29:00.919+0000"), 
-                                        "_id" : ObjectId("625df43c74679c25b6c157ed"), 
-                                        "IsValid" : true, 
+                                        "_m" : "f7966611-14aa-4f18-92f4-8697b4927fb6",
+                                        "CreationDateTime" : ISODate("2022-04-18T23:29:00.919+0000"),
+                                        "_id" : ObjectId("625df43c74679c25b6c157ed"),
+                                        "IsValid" : true,
                                         "Manifest" : {
-                                            "_m" : "27edd50c-dd67-44d8-84ea-1eedcfe481e8", 
+                                            "_m" : "27edd50c-dd67-44d8-84ea-1eedcfe481e8",
                                             "Hash" : "568863d1a27feb3682b720d43cebd723ee09ce57c538831bf94bafc9408871c9"
-                                        }, 
-                                        "Duration" : 420.0, 
-                                        "Thumbnail" : null, 
+                                        },
+                                        "Duration" : 420.0,
+                                        "Thumbnail" : null,
                                         "Title" : "Mocked sample video"
                                     }
                                 }
@@ -399,21 +399,21 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                 {
                     var sourceDocument =
                         """
-                        { 
-                            "_id" : ObjectId("6217ce3489618456527854e4"), 
-                            "_m" : "a547abdc-420c-41f9-b496-e6cf704a3844", 
-                            "CreationDateTime" : ISODate("2022-02-24T18:28:04.685+0000"), 
+                        {
+                            "_id" : ObjectId("6217ce3489618456527854e4"),
+                            "_m" : "a547abdc-420c-41f9-b496-e6cf704a3844",
+                            "CreationDateTime" : ISODate("2022-02-24T18:28:04.685+0000"),
                             "IdentityManifest" : {
                                 "Hash" : "581e7f32c667eedf974566f52646a04cce04987a735a8af44c225f2ad085508e"
-                            }, 
-                            "SharedInfoId" : "61cdeb616b35d3455b9d68ce", 
+                            },
+                            "SharedInfoId" : "61cdeb616b35d3455b9d68ce",
                             "Videos" : [
                                 {
-                                    "_m" : "d4844740-472d-48b9-b066-67ba9a2acc9b", 
+                                    "_m" : "d4844740-472d-48b9-b066-67ba9a2acc9b",
                                     "_id" : ObjectId("6229f4e50a7a47231567c7af")
-                                }, 
+                                },
                                 {
-                                    "_m" : "d4844740-472d-48b9-b066-67ba9a2acc9b", 
+                                    "_m" : "d4844740-472d-48b9-b066-67ba9a2acc9b",
                                     "_id" : ObjectId("6233d1a2340695c8e564391a")
                                 }
                             ]
@@ -442,34 +442,34 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                 {
                     var sourceDocument =
                         """
-                        { 
-                            "_id" : ObjectId("625df43c74679c25b6c157ec"), 
-                            "_m" : "d0c48dd8-0887-4ac5-80e5-9b08c5dc77f1", 
-                            "CreationDateTime" : ISODate("2022-04-18T23:29:00.840+0000"), 
-                            "IsFrozen" : true, 
+                        {
+                            "_id" : ObjectId("625df43c74679c25b6c157ec"),
+                            "_m" : "d0c48dd8-0887-4ac5-80e5-9b08c5dc77f1",
+                            "CreationDateTime" : ISODate("2022-04-18T23:29:00.840+0000"),
+                            "IsFrozen" : true,
                             "LastValidManifest" : {
-                                "_m" : "f7966611-14aa-4f18-92f4-8697b4927fb6", 
-                                "CreationDateTime" : ISODate("2022-04-18T23:29:00.919+0000"), 
-                                "_id" : ObjectId("625df43c74679c25b6c157ed"), 
-                                "IsValid" : true, 
+                                "_m" : "f7966611-14aa-4f18-92f4-8697b4927fb6",
+                                "CreationDateTime" : ISODate("2022-04-18T23:29:00.919+0000"),
+                                "_id" : ObjectId("625df43c74679c25b6c157ed"),
+                                "IsValid" : true,
                                 "Manifest" : {
-                                    "_m" : "27edd50c-dd67-44d8-84ea-1eedcfe481e8", 
+                                    "_m" : "27edd50c-dd67-44d8-84ea-1eedcfe481e8",
                                     "Hash" : "568863d1a27feb3682b720d43cebd723ee09ce57c538831bf94bafc9408871c9"
-                                }, 
-                                "Duration" : 420.0, 
-                                "Thumbnail" : null, 
+                                },
+                                "Duration" : 420.0,
+                                "Thumbnail" : null,
                                 "Title" : "Mocked sample video"
-                            }, 
+                            },
                             "Owner" : {
-                                "_m" : "caa0968f-4493-485b-b8d0-bc40942e8684", 
-                                "_id" : ObjectId("625df43c74679c25b6c157eb"), 
+                                "_m" : "caa0968f-4493-485b-b8d0-bc40942e8684",
+                                "_id" : ObjectId("625df43c74679c25b6c157eb"),
                                 "SharedInfoId" : "625da02c2752994b203d3681"
-                            }, 
-                            "TotDownvotes" : NumberLong(1), 
-                            "TotUpvotes" : NumberLong(2), 
+                            },
+                            "TotDownvotes" : NumberLong(1),
+                            "TotUpvotes" : NumberLong(2),
                             "VideoManifests" : [
                                 {
-                                    "_m" : "1ca89e6c-716c-4936-b7dc-908c057a3e41", 
+                                    "_m" : "1ca89e6c-716c-4936-b7dc-908c057a3e41",
                                     "_id" : ObjectId("625df43c74679c25b6c157ed")
                                 }
                             ]
@@ -501,49 +501,49 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                 {
                     var sourceDocument =
                         """
-                        { 
-                            "_id" : ObjectId("6229f4e50a4567231a0ec7af"), 
-                            "_m" : "abfbd104-35ff-4429-9afc-79304a11efc0", 
-                            "CreationDateTime" : ISODate("2022-03-10T12:53:57.191+0000"), 
-                            "EncryptionKey" : null, 
-                            "EncryptionType" : "Plain", 
+                        {
+                            "_id" : ObjectId("6229f4e50a4567231a0ec7af"),
+                            "_m" : "abfbd104-35ff-4429-9afc-79304a11efc0",
+                            "CreationDateTime" : ISODate("2022-03-10T12:53:57.191+0000"),
+                            "EncryptionKey" : null,
+                            "EncryptionType" : "Plain",
                             "Owner" : {
-                                "_m" : "caa0968f-4493-485b-b8d0-bc40942e8684", 
-                                "_id" : ObjectId("6217ce348967891a527854e4"), 
+                                "_m" : "caa0968f-4493-485b-b8d0-bc40942e8684",
+                                "_id" : ObjectId("6217ce348967891a527854e4"),
                                 "IdentityManifest" : {
                                     "Hash" : "581e7f32c667eedf975745652646a04cce04987a735a8af44c225f2ad085508e"
-                                }, 
+                                },
                                 "SharedInfoId" : "61cdeb611235d8985b9d68ce"
-                            }, 
-                            "TotDownvotes" : NumberLong(1), 
-                            "TotUpvotes" : NumberLong(2), 
+                            },
+                            "TotDownvotes" : NumberLong(1),
+                            "TotUpvotes" : NumberLong(2),
                             "VideoManifests" : [
                                 {
-                                    "_m" : "f7966611-14aa-4f18-92f4-8697b4927fb6", 
-                                    "CreationDateTime" : ISODate("2022-03-10T12:53:57.235+0000"), 
-                                    "_id" : ObjectId("6229f475127a47231a0ec7b0"), 
-                                    "IsValid" : true, 
+                                    "_m" : "f7966611-14aa-4f18-92f4-8697b4927fb6",
+                                    "CreationDateTime" : ISODate("2022-03-10T12:53:57.235+0000"),
+                                    "_id" : ObjectId("6229f475127a47231a0ec7b0"),
+                                    "IsValid" : true,
                                     "Manifest" : {
                                         "Hash" : "8d14d87c6663d39fb5e57ae46963588c61eb0c9641dfac23cb3c37ec189d2634"
-                                    }, 
+                                    },
                                     "Video" : {
-                                        "_m" : "d4844740-472d-48b9-b066-67ba9a2acc9b", 
+                                        "_m" : "d4844740-472d-48b9-b066-67ba9a2acc9b",
                                         "_id" : ObjectId("6229f4e50a7a47231a7537af")
-                                    }, 
+                                    },
                                     "Title" : "Test1"
-                                }, 
+                                },
                                 {
-                                    "_m" : "f7966611-14aa-4f18-92f4-8697b4927fb6", 
-                                    "CreationDateTime" : ISODate("2022-03-10T13:17:57.667+0000"), 
-                                    "_id" : ObjectId("6229fa8540452f3d336a34ee"), 
-                                    "IsValid" : true, 
+                                    "_m" : "f7966611-14aa-4f18-92f4-8697b4927fb6",
+                                    "CreationDateTime" : ISODate("2022-03-10T13:17:57.667+0000"),
+                                    "_id" : ObjectId("6229fa8540452f3d336a34ee"),
+                                    "IsValid" : true,
                                     "Manifest" : {
                                         "Hash" : "3ef2e441eac00e3685615bf90a16385b7aee97084f4cab6301bdbf76a1ed9d74"
-                                    }, 
+                                    },
                                     "Video" : {
-                                        "_m" : "d4844740-472d-48b9-b066-67ba9a2acc9b", 
+                                        "_m" : "d4844740-472d-48b9-b066-67ba9a2acc9b",
                                         "_id" : ObjectId("6229f4e50a7a47231a7537af")
-                                    }, 
+                                    },
                                     "Title" : "Test2"
                                 }
                             ]
@@ -582,7 +582,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
             get
             {
                 var tests = new List<DeserializationTestElement<VideoManifest>>();
-                
+
                 // "4d75fd4f-157a-4c0f-a5fa-e8a17ed28887" - v0.3.12
                 // valid manifest v2 (omit variants because metadata is unchanged since v0.3.9)
                 {
@@ -629,12 +629,12 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                                 "UpdatedAt" : NumberLong(234567)
                             },
                             "ValidationErrors" : [
-                        
+
                             ],
                             "ValidationTime" : ISODate("2024-09-05T18:45:22.917+0000")
                         }
                         """;
-                    
+
                     var expectedManifestMock = new Mock<VideoManifest>();
                     expectedManifestMock.Setup(m => m.Id).Returns("66d9fc4221511c9bec47bf0a");
                     expectedManifestMock.Setup(m => m.CreationDateTime).Returns(new DateTime(2024, 09, 05, 18, 45, 22, 328));
@@ -643,7 +643,6 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                     {
                         var metadataMock = new Mock<VideoManifestMetadataV2>();
                         metadataMock.Setup(m => m.AspectRatio).Returns(1.7699999809265137f);
-                        metadataMock.Setup(m => m.BatchId).Returns("36b7efd913ca4cf880b8eeac5093fa27b0825906c600685b6abdd6566e6cfe8f");
                         metadataMock.Setup(m => m.CreatedAt).Returns(123456);
                         metadataMock.Setup(m => m.Description).Returns("Test description");
                         metadataMock.Setup(m => m.Duration).Returns(420);
@@ -670,7 +669,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                 // "c32a815b-4667-4534-8276-eb3c1d812d09" - v0.3.9
                 // invalid manifest
                 {
-                    var sourceDocument = 
+                    var sourceDocument =
                         """
                         {
                             "_id" : ObjectId("64b407f64a709a0ceb86b07c"),
@@ -747,7 +746,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                                 "PersonalData" : "{\"test\":\"sample\"}"
                             },
                             "ValidationErrors" : [
-                        
+
                             ],
                             "ValidationTime" : ISODate("2023-07-16T14:32:14.321+0000")
                         }
@@ -833,7 +832,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                                 "UpdatedAt" : NumberLong(234567)
                             },
                             "ValidationErrors" : [
-                        
+
                             ],
                             "ValidationTime" : ISODate("2023-07-16T15:14:27.404+0000")
                         }
@@ -847,7 +846,6 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                     {
                         var metadataMock = new Mock<VideoManifestMetadataV2>();
                         metadataMock.Setup(m => m.AspectRatio).Returns(1.7699999809265137f);
-                        metadataMock.Setup(m => m.BatchId).Returns("36b7efd913ca4cf880b8eeac5093fa27b0825906c600685b6abdd6566e6cfe8f");
                         metadataMock.Setup(m => m.CreatedAt).Returns(123456);
                         metadataMock.Setup(m => m.Description).Returns("Test description");
                         metadataMock.Setup(m => m.Duration).Returns(420);
@@ -941,7 +939,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                                 "Hash" : "765a93649a58db3a4a85d800aa8111b13c7082e081b5ea186885d95cdd232dcb"
                             },
                             "ValidationErrors" : [
-                        
+
                             ],
                             "ValidationTime" : ISODate("2022-08-31T18:50:26.473+0000"),
                             "BatchId" : "36b7efd913ca4cf880b8eeac5093fa27b0825906c600685b6abdd6566e6cfe8f",
@@ -1001,37 +999,37 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                 {
                     var sourceDocument =
                         """
-                        { 
-                            "_id" : ObjectId("625df43c74679c25b6c157ed"), 
-                            "_m" : "dc33442b-ae1e-428b-8b63-5dafbf192ba8", 
-                            "CreationDateTime" : ISODate("2022-04-18T23:29:00.919+0000"), 
+                        {
+                            "_id" : ObjectId("625df43c74679c25b6c157ed"),
+                            "_m" : "dc33442b-ae1e-428b-8b63-5dafbf192ba8",
+                            "CreationDateTime" : ISODate("2022-04-18T23:29:00.919+0000"),
                             "ErrorValidationResults" : [
                                 {
                                     "ErrorMessage": "MissingTitle",
                                     "ErrorType": "MissingTitle"
                                 }
-                            ], 
-                            "IsValid" : false, 
+                            ],
+                            "IsValid" : false,
                             "Manifest" : {
-                                "_m" : "27edd50c-dd67-44d8-84ea-1eedcfe481e8", 
+                                "_m" : "27edd50c-dd67-44d8-84ea-1eedcfe481e8",
                                 "Hash" : "568863d1a27feb3682b720d43cebd723ee09ce57c538831bf94bafc9408871c9"
-                            }, 
-                            "ValidationTime" : ISODate("2022-04-18T23:29:06.299+0000"), 
+                            },
+                            "ValidationTime" : ISODate("2022-04-18T23:29:06.299+0000"),
                             "Description" : "Test description",
-                            "Duration" : 420.024, 
-                            "OriginalQuality" : "720p", 
+                            "Duration" : 420.024,
+                            "OriginalQuality" : "720p",
                             "Sources" : [
                                 {
-                                    "_m" : "ca9caff9-df18-4101-a362-f8f449bb2aac", 
-                                    "Bitrate" : NumberInt(560000), 
-                                    "Quality" : "720p", 
-                                    "Reference" : "5FDAC6FCBBBC3CA5DBEAACFA0CF8F5777DB36793931E177D870C45E0D70CE637", 
+                                    "_m" : "ca9caff9-df18-4101-a362-f8f449bb2aac",
+                                    "Bitrate" : NumberInt(560000),
+                                    "Quality" : "720p",
+                                    "Reference" : "5FDAC6FCBBBC3CA5DBEAACFA0CF8F5777DB36793931E177D870C45E0D70CE637",
                                     "Size" : NumberLong(100000000)
                                 }
-                            ], 
+                            ],
                             "Thumbnail" : {
-                                "AspectRatio" : 1.7777777910232544, 
-                                "BlurHash" : "LEHV6nWB2yk8pyo0adR*.7kCMdnj", 
+                                "AspectRatio" : 1.7777777910232544,
+                                "BlurHash" : "LEHV6nWB2yk8pyo0adR*.7kCMdnj",
                                 "Sources" : {
                                     "480w" : "a015d8923a777bf8230291318274a5f9795b4bb9445ad41a2667d06df1ea3008"
                                 }
@@ -1055,35 +1053,35 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                 {
                     var sourceDocument =
                         """
-                        { 
-                            "_id" : ObjectId("625df43c74679c25b6c157ed"), 
-                            "_m" : "dc33442b-ae1e-428b-8b63-5dafbf192ba8", 
-                            "CreationDateTime" : ISODate("2022-04-18T23:29:00.919+0000"), 
+                        {
+                            "_id" : ObjectId("625df43c74679c25b6c157ed"),
+                            "_m" : "dc33442b-ae1e-428b-8b63-5dafbf192ba8",
+                            "CreationDateTime" : ISODate("2022-04-18T23:29:00.919+0000"),
                             "ErrorValidationResults" : [
-                        
-                            ], 
-                            "IsValid" : true, 
+
+                            ],
+                            "IsValid" : true,
                             "Manifest" : {
-                                "_m" : "27edd50c-dd67-44d8-84ea-1eedcfe481e8", 
+                                "_m" : "27edd50c-dd67-44d8-84ea-1eedcfe481e8",
                                 "Hash" : "568863d1a27feb3682b720d43cebd723ee09ce57c538831bf94bafc9408871c9"
-                            }, 
-                            "ValidationTime" : ISODate("2022-04-18T23:29:06.299+0000"), 
+                            },
+                            "ValidationTime" : ISODate("2022-04-18T23:29:06.299+0000"),
                             "Description" : "Test description",
-                            "Duration" : 420.024, 
-                            "OriginalQuality" : "720p", 
+                            "Duration" : 420.024,
+                            "OriginalQuality" : "720p",
                             "Sources" : [
                                 {
-                                    "_m" : "ca9caff9-df18-4101-a362-f8f449bb2aac", 
-                                    "Bitrate" : NumberInt(560000), 
-                                    "Quality" : "720p", 
-                                    "Reference" : "5FDAC6FCBBBC3CA5DBEAACFA0CF8F5777DB36793931E177D870C45E0D70CE637", 
+                                    "_m" : "ca9caff9-df18-4101-a362-f8f449bb2aac",
+                                    "Bitrate" : NumberInt(560000),
+                                    "Quality" : "720p",
+                                    "Reference" : "5FDAC6FCBBBC3CA5DBEAACFA0CF8F5777DB36793931E177D870C45E0D70CE637",
                                     "Size" : NumberLong(100000000)
                                 }
-                            ], 
-                            "Title" : "Mocked sample video", 
+                            ],
+                            "Title" : "Mocked sample video",
                             "Thumbnail" : {
-                                "AspectRatio" : 1.7777777910232544, 
-                                "BlurHash" : "LEHV6nWB2yk8pyo0adR*.7kCMdnj", 
+                                "AspectRatio" : 1.7777777910232544,
+                                "BlurHash" : "LEHV6nWB2yk8pyo0adR*.7kCMdnj",
                                 "Sources" : {
                                     "480w" : "a015d8923a777bf8230291318274a5f9795b4bb9445ad41a2667d06df1ea3008"
                                 }
@@ -1122,44 +1120,44 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                 {
                     var sourceDocument =
                         """
-                        { 
-                            "_id" : ObjectId("622e619a0a7a47231a0ec7b5"), 
-                            "_m" : "ec578080-ccd2-4d49-8a76-555b10a5dad5", 
-                            "CreationDateTime" : ISODate("2022-03-13T21:26:50.359+0000"), 
+                        {
+                            "_id" : ObjectId("622e619a0a7a47231a0ec7b5"),
+                            "_m" : "ec578080-ccd2-4d49-8a76-555b10a5dad5",
+                            "CreationDateTime" : ISODate("2022-03-13T21:26:50.359+0000"),
                             "ErrorValidationResults" : [
                                 {
                                     "ErrorMessage": "MissingTitle",
                                     "ErrorType": "MissingTitle"
                                 }
-                            ], 
-                            "IsValid" : false, 
+                            ],
+                            "IsValid" : false,
                             "Manifest" : {
                                 "Hash" : "ce601b421535419ae5c536d736075afb9eaac39e304c75357ef9312251704232"
-                            }, 
-                            "ValidationTime" : ISODate("2022-03-13T21:26:50.455+0000"), 
-                            "Description" : "Test description", 
-                            "Duration" : 900.0054321289062, 
-                            "OriginalQuality" : "720p", 
+                            },
+                            "ValidationTime" : ISODate("2022-03-13T21:26:50.455+0000"),
+                            "Description" : "Test description",
+                            "Duration" : 900.0054321289062,
+                            "OriginalQuality" : "720p",
                             "Sources" : [
                                 {
-                                    "Bitrate" : NumberInt(557647), 
-                                    "Quality" : "720p", 
-                                    "Reference" : "d88f68aa5b157ce6bda355d8bd54179df264a899c03bf5bdf0d4569f20a6933b", 
+                                    "Bitrate" : NumberInt(557647),
+                                    "Quality" : "720p",
+                                    "Reference" : "d88f68aa5b157ce6bda355d8bd54179df264a899c03bf5bdf0d4569f20a6933b",
                                     "Size" : NumberInt(62735710)
                                 }
-                            ], 
+                            ],
                             "Thumbnail" : {
-                                "AspectRatio" : 1.7777777910232544, 
-                                "BlurHash" : "LEHV6nWB2yk8pyo0adR*.7kCMdnj", 
+                                "AspectRatio" : 1.7777777910232544,
+                                "BlurHash" : "LEHV6nWB2yk8pyo0adR*.7kCMdnj",
                                 "Sources" : {
-                                    "1920w" : "5d2a835a77269dc7bb1fb6be7b12407326cf6dcde4bd14f41b92be9d82414421", 
-                                    "480w" : "a015d8923a777bf8230291318274a5f9795b4bb9445ad41a2667d06df1ea3008", 
-                                    "960w" : "60f8f4b17cdae08da8d03f7fa3476f47d7d29517351ffe7bd9f171b929680009", 
+                                    "1920w" : "5d2a835a77269dc7bb1fb6be7b12407326cf6dcde4bd14f41b92be9d82414421",
+                                    "480w" : "a015d8923a777bf8230291318274a5f9795b4bb9445ad41a2667d06df1ea3008",
+                                    "960w" : "60f8f4b17cdae08da8d03f7fa3476f47d7d29517351ffe7bd9f171b929680009",
                                     "1440w" : "7eb77f7d0c2d17d9e05036f154b4d26091ba3e7d0ccfe8ebda49cda2bb94cd9b"
                                 }
-                            }, 
+                            },
                             "Video" : {
-                                "_m" : "d4844740-472d-48b9-b066-67ba9a2acc9b", 
+                                "_m" : "d4844740-472d-48b9-b066-67ba9a2acc9b",
                                 "_id" : ObjectId("6229f4e50a7a47231a0ec7af")
                             }
                         }
@@ -1181,42 +1179,42 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                 {
                     var sourceDocument =
                         """
-                        { 
-                            "_id" : ObjectId("622e619a0a7a47231a0ec7b5"), 
-                            "_m" : "ec578080-ccd2-4d49-8a76-555b10a5dad5", 
-                            "CreationDateTime" : ISODate("2022-03-13T21:26:50.359+0000"), 
+                        {
+                            "_id" : ObjectId("622e619a0a7a47231a0ec7b5"),
+                            "_m" : "ec578080-ccd2-4d49-8a76-555b10a5dad5",
+                            "CreationDateTime" : ISODate("2022-03-13T21:26:50.359+0000"),
                             "ErrorValidationResults" : [
-                        
-                            ], 
-                            "IsValid" : true, 
+
+                            ],
+                            "IsValid" : true,
                             "Manifest" : {
                                 "Hash" : "ce601b421535419ae5c536d736075afb9eaac39e304c75357ef9312251704232"
-                            }, 
-                            "ValidationTime" : ISODate("2022-03-13T21:26:50.455+0000"), 
-                            "Description" : "Test description", 
-                            "Duration" : 900.0054321289062, 
-                            "OriginalQuality" : "720p", 
+                            },
+                            "ValidationTime" : ISODate("2022-03-13T21:26:50.455+0000"),
+                            "Description" : "Test description",
+                            "Duration" : 900.0054321289062,
+                            "OriginalQuality" : "720p",
                             "Sources" : [
                                 {
-                                    "Bitrate" : NumberInt(557647), 
-                                    "Quality" : "720p", 
-                                    "Reference" : "d88f68aa5b157ce6bda355d8bd54179df264a899c03bf5bdf0d4569f20a6933b", 
+                                    "Bitrate" : NumberInt(557647),
+                                    "Quality" : "720p",
+                                    "Reference" : "d88f68aa5b157ce6bda355d8bd54179df264a899c03bf5bdf0d4569f20a6933b",
                                     "Size" : NumberInt(62735710)
                                 }
-                            ], 
-                            "Title" : "Etherna WAM presentation", 
+                            ],
+                            "Title" : "Etherna WAM presentation",
                             "Thumbnail" : {
-                                "AspectRatio" : 1.7777777910232544, 
-                                "BlurHash" : "LEHV6nWB2yk8pyo0adR*.7kCMdnj", 
+                                "AspectRatio" : 1.7777777910232544,
+                                "BlurHash" : "LEHV6nWB2yk8pyo0adR*.7kCMdnj",
                                 "Sources" : {
-                                    "1920w" : "5d2a835a77269dc7bb1fb6be7b12407326cf6dcde4bd14f41b92be9d82414421", 
-                                    "480w" : "a015d8923a777bf8230291318274a5f9795b4bb9445ad41a2667d06df1ea3008", 
-                                    "960w" : "60f8f4b17cdae08da8d03f7fa3476f47d7d29517351ffe7bd9f171b929680009", 
+                                    "1920w" : "5d2a835a77269dc7bb1fb6be7b12407326cf6dcde4bd14f41b92be9d82414421",
+                                    "480w" : "a015d8923a777bf8230291318274a5f9795b4bb9445ad41a2667d06df1ea3008",
+                                    "960w" : "60f8f4b17cdae08da8d03f7fa3476f47d7d29517351ffe7bd9f171b929680009",
                                     "1440w" : "7eb77f7d0c2d17d9e05036f154b4d26091ba3e7d0ccfe8ebda49cda2bb94cd9b"
                                 }
-                            }, 
+                            },
                             "Video" : {
-                                "_m" : "d4844740-472d-48b9-b066-67ba9a2acc9b", 
+                                "_m" : "d4844740-472d-48b9-b066-67ba9a2acc9b",
                                 "_id" : ObjectId("6229f4e50a7a47231a0ec7af")
                             }
                         }
@@ -1265,21 +1263,21 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                 {
                     var sourceDocument =
                         """
-                        { 
-                            "_id" : ObjectId("621e90110a7a47231a0ec797"), 
-                            "_m" : "624955bf-8c09-427f-93da-fc6ddb9668a6", 
-                            "CreationDateTime" : ISODate("2022-03-01T21:28:49.590+0000"), 
+                        {
+                            "_id" : ObjectId("621e90110a7a47231a0ec797"),
+                            "_m" : "624955bf-8c09-427f-93da-fc6ddb9668a6",
+                            "CreationDateTime" : ISODate("2022-03-01T21:28:49.590+0000"),
                             "Owner" : {
-                                "_m" : "caa0968f-4493-485b-b8d0-bc40942e8684", 
-                                "_id" : ObjectId("621d38a179200252573f108e"), 
+                                "_m" : "caa0968f-4493-485b-b8d0-bc40942e8684",
+                                "_id" : ObjectId("621d38a179200252573f108e"),
                                 "IdentityManifest" : {
                                     "Hash" : "07ca616dfd2f137455c386f377ee4647a99d6550af3033f9b5a12a9ed5262cf0"
-                                }, 
+                                },
                                 "SharedInfoId" : "62189f757a067d558b7c4ec3"
-                            }, 
-                            "Value" : "Up", 
+                            },
+                            "Value" : "Up",
                             "Video" : {
-                                "_m" : "d4844740-472d-48b9-b066-67ba9a2acc9b", 
+                                "_m" : "d4844740-472d-48b9-b066-67ba9a2acc9b",
                                 "_id" : ObjectId("621d54ab0a7a47231a0ec78f")
                             }
                         }
@@ -1488,7 +1486,6 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                     var resultMetadataV2 = result.Metadata as VideoManifestMetadataV2;
                     Assert.NotNull(resultMetadataV2);
                     Assert.Equal(expectedMetadataV2.AspectRatio, resultMetadataV2.AspectRatio);
-                    Assert.Equal(expectedMetadataV2.BatchId, resultMetadataV2.BatchId);
                     Assert.Equal(expectedMetadataV2.CreatedAt, resultMetadataV2.CreatedAt);
                     Assert.Equal(expectedMetadataV2.Description, resultMetadataV2.Description);
                     Assert.Equal(expectedMetadataV2.Duration, resultMetadataV2.Duration);
