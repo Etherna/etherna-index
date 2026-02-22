@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <RootNamespace>Etherna.EthernaIndex.ElasticSearch</RootNamespace>
 
     <Authors>Etherna SA</Authors>
@@ -14,7 +14,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Elastic.Clients.Elasticsearch" Version="9.2.1" />
+    <PackageReference Include="Elastic.Clients.Elasticsearch" Version="9.3.0" />
   </ItemGroup>
 
   <ItemGroup>

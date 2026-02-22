@@ -13,7 +13,7 @@
 // If not, see <https://www.gnu.org/licenses/>.
 
 using Etherna.BeeNet.Models;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
 
@@ -21,15 +21,16 @@ namespace Etherna.EthernaIndex.Configs.Swagger.SchemaFilters
 {
     public class SwarmUriSchemaFilter : ISchemaFilter
     {
-        public void Apply(OpenApiSchema schema, SchemaFilterContext context)
+        public void Apply(IOpenApiSchema schema, SchemaFilterContext context)
         {
-            ArgumentNullException.ThrowIfNull(schema, nameof(schema));
-            ArgumentNullException.ThrowIfNull(context, nameof(context));
-            
+            ArgumentNullException.ThrowIfNull(schema);
+            ArgumentNullException.ThrowIfNull(context);
+
+            var concreteSchema = (OpenApiSchema)schema;
             if (context.Type == typeof(SwarmHash))
             {
-                schema.Type = "string";
-                schema.Format = null;
+                concreteSchema.Type = JsonSchemaType.String;
+                concreteSchema.Format = null;
             }
         }
     }

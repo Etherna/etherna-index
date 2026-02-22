@@ -37,7 +37,7 @@ namespace Etherna.EthernaIndex.Services.Tasks
     public class VideoManifestValidatorTaskTest
     {
         // Fields.
-        private readonly Mock<IBeeClient> beeClientMock = new();
+        private readonly Mock<ISwarmClient> beeClientMock = new();
         private readonly VideoManifestValidatorTask videoManifestValidatorTask;
         private readonly SwarmHash manifestHash = "1a345a1d73fd8f28d71e6b03d2e42f44721db94b734c2edcfe6fcd48b76a74f9";
         private readonly string videoId = "videoId";
