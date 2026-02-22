@@ -13,6 +13,7 @@
 // If not, see <https://www.gnu.org/licenses/>.
 
 using Asp.Versioning.ApiExplorer;
+using Duende.AccessTokenManagement.OpenIdConnect;
 using Etherna.ACR.Conventions;
 using Etherna.ACR.Exceptions;
 using Etherna.ACR.Middlewares.DebugPages;
@@ -52,7 +53,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using Serilog;
 using Serilog.Exceptions;
 using Serilog.Sinks.Elasticsearch;
@@ -67,7 +68,7 @@ using System.Reflection;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using DashboardOptions = Etherna.MongODM.AspNetCore.UI.DashboardOptions;
-using IPNetwork = Microsoft.AspNetCore.HttpOverrides.IPNetwork;
+using IPNetwork = System.Net.IPNetwork;
 
 namespace Etherna.EthernaIndex
 {
@@ -183,7 +184,7 @@ namespace Etherna.EthernaIndex
                     });
 
                     foreach (var network in networks)
-                        options.KnownNetworks.Add(network);
+                        options.KnownIPNetworks.Add(network);
                 }
             });
 

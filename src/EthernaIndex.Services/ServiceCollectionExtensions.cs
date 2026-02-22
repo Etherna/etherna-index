@@ -68,10 +68,10 @@ namespace Etherna.EthernaIndex.Services
             services.AddTransient<IVideoManifestValidatorTask, VideoManifestValidatorTask>();
             
             // Clients.
-            services.AddSingleton<IBeeClient>(sp =>
+            services.AddSingleton<ISwarmClient>(sp =>
             {
                 var options = sp.GetRequiredService<IOptions<SwarmOptions>>();
-                return new BeeClient(new Uri(options.Value.GatewayUrl));
+                return new SwarmClient(new Uri(options.Value.GatewayUrl));
             });
         }
     }

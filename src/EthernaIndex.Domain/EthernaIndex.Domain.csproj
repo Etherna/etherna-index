@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <RootNamespace>Etherna.EthernaIndex.Domain</RootNamespace>
 
     <Authors>Etherna SA</Authors>
@@ -15,8 +15,8 @@
 
   <ItemGroup>
     <PackageReference Include="Etherna.DomainEvents" Version="1.5.0" />
-    <PackageReference Include="EthernaSdk.Tools.Video" Version="0.4.0-alpha.201" />
-    <PackageReference Include="MongODM.Core" Version="0.25.0-alpha.49" />
+    <PackageReference Include="EthernaSdk.Tools.Video" Version="0.4.0-alpha.214" />
+    <PackageReference Include="MongODM.Core" Version="0.25.0-alpha.53" />
   </ItemGroup>
 
 </Project>

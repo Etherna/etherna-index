@@ -13,7 +13,7 @@
 // If not, see <https://www.gnu.org/licenses/>.
 
 using Etherna.BeeNet.Models;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
 
@@ -21,18 +21,19 @@ namespace Etherna.EthernaIndex.Configs.Swagger.SchemaFilters
 {
     public class PostageBatchIdSchemaFilter : ISchemaFilter
     {
-        public void Apply(OpenApiSchema schema, SchemaFilterContext context)
+        public void Apply(IOpenApiSchema schema, SchemaFilterContext context)
         {
-            ArgumentNullException.ThrowIfNull(schema, nameof(schema));
-            ArgumentNullException.ThrowIfNull(context, nameof(context));
+            ArgumentNullException.ThrowIfNull(schema);
+            ArgumentNullException.ThrowIfNull(context);
             
+            var concreteSchema = (OpenApiSchema)schema;
             if (context.Type == typeof(PostageBatchId))
             {
-                schema.Type = "string";
-                schema.Format = null;
-                schema.MinLength = PostageBatchId.BatchIdSize * 2;
-                schema.MaxLength = PostageBatchId.BatchIdSize * 2;
-                schema.Pattern = $"^[a-fA-F0-9]{{{PostageBatchId.BatchIdSize * 2}}}$";
+                concreteSchema.Type = JsonSchemaType.String;
+                concreteSchema.Format = null;
+                concreteSchema.MinLength = PostageBatchId.BatchIdSize * 2;
+                concreteSchema.MaxLength = PostageBatchId.BatchIdSize * 2;
+                concreteSchema.Pattern = $"^[a-fA-F0-9]{{{PostageBatchId.BatchIdSize * 2}}}$";
             }
         }
     }

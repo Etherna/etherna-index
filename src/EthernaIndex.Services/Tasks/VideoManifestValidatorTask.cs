@@ -27,7 +27,7 @@ using System.Threading.Tasks;
 namespace Etherna.EthernaIndex.Services.Tasks
 {
     public class VideoManifestValidatorTask(
-        IBeeClient beeClient,
+        ISwarmClient beeClient,
         IIndexDbContext indexDbContext,
         ILogger<VideoManifestValidatorTask> logger,
         ISwarmService swarmService)
@@ -47,7 +47,7 @@ namespace Etherna.EthernaIndex.Services.Tasks
             var videoManifest = await indexDbContext.VideoManifests.FindOneAsync(u => u.ManifestHash == manifestHash);
 
             // Get video manifest.
-            var chunkStore = new BeeClientChunkStore(beeClient);
+            var chunkStore = new SwarmClientChunkStore(beeClient);
 #if DEBUG_MOCKUP_SWARM
             swarmService.SetupNewPublishedVideoManifestMockup(manifestHash);
 #endif
