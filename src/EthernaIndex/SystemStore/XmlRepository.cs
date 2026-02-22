@@ -36,7 +36,10 @@ namespace Etherna.EthernaIndex.SystemStore
             ArgumentNullException.ThrowIfNull(options, nameof(options));
 
             // Initialize MongoDB driver.
+            #pragma warning disable CA2000
             var client = new MongoClient(options.ConnectionString);
+            #pragma warning restore CA2000
+            
             var database = client.GetDatabase(options.DbName);
             collection = database.GetCollection<BsonDocument>(name);
         }

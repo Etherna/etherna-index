@@ -13,6 +13,7 @@
 // If not, see <https://www.gnu.org/licenses/>.
 
 using Etherna.BeeNet.Models;
+using Etherna.BeeNet.Stores;
 using Etherna.Sdk.Tools.Video.Models;
 using System.Threading.Tasks;
 
@@ -20,7 +21,9 @@ namespace Etherna.EthernaIndex.Services.Infrastructure
 {
     public interface ISwarmService
     {
-        Task<PublishedVideoManifest> GetPublishedVideoManifestAsync(SwarmHash manifestHash);
+        Task<PublishedVideoManifest> GetPublishedVideoManifestAsync(
+            SwarmHash manifestHash,
+            IReadOnlyChunkStore chunkStore);
         
 #if DEBUG_MOCKUP_SWARM
         void SetupHashMockup(SwarmHash hash, object returnedObject);

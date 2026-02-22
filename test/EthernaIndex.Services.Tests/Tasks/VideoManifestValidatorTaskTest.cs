@@ -12,7 +12,9 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
+using Etherna.BeeNet;
 using Etherna.BeeNet.Models;
+using Etherna.BeeNet.Stores;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.Domain.Models.UserAgg;
@@ -35,6 +37,7 @@ namespace Etherna.EthernaIndex.Services.Tasks
     public class VideoManifestValidatorTaskTest
     {
         // Fields.
+        private readonly Mock<IBeeClient> beeClientMock = new();
         private readonly VideoManifestValidatorTask videoManifestValidatorTask;
         private readonly SwarmHash manifestHash = "1a345a1d73fd8f28d71e6b03d2e42f44721db94b734c2edcfe6fcd48b76a74f9";
         private readonly string videoId = "videoId";
@@ -66,7 +69,11 @@ namespace Etherna.EthernaIndex.Services.Tasks
                 .ReturnsAsync(video);
 
             // Inizialize.
-            videoManifestValidatorTask = new VideoManifestValidatorTask(indexContext.Object, loggerMock.Object, swarmServiceMock.Object);
+            videoManifestValidatorTask = new VideoManifestValidatorTask(
+                beeClientMock.Object,
+                indexContext.Object,
+                loggerMock.Object,
+                swarmServiceMock.Object);
         }
 
         // Tests.
@@ -93,7 +100,7 @@ namespace Etherna.EthernaIndex.Services.Tasks
                     []),
                 []);
             swarmServiceMock
-                .Setup(x => x.GetPublishedVideoManifestAsync(manifestHash))
+                .Setup(x => x.GetPublishedVideoManifestAsync(manifestHash, It.IsAny<IReadOnlyChunkStore>()))
                 .ReturnsAsync(firstManifest);
             await videoManifestValidatorTask.RunAsync(videoId, manifestHash.ToString());
 
@@ -126,9 +133,13 @@ namespace Etherna.EthernaIndex.Services.Tasks
             
             var secondSwarmService = new Mock<ISwarmService>();
             secondSwarmService
-                .Setup(x => x.GetPublishedVideoManifestAsync(secondManifestHash))
+                .Setup(x => x.GetPublishedVideoManifestAsync(secondManifestHash, It.IsAny<IReadOnlyChunkStore>()))
                 .ReturnsAsync(secondManifest);
-            var secondMetadataVideoValidatorTask = new VideoManifestValidatorTask(secondIndexContext.Object, loggerMock.Object, secondSwarmService.Object);
+            var secondMetadataVideoValidatorTask = new VideoManifestValidatorTask(
+                beeClientMock.Object,
+                secondIndexContext.Object,
+                loggerMock.Object,
+                secondSwarmService.Object);
 
             // Action.
             await secondMetadataVideoValidatorTask.RunAsync(videoId, secondManifestHash.ToString());
@@ -148,7 +159,7 @@ namespace Etherna.EthernaIndex.Services.Tasks
         public async Task FailValidationWithInvalidMetadata()
         {
             // Arrange.
-            swarmServiceMock.Setup(x => x.GetPublishedVideoManifestAsync(manifestHash))
+            swarmServiceMock.Setup(x => x.GetPublishedVideoManifestAsync(manifestHash, It.IsAny<IReadOnlyChunkStore>()))
                 .ReturnsAsync(new PublishedVideoManifest(manifestHash, null, [new ValidationError(ValidationErrorType.Unknown)]));
         
             // Action.
@@ -165,7 +176,7 @@ namespace Etherna.EthernaIndex.Services.Tasks
         public async Task FailValidationWithWrongJson()
         {
             // Arrange.
-            swarmServiceMock.Setup(x => x.GetPublishedVideoManifestAsync(manifestHash))
+            swarmServiceMock.Setup(x => x.GetPublishedVideoManifestAsync(manifestHash, It.IsAny<IReadOnlyChunkStore>()))
                 .Returns(Task.FromResult(new PublishedVideoManifest(
                     manifestHash, null, [new(ValidationErrorType.JsonConvert, "Unable to parse json")])));
 
@@ -205,7 +216,7 @@ namespace Etherna.EthernaIndex.Services.Tasks
                     []),
                 []);
             swarmServiceMock
-                .Setup(x => x.GetPublishedVideoManifestAsync(manifestHash))
+                .Setup(x => x.GetPublishedVideoManifestAsync(manifestHash, It.IsAny<IReadOnlyChunkStore>()))
                 .ReturnsAsync(publishedVideoManifest);
         
             // Action.

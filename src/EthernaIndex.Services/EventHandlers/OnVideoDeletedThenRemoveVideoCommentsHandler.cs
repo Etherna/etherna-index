@@ -16,8 +16,8 @@ using Etherna.DomainEvents;
 using Etherna.DomainEvents.Events;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
-using Etherna.MongoDB.Driver;
 using Etherna.MongoDB.Driver.Linq;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Services.EventHandlers
