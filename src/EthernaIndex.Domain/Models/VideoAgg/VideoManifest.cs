@@ -32,9 +32,9 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
         private List<ValidationError> _validationErrors = new();
 
         // Constructors.
-        public VideoManifest(SwarmHash manifestHash)
+        public VideoManifest(SwarmReference manifestReference)
         {
-            ManifestHash = manifestHash;
+            ManifestReference = manifestReference;
         }
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         protected VideoManifest() { }
@@ -42,7 +42,7 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
 
         // Properties.
         public virtual bool? IsValid { get; private set; }
-        public virtual SwarmHash ManifestHash { get; protected set; }
+        public virtual SwarmReference ManifestReference { get; protected set; }
         public virtual VideoManifestMetadataBase? Metadata { get; protected set; }
         public virtual IEnumerable<ValidationError> ValidationErrors
         {

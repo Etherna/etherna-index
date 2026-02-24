@@ -154,7 +154,7 @@ namespace Etherna.EthernaIndex
             // Register global TypeConverters.
             TypeDescriptor.AddAttributes(typeof(PostageBatchId), new TypeConverterAttribute(typeof(PostageBatchIdTypeConverter)));
             TypeDescriptor.AddAttributes(typeof(SwarmAddress), new TypeConverterAttribute(typeof(SwarmAddressTypeConverter)));
-            TypeDescriptor.AddAttributes(typeof(SwarmHash), new TypeConverterAttribute(typeof(SwarmHashTypeConverter)));
+            TypeDescriptor.AddAttributes(typeof(SwarmReference), new TypeConverterAttribute(typeof(SwarmReferenceTypeConverter)));
             TypeDescriptor.AddAttributes(typeof(SwarmUri), new TypeConverterAttribute(typeof(SwarmUriTypeConverter)));
 
             // Configure Asp.Net Core framework services.
@@ -207,7 +207,7 @@ namespace Etherna.EthernaIndex
                     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
                     options.JsonSerializerOptions.Converters.Add(new PostageBatchIdJsonConverter());
                     options.JsonSerializerOptions.Converters.Add(new SwarmAddressJsonConverter());
-                    options.JsonSerializerOptions.Converters.Add(new SwarmHashJsonConverter());
+                    options.JsonSerializerOptions.Converters.Add(new SwarmReferenceJsonConverter());
                     options.JsonSerializerOptions.Converters.Add(new SwarmUriJsonConverter());
                 });
             services.AddApiVersioning(options =>
@@ -384,7 +384,7 @@ namespace Etherna.EthernaIndex
                 //add schema filters
                 options.SchemaFilter<PostageBatchIdSchemaFilter>();
                 options.SchemaFilter<SwarmAddressSchemaFilter>();
-                options.SchemaFilter<SwarmHashSchemaFilter>();
+                options.SchemaFilter<SwarmReferenceSchemaFilter>();
                 options.SchemaFilter<SwarmUriSchemaFilter>();
 
                 //integrate xml comments

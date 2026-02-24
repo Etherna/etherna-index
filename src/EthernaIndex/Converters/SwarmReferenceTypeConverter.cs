@@ -20,7 +20,7 @@ using System.Globalization;
 
 namespace Etherna.EthernaIndex.Converters
 {
-    public class SwarmHashTypeConverter : TypeConverter
+    public class SwarmReferenceTypeConverter : TypeConverter
     {
         public override bool CanConvertFrom(ITypeDescriptorContext? context, Type sourceType) =>
             sourceType == typeof(string) || base.CanConvertFrom(context, sourceType);
@@ -31,14 +31,14 @@ namespace Etherna.EthernaIndex.Converters
         public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value)
         {
             if (value is string str)
-                return new SwarmHash(str);
+                return new SwarmReference(str);
             return base.ConvertFrom(context, culture, value);
         }
 
         public override object? ConvertTo(ITypeDescriptorContext? context, CultureInfo? culture, object? value, Type destinationType)
         {
-            if (destinationType == typeof(string) && value is SwarmHash hash)
-                return hash.ToString();
+            if (destinationType == typeof(string) && value is SwarmReference reference)
+                return reference.ToString();
             return base.ConvertTo(context, culture, value, destinationType);
         }
     }

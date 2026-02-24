@@ -47,7 +47,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
                 CreationDateTime = videoManifest.CreationDateTime;
                 ErrorsDetails = videoManifest.ValidationErrors.Select(i => $"[{i.ErrorType}]: {i.ErrorMessage}");
                 IsValid = videoManifest.IsValid;
-                ManifestHash = videoManifest.ManifestHash;
+                ManifestReference = videoManifest.ManifestReference;
                 OwnerAddress = videoManifest.Id;
                 VideoInfo = video is null ? null : new VideoInfoDto(video);
                 ValidationTime = videoManifest.ValidationTime;
@@ -82,7 +82,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
                         Duration = metadataV2.Duration;
                         Title = metadataV2.Title;
                         Sources = metadataV2.Sources.Select(i => new MetadataVideoSourceDto(
-                                i.Path.ToSwarmAddress(videoManifest.ManifestHash),
+                                i.Path.ToSwarmAddress(videoManifest.ManifestReference),
                                 i.Size,
                                 i.Quality ?? ""));
                         Thumbnail = metadataV2.Thumbnail != null ?
@@ -91,7 +91,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
                                 metadataV2.Thumbnail.Blurhash,
                                 metadataV2.Thumbnail.Sources.ToDictionary(
                                     s => s.Width.ToString(CultureInfo.InvariantCulture),
-                                    s => s.Path.ToSwarmAddress(videoManifest.ManifestHash))) :
+                                    s => s.Path.ToSwarmAddress(videoManifest.ManifestReference))) :
                             null;
                         break;
 
@@ -106,7 +106,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
             public float? Duration { get; set; }
             public IEnumerable<string> ErrorsDetails { get; set; }
             public bool? IsValid { get; set; }
-            public SwarmHash ManifestHash { get; set; }
+            public SwarmReference ManifestReference { get; set; }
             public string OwnerAddress { get; set; }
             public IEnumerable<MetadataVideoSourceDto> Sources { get; set; }
             public SwarmImageRawDto? Thumbnail { get; set; }
@@ -159,24 +159,24 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
         public VideoManifestDto VideoManifest { get; private set; } = default!;
 
         // Methods.
-        public async Task OnGetAsync(SwarmHash manifestHash)
+        public async Task OnGetAsync(SwarmReference manifestReference)
         {
             // Video info
-            var videoManifest = await indexDbContext.VideoManifests.FindOneAsync(vm => vm.ManifestHash == manifestHash);
+            var videoManifest = await indexDbContext.VideoManifests.FindOneAsync(vm => vm.ManifestReference == manifestReference);
             var video = await indexDbContext.Videos.TryFindOneAsync(v => v.VideoManifests.Any(vm => vm.Id == videoManifest.Id));
 
             VideoManifest = new VideoManifestDto(video, videoManifest);
         }
 
-        public async Task<IActionResult> OnPostForceNewValidationAsync(string manifestHash)
+        public async Task<IActionResult> OnPostForceNewValidationAsync(string manifestReference)
         {
             // Get Manifest & Video data.
-            var videoManifest = await indexDbContext.VideoManifests.FindOneAsync(c => c.ManifestHash == manifestHash);
+            var videoManifest = await indexDbContext.VideoManifests.FindOneAsync(c => c.ManifestReference == manifestReference);
             var video = await indexDbContext.Videos.FindOneAsync(v => v.VideoManifests.Any(vm => vm.Id == videoManifest.Id));
 
             // Background Validator.
             backgroundJobClient.Create<IVideoManifestValidatorTask>(
-                task => task.RunAsync(video.Id, videoManifest.ManifestHash.ToString()),
+                task => task.RunAsync(video.Id, videoManifest.ManifestReference.ToString()),
                 new EnqueuedState(Queues.METADATA_VIDEO_VALIDATOR));
 
             return RedirectToPage("Index");

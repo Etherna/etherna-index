@@ -25,38 +25,24 @@ using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Areas.Api.Services
 {
-    internal sealed class SystemControllerService : ISystemControllerService
+    internal sealed class SystemControllerService(
+        IBackgroundJobClient backgroundJobClient,
+        IEthernaOpenIdConnectClient ethernaOidcClient,
+        IIndexDbContext indexDbContext,
+        ILogger<SystemControllerService> logger)
+        : ISystemControllerService
     {
-        // Fields.
-        private readonly IBackgroundJobClient backgroundJobClient;
-        private readonly IEthernaOpenIdConnectClient ethernaOidcClient;
-        private readonly IIndexDbContext indexDbContext;
-        private readonly ILogger<SystemControllerService> logger;
-
-        // Constructor.
-        public SystemControllerService(
-            IBackgroundJobClient backgroundJobClient,
-            IEthernaOpenIdConnectClient ethernaOidcClient,
-            IIndexDbContext indexDbContext,
-            ILogger<SystemControllerService> logger)
-        {
-            this.backgroundJobClient = backgroundJobClient;
-            this.ethernaOidcClient = ethernaOidcClient;
-            this.indexDbContext = indexDbContext;
-            this.logger = logger;
-        }
-
         // Methods.
-        public async Task ForceVideoManifestValidationAsync(SwarmHash manifestHash)
+        public async Task ForceVideoManifestValidationAsync(SwarmReference manifestReference)
         {
-            var videoManifest = await indexDbContext.VideoManifests.FindOneAsync(c => c.ManifestHash == manifestHash);
+            var videoManifest = await indexDbContext.VideoManifests.FindOneAsync(c => c.ManifestReference == manifestReference);
             var video = await indexDbContext.Videos.FindOneAsync(v => v.VideoManifests.Any(vm => vm.Id == videoManifest.Id));
 
             backgroundJobClient.Create<IVideoManifestValidatorTask>(
-                task => task.RunAsync(video.Id, manifestHash.ToString()),
+                task => task.RunAsync(video.Id, manifestReference.ToString()),
                 new EnqueuedState(Queues.METADATA_VIDEO_VALIDATOR));
 
-            logger.ForcedVideoManifestsValidation(await ethernaOidcClient.GetClientIdAsync(), video.Id, new[] { manifestHash });
+            logger.ForcedVideoManifestsValidation(await ethernaOidcClient.GetClientIdAsync(), video.Id, [manifestReference]);
         }
 
         public async Task ForceVideoManifestsValidationAsync(string videoId)
@@ -66,14 +52,14 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             foreach (var manifest in video.VideoManifests)
             {
                 backgroundJobClient.Create<IVideoManifestValidatorTask>(
-                    task => task.RunAsync(video.Id, manifest.ManifestHash.ToString()),
+                    task => task.RunAsync(video.Id, manifest.ManifestReference.ToString()),
                     new EnqueuedState(Queues.METADATA_VIDEO_VALIDATOR));
             }
 
             logger.ForcedVideoManifestsValidation(
                 await ethernaOidcClient.GetClientIdAsync(),
                 video.Id,
-                video.VideoManifests.Select(m => m.ManifestHash));
+                video.VideoManifests.Select(m => m.ManifestReference));
         }
     }
 }

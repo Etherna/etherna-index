@@ -22,12 +22,12 @@ namespace Etherna.EthernaIndex.Services.Infrastructure
     public interface ISwarmService
     {
         Task<PublishedVideoManifest> GetPublishedVideoManifestAsync(
-            SwarmHash manifestHash,
+            SwarmReference manifestReference,
             IReadOnlyChunkStore chunkStore);
         
 #if DEBUG_MOCKUP_SWARM
-        void SetupHashMockup(SwarmHash hash, object returnedObject);
-        PublishedVideoManifest SetupNewPublishedVideoManifestMockup(SwarmHash manifestHash);
+        void SetupReferenceMockup(SwarmReference reference, object returnedObject);
+        PublishedVideoManifest SetupNewPublishedVideoManifestMockup(SwarmReference manifestReference);
 #endif
     }
 }

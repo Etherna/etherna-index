@@ -29,7 +29,7 @@ namespace Etherna.EthernaIndex.ElasticSearch.Documents
         public VideoDocument(
             Video video)
         {
-            ArgumentNullException.ThrowIfNull(video, nameof(video));
+            ArgumentNullException.ThrowIfNull(video);
             
             if (video.LastValidManifest?.Metadata is null)
             {
@@ -41,7 +41,7 @@ namespace Etherna.EthernaIndex.ElasticSearch.Documents
             Id = video.Id;
             CreationDateTime = video.LastValidManifest.CreationDateTime;
             IsFrozen = video.IsFrozen;
-            ManifestHash = video.LastValidManifest.ManifestHash.ToString();
+            ManifestReference = video.LastValidManifest.ManifestReference.ToString();
             OwnerSharedInfoId = video.Owner.SharedInfoId;
 
             switch (video.LastValidManifest.Metadata)
@@ -75,7 +75,7 @@ namespace Etherna.EthernaIndex.ElasticSearch.Documents
                             metadataV2.Thumbnail.Blurhash,
                             metadataV2.Thumbnail.Sources.Select(s => new SourceImageDocument(
                                 s.Width,
-                                s.Path.ToSwarmAddress(video.LastValidManifest.ManifestHash),
+                                s.Path.ToSwarmAddress(video.LastValidManifest.ManifestReference),
                                 s.Type)));
                     else
                         Thumbnail = new ImageDocument(1, "", []);
@@ -94,7 +94,7 @@ namespace Etherna.EthernaIndex.ElasticSearch.Documents
         public string Description { get; set; }
         public long Duration { get; set; }
         public bool IsFrozen { get; set; }
-        public string ManifestHash { get; set; }
+        public string ManifestReference { get; set; }
         public string OwnerSharedInfoId { get; set; }
         public ImageDocument Thumbnail { get; set; }
         public string Title { get; set; }

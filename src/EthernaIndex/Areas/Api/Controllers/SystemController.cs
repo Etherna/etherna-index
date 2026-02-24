@@ -46,8 +46,8 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// <summary>
         /// Force new validation of video manifest.
         /// </summary>
-        /// <param name="hash">Hash manifest</param>
-        [HttpPut("validate/manifest/{hash}")]
+        /// <param name="reference">Manifest reference</param>
+        [HttpPut("validate/manifest/{reference}")]
         [Authorize(CommonConsts.RequireAdministratorRolePolicy)]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -55,8 +55,8 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public Task ForceVideoManifestValidationAsync(
-            [Required] SwarmHash hash) =>
-            service.ForceVideoManifestValidationAsync(hash);
+            [Required] SwarmReference reference) =>
+            service.ForceVideoManifestValidationAsync(reference);
 
         /// <summary>
         /// Force new validation of video manifests.

@@ -1,4 +1,4 @@
-﻿// Copyright 2021-present Etherna SA
+// Copyright 2021-present Etherna SA
 // This file is part of Etherna Index.
 // 
 // Etherna Index is free software: you can redistribute it and/or modify it under the terms of the
@@ -18,19 +18,19 @@ using Etherna.MongoDB.Bson.Serialization.Serializers;
 
 namespace Etherna.EthernaIndex.Persistence.Serializers
 {
-    public class SwarmHashSerializer : SerializerBase<SwarmHash>
+    public class SwarmReferenceSerializer : SerializerBase<SwarmReference>
     {
         private readonly StringSerializer stringSerializer = new();
         
-        public override SwarmHash Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
+        public override SwarmReference Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
-            var hash = stringSerializer.Deserialize(context, args);
-            return hash is null ?
-                SwarmHash.Zero :
-                SwarmHash.FromString(hash);
+            var reference = stringSerializer.Deserialize(context, args);
+            return reference is null ?
+                SwarmReference.PlainZero :
+                SwarmReference.FromString(reference);
         }
 
-        public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, SwarmHash value)
+        public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, SwarmReference value)
         {
             stringSerializer.Serialize(context, args, value.ToString());
         }

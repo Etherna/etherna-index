@@ -19,7 +19,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
 {
     public interface ISystemControllerService
     {
-        Task ForceVideoManifestValidationAsync(SwarmHash manifestHash);
+        Task ForceVideoManifestValidationAsync(SwarmReference manifestReference);
         Task ForceVideoManifestsValidationAsync(string videoId);
     }
 }

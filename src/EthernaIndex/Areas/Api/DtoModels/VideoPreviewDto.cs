@@ -28,8 +28,8 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
             Video video,
             UserSharedInfo ownerSharedInfo)
         {
-            ArgumentNullException.ThrowIfNull(ownerSharedInfo, nameof(ownerSharedInfo));
-            ArgumentNullException.ThrowIfNull(video, nameof(video));
+            ArgumentNullException.ThrowIfNull(ownerSharedInfo);
+            ArgumentNullException.ThrowIfNull(video);
 
             Id = video.Id;
             if (video.LastValidManifest is not null)
@@ -54,7 +54,7 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
 
             Id = videoDocument.Id;
             Duration = videoDocument.Duration;
-            Hash = videoDocument.ManifestHash;
+            Hash = videoDocument.ManifestReference;
             OwnerAddress = ownerSharedInfo.EtherAddress;
             Thumbnail = new Image2Dto(
                 videoDocument.Thumbnail.AspectRatio,
@@ -67,7 +67,7 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
         public string Id { get; }
         public long? CreatedAt { get; }
         public long? Duration { get; }
-        public SwarmHash? Hash { get; }
+        public SwarmReference? Hash { get; }
         public string OwnerAddress { get; }
         public Image2Dto? Thumbnail { get; }
         public string? Title { get; }
