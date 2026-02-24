@@ -27,7 +27,7 @@ namespace Etherna.EthernaIndex.Configs.Swagger.SchemaFilters
             ArgumentNullException.ThrowIfNull(context);
             
             var concreteSchema = (OpenApiSchema)schema;
-            if (context.Type == typeof(SwarmHash))
+            if (context.Type == typeof(SwarmReference))
             {
                 concreteSchema.Type = JsonSchemaType.String;
                 concreteSchema.Format = null;
