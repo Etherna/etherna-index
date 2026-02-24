@@ -22,15 +22,15 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV1
     public class ThumbnailV1 : ModelBase
     {
         // Fields.
-        private Dictionary<string, SwarmHash> _sources = new();
+        private Dictionary<string, SwarmReference> _sources = new();
 
         // Constructors.
         public ThumbnailV1(
             float aspectRatio,
             string blurhash,
-            IDictionary<string, SwarmHash> sources)
+            IDictionary<string, SwarmReference> sources)
         {
-            ArgumentNullException.ThrowIfNull(sources, nameof(sources));
+            ArgumentNullException.ThrowIfNull(sources);
             
             AspectRatio = aspectRatio;
             Blurhash = blurhash;
@@ -44,10 +44,10 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV1
         // Properties.
         public virtual float AspectRatio { get; set; }
         public virtual string Blurhash { get; set; }
-        public virtual IReadOnlyDictionary<string, SwarmHash> Sources
+        public virtual IReadOnlyDictionary<string, SwarmReference> Sources
         {
             get => _sources;
-            protected set => _sources = new Dictionary<string, SwarmHash>(value ?? new Dictionary<string, SwarmHash>());
+            protected set => _sources = new Dictionary<string, SwarmReference>(value ?? new Dictionary<string, SwarmReference>());
         }
 
         // Methods.

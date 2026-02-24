@@ -34,9 +34,9 @@ namespace Etherna.EthernaIndex.Services.Tasks
         : IVideoManifestValidatorTask
     {
         // Methods.
-        public async Task RunAsync(string videoId, string manifestHash)
+        public async Task RunAsync(string videoId, string manifestReference)
         {
-            logger.VideoManifestValidationStarted(videoId, manifestHash);
+            logger.VideoManifestValidationStarted(videoId, manifestReference);
 
             var video = await indexDbContext.Videos.FindOneAsync(videoId);
 
@@ -44,14 +44,14 @@ namespace Etherna.EthernaIndex.Services.Tasks
             var validationErrors = new List<ValidationError>();
 
             // Get manifest.
-            var videoManifest = await indexDbContext.VideoManifests.FindOneAsync(u => u.ManifestHash == manifestHash);
+            var videoManifest = await indexDbContext.VideoManifests.FindOneAsync(u => u.ManifestReference == manifestReference);
 
             // Get video manifest.
             var chunkStore = new SwarmClientChunkStore(beeClient);
 #if DEBUG_MOCKUP_SWARM
-            swarmService.SetupNewPublishedVideoManifestMockup(manifestHash);
+            swarmService.SetupNewPublishedVideoManifestMockup(manifestReference);
 #endif
-            var publishedVideoManifest = await swarmService.GetPublishedVideoManifestAsync(manifestHash, chunkStore);
+            var publishedVideoManifest = await swarmService.GetPublishedVideoManifestAsync(manifestReference, chunkStore);
 
             if (publishedVideoManifest.Manifest is not null)
             {
@@ -80,7 +80,7 @@ namespace Etherna.EthernaIndex.Services.Tasks
                     publishedVideoManifest.Manifest.UpdatedAt?.ToUnixTimeSeconds(),
                     publishedVideoManifest.Manifest.PersonalDataRaw);
 
-                logger.VideoManifestValidationRetrievedManifest(videoId, manifestHash);
+                logger.VideoManifestValidationRetrievedManifest(videoId, manifestReference);
             }
             else
             {
@@ -90,7 +90,7 @@ namespace Etherna.EthernaIndex.Services.Tasks
                 video.FailedManifestValidation(videoManifest, validationErrors);
                 await indexDbContext.SaveChangesAsync().ConfigureAwait(false);
 
-                logger.VideoManifestValidationCantRetrieveManifest(videoId, manifestHash, null);
+                logger.VideoManifestValidationCantRetrieveManifest(videoId, manifestReference, null);
 
                 return;
             }
@@ -100,13 +100,13 @@ namespace Etherna.EthernaIndex.Services.Tasks
             {
                 video.FailedManifestValidation(videoManifest, validationErrors);
 
-                logger.VideoManifestValidationFailedWithErrors(videoId, manifestHash, null);
+                logger.VideoManifestValidationFailedWithErrors(videoId, manifestReference, null);
             }
             else
             {
                 video.SucceededManifestValidation(videoManifest, videoMetadata);
 
-                logger.VideoManifestValidationSucceeded(videoId, manifestHash);
+                logger.VideoManifestValidationSucceeded(videoId, manifestReference);
             }
 
             // Complete task.

@@ -26,9 +26,9 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
     public class IndexModel(IIndexDbContext indexDbContext) : PageModel
     {
         // Models.
-        public class VideoManifestDto(SwarmHash manifestHash, string title)
+        public class VideoManifestDto(SwarmReference manifestReference, string title)
         {
-            public SwarmHash ManifestHash { get; } = manifestHash;
+            public SwarmReference ManifestReference { get; } = manifestReference;
             public string Title { get; } = title;
         }
 
@@ -43,19 +43,19 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
 
         // Methods.
         public async Task<IActionResult> OnGetAsync(
-            SwarmHash? manifestHash,
+            SwarmReference? manifestReference,
             int? p)
         {
             CurrentPage = p ?? 0;
-            if (manifestHash.HasValue)
+            if (manifestReference.HasValue)
             {
-                var videoManifests = await indexDbContext.VideoManifests.TryFindOneAsync(v => v.ManifestHash == manifestHash);
+                var videoManifests = await indexDbContext.VideoManifests.TryFindOneAsync(v => v.ManifestReference == manifestReference);
 
                 if (videoManifests is not null)
-                    return RedirectToPage("Manifest", new { manifestHash });
+                    return RedirectToPage("Manifest", new { manifestReference });
 
                 VideoManifests = Array.Empty<VideoManifestDto>();
-                ErrorMessage = "ManifestHash not found.";
+                ErrorMessage = "ManifestReference not found.";
             }
             else
             {
@@ -69,7 +69,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
 
                 VideoManifests = paginatedVideoManifests.Elements.Select(
                     e => new VideoManifestDto(
-                        e.ManifestHash,
+                        e.ManifestReference,
                     e.TryGetTitle() ?? ""));
             }
 

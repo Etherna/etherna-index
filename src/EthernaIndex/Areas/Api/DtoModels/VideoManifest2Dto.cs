@@ -29,9 +29,9 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
         public VideoManifest2Dto(
             VideoManifest videoManifest)
         {
-            ArgumentNullException.ThrowIfNull(videoManifest, nameof(videoManifest));
+            ArgumentNullException.ThrowIfNull(videoManifest);
 
-            Hash = videoManifest.ManifestHash;
+            Hash = videoManifest.ManifestReference;
 
             switch (videoManifest.Metadata)
             {
@@ -76,7 +76,7 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
                         .Select(s => new VideoSourceDto(
                             s.Type,
                             s.Quality,
-                            s.Path.ToSwarmAddress(videoManifest.ManifestHash),
+                            s.Path.ToSwarmAddress(videoManifest.ManifestReference),
                             s.Size));
 
                     if (metadataV2.Thumbnail is not null)
@@ -85,7 +85,7 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
                             metadataV2.Thumbnail.Blurhash,
                             metadataV2.Thumbnail.Sources.Select(s => new ImageSourceDto(
                                 s.Type,
-                                s.Path.ToSwarmAddress(videoManifest.ManifestHash),
+                                s.Path.ToSwarmAddress(videoManifest.ManifestReference),
                                 s.Width)));
 
                     Title = metadataV2.Title;
@@ -102,7 +102,7 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
         public long CreatedAt { get; }
         public string? Description { get; }
         public long? Duration { get; }
-        public SwarmHash Hash { get; }
+        public SwarmReference Hash { get; }
         public string? PersonalData { get; }
         public IEnumerable<VideoSourceDto> Sources { get; }
         public Image2Dto? Thumbnail { get; }

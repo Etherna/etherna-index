@@ -219,47 +219,47 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
             service.GetLastUploadedVideosAsync(page, take);
 
         /// <summary>
-        /// Get video info by manifest hash.
+        /// Get video info by manifest reference.
         /// </summary>
-        /// <param name="hash">The video hash</param>
-        [HttpGet("manifest/{hash}")]
+        /// <param name="reference">The video reference</param>
+        [HttpGet("manifest/{reference}")]
         [Obsolete("Use \"manifest2\" instead")]
         [AllowAnonymous]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public Task<VideoDto> FindByManifestHashAsync_old(
-            [Required] SwarmHash hash) =>
-            service.FindByManifestHashAsync_old(hash);
+        public Task<VideoDto> FindByManifestReferenceAsync_old(
+            [Required] SwarmReference reference) =>
+            service.FindByManifestReferenceAsync_old(reference);
 
         /// <summary>
-        /// Get video info by manifest hash.
+        /// Get video info by manifest reference.
         /// </summary>
-        /// <param name="hash">The video hash</param>
-        [HttpGet("manifest2/{hash}")]
+        /// <param name="reference">The video reference</param>
+        [HttpGet("manifest2/{reference}")]
         [AllowAnonymous]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public Task<Video2Dto> FindByManifestHashAsync(
-            [Required] SwarmHash hash) =>
-            service.FindByManifestHashAsync(hash);
+        public Task<Video2Dto> FindByManifestReferenceAsync(
+            [Required] SwarmReference reference) =>
+            service.FindByManifestReferenceAsync(reference);
 
         /// <summary>
-        /// Get validation info by manifest hash.
+        /// Get validation info by manifest reference.
         /// </summary>
-        /// <param name="hash">The video hash</param>
-        [HttpGet("manifest/{hash}/validation")]
+        /// <param name="reference">The video reference</param>
+        [HttpGet("manifest/{reference}/validation")]
         [AllowAnonymous]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public Task<VideoManifestStatusDto> ValidationStatusByHashAsync(
-            [Required] SwarmHash hash) =>
-            service.GetValidationStatusByHashAsync(hash);
+        public Task<VideoManifestStatusDto> ValidationStatusByReferenceAsync(
+            [Required] SwarmReference reference) =>
+            service.GetValidationStatusByReferenceAsync(reference);
 
         // Post.
 
@@ -312,18 +312,18 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// Report a video content with current user.
         /// </summary>
         /// <param name="id">Video id</param>
-        /// <param name="hash">Hash manifest</param>
+        /// <param name="reference">Manifest reference</param>
         /// <param name="description">Report description</param>
-        [HttpPost("{id}/manifest/{hash}/reports")]
+        [HttpPost("{id}/manifest/{reference}/reports")]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public Task ReportVideoAsync(
             [Required] string id,
-            [Required] SwarmHash hash,
+            [Required] SwarmReference reference,
             [Required] string description) =>
-            service.ReportVideoAsync(id, hash, description);
+            service.ReportVideoAsync(id, reference, description);
 
         /// <summary>
         /// Vote a video content with current user.
@@ -343,17 +343,17 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         // Put.
 
         /// <summary>
-        /// Get bulk validation info by multiple manifest hashes.
+        /// Get bulk validation info by multiple manifest references.
         /// </summary>
-        /// <param name="hashes">The list of video manifest hashes</param>
+        /// <param name="references">The list of video manifest references</param>
         [HttpPut("manifest/bulkValidation")]
         [AllowAnonymous]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public Task<IEnumerable<VideoManifestStatusDto>> GetBulkValidationStatusByHashesAsync(
-            [Required][FromBody] IEnumerable<SwarmHash> hashes) =>
-            service.GetBulkValidationStatusByHashesAsync(hashes);
+        public Task<IEnumerable<VideoManifestStatusDto>> GetBulkValidationStatusByReferencesAsync(
+            [Required][FromBody] IEnumerable<SwarmReference> references) =>
+            service.GetBulkValidationStatusByReferencesAsync(references);
 
         /// <summary>
         /// Get bulk validation info by multiple video ids.
@@ -402,7 +402,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         /// Update video manifest.
         /// </summary>
         /// <param name="id">The video id</param>
-        /// <param name="newHash">The new video manifest hash</param>
+        /// <param name="newReference">The new video manifest reference</param>
         [HttpPut("{id}")]
         [Obsolete("Use \"update2\" instead")]
         [SimpleExceptionFilter]
@@ -412,14 +412,14 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public Task<VideoManifestDto> UpdateAsync_old(
             [Required] string id,
-            [Required] SwarmHash newHash) =>
-            service.UpdateAsync_old(id, newHash);
+            [Required] SwarmReference newReference) =>
+            service.UpdateAsync_old(id, newReference);
 
         /// <summary>
         /// Update video manifest.
         /// </summary>
         /// <param name="id">The video id</param>
-        /// <param name="newHash">The new video manifest hash</param>
+        /// <param name="newReference">The new video manifest reference</param>
         [HttpPut("{id}/update2")]
         [SimpleExceptionFilter]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -428,8 +428,8 @@ namespace Etherna.EthernaIndex.Areas.Api.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public Task<VideoManifest2Dto> UpdateAsync(
             [Required] string id,
-            [Required] SwarmHash newHash) =>
-            service.UpdateAsync(id, newHash);
+            [Required] SwarmReference newReference) =>
+            service.UpdateAsync(id, newReference);
 
         // Delete.
 

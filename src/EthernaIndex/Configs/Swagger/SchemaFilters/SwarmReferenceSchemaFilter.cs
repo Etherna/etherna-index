@@ -19,7 +19,7 @@ using System;
 
 namespace Etherna.EthernaIndex.Configs.Swagger.SchemaFilters
 {
-    public class SwarmHashSchemaFilter : ISchemaFilter
+    public class SwarmReferenceSchemaFilter : ISchemaFilter
     {
         public void Apply(IOpenApiSchema schema, SchemaFilterContext context)
         {
@@ -31,9 +31,10 @@ namespace Etherna.EthernaIndex.Configs.Swagger.SchemaFilters
             {
                 concreteSchema.Type = JsonSchemaType.String;
                 concreteSchema.Format = null;
-                concreteSchema.MinLength = SwarmHash.HashSize * 2;
-                concreteSchema.MaxLength = SwarmHash.HashSize * 2;
-                concreteSchema.Pattern = $"^[a-fA-F0-9]{{{SwarmHash.HashSize * 2}}}$";
+                concreteSchema.MinLength = SwarmReference.PlainSize * 2;
+                concreteSchema.MaxLength = SwarmReference.EncryptedSize * 2;
+                concreteSchema.Pattern = $"^([a-fA-F0-9]{{{SwarmReference.PlainSize * 2}}}|[a-fA-F0-9]{{{SwarmReference.EncryptedSize * 2}}})$";
+                concreteSchema.Properties?.Clear();
             }
         }
     }

@@ -35,36 +35,16 @@ using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Areas.Api.Services
 {
-    internal sealed class VideosControllerService : IVideosControllerService
+    internal sealed class VideosControllerService(
+        IBackgroundJobClient backgroundJobClient,
+        IEthernaOpenIdConnectClient ethernaOidcClient,
+        IIndexDbContext indexDbContext,
+        ILogger<VideosControllerService> logger,
+        ISharedDbContext sharedDbContext,
+        IUserService userService,
+        IVideoService videoService)
+        : IVideosControllerService
     {
-        // Fields.
-        private readonly IBackgroundJobClient backgroundJobClient;
-        private readonly IEthernaOpenIdConnectClient ethernaOidcClient;
-        private readonly IIndexDbContext indexDbContext;
-        private readonly ILogger<VideosControllerService> logger;
-        private readonly ISharedDbContext sharedDbContext;
-        private readonly IUserService userService;
-        private readonly IVideoService videoService;
-
-        // Constructors.
-        public VideosControllerService(
-            IBackgroundJobClient backgroundJobClient,
-            IEthernaOpenIdConnectClient ethernaOidcClient,
-            IIndexDbContext indexDbContext,
-            ILogger<VideosControllerService> logger,
-            ISharedDbContext sharedDbContext,
-            IUserService userService,
-            IVideoService videoService)
-        {
-            this.backgroundJobClient = backgroundJobClient;
-            this.ethernaOidcClient = ethernaOidcClient;
-            this.indexDbContext = indexDbContext;
-            this.logger = logger;
-            this.sharedDbContext = sharedDbContext;
-            this.userService = userService;
-            this.videoService = videoService;
-        }
-
         // Methods.
         public async Task AuthorDeleteAsync(string id)
         {
@@ -89,7 +69,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             var address = await ethernaOidcClient.GetEtherAddressAsync();
             var (currentUser, _) = await userService.FindUserAsync(address);
 
-            var videoManifest = await indexDbContext.VideoManifests.TryFindOneAsync(c => c.ManifestHash == videoInput.ManifestHash);
+            var videoManifest = await indexDbContext.VideoManifests.TryFindOneAsync(c => c.ManifestReference == videoInput.ManifestHash);
 
             if (videoManifest is not null)
             {
@@ -99,7 +79,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
 
                 if (existingVideo is null ||
                     existingVideo.Owner.Id != currentUser.Id)
-                    throw new DuplicatedManifestHashException(videoInput.ManifestHash);
+                    throw new DuplicatedManifestReferenceException(videoInput.ManifestHash);
 
                 return existingVideo.Id;
             }
@@ -169,10 +149,10 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
             return new Video2Dto(video, lastValidManifest, ownerSharedInfo, currentUserVideoVote);
         }
 
-        public async Task<Video2Dto> FindByManifestHashAsync(SwarmHash hash)
+        public async Task<Video2Dto> FindByManifestReferenceAsync(SwarmReference reference)
         {
             // Get VideoManifest.
-            var videoManifest = await indexDbContext.VideoManifests.FindOneAsync(vm => vm.ManifestHash == hash);
+            var videoManifest = await indexDbContext.VideoManifests.FindOneAsync(vm => vm.ManifestReference == reference);
 
             // Get Video.
             var video = await indexDbContext.Videos.FindOneAsync(v => v.VideoManifests.Any(vm => vm.Id == videoManifest.Id));
@@ -190,22 +170,22 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
                                                                                        v.Owner.Id == currentUser.Id);
             }
 
-            logger.FindManifestByHash(hash);
+            logger.FindManifestByReference(reference);
 
             return new Video2Dto(video, videoManifest, ownerSharedInfo, currentUserVideoVote);
         }
 
-        public async Task<IEnumerable<VideoManifestStatusDto>> GetBulkValidationStatusByHashesAsync(IEnumerable<SwarmHash> manifestHashes)
+        public async Task<IEnumerable<VideoManifestStatusDto>> GetBulkValidationStatusByReferencesAsync(IEnumerable<SwarmReference> manifestReferences)
         {
             var videoManifests = await indexDbContext.VideoManifests.QueryElementsAsync(
-                elements => elements.Where(m => manifestHashes.Contains(m.ManifestHash))
+                elements => elements.Where(m => manifestReferences.Contains(m.ManifestReference))
                                     .ToListAsync());
             var videoManifestsIds = videoManifests.Select(vm => vm.Id);
             var videos = await indexDbContext.Videos.QueryElementsAsync(
                 elements => elements.Where(v => v.VideoManifests.Any(vm => videoManifestsIds.Contains(vm.Id)))
                                     .ToListAsync());
 
-            logger.GetBulkVideoManifestValidationStatusByHashes(manifestHashes);
+            logger.GetBulkVideoManifestValidationStatusByReferences(manifestReferences);
 
             return videoManifests.Select(m => new VideoManifestStatusDto(
                 videos.First(v => v.VideoManifests.Any(vm => vm.Id == m.Id)),
@@ -252,12 +232,12 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
                 paginatedVideos.TotalElements);
         }
 
-        public async Task<VideoManifestStatusDto> GetValidationStatusByHashAsync(SwarmHash hash)
+        public async Task<VideoManifestStatusDto> GetValidationStatusByReferenceAsync(SwarmReference reference)
         {
-            var manifest = await indexDbContext.VideoManifests.FindOneAsync(i => i.ManifestHash == hash);
+            var manifest = await indexDbContext.VideoManifests.FindOneAsync(i => i.ManifestReference == reference);
             var video = await indexDbContext.Videos.FindOneAsync(v => v.VideoManifests.Any(vm => vm.Id == manifest.Id));
 
-            logger.GetVideoManifestValidationStatusByHash(hash);
+            logger.GetVideoManifestValidationStatusByReference(reference);
 
             return new VideoManifestStatusDto(video, manifest);
         }
@@ -297,11 +277,11 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
                 paginatedComments.TotalElements);
         }
 
-        public async Task ReportVideoAsync(string videoId, SwarmHash manifestHash, string description)
+        public async Task ReportVideoAsync(string videoId, SwarmReference manifestReference, string description)
         {
             // Get video and manifest.
             var video = await indexDbContext.Videos.FindOneAsync(videoId);
-            var manifest = video.VideoManifests.First(m => m.ManifestHash == manifestHash);
+            var manifest = video.VideoManifests.First(m => m.ManifestReference == manifestReference);
 
             // Get user info.
             var address = await ethernaOidcClient.GetEtherAddressAsync();
@@ -317,7 +297,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
                 // Create.
                 var videoReported = new UnsuitableVideoReport(video, manifest, user, description);
                 await indexDbContext.UnsuitableVideoReports.CreateAsync(videoReported);
-                logger.CreateVideoReport(videoId, manifestHash);
+                logger.CreateVideoReport(videoId, manifestReference);
             }
             else
             {
@@ -325,13 +305,13 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
                 videoReport.ChangeDescription(description);
                 await indexDbContext.SaveChangesAsync();
 
-                logger.ChangeVideoReportDescription(videoId, manifestHash);
+                logger.ChangeVideoReportDescription(videoId, manifestReference);
             }
         }
 
-        public async Task<VideoManifest2Dto> UpdateAsync(string id, SwarmHash newHash)
+        public async Task<VideoManifest2Dto> UpdateAsync(string id, SwarmReference newReference)
         {
-            var videoManifest = await UpdateCommonAsync(id, newHash);
+            var videoManifest = await UpdateCommonAsync(id, newReference);
             return new VideoManifest2Dto(videoManifest);
         }
 
@@ -417,10 +397,10 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         }
 
         [Obsolete("Used only for API backwards compatibility")]
-        public async Task<VideoDto> FindByManifestHashAsync_old(SwarmHash hash)
+        public async Task<VideoDto> FindByManifestReferenceAsync_old(SwarmReference reference)
         {
             // Get Video.
-            var videoManifest = await indexDbContext.VideoManifests.FindOneAsync(vm => vm.ManifestHash == hash);
+            var videoManifest = await indexDbContext.VideoManifests.FindOneAsync(vm => vm.ManifestReference == reference);
 
             // Get VideoManifest.
             var video = await indexDbContext.Videos.FindOneAsync(v => v.VideoManifests.Any(vm => vm.Id == videoManifest.Id));
@@ -438,7 +418,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
                                                                                        v.Owner.Id == currentUser.Id);
             }
 
-            logger.FindManifestByHash(hash);
+            logger.FindManifestByReference(reference);
 
             return new VideoDto(video, videoManifest, ownerSharedInfo, currentUserVideoVote);
         }
@@ -510,14 +490,14 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
         }
 
         [Obsolete("Used only for API backwards compatibility")]
-        public async Task<VideoManifestDto> UpdateAsync_old(string id, SwarmHash newHash)
+        public async Task<VideoManifestDto> UpdateAsync_old(string id, SwarmReference newReference)
         {
-            var videoManifest = await UpdateCommonAsync(id, newHash);
+            var videoManifest = await UpdateCommonAsync(id, newReference);
             return new VideoManifestDto(videoManifest);
         }
 
         // Helpers.
-        private async Task<VideoManifest> UpdateCommonAsync(string id, SwarmHash newHash)
+        private async Task<VideoManifest> UpdateCommonAsync(string id, SwarmReference newReference)
         {
             // Get data.
             var address = await ethernaOidcClient.GetEtherAddressAsync();
@@ -530,7 +510,7 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
                 throw new UnauthorizedAccessException("User is not owner of the video");
 
             // Create videoManifest.
-            var videoManifest = new VideoManifest(newHash);
+            var videoManifest = new VideoManifest(newReference);
             await indexDbContext.VideoManifests.CreateAsync(videoManifest);
 
             // Add manifest to video.
@@ -539,10 +519,10 @@ namespace Etherna.EthernaIndex.Areas.Api.Services
 
             // Create Validation Manifest Task.
             backgroundJobClient.Create<IVideoManifestValidatorTask>(
-                task => task.RunAsync(video.Id, newHash.ToString()),
+                task => task.RunAsync(video.Id, newReference.ToString()),
                 new EnqueuedState(Queues.METADATA_VIDEO_VALIDATOR));
 
-            logger.UpdatedVideo(id, newHash);
+            logger.UpdatedVideo(id, newReference);
 
             return videoManifest;
         }
