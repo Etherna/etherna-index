@@ -95,7 +95,7 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
         public VideoManifestDto(
             VideoDocument videoDocument)
         {
-            ArgumentNullException.ThrowIfNull(videoDocument, nameof(videoDocument));
+            ArgumentNullException.ThrowIfNull(videoDocument);
 
             BatchId = null;
             Description = videoDocument.Description;

@@ -1395,7 +1395,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
         [Theory, MemberData(nameof(CommentDeserializationTests))]
         public void CommentDeserialization(DeserializationTestElement<Comment> testElement)
         {
-            ArgumentNullException.ThrowIfNull(testElement, nameof(testElement));
+            ArgumentNullException.ThrowIfNull(testElement);
 
             // Setup.
             using var documentReader = new JsonReader(testElement.SourceDocument);
@@ -1422,7 +1422,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
         [Theory, MemberData(nameof(ManualVideoReviewDeserializationTests))]
         public void ManualVideoReviewDeserialization(DeserializationTestElement<ManualVideoReview> testElement)
         {
-            ArgumentNullException.ThrowIfNull(testElement, nameof(testElement));
+            ArgumentNullException.ThrowIfNull(testElement);
 
             // Setup.
             using var documentReader = new JsonReader(testElement.SourceDocument);
@@ -1450,7 +1450,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
         [Theory, MemberData(nameof(UnsuitableVideoReportDeserializationTests))]
         public void UnsuitableVideoReportDeserialization(DeserializationTestElement<UnsuitableVideoReport> testElement)
         {
-            ArgumentNullException.ThrowIfNull(testElement, nameof(testElement));
+            ArgumentNullException.ThrowIfNull(testElement);
 
             // Setup.
             using var documentReader = new JsonReader(testElement.SourceDocument);
@@ -1482,7 +1482,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
         [Theory, MemberData(nameof(UserDeserializationTests))]
         public void UserDeserialization(DeserializationTestElement<User> testElement)
         {
-            ArgumentNullException.ThrowIfNull(testElement, nameof(testElement));
+            ArgumentNullException.ThrowIfNull(testElement);
 
             // Setup.
             using var documentReader = new JsonReader(testElement.SourceDocument);
@@ -1505,7 +1505,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
         [Theory, MemberData(nameof(VideoDeserializationTests))]
         public void VideoDeserialization(DeserializationTestElement<Video> testElement)
         {
-            ArgumentNullException.ThrowIfNull(testElement, nameof(testElement));
+            ArgumentNullException.ThrowIfNull(testElement);
 
             // Setup.
             using var documentReader = new JsonReader(testElement.SourceDocument);
@@ -1534,7 +1534,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
         [Theory, MemberData(nameof(VideoManifestDeserializationTests))]
         public void VideoManifestDeserialization(DeserializationTestElement<VideoManifest> testElement)
         {
-            ArgumentNullException.ThrowIfNull(testElement, nameof(testElement));
+            ArgumentNullException.ThrowIfNull(testElement);
 
             // Setup.
             using var documentReader = new JsonReader(testElement.SourceDocument);
@@ -1601,7 +1601,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
         [Theory, MemberData(nameof(VideoVoteDeserializationTests))]
         public void VideoVoteDeserialization(DeserializationTestElement<VideoVote> testElement)
         {
-            ArgumentNullException.ThrowIfNull(testElement, nameof(testElement));
+            ArgumentNullException.ThrowIfNull(testElement);
 
             // Setup.
             using var documentReader = new JsonReader(testElement.SourceDocument);

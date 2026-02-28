@@ -12,7 +12,9 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
+using Etherna.BeeNet.Models;
 using Etherna.EthernaIndex.Domain.Models.UserAgg;
+using Etherna.EthernaIndex.Persistence.Serializers;
 using Etherna.MongODM.Core;
 using Etherna.MongODM.Core.Serialization;
 
@@ -22,6 +24,9 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.SsoShared
     {
         public void Register(IDbContext dbContext)
         {
+            dbContext.MapRegistry.AddCustomSerializerMap<EthAddress>( //v0.3.15
+                new EthAddressSerializer());
+
             dbContext.MapRegistry.AddModelMap<UserSharedInfo>(
                 "6d0d2ee1-6aa3-42ea-9833-ac592bfc6613", //from sso v0.3.0
                 mm =>

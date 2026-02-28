@@ -32,7 +32,7 @@ namespace Etherna.EthernaIndex.ElasticSearch
             this IServiceCollection services,
             Action<ElasticSearchOptions> elasticSearchOptionsConfig)
         {
-            ArgumentNullException.ThrowIfNull(elasticSearchOptionsConfig, nameof(elasticSearchOptionsConfig));
+            ArgumentNullException.ThrowIfNull(elasticSearchOptionsConfig);
             
             services.Configure(elasticSearchOptionsConfig);
 

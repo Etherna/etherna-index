@@ -24,7 +24,7 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
         public PaginatedEnumerableDto(
             PaginatedEnumerable<TModel> paginatedEnumerable)
         {
-            ArgumentNullException.ThrowIfNull(paginatedEnumerable, nameof(paginatedEnumerable));
+            ArgumentNullException.ThrowIfNull(paginatedEnumerable);
 
             CurrentPage = paginatedEnumerable.CurrentPage;
             Elements = paginatedEnumerable.Elements;

@@ -12,6 +12,7 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
+using Etherna.BeeNet.Models;
 using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.Domain.Models.UserAgg;
 using System;
@@ -23,7 +24,7 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
         // Constructors.
         public UserDto(User user, UserSharedInfo? userSharedInfo)
         {
-            ArgumentNullException.ThrowIfNull(user, nameof(user));
+            ArgumentNullException.ThrowIfNull(user);
 
             Id = user.Id;
             Address = userSharedInfo?.EtherAddress;
@@ -32,7 +33,7 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
 
         // Properties.
         public string Id { get; }
-        public string? Address { get; }
+        public EthAddress? Address { get; }
         public DateTime CreationDateTime { get; }
     }
 }

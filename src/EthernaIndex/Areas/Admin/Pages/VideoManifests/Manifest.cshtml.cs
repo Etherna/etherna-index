@@ -41,7 +41,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
                 Video? video,
                 VideoManifest videoManifest)
             {
-                ArgumentNullException.ThrowIfNull(videoManifest, nameof(videoManifest));
+                ArgumentNullException.ThrowIfNull(videoManifest);
 
                 Id = videoManifest.Id;
                 CreationDateTime = videoManifest.CreationDateTime;
@@ -149,7 +149,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
             IBackgroundJobClient backgroundJobClient,
             IIndexDbContext indexDbContext)
         {
-            ArgumentNullException.ThrowIfNull(indexDbContext, nameof(indexDbContext));
+            ArgumentNullException.ThrowIfNull(indexDbContext);
 
             this.backgroundJobClient = backgroundJobClient;
             this.indexDbContext = indexDbContext;

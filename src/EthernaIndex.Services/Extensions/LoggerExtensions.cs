@@ -70,8 +70,8 @@ namespace Etherna.EthernaIndex.Services.Extensions
                 new EventId(21, nameof(FindManifestByReference)),
                 "Find video by Manifest Reference {ManifestReference}");
 
-        private static readonly Action<ILogger, string, Exception> _findUserByAddress =
-            LoggerMessage.Define<string>(
+        private static readonly Action<ILogger, EthAddress, Exception> _findUserByAddress =
+            LoggerMessage.Define<EthAddress>(
                 LogLevel.Information,
                 new EventId(12, nameof(FindUserByAddress)),
                 "User find with address {Address}");
@@ -100,8 +100,8 @@ namespace Etherna.EthernaIndex.Services.Extensions
                 new EventId(26, nameof(GetBulkVideoValidationStatusByIds)),
                 "Get bulk validation status by videos ids {VideoIds}");
 
-        private static readonly Action<ILogger, string, Exception> _getCurrentUser =
-            LoggerMessage.Define<string>(
+        private static readonly Action<ILogger, EthAddress, Exception> _getCurrentUser =
+            LoggerMessage.Define<EthAddress>(
                 LogLevel.Information,
                 new EventId(13, nameof(GetCurrentUser)),
                 "Get current user with address {Address}");
@@ -118,8 +118,8 @@ namespace Etherna.EthernaIndex.Services.Extensions
                 new EventId(11, nameof(GetUserListPaginated)),
                 "Get users paginated Page: {Page} Take: {Take}");
 
-        private static readonly Action<ILogger, string, int, int, Exception> _getUserVideosPaginated =
-            LoggerMessage.Define<string, int, int>(
+        private static readonly Action<ILogger, EthAddress, int, int, Exception> _getUserVideosPaginated =
+            LoggerMessage.Define<EthAddress, int, int>(
                 LogLevel.Information,
                 new EventId(14, nameof(GetUserVideosPaginated)),
                 "Get video for user address {Address} paginated Page: {Page} Take: {Take}");
@@ -227,7 +227,7 @@ namespace Etherna.EthernaIndex.Services.Extensions
         public static void FindManifestByReference(this ILogger logger, SwarmReference manifestReference) =>
             _findManifestByReference(logger, manifestReference, null!);
 
-        public static void FindUserByAddress(this ILogger logger, string address) =>
+        public static void FindUserByAddress(this ILogger logger, EthAddress address) =>
             _findUserByAddress(logger, address, null!);
 
         public static void FindVideoById(this ILogger logger, string videoId) =>
@@ -242,7 +242,7 @@ namespace Etherna.EthernaIndex.Services.Extensions
         public static void GetBulkVideoValidationStatusByIds(this ILogger logger, IEnumerable<string> videoIds) =>
             _getBulkVideoValidationStatusByIds(logger, videoIds, null!);
 
-        public static void GetCurrentUser(this ILogger logger, string address) =>
+        public static void GetCurrentUser(this ILogger logger, EthAddress address) =>
             _getCurrentUser(logger, address, null!);
 
         public static void GetLastUploadedVideos(this ILogger logger, int page, int take) =>
@@ -251,7 +251,7 @@ namespace Etherna.EthernaIndex.Services.Extensions
         public static void GetUserListPaginated(this ILogger logger, int page, int take) =>
             _getUserListPaginated(logger, page, take, null!);
 
-        public static void GetUserVideosPaginated(this ILogger logger, string address, int page, int take) =>
+        public static void GetUserVideosPaginated(this ILogger logger, EthAddress address, int page, int take) =>
             _getUserVideosPaginated(logger, address, page, take, null!);
 
         public static void GetVideoComments(this ILogger logger, string videoId, int page, int take) =>

@@ -12,29 +12,32 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
-using Etherna.BeeNet.Models;
+using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;
-using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace Etherna.EthernaIndex.Configs.Swagger.SchemaFilters
+namespace Etherna.EthernaIndex.Configs.OpenApi
 {
-    public class SwarmAddressSchemaFilter : ISchemaFilter
+    /// <summary>
+    /// Required because of https://github.com/dotnet/aspnetcore/issues/43330
+    /// </summary>
+    public sealed class RemoveDefaultResponse200OperationTransformer : IOpenApiOperationTransformer
     {
-        public void Apply(IOpenApiSchema schema, SchemaFilterContext context)
+        public Task TransformAsync(
+            OpenApiOperation operation,
+            OpenApiOperationTransformerContext context,
+            CancellationToken cancellationToken)
         {
-            ArgumentNullException.ThrowIfNull(schema);
+            ArgumentNullException.ThrowIfNull(operation);
             ArgumentNullException.ThrowIfNull(context);
-            
-            var concreteSchema = (OpenApiSchema)schema;
-            if (context.Type == typeof(SwarmAddress))
-            {
-                concreteSchema.Type = JsonSchemaType.String;
-                concreteSchema.Format = null;
-                concreteSchema.MinLength = SwarmHash.HashSize * 2;
-                concreteSchema.Pattern = $"^[a-fA-F0-9]{{{SwarmHash.HashSize * 2}}}.*$";
-                concreteSchema.Properties?.Clear();
-            }
+
+            if (context.Description.ActionDescriptor.EndpointMetadata.OfType<RemoveResponse200EndpointMetadata>().Any())
+                operation.Responses?.Remove("200");
+
+            return Task.CompletedTask;
         }
     }
 }

@@ -12,6 +12,7 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
+using Etherna.BeeNet.Models;
 using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.Domain.Models.UserAgg;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg;
@@ -28,8 +29,8 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
             UserSharedInfo ownerSharedInfo,
             VideoVote? currentUserVideoVote)
         {
-            ArgumentNullException.ThrowIfNull(video, nameof(video));
-            ArgumentNullException.ThrowIfNull(ownerSharedInfo, nameof(ownerSharedInfo));
+            ArgumentNullException.ThrowIfNull(video);
+            ArgumentNullException.ThrowIfNull(ownerSharedInfo);
 
             Id = video.Id;
             CreationDateTime = video.CreationDateTime;
@@ -51,7 +52,7 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
         public DateTime CreationDateTime { get; }
         public VoteValue? CurrentVoteValue { get; }
         public VideoManifest2Dto? LastValidManifest { get; }
-        public string OwnerAddress { get; }
+        public EthAddress OwnerAddress { get; }
         public long TotDownvotes { get; }
         public long TotUpvotes { get; }
     }

@@ -25,7 +25,7 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
         // Constructors.
         public VideoStatusDto(Video video)
         {
-            ArgumentNullException.ThrowIfNull(video, nameof(video));
+            ArgumentNullException.ThrowIfNull(video);
 
             Id = video.Id;
             ManifestsStatus = video.VideoManifests.Select(vm => new VideoManifestStatusDto(video, vm));

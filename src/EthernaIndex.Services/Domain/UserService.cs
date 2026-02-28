@@ -12,34 +12,24 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
+using Etherna.BeeNet.Models;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.Domain.Models.UserAgg;
 using Etherna.MongoDB.Driver.Linq;
-using Nethereum.Util;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Services.Domain
 {
-    internal sealed class UserService : IUserService
+    internal sealed class UserService(
+        IIndexDbContext indexDbContext,
+        ISharedDbContext sharedDbContext)
+        : IUserService
     {
-        // Fields.
-        private readonly IIndexDbContext indexDbContext;
-        private readonly ISharedDbContext sharedDbContext;
-
-        // Constructor.
-        public UserService(
-            IIndexDbContext indexDbContext,
-            ISharedDbContext sharedDbContext)
-        {
-            this.indexDbContext = indexDbContext;
-            this.sharedDbContext = sharedDbContext;
-        }
-
         // Methods.
-        public async Task<(User, UserSharedInfo)> FindUserAsync(string address) =>
+        public async Task<(User, UserSharedInfo)> FindUserAsync(EthAddress address) =>
             await FindUserAsync(await FindUserSharedInfoByAddressAsync(address));
 
         public async Task<(User, UserSharedInfo)> FindUserAsync(UserSharedInfo userSharedInfo)
@@ -61,14 +51,8 @@ namespace Etherna.EthernaIndex.Services.Domain
             return (user, userSharedInfo);
         }
 
-        public async Task<UserSharedInfo> FindUserSharedInfoByAddressAsync(string address)
+        public async Task<UserSharedInfo> FindUserSharedInfoByAddressAsync(EthAddress address)
         {
-            if (!address.IsValidEthereumAddressHexFormat())
-                throw new ArgumentException("The value is not a valid ethereum address", nameof(address));
-
-            // Normalize address.
-            address = address.ConvertToEthereumChecksumAddress();
-
             // Find user shared info.
             return await sharedDbContext.UsersInfo.QueryElementsAsync(elements =>
                 elements.Where(u => u.EtherAddress == address ||                   //case: db and invoker are synced
@@ -76,7 +60,7 @@ namespace Etherna.EthernaIndex.Services.Domain
                         .FirstAsync());
         }
 
-        public async Task<(User?, UserSharedInfo?)> TryFindUserAsync(string address)
+        public async Task<(User?, UserSharedInfo?)> TryFindUserAsync(EthAddress address)
         {
             var sharedInfo = await TryFindUserSharedInfoByAddressAsync(address);
             if (sharedInfo is null)
@@ -85,7 +69,7 @@ namespace Etherna.EthernaIndex.Services.Domain
             return await FindUserAsync(sharedInfo);
         }
 
-        public async Task<UserSharedInfo?> TryFindUserSharedInfoByAddressAsync(string address)
+        public async Task<UserSharedInfo?> TryFindUserSharedInfoByAddressAsync(EthAddress address)
         {
             try { return await FindUserSharedInfoByAddressAsync(address); }
             catch (InvalidOperationException) { return null; }

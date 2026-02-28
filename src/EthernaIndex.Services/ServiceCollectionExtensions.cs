@@ -36,7 +36,7 @@ namespace Etherna.EthernaIndex.Services
 
         public static void AddDomainServices(this IServiceCollection services, IConfiguration configuration)
         {
-            ArgumentNullException.ThrowIfNull(configuration, nameof(configuration));
+            ArgumentNullException.ThrowIfNull(configuration);
             
             var currentType = typeof(ServiceCollectionExtensions).GetTypeInfo();
             var eventHandlersNamespace = $"{currentType.Namespace}.{EventHandlersSubNamespace}";
