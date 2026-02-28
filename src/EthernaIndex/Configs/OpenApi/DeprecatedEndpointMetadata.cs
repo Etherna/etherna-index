@@ -12,26 +12,10 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
-using Etherna.BeeNet.Models;
-using Microsoft.OpenApi;
-using Swashbuckle.AspNetCore.SwaggerGen;
-using System;
-
-namespace Etherna.EthernaIndex.Configs.Swagger.SchemaFilters
+namespace Etherna.EthernaIndex.Configs.OpenApi
 {
-    public class SwarmUriSchemaFilter : ISchemaFilter
+    public sealed class DeprecatedEndpointMetadata(string? message = null)
     {
-        public void Apply(IOpenApiSchema schema, SchemaFilterContext context)
-        {
-            ArgumentNullException.ThrowIfNull(schema);
-            ArgumentNullException.ThrowIfNull(context);
-
-            var concreteSchema = (OpenApiSchema)schema;
-            if (context.Type == typeof(SwarmUri))
-            {
-                concreteSchema.Type = JsonSchemaType.String;
-                concreteSchema.Format = null;
-            }
-        }
+        public string? Message { get; } = message;
     }
 }

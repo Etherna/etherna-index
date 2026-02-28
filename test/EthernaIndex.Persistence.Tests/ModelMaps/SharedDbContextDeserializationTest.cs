@@ -85,7 +85,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
         [Theory, MemberData(nameof(UserSharedInfoDeserializationTests))]
         public void UserSharedInfoDeserialization(DeserializationTestElement<UserSharedInfo> testElement)
         {
-            ArgumentNullException.ThrowIfNull(testElement, nameof(testElement));
+            ArgumentNullException.ThrowIfNull(testElement);
 
             // Setup.
             using var documentReader = new JsonReader(testElement.SourceDocument);
@@ -105,7 +105,6 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
             Assert.Equal(testElement.ExpectedModel.LockoutEnabled, result.LockoutEnabled);
             Assert.Equal(testElement.ExpectedModel.LockoutEnd, result.LockoutEnd);
             Assert.NotNull(result.Id);
-            Assert.NotNull(result.EtherAddress);
             Assert.NotNull(result.EtherPreviousAddresses);
         }
     }

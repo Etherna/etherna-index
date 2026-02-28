@@ -1,4 +1,4 @@
-﻿// Copyright 2021-present Etherna SA
+// Copyright 2021-present Etherna SA
 // This file is part of Etherna Index.
 // 
 // Etherna Index is free software: you can redistribute it and/or modify it under the terms of the
@@ -12,13 +12,20 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
-using System.Threading.Tasks;
+using Etherna.EthernaIndex.Configs.OpenApi;
+using Microsoft.AspNetCore.Builder;
 
-namespace Etherna.EthernaIndex.Areas.Api.Services
+namespace Etherna.EthernaIndex.Extensions
 {
-    public interface IModerationControllerService
+    public static class RouteHandlerBuilderExtensions
     {
-        Task ModerateCommentAsync(string id);
-        Task ModerateVideoAsync(string id);
+        public static RouteHandlerBuilder IsDeprecated(this RouteHandlerBuilder builder, string? message = null) =>
+            builder.WithMetadata(new DeprecatedEndpointMetadata(message));
+        
+        /// <summary>
+        /// Required because of https://github.com/dotnet/aspnetcore/issues/43330
+        /// </summary>
+        public static RouteHandlerBuilder NotProduces200(this RouteHandlerBuilder builder) =>
+            builder.WithMetadata(new RemoveResponse200EndpointMetadata());
     }
 }

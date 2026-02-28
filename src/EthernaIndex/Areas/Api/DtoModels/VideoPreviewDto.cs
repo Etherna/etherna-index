@@ -49,8 +49,8 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
             VideoDocument videoDocument,
             UserSharedInfo ownerSharedInfo)
         {
-            ArgumentNullException.ThrowIfNull(videoDocument, nameof(videoDocument));
-            ArgumentNullException.ThrowIfNull(ownerSharedInfo, nameof(ownerSharedInfo));
+            ArgumentNullException.ThrowIfNull(videoDocument);
+            ArgumentNullException.ThrowIfNull(ownerSharedInfo);
 
             Id = videoDocument.Id;
             Duration = videoDocument.Duration;
@@ -68,7 +68,7 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
         public long? CreatedAt { get; }
         public long? Duration { get; }
         public SwarmReference? Hash { get; }
-        public string OwnerAddress { get; }
+        public EthAddress OwnerAddress { get; }
         public Image2Dto? Thumbnail { get; }
         public string? Title { get; }
         public long? UpdatedAt { get; }

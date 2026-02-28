@@ -22,7 +22,7 @@ namespace Etherna.EthernaIndex.Domain.Models
         // Constructors.
         public User(UserSharedInfo sharedInfo)
         {
-            ArgumentNullException.ThrowIfNull(sharedInfo, nameof(sharedInfo));
+            ArgumentNullException.ThrowIfNull(sharedInfo);
 
             SharedInfoId = sharedInfo.Id;
         }

@@ -19,17 +19,8 @@ using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Services.Domain
 {
-    internal sealed class VideoService : IVideoService
+    internal sealed class VideoService(IIndexDbContext dbContext) : IVideoService
     {
-        // Fields.
-        private readonly IIndexDbContext dbContext;
-
-        // Constructor.
-        public VideoService(IIndexDbContext dbContext)
-        {
-            this.dbContext = dbContext;
-        }
-
         // Methods.
         public async Task DeleteVideoAsync(Video video)
         {

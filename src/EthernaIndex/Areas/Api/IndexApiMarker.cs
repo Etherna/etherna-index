@@ -1,4 +1,4 @@
-﻿// Copyright 2021-present Etherna SA
+// Copyright 2021-present Etherna SA
 // This file is part of Etherna Index.
 // 
 // Etherna Index is free software: you can redistribute it and/or modify it under the terms of the
@@ -12,12 +12,10 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
-using System.Threading.Tasks;
-
-namespace Etherna.EthernaIndex.Areas.Api.Services
+namespace Etherna.EthernaIndex.Areas.Api
 {
-    public interface ICommentsControllerService
+    internal sealed class IndexApiMarker
     {
-        Task DeleteOwnedCommentAsync(string id);
+        
     }
 }

@@ -22,6 +22,7 @@
     <PackageReference Include="EthernaACR" Version="0.4.0-alpha.66" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.3" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="10.0.3" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.3" />
     <PackageReference Include="MongODM" Version="0.25.0-alpha.53" />
     <PackageReference Include="MongODM.AspNetCore.UI" Version="0.25.0-alpha.53" />
     <PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />

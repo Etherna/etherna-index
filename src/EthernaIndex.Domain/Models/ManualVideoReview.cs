@@ -26,7 +26,7 @@ namespace Etherna.EthernaIndex.Domain.Models
             Video video)
             : base(author, description, isValid)
         {
-            ArgumentNullException.ThrowIfNull(video, nameof(video));
+            ArgumentNullException.ThrowIfNull(video);
 
             Video = video;
         }

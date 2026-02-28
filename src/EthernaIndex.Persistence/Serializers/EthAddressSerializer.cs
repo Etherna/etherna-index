@@ -13,27 +13,24 @@
 // If not, see <https://www.gnu.org/licenses/>.
 
 using Etherna.BeeNet.Models;
-using System;
-using System.Text.Json;
-using System.Text.Json.Serialization;
+using Etherna.MongoDB.Bson.Serialization;
+using Etherna.MongoDB.Bson.Serialization.Serializers;
 
-namespace Etherna.EthernaIndex.Converters
+namespace Etherna.EthernaIndex.Persistence.Serializers
 {
-    public class SwarmAddressJsonConverter : JsonConverter<SwarmAddress>
+    public class EthAddressSerializer : SerializerBase<EthAddress>
     {
-        public override SwarmAddress Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-        {
-            if (reader.TokenType != JsonTokenType.String)
-                throw new JsonException();
+        private readonly StringSerializer stringSerializer = new();
 
-            return reader.GetString()!;
+        public override EthAddress Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
+        {
+            var address = stringSerializer.Deserialize(context, args);
+            return EthAddress.FromString(address);
         }
 
-        public override void Write(Utf8JsonWriter writer, SwarmAddress value, JsonSerializerOptions options)
+        public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, EthAddress value)
         {
-            ArgumentNullException.ThrowIfNull(writer, nameof(writer));
-            
-            writer.WriteStringValue(value.ToString());
+            stringSerializer.Serialize(context, args, value.ToString());
         }
     }
 }
