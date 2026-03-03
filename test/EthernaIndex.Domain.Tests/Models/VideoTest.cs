@@ -97,7 +97,6 @@ namespace Etherna.EthernaIndex.Domain.Models
                     null,
                     null,
                     null,
-                    null,
                     null));
             else
                 videoManifest.FailedValidation([new(ValidationErrorType.Unknown, "test")]);

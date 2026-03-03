@@ -85,7 +85,6 @@ namespace Etherna.EthernaIndex.Services.Tasks
             var firstManifest = new PublishedVideoManifest(
                 manifestReference,
                 new(1,
-                    null,
                     DateTimeOffset.Now,
                     "Description",
                     TimeSpan.FromSeconds(600), 
@@ -109,7 +108,6 @@ namespace Etherna.EthernaIndex.Services.Tasks
             var secondManifest = new PublishedVideoManifest(
                 manifestReference,
                 new(1,
-                    null,
                     DateTimeOffset.Now,
                     "Description2",
                     TimeSpan.FromSeconds(600), 
@@ -202,7 +200,6 @@ namespace Etherna.EthernaIndex.Services.Tasks
                 manifestReference,
                 new Sdk.Tools.Video.Models.VideoManifest(
                     1,
-                    null,
                     DateTimeOffset.Now,
                     "Description",
                     TimeSpan.FromSeconds(600), 

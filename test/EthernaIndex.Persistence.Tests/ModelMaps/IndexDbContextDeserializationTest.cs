@@ -643,7 +643,6 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                     {
                         var metadataMock = new Mock<VideoManifestMetadataV2>();
                         metadataMock.Setup(m => m.AspectRatio).Returns(1.7699999809265137f);
-                        metadataMock.Setup(m => m.BatchId).Returns("36b7efd913ca4cf880b8eeac5093fa27b0825906c600685b6abdd6566e6cfe8f");
                         metadataMock.Setup(m => m.CreatedAt).Returns(123456);
                         metadataMock.Setup(m => m.Description).Returns("Test description");
                         metadataMock.Setup(m => m.Duration).Returns(420);
@@ -727,7 +726,6 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                     {
                         var metadataMock = new Mock<VideoManifestMetadataV2>();
                         metadataMock.Setup(m => m.AspectRatio).Returns(1.7699999809265137f);
-                        metadataMock.Setup(m => m.BatchId).Returns("36b7efd913ca4cf880b8eeac5093fa27b0825906c600685b6abdd6566e6cfe8f");
                         metadataMock.Setup(m => m.CreatedAt).Returns(123456);
                         metadataMock.Setup(m => m.Description).Returns("Test description");
                         metadataMock.Setup(m => m.Duration).Returns(420);
@@ -844,7 +842,6 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                     expectedManifestMock.Setup(m => m.ManifestReference).Returns(new SwarmReference("765a93649a58db3a4a85d800aa8111b13c7082e081b5ea186885d95cdd232dcb"));
                     {
                         var metadataMock = new Mock<VideoManifestMetadataV1>();
-                        metadataMock.Setup(m => m.BatchId).Returns("36b7efd913ca4cf880b8eeac5093fa27b0825906c600685b6abdd6566e6cfe8f");
                         metadataMock.Setup(m => m.CreatedAt).Returns(123456);
                         metadataMock.Setup(m => m.Description).Returns("Test description");
                         metadataMock.Setup(m => m.Duration).Returns(420);
@@ -931,7 +928,6 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                     {
                         var metadataMock = new Mock<VideoManifestMetadataV2>();
                         metadataMock.Setup(m => m.AspectRatio).Returns(1.7699999809265137f);
-                        metadataMock.Setup(m => m.BatchId).Returns("36b7efd913ca4cf880b8eeac5093fa27b0825906c600685b6abdd6566e6cfe8f");
                         metadataMock.Setup(m => m.CreatedAt).Returns(123456);
                         metadataMock.Setup(m => m.Description).Returns("Test description");
                         metadataMock.Setup(m => m.Duration).Returns(420);
@@ -1060,7 +1056,6 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                     expectedManifestMock.Setup(m => m.ManifestReference).Returns(new SwarmReference("765a93649a58db3a4a85d800aa8111b13c7082e081b5ea186885d95cdd232dcb"));
                     {
                         var metadataMock = new Mock<VideoManifestMetadataV1>();
-                        metadataMock.Setup(m => m.BatchId).Returns("36b7efd913ca4cf880b8eeac5093fa27b0825906c600685b6abdd6566e6cfe8f");
                         metadataMock.Setup(m => m.Description).Returns("Test description");
                         metadataMock.Setup(m => m.Duration).Returns(420);
                         metadataMock.Setup(m => m.Sources).Returns(new[]{
@@ -1556,7 +1551,6 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                 case VideoManifestMetadataV1 expectedMetadataV1:
                     var resultMetadataV1 = result.Metadata as VideoManifestMetadataV1;
                     Assert.NotNull(resultMetadataV1);
-                    Assert.Equal(expectedMetadataV1.BatchId, resultMetadataV1.BatchId);
                     Assert.Equal(expectedMetadataV1.CreatedAt, resultMetadataV1.CreatedAt);
                     Assert.Equal(expectedMetadataV1.Description, resultMetadataV1.Description);
                     Assert.Equal(expectedMetadataV1.Duration, resultMetadataV1.Duration);
@@ -1572,7 +1566,6 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
                     var resultMetadataV2 = result.Metadata as VideoManifestMetadataV2;
                     Assert.NotNull(resultMetadataV2);
                     Assert.Equal(expectedMetadataV2.AspectRatio, resultMetadataV2.AspectRatio);
-                    Assert.Equal(expectedMetadataV2.BatchId, resultMetadataV2.BatchId);
                     Assert.Equal(expectedMetadataV2.CreatedAt, resultMetadataV2.CreatedAt);
                     Assert.Equal(expectedMetadataV2.Description, resultMetadataV2.Description);
                     Assert.Equal(expectedMetadataV2.Duration, resultMetadataV2.Duration);
