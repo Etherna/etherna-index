@@ -437,6 +437,67 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
             get
             {
                 var tests = new List<DeserializationTestElement<Video>>();
+                
+                // "d0c48dd8-0887-4ac5-80e5-9b08c5dc77f1" - v0.3.15
+                {
+                    var sourceDocument =
+                        """
+                        { 
+                            "_id" : ObjectId("625df43c74679c25b6c157ec"), 
+                            "_m" : "d0c48dd8-0887-4ac5-80e5-9b08c5dc77f1", 
+                            "CreationDateTime" : ISODate("2022-04-18T23:29:00.840+0000"),
+                            "BatchId": "db7fde96b8eb94c3ec43cf6547cf045b2a719a3d8b27489e08bb33c32afece4e",
+                            "IsFrozen" : true, 
+                            "LastValidManifest" : {
+                                "_m" : "f7966611-14aa-4f18-92f4-8697b4927fb6", 
+                                "CreationDateTime" : ISODate("2022-04-18T23:29:00.919+0000"), 
+                                "_id" : ObjectId("625df43c74679c25b6c157ed"), 
+                                "IsValid" : true, 
+                                "Manifest" : {
+                                    "_m" : "27edd50c-dd67-44d8-84ea-1eedcfe481e8", 
+                                    "Hash" : "568863d1a27feb3682b720d43cebd723ee09ce57c538831bf94bafc9408871c9"
+                                }, 
+                                "Duration" : 420.0, 
+                                "Thumbnail" : null, 
+                                "Title" : "Mocked sample video"
+                            }, 
+                            "Owner" : {
+                                "_m" : "caa0968f-4493-485b-b8d0-bc40942e8684", 
+                                "_id" : ObjectId("625df43c74679c25b6c157eb"), 
+                                "SharedInfoId" : "625da02c2752994b203d3681"
+                            }, 
+                            "TotDownvotes" : NumberLong(1), 
+                            "TotUpvotes" : NumberLong(2), 
+                            "VideoManifests" : [
+                                {
+                                    "_m" : "1ca89e6c-716c-4936-b7dc-908c057a3e41", 
+                                    "_id" : ObjectId("625df43c74679c25b6c157ed")
+                                }
+                            ]
+                        }
+                        """;
+
+                    var expectedVideoMock = new Mock<Video>();
+                    expectedVideoMock.Setup(v => v.Id).Returns("625df43c74679c25b6c157ec");
+                    expectedVideoMock.Setup(v => v.CreationDateTime).Returns(new DateTime(2022, 04, 18, 23, 29, 00, 840));
+                    expectedVideoMock.Setup(v => v.BatchId).Returns("db7fde96b8eb94c3ec43cf6547cf045b2a719a3d8b27489e08bb33c32afece4e");
+                    expectedVideoMock.Setup(v => v.IsFrozen).Returns(true);
+                    {
+                        var manifest0Mock = new Mock<VideoManifest>();
+                        manifest0Mock.Setup(m => m.Id).Returns("625df43c74679c25b6c157ed");
+                        expectedVideoMock.Setup(v => v.LastValidManifest).Returns(manifest0Mock.Object);
+                        expectedVideoMock.Setup(v => v.VideoManifests).Returns([manifest0Mock.Object]);
+                    }
+                    {
+                        var ownerMock = new Mock<User>();
+                        ownerMock.Setup(u => u.Id).Returns("625df43c74679c25b6c157eb");
+                        expectedVideoMock.Setup(v => v.Owner).Returns(ownerMock.Object);
+                    }
+                    expectedVideoMock.Setup(v => v.TotDownvotes).Returns(1);
+                    expectedVideoMock.Setup(v => v.TotUpvotes).Returns(2);
+
+                    tests.Add(new DeserializationTestElement<Video>(sourceDocument, expectedVideoMock.Object));
+                }
 
                 // "d0c48dd8-0887-4ac5-80e5-9b08c5dc77f1" - v0.3.0
                 {
@@ -1515,6 +1576,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
             // Assert.
             Assert.Equal(testElement.ExpectedModel.Id, result.Id);
             Assert.Equal(testElement.ExpectedModel.CreationDateTime, result.CreationDateTime);
+            Assert.Equal(testElement.ExpectedModel.BatchId, result.BatchId);
             Assert.Equal(testElement.ExpectedModel.IsFrozen, result.IsFrozen);
             Assert.Equal(testElement.ExpectedModel.LastValidManifest, result.LastValidManifest, EntityModelEqualityComparer.Instance);
             Assert.Equal(testElement.ExpectedModel.Owner, result.Owner, EntityModelEqualityComparer.Instance);

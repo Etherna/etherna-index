@@ -343,7 +343,16 @@ namespace Etherna.EthernaIndex.Areas.Api
             builder.MapPost("videos",
                     (IIndexApiHandler handler,
                             [FromBody] VideoCreateInput videoInput) =>
-                        handler.CreateVideoAsync(videoInput))
+                        handler.CreateVideoAsync(videoInput.ManifestHash, null))
+                .Produces<string>()
+                .Produces(StatusCodes.Status400BadRequest)
+                .Produces(StatusCodes.Status401Unauthorized)
+                .IsDeprecated("Use \"videos/create2\" instead");
+            
+            builder.MapPost("videos/create2",
+                    (IIndexApiHandler handler,
+                            [FromBody] VideoCreateInput2 videoInput) =>
+                        handler.CreateVideoAsync(videoInput.ManifestReference, videoInput.BatchId))
                 .Produces<string>()
                 .Produces(StatusCodes.Status400BadRequest)
                 .Produces(StatusCodes.Status401Unauthorized);

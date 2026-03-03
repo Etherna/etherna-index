@@ -109,13 +109,13 @@ namespace Etherna.EthernaIndex.Areas.Api
                     new CommentDto(comment, userSharedInfo));
             });
 
-        public Task<IResult> CreateVideoAsync(VideoCreateInput videoInput) =>
+        public Task<IResult> CreateVideoAsync(SwarmReference manifestReference, PostageBatchId? batchId) =>
             ExceptionHandler.RunAsync(async () =>
             {
                 var address = await ethernaOidcClient.GetEtherAddressAsync();
                 var (currentUser, _) = await userService.FindUserAsync(address);
 
-                var videoManifest = await dbContext.VideoManifests.TryFindOneAsync(c => c.ManifestReference == videoInput.ManifestHash);
+                var videoManifest = await dbContext.VideoManifests.TryFindOneAsync(c => c.ManifestReference == manifestReference);
 
                 if (videoManifest is not null)
                 {
@@ -125,18 +125,18 @@ namespace Etherna.EthernaIndex.Areas.Api
 
                     if (existingVideo is null ||
                         existingVideo.Owner.Id != currentUser.Id)
-                        throw new DuplicatedManifestReferenceException(videoInput.ManifestHash);
+                        throw new DuplicatedManifestReferenceException(manifestReference);
 
                     return Results.Json(existingVideo.Id);
                 }
 
                 // Create Video.
-                var video = new Video(currentUser);
+                var video = new Video(currentUser, batchId);
 
                 await dbContext.Videos.CreateAsync(video);
 
                 // Create video manifest.
-                videoManifest = new VideoManifest(videoInput.ManifestHash);
+                videoManifest = new VideoManifest(manifestReference);
                 await dbContext.VideoManifests.CreateAsync(videoManifest);
 
                 // Add manifest to video.
@@ -146,7 +146,7 @@ namespace Etherna.EthernaIndex.Areas.Api
 
                 // Create Validation Manifest Task.
                 backgroundJobClient.Create<IVideoManifestValidatorTask>(
-                    task => task.RunAsync(video.Id, videoInput.ManifestHash.ToString()),
+                    task => task.RunAsync(video.Id, manifestReference.ToString()),
                     new EnqueuedState(Queues.METADATA_VIDEO_VALIDATOR));
 
                 logger.VideoCreated(currentUser.Id, video.Id);

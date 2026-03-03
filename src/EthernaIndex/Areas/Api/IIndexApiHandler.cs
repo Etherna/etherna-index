@@ -31,7 +31,7 @@ namespace Etherna.EthernaIndex.Areas.Api
         [Obsolete("Used only for API backwards compatibility")]
         Task<IResult> CreateCommentAsync_old(string id, string text);
         
-        Task<IResult> CreateVideoAsync(VideoCreateInput videoInput);
+        Task<IResult> CreateVideoAsync(SwarmReference manifestReference, PostageBatchId? batchId);
         
         Task<IResult> DeleteOwnedCommentAsync(string id);
 

@@ -12,6 +12,7 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
+using Etherna.BeeNet.Models;
 using Etherna.EthernaIndex.Domain.Events;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg;
 using Etherna.MongODM.Core.Attributes;
@@ -30,13 +31,17 @@ namespace Etherna.EthernaIndex.Domain.Models
         private List<VideoManifest> _videoManifests = new();
 
         // Constructors and dispose.
-        public Video(User owner)
+        public Video(
+            User owner,
+            PostageBatchId? batchId)
         {
             Owner = owner ?? throw new ArgumentNullException(nameof(owner));
+            BatchId = batchId;
         }
         protected Video() { }
 
         // Properties.
+        public virtual PostageBatchId? BatchId { get; protected set; }
         public virtual bool IsFrozen { get; set; }
         public virtual VideoManifest? LastValidManifest
         {
@@ -48,7 +53,7 @@ namespace Etherna.EthernaIndex.Domain.Models
                     _lastValidManifest = value;
             }
         }
-        public virtual User Owner { get; protected set; } = default!;
+        public virtual User Owner { get; protected set; } = null!;
         public virtual long TotDownvotes { get; set; }
         public virtual long TotUpvotes { get; set; }
         public virtual IEnumerable<VideoManifest> VideoManifests

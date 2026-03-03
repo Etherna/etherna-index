@@ -37,6 +37,7 @@ namespace Etherna.EthernaIndex.Services.Tasks
     public class VideoManifestValidatorTaskTest
     {
         // Fields.
+        private readonly PostageBatchId batchId = "db7fde96b8eb94c3ec43cf6547cf045b2a719a3d8b27489e08bb33c32afece4e";
         private readonly Mock<ISwarmClient> beeClientMock = new();
         private readonly VideoManifestValidatorTask videoManifestValidatorTask;
         private readonly SwarmReference manifestReference = "1a345a1d73fd8f28d71e6b03d2e42f44721db94b734c2edcfe6fcd48b76a74f9";
@@ -54,7 +55,7 @@ namespace Etherna.EthernaIndex.Services.Tasks
         {
             userSharedInfoMock.Setup(s => s.EtherAddress).Returns(address);
             var owner = new User(userSharedInfoMock.Object);
-            video = new Video(owner);
+            video = new Video(owner, batchId);
             videoManifest = new VideoManifest(manifestReference);
             video.AddManifest(videoManifest);
 
