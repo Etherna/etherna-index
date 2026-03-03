@@ -41,7 +41,6 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
                     break;
 
                 case VideoManifestMetadataV1 metadataV1:
-                    BatchId = metadataV1.BatchId;
                     Description = metadataV1.Description;
                     Duration = metadataV1.Duration;
                     OriginalQuality = null;
@@ -65,7 +64,6 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
                     break;
 
                 case VideoManifestMetadataV2 metadataV2:
-                    BatchId = metadataV2.BatchId;
                     Description = metadataV2.Description;
                     Duration = metadataV2.Duration;
                     PersonalData = metadataV2.PersonalData;
@@ -97,7 +95,6 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
         {
             ArgumentNullException.ThrowIfNull(videoDocument);
 
-            BatchId = null;
             Description = videoDocument.Description;
             Duration = videoDocument.Duration;
             Hash = videoDocument.ManifestReference;
@@ -117,7 +114,6 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
         }
 
         // Properties.
-        public PostageBatchId? BatchId { get; }
         public string? Description { get; }
         public long? Duration { get; }
         public SwarmReference Hash { get; }

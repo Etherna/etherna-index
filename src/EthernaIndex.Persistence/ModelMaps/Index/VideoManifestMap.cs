@@ -95,8 +95,6 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                             var thumbnail = m.ExtraElements.TryGetValue("Thumbnail", out var thumbnailObj) ?
                                 new ExtraElementsSerializer(dbContext).DeserializeValue<ThumbnailV1>(thumbnailObj) :
                                 null;
-                            var batchId = m.ExtraElements.TryGetValue("BatchId", out var batchIdObj) ?
-                                (string?)batchIdObj : null;
                             var personalData = m.ExtraElements.TryGetValue("PersonalData", out var personalDataObj) ?
                                 (string?)personalDataObj : null;
 
@@ -107,7 +105,6 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                                 duration,
                                 sources,
                                 thumbnail,
-                                batchId is null ? (PostageBatchId?)null : PostageBatchId.FromString(batchId),
                                 null,
                                 null,
                                 personalData);
@@ -154,8 +151,6 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                             var thumbnail = m.ExtraElements.TryGetValue("Thumbnail", out var thumbnailObj) ?
                                 new ExtraElementsSerializer(dbContext).DeserializeValue<ThumbnailV1>(thumbnailObj) :
                                 null;
-                            var batchId = m.ExtraElements.TryGetValue("BatchId", out var batchIdObj) ?
-                                (string?)batchIdObj : null;
                             var personalData = m.ExtraElements.TryGetValue("PersonalData", out var personalDataObj) ?
                                 (string?)personalDataObj : null;
 
@@ -166,7 +161,6 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                                 duration,
                                 sources,
                                 thumbnail,
-                                batchId is null ? (PostageBatchId?)null : PostageBatchId.FromString(batchId),
                                 null,
                                 null,
                                 personalData);
@@ -213,8 +207,6 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                             var thumbnail = m.ExtraElements.TryGetValue("Thumbnail", out var thumbnailObj) ?
                                 new ExtraElementsSerializer(dbContext).DeserializeValue<ThumbnailV1>(thumbnailObj) :
                                 null;
-                            var batchId = m.ExtraElements.TryGetValue("BatchId", out var batchIdObj) ?
-                                (string?)batchIdObj : null;
                             var personalData = m.ExtraElements.TryGetValue("PersonalData", out var personalDataObj) ?
                                 (string?)personalDataObj : null;
 
@@ -225,7 +217,6 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                                 duration,
                                 sources,
                                 thumbnail,
-                                batchId is null ? (PostageBatchId?)null : PostageBatchId.FromString(batchId),
                                 null,
                                 null,
                                 personalData);

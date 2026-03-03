@@ -33,6 +33,7 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
             ArgumentNullException.ThrowIfNull(ownerSharedInfo);
 
             Id = video.Id;
+            BatchId = video.BatchId;
             CreationDateTime = video.CreationDateTime;
             if (currentUserVideoVote is not null &&
                 currentUserVideoVote.Value != VoteValue.Neutral)
@@ -49,6 +50,7 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
 
         // Properties.
         public string Id { get; }
+        public PostageBatchId? BatchId { get; }
         public DateTime CreationDateTime { get; }
         public VoteValue? CurrentVoteValue { get; }
         public VideoManifest2Dto? LastValidManifest { get; }
