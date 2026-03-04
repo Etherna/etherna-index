@@ -17,6 +17,7 @@ using Etherna.ACR.Exceptions;
 using Etherna.ACR.Middlewares.DebugPages;
 using Etherna.Authentication;
 using Etherna.Authentication.AspNetCore;
+using Etherna.BeeNet.JsonConverters;
 using Etherna.DomainEvents;
 using Etherna.EthernaIndex.Areas.Api;
 using Etherna.EthernaIndex.Configs;
@@ -195,6 +196,10 @@ namespace Etherna.EthernaIndex
             services.ConfigureHttpJsonOptions(options =>
             {
                 options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                options.SerializerOptions.Converters.Add(new PostageBatchIdJsonConverter());
+                options.SerializerOptions.Converters.Add(new SwarmAddressJsonConverter());
+                options.SerializerOptions.Converters.Add(new SwarmReferenceJsonConverter());
+                options.SerializerOptions.Converters.Add(new SwarmUriJsonConverter());
             });
 
             // Configure authentication.

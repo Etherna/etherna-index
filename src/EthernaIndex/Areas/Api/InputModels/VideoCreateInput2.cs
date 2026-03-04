@@ -16,7 +16,7 @@ using Etherna.BeeNet.Models;
 
 namespace Etherna.EthernaIndex.Areas.Api.InputModels
 {
-    public class VideoCreateInput2
+    public sealed class VideoCreateInput2
     {
         public PostageBatchId? BatchId { get; set; }
         public SwarmReference ManifestReference { get; set; }

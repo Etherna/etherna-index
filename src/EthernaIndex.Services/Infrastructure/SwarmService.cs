@@ -42,7 +42,6 @@ namespace Etherna.EthernaIndex.Services.Infrastructure
                 manifestReference,
                 new VideoManifest(
                     1.77f,
-                    PostageBatchId.Zero,
                     DateTimeOffset.UtcNow,
                     "Test description",
                     TimeSpan.FromMinutes(10),
