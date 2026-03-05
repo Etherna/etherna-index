@@ -66,14 +66,16 @@ namespace Etherna.EthernaIndex.Services.Tasks
                             vs.Metadata.Quality,
                             vs.Metadata.TotalSourceSize,
                             vs.Metadata.VideoType.ToString())),
-                    new ThumbnailV2(
-                        publishedVideoManifest.Manifest.Thumbnail.AspectRatio,
-                        publishedVideoManifest.Manifest.Thumbnail.Blurhash,
-                        publishedVideoManifest.Manifest.Thumbnail.Sources.Select(ts =>
-                            new ImageSourceV2(
-                                ts.Metadata.Width,
-                                ts.Uri,
-                                ts.Metadata.ImageType.ToString()))),
+                    publishedVideoManifest.Manifest.Thumbnail is null
+                        ? null
+                        : new ThumbnailV2(
+                            publishedVideoManifest.Manifest.Thumbnail.AspectRatio,
+                            publishedVideoManifest.Manifest.Thumbnail.Blurhash,
+                            publishedVideoManifest.Manifest.Thumbnail.Sources.Select(ts =>
+                                new ImageSourceV2(
+                                    ts.Metadata.Width,
+                                    ts.Uri,
+                                    ts.Metadata.ImageType.ToString()))),
                     publishedVideoManifest.Manifest.AspectRatio,
                     publishedVideoManifest.Manifest.CreatedAt.ToUnixTimeSeconds(),
                     publishedVideoManifest.Manifest.UpdatedAt?.ToUnixTimeSeconds(),
