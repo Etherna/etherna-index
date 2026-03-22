@@ -57,6 +57,7 @@ using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using DashboardOptions = Etherna.MongODM.AspNetCore.UI.DashboardOptions;
@@ -195,11 +196,14 @@ namespace Etherna.EthernaIndex
             });
             services.ConfigureHttpJsonOptions(options =>
             {
+                options.SerializerOptions.Converters.Add(new EthAddressJsonConverter());
                 options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
                 options.SerializerOptions.Converters.Add(new PostageBatchIdJsonConverter());
                 options.SerializerOptions.Converters.Add(new SwarmAddressJsonConverter());
                 options.SerializerOptions.Converters.Add(new SwarmReferenceJsonConverter());
                 options.SerializerOptions.Converters.Add(new SwarmUriJsonConverter());
+
+                options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
             });
 
             // Configure authentication.

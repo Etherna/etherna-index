@@ -12,7 +12,6 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
-using Etherna.EthernaIndex.Configs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -30,7 +29,6 @@ namespace Etherna.EthernaIndex.Areas.Api
             string message) =>
             Results.Json(
                 new ObjectResult(message) { StatusCode = statusCode },
-                CommonConsts.IndexV03JsonSerializerOptions,
                 statusCode: statusCode);
         
         public static IResult GetInternalServerErrorResult(

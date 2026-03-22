@@ -15,7 +15,6 @@
 using Etherna.Authentication;
 using Etherna.BeeNet.Models;
 using Etherna.EthernaIndex.Areas.Api.DtoModels;
-using Etherna.EthernaIndex.Areas.Api.InputModels;
 using Etherna.EthernaIndex.Configs;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
@@ -88,8 +87,7 @@ namespace Etherna.EthernaIndex.Areas.Api
                 logger.CreateVideoComment(user.Id, id);
 
                 return Results.Json(
-                    new Comment2Dto(comment, userSharedInfo),
-                    CommonConsts.IndexV03JsonSerializerOptions);
+                    new Comment2Dto(comment, userSharedInfo));
             });
 
         [Obsolete("Used only for API backwards compatibility")]
@@ -107,8 +105,7 @@ namespace Etherna.EthernaIndex.Areas.Api
                 logger.CreateVideoComment(user.Id, id);
 
                 return Results.Json(
-                    new CommentDto(comment, userSharedInfo),
-                    CommonConsts.IndexV03JsonSerializerOptions);
+                    new CommentDto(comment, userSharedInfo));
             });
 
         public Task<IResult> CreateVideoAsync(SwarmReference manifestReference, PostageBatchId? batchId) =>
@@ -130,8 +127,7 @@ namespace Etherna.EthernaIndex.Areas.Api
                         throw new DuplicatedManifestReferenceException(manifestReference);
 
                     return Results.Json(
-                        existingVideo.Id,
-                        CommonConsts.IndexV03JsonSerializerOptions);
+                        existingVideo.Id);
                 }
 
                 // Create Video.
@@ -156,8 +152,7 @@ namespace Etherna.EthernaIndex.Areas.Api
                 logger.VideoCreated(currentUser.Id, video.Id);
 
                 return Results.Json(
-                    video.Id,
-                    CommonConsts.IndexV03JsonSerializerOptions);
+                    video.Id);
             });
 
         public Task<IResult> DeleteOwnedCommentAsync(string id) =>
@@ -191,8 +186,7 @@ namespace Etherna.EthernaIndex.Areas.Api
                 logger.FindUserByAddress(address);
 
                 return Results.Json(
-                    new UserDto(user, sharedInfo),
-                    CommonConsts.IndexV03JsonSerializerOptions);
+                    new UserDto(user, sharedInfo));
             });
 
         public Task<IResult> FindVideoByIdAsync(string id) =>
@@ -220,8 +214,7 @@ namespace Etherna.EthernaIndex.Areas.Api
                 logger.FindVideoById(id);
 
                 return Results.Json(
-                    new Video2Dto(video, lastValidManifest, ownerSharedInfo, currentUserVideoVote),
-                    CommonConsts.IndexV03JsonSerializerOptions);
+                    new Video2Dto(video, lastValidManifest, ownerSharedInfo, currentUserVideoVote));
             });
 
         [Obsolete("Used only for API backwards compatibility")]
@@ -250,8 +243,7 @@ namespace Etherna.EthernaIndex.Areas.Api
                 logger.FindVideoById(id);
 
                 return Results.Json(
-                    new VideoDto(video, lastValidManifest, ownerSharedInfo, currentUserVideoVote),
-                    CommonConsts.IndexV03JsonSerializerOptions);
+                    new VideoDto(video, lastValidManifest, ownerSharedInfo, currentUserVideoVote));
             });
 
         public Task<IResult> FindVideoByManifestReferenceAsync(SwarmReference reference) =>
@@ -279,8 +271,7 @@ namespace Etherna.EthernaIndex.Areas.Api
                 logger.FindManifestByReference(reference);
 
                 return Results.Json(
-                    new Video2Dto(video, videoManifest, ownerSharedInfo, currentUserVideoVote),
-                    CommonConsts.IndexV03JsonSerializerOptions);
+                    new Video2Dto(video, videoManifest, ownerSharedInfo, currentUserVideoVote));
             });
 
         [Obsolete("Used only for API backwards compatibility")]
@@ -309,8 +300,7 @@ namespace Etherna.EthernaIndex.Areas.Api
                 logger.FindManifestByReference(reference);
 
                 return Results.Json(
-                    new VideoDto(video, videoManifest, ownerSharedInfo, currentUserVideoVote),
-                    CommonConsts.IndexV03JsonSerializerOptions);
+                    new VideoDto(video, videoManifest, ownerSharedInfo, currentUserVideoVote));
             });
 
         public Task<IResult> ForceVideoManifestValidationAsync(string id) =>
@@ -360,8 +350,7 @@ namespace Etherna.EthernaIndex.Areas.Api
                 logger.GetCurrentUser(address);
 
                 return Results.Json(
-                    new CurrentUserDto(user, sharedInfo, isSuperModeratorResult.Succeeded),
-                    CommonConsts.IndexV03JsonSerializerOptions);
+                    new CurrentUserDto(user, sharedInfo, isSuperModeratorResult.Succeeded));
             });
 
         public Task<IResult> GetBulkVideoValidationStatusByIdsAsync(IEnumerable<string> ids) =>
@@ -374,8 +363,7 @@ namespace Etherna.EthernaIndex.Areas.Api
                 logger.GetBulkVideoValidationStatusByIds(ids);
 
                 return Results.Json(
-                    videos.SelectMany(v => v.VideoManifests.Select(vm => new VideoManifestStatusDto(v, vm))),
-                    CommonConsts.IndexV03JsonSerializerOptions);
+                    videos.SelectMany(v => v.VideoManifests.Select(vm => new VideoManifestStatusDto(v, vm))));
             });
 
         [Obsolete("Used only for API backwards compatibility")]
@@ -389,8 +377,7 @@ namespace Etherna.EthernaIndex.Areas.Api
                 logger.GetBulkVideoValidationStatusByIds(ids);
 
                 return Results.Json(
-                    videos.Select(v => new VideoStatusDto(v)),
-                    CommonConsts.IndexV03JsonSerializerOptions);
+                    videos.Select(v => new VideoStatusDto(v)));
             });
 
         public Task<IResult> GetBulkVideoValidationStatusByReferencesAsync(IEnumerable<SwarmReference> references) =>
@@ -409,13 +396,12 @@ namespace Etherna.EthernaIndex.Areas.Api
                 return Results.Json(
                     videoManifests.Select(m => new VideoManifestStatusDto(
                         videos.First(v => v.VideoManifests.Any(vm => vm.Id == m.Id)),
-                        m)),
-                    CommonConsts.IndexV03JsonSerializerOptions);
+                        m)));
             });
 
         public Task<IResult> GetIndexParameters() =>
             ExceptionHandler.RunAsync(() =>
-                Task.FromResult(Results.Json(new SystemParametersDto(), CommonConsts.IndexV03JsonSerializerOptions)));
+                Task.FromResult(Results.Json(new SystemParametersDto())));
 
         public Task<IResult> GetLastUploadedVideosAsync(int page, int take) =>
             ExceptionHandler.RunAsync(async () =>
@@ -445,8 +431,7 @@ namespace Etherna.EthernaIndex.Areas.Api
                         paginatedVideos.CurrentPage,
                         videoPreviews,
                         paginatedVideos.PageSize,
-                        paginatedVideos.TotalElements),
-                    CommonConsts.IndexV03JsonSerializerOptions);
+                        paginatedVideos.TotalElements));
             });
 
         [Obsolete("Used only for API backwards compatibility")]
@@ -476,8 +461,7 @@ namespace Etherna.EthernaIndex.Areas.Api
                 logger.GetLastUploadedVideos(page, take);
 
                 return Results.Json(
-                    videoDtos,
-                    CommonConsts.IndexV03JsonSerializerOptions);
+                    videoDtos);
             });
 
         [Obsolete("Used only for API backwards compatibility")]
@@ -511,8 +495,7 @@ namespace Etherna.EthernaIndex.Areas.Api
                         paginatedVideos.CurrentPage,
                         videoDtos,
                         paginatedVideos.PageSize,
-                        paginatedVideos.TotalElements),
-                    CommonConsts.IndexV03JsonSerializerOptions);
+                        paginatedVideos.TotalElements));
             });
 
         public Task<IResult> GetUsersAsync(int page, int take) =>
@@ -539,8 +522,7 @@ namespace Etherna.EthernaIndex.Areas.Api
                         paginatedUsers.CurrentPage,
                         userDtos,
                         paginatedUsers.PageSize,
-                        paginatedUsers.TotalElements),
-                    CommonConsts.IndexV03JsonSerializerOptions);
+                        paginatedUsers.TotalElements));
             });
 
         [Obsolete("Used only for API backwards compatibility")]
@@ -564,15 +546,13 @@ namespace Etherna.EthernaIndex.Areas.Api
                 logger.GetUserListPaginated(page, take);
 
                 return Results.Json(
-                    userDtos,
-                    CommonConsts.IndexV03JsonSerializerOptions);
+                    userDtos);
             });
 
         public Task<IResult> GetVideoCommentsAsync(string id, int page, int take) =>
             ExceptionHandler.RunAsync(async () =>
                 Results.Json(
-                    await GetVideoCommentsHelperAsync(id, page, take),
-                    CommonConsts.IndexV03JsonSerializerOptions));
+                    await GetVideoCommentsHelperAsync(id, page, take)));
 
         [Obsolete("Used only for API backwards compatibility")]
         public Task<IResult> GetVideoCommentsAsync_old(string id, int page, int take) =>
@@ -581,8 +561,7 @@ namespace Etherna.EthernaIndex.Areas.Api
                 var paginatedComments = await GetVideoCommentsHelperAsync(id, page, take);
 
                 return Results.Json(
-                    paginatedComments.Elements.Select(c => new CommentDto(c)),
-                    CommonConsts.IndexV03JsonSerializerOptions);
+                    paginatedComments.Elements.Select(c => new CommentDto(c)));
             });
 
         [Obsolete("Used only for API backwards compatibility")]
@@ -596,8 +575,7 @@ namespace Etherna.EthernaIndex.Areas.Api
                         paginatedComments.CurrentPage,
                         paginatedComments.Elements.Select(c => new CommentDto(c)),
                         paginatedComments.PageSize,
-                        paginatedComments.TotalElements),
-                    CommonConsts.IndexV03JsonSerializerOptions);
+                        paginatedComments.TotalElements));
             });
 
         public Task<IResult> GetVideosAsync(EthAddress address, int page, int take) =>
@@ -623,8 +601,7 @@ namespace Etherna.EthernaIndex.Areas.Api
                         paginatedVideos.CurrentPage,
                         paginatedVideos.Elements.Select(v => new Video2Dto(v, v.LastValidManifest, sharedInfo, null)),
                         paginatedVideos.PageSize,
-                        paginatedVideos.TotalElements),
-                    CommonConsts.IndexV03JsonSerializerOptions);
+                        paginatedVideos.TotalElements));
             });
 
         [Obsolete("Used only for API backwards compatibility")]
@@ -647,8 +624,7 @@ namespace Etherna.EthernaIndex.Areas.Api
                 logger.GetUserVideosPaginated(address, page, take);
 
                 return Results.Json(
-                    paginatedVideos.Elements.Select(v => new VideoDto(v, v.LastValidManifest, sharedInfo, null)),
-                    CommonConsts.IndexV03JsonSerializerOptions);
+                    paginatedVideos.Elements.Select(v => new VideoDto(v, v.LastValidManifest, sharedInfo, null)));
             });
 
         [Obsolete("Used only for API backwards compatibility")]
@@ -675,8 +651,7 @@ namespace Etherna.EthernaIndex.Areas.Api
                         paginatedVideos.CurrentPage,
                         paginatedVideos.Elements.Select(v => new VideoDto(v, v.LastValidManifest, sharedInfo, null)),
                         paginatedVideos.PageSize,
-                        paginatedVideos.TotalElements),
-                    CommonConsts.IndexV03JsonSerializerOptions);
+                        paginatedVideos.TotalElements));
             });
 
         public Task<IResult> GetVideoValidationStatusByIdAsync(string id) =>
@@ -687,8 +662,7 @@ namespace Etherna.EthernaIndex.Areas.Api
                 logger.GetVideoValidationStatusById(id);
 
                 return Results.Json(
-                    video.VideoManifests.Select(vm => new VideoManifestStatusDto(video, vm)),
-                    CommonConsts.IndexV03JsonSerializerOptions);
+                    video.VideoManifests.Select(vm => new VideoManifestStatusDto(video, vm)));
             });
 
         public Task<IResult> GetVideoValidationStatusByReferenceAsync(SwarmReference reference) =>
@@ -700,8 +674,7 @@ namespace Etherna.EthernaIndex.Areas.Api
                 logger.GetVideoManifestValidationStatusByReference(reference);
 
                 return Results.Json(
-                    new VideoManifestStatusDto(video, manifest),
-                    CommonConsts.IndexV03JsonSerializerOptions);
+                    new VideoManifestStatusDto(video, manifest));
             });
 
         [Obsolete("Used only for API backwards compatibility")]
@@ -713,8 +686,7 @@ namespace Etherna.EthernaIndex.Areas.Api
                 logger.GetVideoValidationStatusById(id);
 
                 return Results.Json(
-                    video.VideoManifests.Select(vm => new VideoManifestStatusDto(video, vm)),
-                    CommonConsts.IndexV03JsonSerializerOptions);
+                    video.VideoManifests.Select(vm => new VideoManifestStatusDto(video, vm)));
             });
 
         [Obsolete("Used only for API backwards compatibility")]
@@ -726,8 +698,7 @@ namespace Etherna.EthernaIndex.Areas.Api
                 logger.GetVideoValidationStatusById(id);
 
                 return Results.Json(
-                    new VideoStatusDto(video),
-                    CommonConsts.IndexV03JsonSerializerOptions);
+                    new VideoStatusDto(video));
             });
 
         public Task<IResult> ModerateCommentAsync(string id) =>
@@ -820,8 +791,7 @@ namespace Etherna.EthernaIndex.Areas.Api
                         page,
                         videoDtos,
                         take,
-                        paginatedVideoDocuments.TotalElements),
-                    CommonConsts.IndexV03JsonSerializerOptions);
+                        paginatedVideoDocuments.TotalElements));
             });
 
         [Obsolete("Used only for API backwards compatibility")]
@@ -850,8 +820,7 @@ namespace Etherna.EthernaIndex.Areas.Api
                 }
 
                 return Results.Json(
-                    videoDtos,
-                    CommonConsts.IndexV03JsonSerializerOptions);
+                    videoDtos);
             });
 
         public Task<IResult> UpdateCommentAsync(string commentId, string text) =>
@@ -878,8 +847,7 @@ namespace Etherna.EthernaIndex.Areas.Api
             {
                 var videoManifest = await UpdateVideoHelperAsync(id, newReference);
                 return Results.Json(
-                    new VideoManifest2Dto(videoManifest),
-                    CommonConsts.IndexV03JsonSerializerOptions);
+                    new VideoManifest2Dto(videoManifest));
             });
 
         [Obsolete("Used only for API backwards compatibility")]
@@ -888,8 +856,7 @@ namespace Etherna.EthernaIndex.Areas.Api
             {
                 var videoManifest = await UpdateVideoHelperAsync(id, newReference);
                 return Results.Json(
-                    new VideoManifestDto(videoManifest),
-                    CommonConsts.IndexV03JsonSerializerOptions);
+                    new VideoManifestDto(videoManifest));
             });
 
         public Task<IResult> VoteVideAsync(string id, VoteValue value) =>

@@ -12,10 +12,6 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
-using Etherna.BeeNet.JsonConverters;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-
 namespace Etherna.EthernaIndex.Configs
 {
     public static class CommonConsts
@@ -31,20 +27,6 @@ namespace Etherna.EthernaIndex.Configs
         public const string UserInteractApiScopePolicy = "UserInteractApiScopePolicy";
 
         public const string AdministratorRoleName = "ADMINISTRATOR";
-        
-        public static readonly JsonSerializerOptions IndexV03JsonSerializerOptions = new()
-        {
-            Converters =
-            {
-                new EthAddressJsonConverter(),
-                new JsonStringEnumConverter(),
-                new PostageBatchIdJsonConverter(),
-                new SwarmAddressJsonConverter(),
-                new SwarmReferenceJsonConverter(),
-                new SwarmUriJsonConverter()
-            },
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        };
 
         public const string UserAuthenticationPolicyScheme = "userAuthnPolicyScheme";
         public const string UserAuthenticationCookieScheme = "userAuthnCookieScheme";
