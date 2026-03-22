@@ -13,6 +13,7 @@
 // If not, see <https://www.gnu.org/licenses/>.
 
 using Etherna.ExecContext.AsyncLocal;
+using Etherna.MongoDB.Bson;
 using Etherna.MongoDB.Bson.Serialization;
 using Etherna.MongoDB.Driver;
 using Etherna.MongODM.Core;
@@ -38,7 +39,7 @@ namespace Etherna.EthernaIndex.Persistence.Helpers
         [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "Need to keep objects after test construction")]
         public static void InitializeDbContextMock(DbContext dbContext, Mock<IMongoDatabase>? mongoDatabaseMock = null)
         {
-            ArgumentNullException.ThrowIfNull(dbContext, nameof(dbContext));
+            ArgumentNullException.ThrowIfNull(dbContext);
 
             // Setup dbcontext dependencies for initialization.
             Mock<IDbDependencies> dbDependenciesMock = new();
@@ -63,8 +64,13 @@ namespace Etherna.EthernaIndex.Persistence.Helpers
                 .Returns(mongoDatabaseMock.Object);
 
             // Register static integration with drivers.
-            BsonSerializer.TryRegisterDiscriminatorConvention(typeof(object),
-                new HierarchicalProxyTolerantDiscriminatorConvention("_t", execContext));
+            try
+            {
+                BsonSerializer.RegisterDiscriminatorConvention(typeof(object),
+                    new HierarchicalProxyTolerantDiscriminatorConvention("_t", execContext));
+            }
+            catch (BsonSerializationException)
+            { }
 
             BsonSerializer.SetSerializationContextAccessor(new SerializationContextAccessor(execContext));
 
@@ -84,8 +90,8 @@ namespace Etherna.EthernaIndex.Persistence.Helpers
             IRepository<TModel, TKey> collection)
              where TModel : class, IEntityModel<TKey>
         {
-            ArgumentNullException.ThrowIfNull(mongoDatabaseMock, nameof(mongoDatabaseMock));
-            ArgumentNullException.ThrowIfNull(collection, nameof(collection));
+            ArgumentNullException.ThrowIfNull(mongoDatabaseMock);
+            ArgumentNullException.ThrowIfNull(collection);
 
             var collectionMock = new Mock<IMongoCollection<TModel>>();
 
@@ -99,7 +105,7 @@ namespace Etherna.EthernaIndex.Persistence.Helpers
             Mock<IMongoCollection<TModel>> collectionMock,
             Func<FilterDefinition<TModel>, IEnumerable<TModel>> modelSelector)
         {
-            ArgumentNullException.ThrowIfNull(collectionMock, nameof(collectionMock));
+            ArgumentNullException.ThrowIfNull(collectionMock);
 
             // Setup collection.
             collectionMock.Setup(c => c.FindAsync(

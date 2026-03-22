@@ -1,4 +1,4 @@
-﻿// Copyright 2021-present Etherna SA
+// Copyright 2021-present Etherna SA
 // This file is part of Etherna Index.
 // 
 // Etherna Index is free software: you can redistribute it and/or modify it under the terms of the
@@ -12,21 +12,10 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
-using Etherna.EthernaIndex.Areas.Api.DtoModels;
-using System;
-using System.Threading.Tasks;
-
-namespace Etherna.EthernaIndex.Areas.Api.Services
+namespace Etherna.EthernaIndex.Configs.OpenApi
 {
-    public interface IUsersControllerService
+    public sealed class DeprecatedEndpointMetadata(string? message = null)
     {
-        Task<UserDto> FindByAddressAsync(string address);
-        Task<CurrentUserDto> GetCurrentUserAsync();
-        Task<PaginatedEnumerableDto<UserDto>> GetUsersAsync(int page, int take);
-        Task<PaginatedEnumerableDto<Video2Dto>> GetVideosAsync(string address, int page, int take);
-
-        //deprecated
-        [Obsolete("Used only for API backwards compatibility")]
-        Task<PaginatedEnumerableDto<VideoDto>> GetVideosAsync_old(string address, int page, int take);
+        public string? Message { get; } = message;
     }
 }

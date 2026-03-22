@@ -23,14 +23,14 @@ namespace Etherna.EthernaIndex.ElasticSearch.Documents
         // Constructors.
         public CommentDocument(Comment comment, UserSharedInfo userSharedInfo)
         {
-            ArgumentNullException.ThrowIfNull(comment, nameof(comment));
-            ArgumentNullException.ThrowIfNull(userSharedInfo, nameof(userSharedInfo));
+            ArgumentNullException.ThrowIfNull(comment);
+            ArgumentNullException.ThrowIfNull(userSharedInfo);
 
             Id = comment.Id;
             CreationDateTime = comment.CreationDateTime;
             IsFrozen = comment.IsFrozen;
             LastUpdateDateTime = comment.LastUpdateDateTime;
-            OwnerAddress = userSharedInfo.EtherAddress;
+            OwnerAddress = userSharedInfo.EtherAddress.ToString();
             Text = comment.LastText;
             VideoId = comment.Video.Id;
         }

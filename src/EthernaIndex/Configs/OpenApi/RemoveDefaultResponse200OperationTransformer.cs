@@ -12,34 +12,32 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
-using Etherna.Authentication;
-using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.OpenApi;
+using Microsoft.OpenApi;
 using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
-namespace Etherna.EthernaIndex.Configs.Authorization
+namespace Etherna.EthernaIndex.Configs.OpenApi
 {
-    public class RequireRoleAuthorizationHandler(
-        IEthernaOpenIdConnectClient ethernaOidcClient)
-        : AuthorizationHandler<RequireRoleAuthorizationRequirement>
+    /// <summary>
+    /// Required because of https://github.com/dotnet/aspnetcore/issues/43330
+    /// </summary>
+    public sealed class RemoveDefaultResponse200OperationTransformer : IOpenApiOperationTransformer
     {
-        // Methods.
-        protected override async Task HandleRequirementAsync(
-            AuthorizationHandlerContext context,
-            RequireRoleAuthorizationRequirement requirement)
+        public Task TransformAsync(
+            OpenApiOperation operation,
+            OpenApiOperationTransformerContext context,
+            CancellationToken cancellationToken)
         {
+            ArgumentNullException.ThrowIfNull(operation);
             ArgumentNullException.ThrowIfNull(context);
-            ArgumentNullException.ThrowIfNull(requirement);
 
-            if (context.User.Identity?.IsAuthenticated == true)
-            {
-                var roles = await ethernaOidcClient.TryGetRolesAsync();
-                if (roles?.Contains(requirement.RoleName) == true)
-                    context.Succeed(requirement);
-                else
-                    context.Fail();
-            }
+            if (context.Description.ActionDescriptor.EndpointMetadata.OfType<RemoveResponse200EndpointMetadata>().Any())
+                operation.Responses?.Remove("200");
+
+            return Task.CompletedTask;
         }
     }
 }

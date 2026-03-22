@@ -28,8 +28,9 @@ namespace Etherna.EthernaIndex.Domain.Models
     {
         // Fields.
         private readonly string address = "0x300a31dBAB42863F4b0bEa3E03d0aa89D47DB3f0";
-        private readonly SwarmHash manifestHash = "5d942a1d73fd8f28d71e6b03d2e42f44721db94b734c2edcfe6fcd48b76a74f9";
-        private readonly SwarmHash secondManifestHash = "2b678a1d73fd8f28d71e6b03d2e42f44721db94b734c2edcfe6fcd48b76a74f9";
+        private readonly PostageBatchId batchId = "db7fde96b8eb94c3ec43cf6547cf045b2a719a3d8b27489e08bb33c32afece4e";
+        private readonly SwarmReference manifestReference = "5d942a1d73fd8f28d71e6b03d2e42f44721db94b734c2edcfe6fcd48b76a74f9";
+        private readonly SwarmReference secondManifestReference = "2b678a1d73fd8f28d71e6b03d2e42f44721db94b734c2edcfe6fcd48b76a74f9";
         private readonly User owner;
         private readonly Mock<UserSharedInfo> userSharedInfoMock = new();
         private readonly Video video;
@@ -39,7 +40,7 @@ namespace Etherna.EthernaIndex.Domain.Models
         {
             userSharedInfoMock.Setup(s => s.EtherAddress).Returns(address);
             owner = new User(userSharedInfoMock.Object);
-            video = new Video(owner);
+            video = new Video(owner, batchId);
         }
 
         // Tests.
@@ -49,6 +50,7 @@ namespace Etherna.EthernaIndex.Domain.Models
             // Assert.
             Assert.Equal(0, video.TotDownvotes);
             Assert.Equal(0, video.TotDownvotes);
+            Assert.Equal(batchId, video.BatchId);
             Assert.NotNull(video.Owner);
             Assert.Empty(video.VideoManifests);
         }
@@ -56,8 +58,8 @@ namespace Etherna.EthernaIndex.Domain.Models
         [Fact]
         public void AddVideo_ExeptionWhenDuplicated()
         {
-            var videoManifest = CreateManifest(secondManifestHash, true);
-            var duplicatedVideoManifest = CreateManifest(secondManifestHash, true);
+            var videoManifest = CreateManifest(secondManifestReference, true);
+            var duplicatedVideoManifest = CreateManifest(secondManifestReference, true);
             video.AddManifest(videoManifest);
 
             // Action.
@@ -68,8 +70,8 @@ namespace Etherna.EthernaIndex.Domain.Models
         public void AddVideo_WhenIsValidated()
         {
             // Arrange.
-            var videoManifestValid = CreateManifest(manifestHash, true);
-            var videoManifestNotValid = CreateManifest(secondManifestHash, false);
+            var videoManifestValid = CreateManifest(manifestReference, true);
+            var videoManifestNotValid = CreateManifest(secondManifestReference, false);
 
             // Action.
             video.AddManifest(videoManifestValid);
@@ -78,23 +80,22 @@ namespace Etherna.EthernaIndex.Domain.Models
             // Assert.
             Assert.Equal(2, video.VideoManifests.Count());
             Assert.Contains(video.VideoManifests,
-                i => i.ManifestHash == manifestHash);
+                i => i.ManifestReference == manifestReference);
             Assert.Contains(video.VideoManifests,
-                i => i.ManifestHash == secondManifestHash);
+                i => i.ManifestReference == secondManifestReference);
         }
 
         // Helpers.
-        private VideoManifest CreateManifest(SwarmHash hash, bool valid)
+        private VideoManifest CreateManifest(SwarmReference reference, bool valid)
         {
-            var videoManifest = new VideoManifest(hash);
+            var videoManifest = new VideoManifest(reference);
 
             if (valid)
                 videoManifest.SucceededValidation(new VideoManifestMetadataV1(
                     "FeddTopicTest",
                     "DescTest",
                     1,
-                    [new VideoSourceV1(null, "1080", SwarmHash.Zero, 4)],
-                    null,
+                    [new VideoSourceV1(null, "1080", SwarmReference.PlainZero, 4)],
                     null,
                     null,
                     null,

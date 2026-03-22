@@ -1,4 +1,4 @@
-﻿// Copyright 2021-present Etherna SA
+// Copyright 2021-present Etherna SA
 // This file is part of Etherna Index.
 // 
 // Etherna Index is free software: you can redistribute it and/or modify it under the terms of the
@@ -12,30 +12,20 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
-using Etherna.BeeNet.Models;
-using System;
+using Etherna.EthernaIndex.Configs.OpenApi;
+using Microsoft.AspNetCore.Builder;
 
-namespace Etherna.EthernaIndex.Services.Exceptions
+namespace Etherna.EthernaIndex.Extensions
 {
-    public class DuplicatedManifestHashException : Exception
+    public static class RouteHandlerBuilderExtensions
     {
-        public DuplicatedManifestHashException(SwarmHash manifestHash) :
-            base ($"hash {manifestHash} is duplicated")
-        {
-
-        }
-
-        public DuplicatedManifestHashException()
-        {
-
-        }
-
-        public DuplicatedManifestHashException(string message, Exception innerException) : base(message, innerException)
-        {
-        }
-
-        public DuplicatedManifestHashException(string message) : base(message)
-        {
-        }
+        public static RouteHandlerBuilder IsDeprecated(this RouteHandlerBuilder builder, string? message = null) =>
+            builder.WithMetadata(new DeprecatedEndpointMetadata(message));
+        
+        /// <summary>
+        /// Required because of https://github.com/dotnet/aspnetcore/issues/43330
+        /// </summary>
+        public static RouteHandlerBuilder NotProduces200(this RouteHandlerBuilder builder) =>
+            builder.WithMetadata(new RemoveResponse200EndpointMetadata());
     }
 }

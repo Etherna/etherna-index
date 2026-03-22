@@ -23,14 +23,17 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
     {
         public void Register(IDbContext dbContext)
         {
+            dbContext.MapRegistry.AddCustomSerializerMap<EthAddress>( //v0.3.15
+                new EthAddressSerializer());
+            
             dbContext.MapRegistry.AddCustomSerializerMap<PostageBatchId>( //v0.3.12
                 new PostageBatchIdSerializer());
             
             dbContext.MapRegistry.AddCustomSerializerMap<SwarmAddress>( //v0.3.12
                 new SwarmAddressSerializer());
             
-            dbContext.MapRegistry.AddCustomSerializerMap<SwarmHash>( //v0.3.12
-                new SwarmHashSerializer());
+            dbContext.MapRegistry.AddCustomSerializerMap<SwarmReference>( //v0.3.15
+                new SwarmReferenceSerializer());
 
             dbContext.MapRegistry.AddCustomSerializerMap<SwarmUri>( //v0.3.12
                 new SwarmUriSerializer());

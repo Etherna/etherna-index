@@ -24,7 +24,7 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV1
         public VideoSourceV1(
             int? bitrate,
             string quality,
-            SwarmHash reference,
+            SwarmReference reference,
             long? size)
         {
             Bitrate = bitrate;
@@ -41,7 +41,7 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV1
         //from v1.0
         public virtual int? Bitrate { get; set; }
         public virtual string Quality { get; set; }
-        public virtual SwarmHash Reference { get; set; }
+        public virtual SwarmReference Reference { get; set; }
         public virtual long? Size { get; set; }
 
         // Methods.
@@ -52,7 +52,7 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV1
             return GetType() == obj.GetType() &&
                 EqualityComparer<int?>.Default.Equals(Bitrate, (obj as VideoSourceV1)!.Bitrate) &&
                 EqualityComparer<string>.Default.Equals(Quality, (obj as VideoSourceV1)!.Quality) &&
-                EqualityComparer<SwarmHash>.Default.Equals(Reference, (obj as VideoSourceV1)!.Reference) &&
+                EqualityComparer<SwarmReference>.Default.Equals(Reference, (obj as VideoSourceV1)!.Reference) &&
                 Size.Equals((obj as VideoSourceV1)?.Size);
         }
 

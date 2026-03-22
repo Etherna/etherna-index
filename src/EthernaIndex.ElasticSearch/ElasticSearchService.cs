@@ -43,7 +43,7 @@ namespace Etherna.EthernaIndex.ElasticSearch
         // Methods.
         public async Task AddCommentAsync(Comment comment)
         {
-            ArgumentNullException.ThrowIfNull(comment, nameof(comment));
+            ArgumentNullException.ThrowIfNull(comment);
 
             var ownerSharedInfo = await sharedDbContext.UsersInfo.FindOneAsync(comment.Author.SharedInfoId);
             var document = new CommentDocument(comment, ownerSharedInfo);
@@ -57,7 +57,7 @@ namespace Etherna.EthernaIndex.ElasticSearch
 
         public async Task AddVideoAsync(Video video)
         {
-            ArgumentNullException.ThrowIfNull(video, nameof(video));
+            ArgumentNullException.ThrowIfNull(video);
             if (video.LastValidManifest is null)
                 throw new InvalidOperationException($"{nameof(video.LastValidManifest)} can't be null");
 
@@ -93,7 +93,7 @@ namespace Etherna.EthernaIndex.ElasticSearch
                         props.Text(v => v.Description);
                         props.LongNumber(v => v.Duration);
                         props.Boolean(v => v.IsFrozen);
-                        props.Text(v => v.ManifestHash);
+                        props.Text(v => v.ManifestReference);
                         props.Text(v => v.OwnerSharedInfoId);
                         props.Object(v => v.Thumbnail, thumbConf =>
                         {
@@ -120,14 +120,14 @@ namespace Etherna.EthernaIndex.ElasticSearch
 
         public async Task DeleteCommentAsync(Comment comment)
         {
-            ArgumentNullException.ThrowIfNull(comment, nameof(comment));
+            ArgumentNullException.ThrowIfNull(comment);
 
             await client.DeleteAsync<CommentDocument>(comment.Id);
         }
 
         public async Task DeleteVideoAsync(Video video)
         {
-            ArgumentNullException.ThrowIfNull(video, nameof(video));
+            ArgumentNullException.ThrowIfNull(video);
 
             await client.DeleteAsync<VideoDocument>(video.Id);
         }
@@ -148,8 +148,8 @@ namespace Etherna.EthernaIndex.ElasticSearch
         {
             if (string.IsNullOrWhiteSpace(query))
                 throw new ArgumentNullException(query);
-            ArgumentOutOfRangeException.ThrowIfNegative(page, nameof(page));
-            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(take, nameof(take));
+            ArgumentOutOfRangeException.ThrowIfNegative(page);
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(take);
 
             var searchResponse = await client.SearchAsync<VideoDocument>(s =>
                 s.Query(q => q.Bool(b =>

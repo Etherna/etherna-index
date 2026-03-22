@@ -30,9 +30,9 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
         public VideoManifestDto(
             VideoManifest videoManifest)
         {
-            ArgumentNullException.ThrowIfNull(videoManifest, nameof(videoManifest));
+            ArgumentNullException.ThrowIfNull(videoManifest);
 
-            Hash = videoManifest.ManifestHash;
+            Hash = videoManifest.ManifestReference;
 
             switch (videoManifest.Metadata)
             {
@@ -41,7 +41,6 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
                     break;
 
                 case VideoManifestMetadataV1 metadataV1:
-                    BatchId = metadataV1.BatchId;
                     Description = metadataV1.Description;
                     Duration = metadataV1.Duration;
                     OriginalQuality = null;
@@ -65,7 +64,6 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
                     break;
 
                 case VideoManifestMetadataV2 metadataV2:
-                    BatchId = metadataV2.BatchId;
                     Description = metadataV2.Description;
                     Duration = metadataV2.Duration;
                     PersonalData = metadataV2.PersonalData;
@@ -73,7 +71,7 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
                         .Select(s => new SourceDto(
                             null,
                             s.Quality ?? "",
-                            s.Path.ToSwarmAddress(videoManifest.ManifestHash),
+                            s.Path.ToSwarmAddress(videoManifest.ManifestReference),
                             s.Size));
 
                     if (metadataV2.Thumbnail is not null)
@@ -82,7 +80,7 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
                             metadataV2.Thumbnail.Blurhash,
                             metadataV2.Thumbnail.Sources.ToDictionary(
                                 s => $"{s.Width}w",
-                                s => s.Path.ToSwarmAddress(videoManifest.ManifestHash)));
+                                s => s.Path.ToSwarmAddress(videoManifest.ManifestReference)));
 
                     Title = metadataV2.Title;
                     break;
@@ -95,12 +93,11 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
         public VideoManifestDto(
             VideoDocument videoDocument)
         {
-            ArgumentNullException.ThrowIfNull(videoDocument, nameof(videoDocument));
+            ArgumentNullException.ThrowIfNull(videoDocument);
 
-            BatchId = null;
             Description = videoDocument.Description;
             Duration = videoDocument.Duration;
-            Hash = videoDocument.ManifestHash;
+            Hash = videoDocument.ManifestReference;
             PersonalData = null;
             OriginalQuality = null;
             Sources = [];
@@ -117,10 +114,9 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
         }
 
         // Properties.
-        public PostageBatchId? BatchId { get; }
         public string? Description { get; }
         public long? Duration { get; }
-        public SwarmHash Hash { get; }
+        public SwarmReference Hash { get; }
         public string? OriginalQuality { get; }
         public string? PersonalData { get; }
         public IEnumerable<SourceDto> Sources { get; }

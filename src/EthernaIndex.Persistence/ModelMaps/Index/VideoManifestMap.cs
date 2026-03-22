@@ -33,7 +33,20 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
         public void Register(IDbContext dbContext)
         {
             dbContext.MapRegistry.AddModelMap<VideoManifest>(
-                "4d75fd4f-157a-4c0f-a5fa-e8a17ed28887") //v0.3.12
+                "d2ee14f7-2223-47e1-8b05-1426995d3233") //v0.3.15
+                .AddSecondarySchema(
+                    "4d75fd4f-157a-4c0f-a5fa-e8a17ed28887", //v0.3.12
+                    fixDeserializedModelFunc: m =>
+                        {
+                            if (m.ExtraElements is null)
+                                return Task.FromResult(m);
+                                
+                            //manifest reference
+                            if (m.ExtraElements.TryGetValue("ManifestHash", out var manifestHashObj))
+                                ReflectionHelper.SetValue(m, vm => vm.ManifestReference, SwarmReference.FromString((string)manifestHashObj));
+                                
+                            return Task.FromResult(m);
+                        })
                 .AddSecondarySchema(
                     "c32a815b-4667-4534-8276-eb3c1d812d09", //v0.3.9
                     fixDeserializedModelFunc: m =>
@@ -41,12 +54,12 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                         if (m.ExtraElements is null)
                             return Task.FromResult(m);
                         
-                        //manifest hash
+                        //manifest reference
                         if (m.ExtraElements.TryGetValue("Manifest", out var manifestObj))
                         {
                             var manifestDictionary = (Dictionary<string, object>)manifestObj;
                             if (manifestDictionary.TryGetValue("Hash", out var hashObj))
-                                ReflectionHelper.SetValue(m, vm => vm.ManifestHash, SwarmHash.FromString((string)hashObj));
+                                ReflectionHelper.SetValue(m, vm => vm.ManifestReference, SwarmReference.FromString((string)hashObj));
                         }
                         
                         return Task.FromResult(m);
@@ -58,12 +71,12 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                         if (m.ExtraElements is null)
                             return Task.FromResult(m);
                         
-                        //manifest hash
+                        //manifest reference
                         if (m.ExtraElements.TryGetValue("Manifest", out var manifestObj))
                         {
                             var manifestDictionary = (Dictionary<string, object>)manifestObj;
                             if (manifestDictionary.TryGetValue("Hash", out var hashObj))
-                                ReflectionHelper.SetValue(m, vm => vm.ManifestHash, SwarmHash.FromString((string)hashObj));
+                                ReflectionHelper.SetValue(m, vm => vm.ManifestReference, SwarmReference.FromString((string)hashObj));
                         }
 
                         // Verify if there isn't any validation error.
@@ -82,8 +95,6 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                             var thumbnail = m.ExtraElements.TryGetValue("Thumbnail", out var thumbnailObj) ?
                                 new ExtraElementsSerializer(dbContext).DeserializeValue<ThumbnailV1>(thumbnailObj) :
                                 null;
-                            var batchId = m.ExtraElements.TryGetValue("BatchId", out var batchIdObj) ?
-                                (string?)batchIdObj : null;
                             var personalData = m.ExtraElements.TryGetValue("PersonalData", out var personalDataObj) ?
                                 (string?)personalDataObj : null;
 
@@ -94,7 +105,6 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                                 duration,
                                 sources,
                                 thumbnail,
-                                batchId is null ? (PostageBatchId?)null : PostageBatchId.FromString(batchId),
                                 null,
                                 null,
                                 personalData);
@@ -117,12 +127,12 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                         if (m.ExtraElements is null)
                             return Task.FromResult(m);
                         
-                        //manifest hash
+                        //manifest reference
                         if (m.ExtraElements.TryGetValue("Manifest", out var manifestObj))
                         {
                             var manifestDictionary = (Dictionary<string, object>)manifestObj;
                             if (manifestDictionary.TryGetValue("Hash", out var hashObj))
-                                ReflectionHelper.SetValue(m, vm => vm.ManifestHash, SwarmHash.FromString((string)hashObj));
+                                ReflectionHelper.SetValue(m, vm => vm.ManifestReference, SwarmReference.FromString((string)hashObj));
                         }
 
                         // Verify if there isn't any validation error.
@@ -141,8 +151,6 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                             var thumbnail = m.ExtraElements.TryGetValue("Thumbnail", out var thumbnailObj) ?
                                 new ExtraElementsSerializer(dbContext).DeserializeValue<ThumbnailV1>(thumbnailObj) :
                                 null;
-                            var batchId = m.ExtraElements.TryGetValue("BatchId", out var batchIdObj) ?
-                                (string?)batchIdObj : null;
                             var personalData = m.ExtraElements.TryGetValue("PersonalData", out var personalDataObj) ?
                                 (string?)personalDataObj : null;
 
@@ -153,7 +161,6 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                                 duration,
                                 sources,
                                 thumbnail,
-                                batchId is null ? (PostageBatchId?)null : PostageBatchId.FromString(batchId),
                                 null,
                                 null,
                                 personalData);
@@ -176,12 +183,12 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                         if (m.ExtraElements is null)
                             return Task.FromResult(m);
                         
-                        //manifest hash
+                        //manifest reference
                         if (m.ExtraElements.TryGetValue("Manifest", out var manifestObj))
                         {
                             var manifestDictionary = (Dictionary<string, object>)manifestObj;
                             if (manifestDictionary.TryGetValue("Hash", out var hashObj))
-                                ReflectionHelper.SetValue(m, vm => vm.ManifestHash, SwarmHash.FromString((string)hashObj));
+                                ReflectionHelper.SetValue(m, vm => vm.ManifestReference, SwarmReference.FromString((string)hashObj));
                         }
 
                         // Verify if there isn't any validation error.
@@ -200,8 +207,6 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                             var thumbnail = m.ExtraElements.TryGetValue("Thumbnail", out var thumbnailObj) ?
                                 new ExtraElementsSerializer(dbContext).DeserializeValue<ThumbnailV1>(thumbnailObj) :
                                 null;
-                            var batchId = m.ExtraElements.TryGetValue("BatchId", out var batchIdObj) ?
-                                (string?)batchIdObj : null;
                             var personalData = m.ExtraElements.TryGetValue("PersonalData", out var personalDataObj) ?
                                 (string?)personalDataObj : null;
 
@@ -212,7 +217,6 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                                 duration,
                                 sources,
                                 thumbnail,
-                                batchId is null ? (PostageBatchId?)null : PostageBatchId.FromString(batchId),
                                 null,
                                 null,
                                 personalData);
@@ -278,7 +282,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                 config.AddModelMap<VideoManifest>("f7966611-14aa-4f18-92f4-8697b4927fb6", mm =>
                 {
                     mm.MapMember(m => m.IsValid);
-                    mm.MapMember(m => m.ManifestHash);
+                    mm.MapMember(m => m.ManifestReference);
 
                     //*** Add again after https://etherna.atlassian.net/browse/MODM-163
                     //mm.MapMember(m => m.Duration).SetSerializer( //could be float in old documents

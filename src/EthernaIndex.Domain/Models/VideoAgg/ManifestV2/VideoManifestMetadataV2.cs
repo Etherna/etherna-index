@@ -12,7 +12,6 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
-using Etherna.BeeNet.Models;
 using System.Collections.Generic;
 
 namespace Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2
@@ -35,13 +34,11 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2
             IEnumerable<VideoSourceV2> sources,
             ThumbnailV2? thumbnail,
             float aspectRatio,
-            PostageBatchId batchId,
             long createdAt,
             long? updatedAt,
             string? personalData)
         {
             AspectRatio = aspectRatio;
-            BatchId = batchId;
             CreatedAt = createdAt;
             Description = description!;
             Duration = duration;
@@ -58,7 +55,6 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2
         // Properties.
         //from v2.0
         public virtual float AspectRatio { get; protected set; }
-        public virtual PostageBatchId BatchId { get; protected set; }
         public virtual long CreatedAt { get; protected set; }
         public virtual string Description { get; protected set; }
         public virtual long Duration { get; protected set; }
@@ -66,7 +62,7 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2
         public virtual IEnumerable<VideoSourceV2> Sources
         {
             get => _sources;
-            protected set => _sources = new List<VideoSourceV2>(value ?? new List<VideoSourceV2>());
+            protected set => _sources = [..value ?? new List<VideoSourceV2>()];
         }
         public virtual ThumbnailV2? Thumbnail { get; protected set; }
         public virtual string Title { get; protected set; }

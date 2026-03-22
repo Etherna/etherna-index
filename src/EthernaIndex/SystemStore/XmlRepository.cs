@@ -33,7 +33,7 @@ namespace Etherna.EthernaIndex.SystemStore
         // Constructors.
         public XmlRepository(DbContextOptions options, string name)
         {
-            ArgumentNullException.ThrowIfNull(options, nameof(options));
+            ArgumentNullException.ThrowIfNull(options);
 
             // Initialize MongoDB driver.
             #pragma warning disable CA2000
@@ -62,7 +62,7 @@ namespace Etherna.EthernaIndex.SystemStore
 
         public void StoreElement(XElement element, string friendlyName)
         {
-            ArgumentNullException.ThrowIfNull(element, nameof(element));
+            ArgumentNullException.ThrowIfNull(element);
 
             //remove all comments. Json doesn't support it, but Json.NET serialize them anyway
             element.DescendantNodes().Where(x => x.NodeType == XmlNodeType.Comment).Remove();

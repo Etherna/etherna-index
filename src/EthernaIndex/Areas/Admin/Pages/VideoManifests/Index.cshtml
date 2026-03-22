@@ -17,7 +17,7 @@
 
     <div class="form-row">
         <div class="col-4 mb-3">
-            <input id="ManifestHash" name="ManifestHash" type="text" placeholder="manifest hash" class="form-control" />
+            <input id="ManifestReference" name="ManifestReference" type="text" placeholder="manifest reference" class="form-control" />
         </div>
     </div>
 
@@ -41,7 +41,7 @@
                 <thead>
                     <tr>
                         <th></th>
-                        <th>Manifest Hash</th>
+                        <th>Manifest Reference</th>
                         <th>Title</th>
                     </tr>
                 </thead>
@@ -51,9 +51,9 @@
                     {
                     <tr>
                         <td class="align-middle">
-                            <a class="btn btn-primary" asp-page="Manifest" asp-route-manifestHash="@videoReport.ManifestHash">Manage</a>
+                            <a class="btn btn-primary" asp-page="Manifest" asp-route-manifestReference="@videoReport.ManifestReference">Manage</a>
                         </td>
-                        <td class="align-middle">@videoReport.ManifestHash</td>
+                        <td class="align-middle">@videoReport.ManifestReference</td>
                         <td class="align-middle">@videoReport.Title</td>
                     </tr>
                     }

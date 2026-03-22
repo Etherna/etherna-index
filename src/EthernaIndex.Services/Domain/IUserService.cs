@@ -12,6 +12,7 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
+using Etherna.BeeNet.Models;
 using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.Domain.Models.UserAgg;
 using System.Threading.Tasks;
@@ -20,10 +21,10 @@ namespace Etherna.EthernaIndex.Services.Domain
 {
     public interface IUserService
     {
-        Task<(User, UserSharedInfo)> FindUserAsync(string address);
+        Task<(User, UserSharedInfo)> FindUserAsync(EthAddress address);
         Task<(User, UserSharedInfo)> FindUserAsync(UserSharedInfo userSharedInfo);
-        Task<UserSharedInfo> FindUserSharedInfoByAddressAsync(string address);
-        Task<(User?, UserSharedInfo?)> TryFindUserAsync(string address);
-        Task<UserSharedInfo?> TryFindUserSharedInfoByAddressAsync(string address);
+        Task<UserSharedInfo> FindUserSharedInfoByAddressAsync(EthAddress address);
+        Task<(User?, UserSharedInfo?)> TryFindUserAsync(EthAddress address);
+        Task<UserSharedInfo?> TryFindUserSharedInfoByAddressAsync(EthAddress address);
     }
 }

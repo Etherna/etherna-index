@@ -56,7 +56,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoModeration
             // Constructor.
             public ReportHistoryElement(UnsuitableVideoReport report)
             {
-                ArgumentNullException.ThrowIfNull(report, nameof(report));
+                ArgumentNullException.ThrowIfNull(report);
 
                 Id = report.Id;
                 AuthorSharedInfoId = report.ReporterAuthor.SharedInfoId;
@@ -70,7 +70,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoModeration
             // Constructors.
             public ReviewHistoryElement(ManualVideoReview review)
             {
-                ArgumentNullException.ThrowIfNull(review, nameof(review));
+                ArgumentNullException.ThrowIfNull(review);
 
                 Id = review.Id;
                 AuthorSharedInfoId = review.Author.SharedInfoId;

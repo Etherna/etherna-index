@@ -13,13 +13,12 @@
 // If not, see <https://www.gnu.org/licenses/>.
 
 using Etherna.BeeNet.Models;
-using System.Threading.Tasks;
 
-namespace Etherna.EthernaIndex.Areas.Api.Services
+namespace Etherna.EthernaIndex.Areas.Api.InputModels
 {
-    public interface ISystemControllerService
+    public sealed class VideoCreateInput2
     {
-        Task ForceVideoManifestValidationAsync(SwarmHash manifestHash);
-        Task ForceVideoManifestsValidationAsync(string videoId);
+        public PostageBatchId? BatchId { get; set; }
+        public SwarmReference ManifestReference { get; set; }
     }
 }
