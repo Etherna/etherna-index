@@ -24,20 +24,20 @@ namespace Etherna.EthernaIndex.Domain.Models
     public class VideoManifestTest
     {
         // Fields.
-        readonly SwarmHash hash = "5d942a1d73fd8f28d71e6b03d2e42f44721db94b734c2edcfe6fcd48b76a74f9";
+        readonly SwarmReference reference = "5d942a1d73fd8f28d71e6b03d2e42f44721db94b734c2edcfe6fcd48b76a74f9";
         readonly VideoManifest manifest;
 
         // Constructors.
         public VideoManifestTest()
         {
-            manifest = new VideoManifest(hash);
+            manifest = new VideoManifest(reference);
         }
 
         [Fact]
         public void Create_Manifest_WithDefaultValue()
         {
             // Assert.
-            Assert.Equal(hash, manifest.ManifestHash);
+            Assert.Equal(reference, manifest.ManifestReference);
             Assert.Null(manifest.IsValid);
             Assert.Null(manifest.ValidationTime);
         }
@@ -75,7 +75,6 @@ namespace Etherna.EthernaIndex.Domain.Models
                     [new VideoSourceV2("myPath", "720", 32, "mp4")],
                     null,
                     1,
-                    PostageBatchId.Zero, 
                     456,
                     null,
                     null));
@@ -97,7 +96,6 @@ namespace Etherna.EthernaIndex.Domain.Models
                 [new VideoSourceV2("path1", "10801", 4, "type1")],
                 new ThumbnailV2(1.78f, "BlurTst", new[] { new ImageSourceV2(1080, "Test1", "image") }),
                 1.78f,
-                PostageBatchId.Zero, 
                 12345,
                 54321,
                 "{}");

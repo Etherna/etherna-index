@@ -67,7 +67,7 @@ namespace Etherna.EthernaIndex.Persistence
             {
                 IndexBuilders =
                 [
-                    (Builders<VideoManifest>.IndexKeys.Ascending(c => c.ManifestHash), new CreateIndexOptions<VideoManifest> { Unique = true }),
+                    (Builders<VideoManifest>.IndexKeys.Ascending(c => c.ManifestReference), new CreateIndexOptions<VideoManifest> { Unique = true }),
                     (Builders<VideoManifest>.IndexKeys.Descending(c => c.CreationDateTime), new CreateIndexOptions<VideoManifest>()),
                     (Builders<VideoManifest>.IndexKeys.Ascending(c => c.IsValid), new CreateIndexOptions<VideoManifest>())
                 ]

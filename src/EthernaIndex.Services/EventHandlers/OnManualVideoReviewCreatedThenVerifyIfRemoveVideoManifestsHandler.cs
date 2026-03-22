@@ -30,7 +30,7 @@ namespace Etherna.EthernaIndex.Services.EventHandlers
         // Methods.
         public override async Task HandleAsync(EntityCreatedEvent<ManualVideoReview> @event)
         {
-            ArgumentNullException.ThrowIfNull(@event, nameof(@event));
+            ArgumentNullException.ThrowIfNull(@event);
 
             if (!@event.Entity.IsValidResult)
             {

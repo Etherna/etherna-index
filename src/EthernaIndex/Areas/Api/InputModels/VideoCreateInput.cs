@@ -20,6 +20,6 @@ namespace Etherna.EthernaIndex.Areas.Api.InputModels
     public class VideoCreateInput
     {
         [Required]
-        public SwarmHash ManifestHash { get; set; } = default!;
+        public SwarmReference ManifestHash { get; set; } = default!;
     }
 }

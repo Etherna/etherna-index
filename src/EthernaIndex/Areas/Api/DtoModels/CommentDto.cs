@@ -12,6 +12,9 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
+using Etherna.BeeNet.Models;
+using Etherna.EthernaIndex.Domain.Models;
+using Etherna.EthernaIndex.Domain.Models.UserAgg;
 using System;
 using System.Linq;
 
@@ -20,9 +23,22 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
     [Obsolete("Used only for API backwards compatibility")]
     public class CommentDto
     {
+        public CommentDto(Comment comment, UserSharedInfo userSharedInfo)
+        {
+            ArgumentNullException.ThrowIfNull(comment);
+            ArgumentNullException.ThrowIfNull(userSharedInfo);
+
+            Id = comment.Id;
+            CreationDateTime = comment.CreationDateTime;
+            IsFrozen = comment.IsFrozen;
+            LastUpdateDateTime = comment.TextHistory.Keys.Max();
+            OwnerAddress = userSharedInfo.EtherAddress;
+            Text = comment.TextHistory.MaxBy(p => p.Key).Value;
+            VideoId = comment.Video.Id;
+        }
         public CommentDto(Comment2Dto comment)
         {
-            ArgumentNullException.ThrowIfNull(comment, nameof(comment));
+            ArgumentNullException.ThrowIfNull(comment);
 
             Id = comment.Id;
             CreationDateTime = comment.CreationDateTime;
@@ -37,7 +53,7 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
         public DateTime CreationDateTime { get; }
         public bool IsFrozen { get; }
         public DateTime LastUpdateDateTime { get; }
-        public string OwnerAddress { get; }
+        public EthAddress OwnerAddress { get; }
         public string Text { get; }
         public string VideoId { get; }
     }

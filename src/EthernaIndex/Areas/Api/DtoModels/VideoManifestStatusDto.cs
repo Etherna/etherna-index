@@ -28,15 +28,15 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
             Video video,
             VideoManifest videoManifest)
         {
-            ArgumentNullException.ThrowIfNull(video, nameof(video));
-            ArgumentNullException.ThrowIfNull(videoManifest, nameof(videoManifest));
+            ArgumentNullException.ThrowIfNull(video);
+            ArgumentNullException.ThrowIfNull(videoManifest);
 
             if (!video.VideoManifests.Contains(videoManifest))
                 throw new InvalidOperationException("Video must contain the manifest");
 
             ErrorDetails = videoManifest.ValidationErrors
                 .Select(i => new ErrorDetailDto(i.ErrorMessage, i.ErrorType));
-            Hash = videoManifest.ManifestHash;
+            Hash = videoManifest.ManifestReference;
             IsValid = videoManifest.IsValid;
             ValidationTime = videoManifest.ValidationTime;
             VideoId = video.Id;
@@ -44,7 +44,7 @@ namespace Etherna.EthernaIndex.Areas.Api.DtoModels
 
         // Properties.
         public IEnumerable<ErrorDetailDto> ErrorDetails { get; private set; }
-        public SwarmHash Hash { get; private set; }
+        public SwarmReference Hash { get; private set; }
         public bool? IsValid { get; private set; }
         public DateTime? ValidationTime { get; private set; }
         public string VideoId { get; private set; }

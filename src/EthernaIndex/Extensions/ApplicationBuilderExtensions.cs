@@ -24,7 +24,7 @@ namespace Etherna.EthernaIndex.Extensions
         public static IApplicationBuilder CreateElasticIndexes(
             this IApplicationBuilder builder)
         {
-            ArgumentNullException.ThrowIfNull(builder, nameof(builder));
+            ArgumentNullException.ThrowIfNull(builder);
 
             var serviceProvider = builder.ApplicationServices;
             var service = serviceProvider.GetRequiredService<IElasticSearchService>();

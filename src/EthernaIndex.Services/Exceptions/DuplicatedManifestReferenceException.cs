@@ -1,4 +1,4 @@
-// Copyright 2021-present Etherna SA
+﻿// Copyright 2021-present Etherna SA
 // This file is part of Etherna Index.
 // 
 // Etherna Index is free software: you can redistribute it and/or modify it under the terms of the
@@ -14,26 +14,28 @@
 
 using Etherna.BeeNet.Models;
 using System;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 
-namespace Etherna.EthernaIndex.Converters
+namespace Etherna.EthernaIndex.Services.Exceptions
 {
-    public class SwarmAddressJsonConverter : JsonConverter<SwarmAddress>
+    public class DuplicatedManifestReferenceException : Exception
     {
-        public override SwarmAddress Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public DuplicatedManifestReferenceException(SwarmReference manifestReference) :
+            base ($"reference {manifestReference} is duplicated")
         {
-            if (reader.TokenType != JsonTokenType.String)
-                throw new JsonException();
 
-            return reader.GetString()!;
         }
 
-        public override void Write(Utf8JsonWriter writer, SwarmAddress value, JsonSerializerOptions options)
+        public DuplicatedManifestReferenceException()
         {
-            ArgumentNullException.ThrowIfNull(writer, nameof(writer));
-            
-            writer.WriteStringValue(value.ToString());
+
+        }
+
+        public DuplicatedManifestReferenceException(string message, Exception innerException) : base(message, innerException)
+        {
+        }
+
+        public DuplicatedManifestReferenceException(string message) : base(message)
+        {
         }
     }
 }

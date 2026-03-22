@@ -12,20 +12,18 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
-using Asp.Versioning.ApiExplorer;
-using Etherna.ACR.Conventions;
+using Duende.AccessTokenManagement.OpenIdConnect;
 using Etherna.ACR.Exceptions;
 using Etherna.ACR.Middlewares.DebugPages;
+using Etherna.Authentication;
 using Etherna.Authentication.AspNetCore;
-using Etherna.BeeNet.Models;
+using Etherna.BeeNet.JsonConverters;
 using Etherna.DomainEvents;
+using Etherna.EthernaIndex.Areas.Api;
 using Etherna.EthernaIndex.Configs;
 using Etherna.EthernaIndex.Configs.Authorization;
 using Etherna.EthernaIndex.Configs.MongODM;
-using Etherna.EthernaIndex.Configs.Swagger;
-using Etherna.EthernaIndex.Configs.Swagger.OperationFilters;
-using Etherna.EthernaIndex.Configs.Swagger.SchemaFilters;
-using Etherna.EthernaIndex.Converters;
+using Etherna.EthernaIndex.Configs.OpenApi;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.ElasticSearch;
 using Etherna.EthernaIndex.Extensions;
@@ -50,24 +48,20 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
-using Microsoft.OpenApi.Models;
 using Serilog;
 using Serilog.Exceptions;
 using Serilog.Sinks.Elasticsearch;
-using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
-using System.ComponentModel;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using DashboardOptions = Etherna.MongODM.AspNetCore.UI.DashboardOptions;
-using IPNetwork = Microsoft.AspNetCore.HttpOverrides.IPNetwork;
+using IPNetwork = System.Net.IPNetwork;
 
 namespace Etherna.EthernaIndex
 {
@@ -150,12 +144,6 @@ namespace Etherna.EthernaIndex
             var config = builder.Configuration;
             var env = builder.Environment;
             
-            // Register global TypeConverters.
-            TypeDescriptor.AddAttributes(typeof(PostageBatchId), new TypeConverterAttribute(typeof(PostageBatchIdTypeConverter)));
-            TypeDescriptor.AddAttributes(typeof(SwarmAddress), new TypeConverterAttribute(typeof(SwarmAddressTypeConverter)));
-            TypeDescriptor.AddAttributes(typeof(SwarmHash), new TypeConverterAttribute(typeof(SwarmHashTypeConverter)));
-            TypeDescriptor.AddAttributes(typeof(SwarmUri), new TypeConverterAttribute(typeof(SwarmUriTypeConverter)));
-
             // Configure Asp.Net Core framework services.
             services.AddDataProtection()
                 .PersistKeysToDbContext(new DbContextOptions
@@ -183,47 +171,40 @@ namespace Etherna.EthernaIndex
                     });
 
                     foreach (var network in networks)
-                        options.KnownNetworks.Add(network);
+                        options.KnownIPNetworks.Add(network);
                 }
             });
 
             services.AddCors();
+            services.AddOpenApi("index03", options =>
+            {
+                options.AddDocumentTransformer(new IndexDocumentTransformer(
+                    config["SsoServer:BaseUrl"] ?? throw new ServiceConfigurationException()));
+                options.AddDocumentTransformer<MetadataFilterDocumentTransformer<IndexApiMarker>>();
+
+                options.AddOperationTransformer<ApiMethodNeedsAuthOperationTransformer>();
+                options.AddOperationTransformer<DeprecatedOperationTransformer>();
+                options.AddOperationTransformer<RemoveDefaultResponse200OperationTransformer>();
+                options.AddOperationTransformer<IndexOperationTransformer>();
+                
+                options.AddSchemaTransformer(new SwarmModelsSchemaTransformer(true, true, true));
+            });
             services.AddRazorPages(options =>
             {
                 options.Conventions.AuthorizeAreaFolder(
                     CommonConsts.AdminArea, "/", CommonConsts.RequireAdministratorRolePolicy);
             });
-            services.AddControllers(options =>
-                {
-                    //api by default requires authentication with user interact policy
-                    options.Conventions.Add(
-                        new RouteTemplateAuthorizationConvention(
-                            CommonConsts.ApiArea,
-                            CommonConsts.UserInteractApiScopePolicy));
-                })
-                .AddJsonOptions(options =>
-                {
-                    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-                    options.JsonSerializerOptions.Converters.Add(new PostageBatchIdJsonConverter());
-                    options.JsonSerializerOptions.Converters.Add(new SwarmAddressJsonConverter());
-                    options.JsonSerializerOptions.Converters.Add(new SwarmHashJsonConverter());
-                    options.JsonSerializerOptions.Converters.Add(new SwarmUriJsonConverter());
-                });
-            services.AddApiVersioning(options =>
+            services.ConfigureHttpJsonOptions(options =>
             {
-                options.ReportApiVersions = true;
-            });
-            services.AddApiVersioning()
-                .AddApiExplorer(options =>
-                {
-                    // add the versioned api explorer, which also adds IApiVersionDescriptionProvider service
-                    // note: the specified format code will format the version as "'v'major[.minor][-status]"
-                    options.GroupNameFormat = "'v'VVV";
+                options.SerializerOptions.Converters.Add(new EthAddressJsonConverter());
+                options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                options.SerializerOptions.Converters.Add(new PostageBatchIdJsonConverter());
+                options.SerializerOptions.Converters.Add(new SwarmAddressJsonConverter());
+                options.SerializerOptions.Converters.Add(new SwarmReferenceJsonConverter());
+                options.SerializerOptions.Converters.Add(new SwarmUriJsonConverter());
 
-                    // note: this option is only necessary when versioning by url segment. the SubstitutionFormat
-                    // can also be used to control the format of the API version in route templates
-                    options.SubstituteApiVersionInUrl = true;
-                });
+                options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+            });
 
             // Configure authentication.
             var allowUnsafeAuthorityConnection = false;
@@ -339,7 +320,7 @@ namespace Etherna.EthernaIndex
                 {
                     policy.AuthenticationSchemes = [CommonConsts.UserAuthenticationJwtScheme];
                     policy.RequireAuthenticatedUser();
-                    policy.RequireClaim("scope", "userApi.index");
+                    policy.RequireClaim("scope", EthernaScopes.UserApiIndexScopeName);
                     policy.AddRequirements(new DenyBannedAuthorizationRequirement());
                 });
             });
@@ -368,50 +349,11 @@ namespace Etherna.EthernaIndex
                 });
             }
 
-            // Configure Swagger services.
-            services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
-            services.AddSwaggerGen(options =>
-            {
-                options.SupportNonNullableReferenceTypes();
-                options.UseAllOfToExtendReferenceSchemas();
-                options.UseInlineDefinitionsForEnums();
-
-                //add a custom operation filters
-                options.OperationFilter<ApiMethodNeedsAuthFilter>();
-                options.OperationFilter<SwaggerDefaultValuesFilter>();
-                
-                //add schema filters
-                options.SchemaFilter<PostageBatchIdSchemaFilter>();
-                options.SchemaFilter<SwarmAddressSchemaFilter>();
-                options.SchemaFilter<SwarmHashSchemaFilter>();
-                options.SchemaFilter<SwarmUriSchemaFilter>();
-
-                //integrate xml comments
-                var xmlFile = typeof(Program).GetTypeInfo().Assembly.GetName().Name + ".xml";
-                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-                options.IncludeXmlComments(xmlPath);
-                
-                var ssoBaseUrl = config["SsoServer:BaseUrl"] ?? throw new ServiceConfigurationException();
-                var scheme = new OpenApiSecurityScheme
-                {
-                    In = ParameterLocation.Header,
-                    Name = "Authorization",
-                    Flows = new OpenApiOAuthFlows
-                    {
-                        AuthorizationCode = new OpenApiOAuthFlow
-                        {
-                            AuthorizationUrl = new Uri($"{ssoBaseUrl}/connect/authorize"),
-                            TokenUrl = new Uri($"{ssoBaseUrl}/connect/token")
-                        }
-                    },
-                    Type = SecuritySchemeType.OAuth2
-                };
-
-                options.AddSecurityDefinition("OAuth", scheme);
-            });
-
             // Configure setting.
             services.Configure<SsoServerSettings>(config.GetSection("SsoServer"));
+            
+            // Configure api handler.
+            services.AddScoped<IIndexApiHandler, IndexApiHandler>();
 
             // Configure persistence.
             services.AddMongODMWithHangfire(configureHangfireOptions: options =>
@@ -465,9 +407,8 @@ namespace Etherna.EthernaIndex
 
         private static void ConfigureApplication(WebApplication app)
         {
-            var env = app.Environment;
             var config = app.Configuration;
-            var apiProvider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
+            var env = app.Environment;
 
             if (env.IsDevelopment())
             {
@@ -509,6 +450,12 @@ namespace Etherna.EthernaIndex
             app.UseAuthentication();
             app.UseAuthorization();
 
+            // Add api and pages.
+            app.MapOpenApi();
+            app.MapRazorPages();
+
+            app.MapIndexApi();
+
             // Add Hangfire.
             app.UseHangfireDashboard(
                 CommonConsts.HangfireAdminPath,
@@ -517,26 +464,18 @@ namespace Etherna.EthernaIndex
                     Authorization = [new Configs.Hangfire.AdminAuthFilter()]
                 });
 
-            // Add Swagger and SwaggerUI.
-            app.UseSwagger();
+            // Add SwaggerUI.
             app.UseSwaggerUI(options =>
             {
                 options.DocumentTitle = "Etherna Index API";
 
                 // build a swagger endpoint for each discovered API version
-                foreach (var description in apiProvider.ApiVersionDescriptions)
-                {
-                    options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json", description.GroupName.ToUpperInvariant());
-                }
+                options.SwaggerEndpoint("/openapi/index03.json", "Index v0.3 API");
                 
                 options.OAuthClientId(config["SsoServer:Clients:Swagger:ClientId"] ?? throw new ServiceConfigurationException());
                 options.OAuthScopes("openid", "profile", "ether_accounts", "role", "userApi.index");
                 options.OAuthUsePkce();
             });
-
-            // Add pages and controllers.
-            app.MapControllers();
-            app.MapRazorPages();
         }
     }
 }
