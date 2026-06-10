@@ -1,8 +1,4 @@
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
-RUN curl -SLO https://deb.nodesource.com/nsolid_setup_deb.sh
-RUN chmod 500 nsolid_setup_deb.sh
-RUN ./nsolid_setup_deb.sh 20
-RUN apt-get install -y nodejs
 WORKDIR /src
 COPY . .
 RUN dotnet restore "EthernaIndex.sln"
