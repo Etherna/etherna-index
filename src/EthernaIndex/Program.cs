@@ -49,6 +49,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
+using Scalar.AspNetCore;
 using Serilog;
 using Serilog.Exceptions;
 using Serilog.Sinks.Elasticsearch;
@@ -464,17 +465,22 @@ namespace Etherna.EthernaIndex
                     Authorization = [new Configs.Hangfire.AdminAuthFilter()]
                 });
 
-            // Add SwaggerUI.
-            app.UseSwaggerUI(options =>
+            // Add Scalar API Reference.
+            app.MapScalarApiReference((options, httpContext) =>
             {
-                options.DocumentTitle = "Etherna Index API";
-
-                // build a swagger endpoint for each discovered API version
-                options.SwaggerEndpoint("/openapi/index03.json", "Index v0.3 API");
-                
-                options.OAuthClientId(config["SsoServer:Clients:Swagger:ClientId"] ?? throw new ServiceConfigurationException());
-                options.OAuthScopes("openid", "profile", "ether_accounts", "role", "userApi.index");
-                options.OAuthUsePkce();
+                options.WithTitle("Etherna Index API")
+                    .WithOpenApiRoutePattern("/openapi/index03.json")
+                    .DisableAgent()
+                    .HideClientButton()
+                    .HideDeveloperTools()
+                    .AddPreferredSecuritySchemes("OAuth")
+                    .AddAuthorizationCodeFlow("OAuth", flow =>
+                    {
+                        flow.ClientId = config["SsoServer:Clients:Scalar:ClientId"] ?? throw new ServiceConfigurationException();
+                        flow.RedirectUri = $"{httpContext.Request.Scheme}://{httpContext.Request.Host}/scalar/index03";
+                        flow.Pkce = Pkce.Sha256;
+                        flow.SelectedScopes = ["openid", "profile", "ether_accounts", "role", "userApi.index"];
+                    });
             });
         }
     }
