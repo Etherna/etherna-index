@@ -45,7 +45,13 @@ namespace Etherna.EthernaIndex.ElasticSearch
                 var settings = new ElasticsearchClientSettings(pool)
                     .DefaultIndex(options.VideosIndexName)
                     .DefaultMappingFor<VideoDocument>(vm => vm.IdProperty(p => p.Id));
-                
+
+                // Apply basic auth only when credentials are configured, so the same build
+                // runs against both the unsecured cluster (no creds) and the secured one
+                // (Elastic:Username/Password set via env).
+                if (!string.IsNullOrEmpty(options.Username) && !string.IsNullOrEmpty(options.Password))
+                    settings.Authentication(new BasicAuthentication(options.Username, options.Password));
+
                 return new ElasticsearchClient(settings);
             });
 

@@ -20,7 +20,9 @@ namespace Etherna.EthernaIndex.ElasticSearch.Options
     {
         // Properties.
         public string? IndexesPrefix { get; set; }
+        public string? Password { get; set; }
         public IEnumerable<string> Urls { get; set; } = [];
+        public string? Username { get; set; }
         
         public string CommentsIndexName => (IndexesPrefix ?? "") + ElasticSearchService.CommentsIndexBaseName;
         public string VideosIndexName => (IndexesPrefix ?? "") + ElasticSearchService.VideosIndexBaseName;
