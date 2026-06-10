@@ -169,6 +169,14 @@ namespace Etherna.EthernaIndex.ElasticSearch
                     .Size(take)
                     .TrackTotalHits(new TrackHits(true)));
 
+            if (!searchResponse.IsValidResponse)
+            {
+                if (searchResponse.TryGetOriginalException(out var exception) &&
+                    exception is not null)
+                    throw exception;
+                throw new InvalidOperationException(searchResponse.DebugInformation);
+            }
+
             return (searchResponse.Documents, searchResponse.Total);
         }
     }
