@@ -38,6 +38,7 @@ namespace Etherna.EthernaIndex.ElasticSearch.Documents
 
             Id = video.Id;
             CreationDateTime = video.LastValidManifest.CreationDateTime;
+            IndexingDateTime = DateTime.UtcNow;
             IsFrozen = video.IsFrozen;
             ManifestReference = video.LastValidManifest.ManifestReference.ToString();
             OwnerSharedInfoId = video.Owner.SharedInfoId;
@@ -91,6 +92,12 @@ namespace Etherna.EthernaIndex.ElasticSearch.Documents
         public DateTime CreationDateTime { get; set; }
         public string Description { get; set; }
         public long Duration { get; set; }
+
+        /// <summary>
+        /// Instant when this document was last (re)indexed. Used by the full reindex task to
+        /// detect and remove orphan documents left behind by deletions in the primary store.
+        /// </summary>
+        public DateTime IndexingDateTime { get; set; }
         public bool IsFrozen { get; set; }
         public string ManifestReference { get; set; }
         public string OwnerSharedInfoId { get; set; }

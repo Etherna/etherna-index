@@ -106,6 +106,8 @@ namespace Etherna.EthernaIndex.Areas.Api
 
         Task<IResult> RebuildElasticIndexes();
 
+        Task<IResult> ReindexElasticDocuments();
+
         Task<IResult> ReportVideoAsync(string id, SwarmReference reference, string description);
 
         Task<IResult> SearchVideoAsync(string query, int page, int take);
