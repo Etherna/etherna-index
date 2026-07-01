@@ -21,7 +21,6 @@ using Etherna.ACR.Exceptions;
 using Etherna.ACR.Middlewares.DebugPages;
 using Etherna.Authentication;
 using Etherna.Authentication.AspNetCore;
-using Etherna.BeeNet.JsonConverters;
 using Etherna.DomainEvents;
 using Etherna.EthernaIndex.Areas.Api;
 using Etherna.EthernaIndex.Configs;
@@ -38,6 +37,7 @@ using Etherna.EthernaIndex.Services.Tasks;
 using Etherna.MongODM;
 using Etherna.MongODM.AspNetCore.UI;
 using Etherna.MongODM.Core.Options;
+using Etherna.SwarmSdk.JsonConverters;
 using Hangfire;
 using Hangfire.Mongo;
 using Hangfire.Mongo.Migration.Strategies;
@@ -332,7 +332,7 @@ namespace Etherna.EthernaIndex
                 {
                     policy.AuthenticationSchemes = [CommonConsts.UserAuthenticationJwtScheme];
                     policy.RequireAuthenticatedUser();
-                    policy.RequireClaim("scope", EthernaScopes.UserApiIndexScopeName);
+                    policy.RequireClaim("scope", EthernaScopes.UserApiIndex);
                     policy.AddRequirements(new DenyBannedAuthorizationRequirement());
                 });
             });

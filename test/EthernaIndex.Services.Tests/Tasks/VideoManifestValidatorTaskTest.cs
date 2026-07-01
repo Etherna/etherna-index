@@ -12,18 +12,17 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
-using Etherna.BeeNet;
-using Etherna.BeeNet.Models;
-using Etherna.BeeNet.Stores;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.Domain.Models.UserAgg;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2;
 using Etherna.EthernaIndex.Services.Infrastructure;
 using Etherna.Sdk.Tools.Video.Models;
+using Etherna.SwarmSdk;
+using Etherna.SwarmSdk.Models;
+using Etherna.SwarmSdk.Stores;
 using Microsoft.Extensions.Logging;
 using Moq;
-using Nethereum.Util;
 using System;
 using System.Linq;
 using System.Linq.Expressions;
@@ -90,7 +89,7 @@ namespace Etherna.EthernaIndex.Services.Tasks
                     "Description",
                     TimeSpan.FromSeconds(600), 
                     "Title",
-                    AddressUtil.ZERO_ADDRESS,
+                    EthAddress.Zero,
                     null,
                     [
                         new VideoManifestVideoSource("1080.mp4", VideoType.Mp4, "1080p", 32, [], SwarmReference.PlainZero),
@@ -113,7 +112,7 @@ namespace Etherna.EthernaIndex.Services.Tasks
                     "Description2",
                     TimeSpan.FromSeconds(600), 
                     "Title2",
-                    AddressUtil.ZERO_ADDRESS,
+                    EthAddress.Zero,
                     null,
                     [
                         new VideoManifestVideoSource("1080.mp4", VideoType.Mp4, "1080p", 98, [], SwarmReference.PlainZero)
@@ -205,7 +204,7 @@ namespace Etherna.EthernaIndex.Services.Tasks
                     "Description",
                     TimeSpan.FromSeconds(600), 
                     "Title",
-                    AddressUtil.ZERO_ADDRESS,
+                    EthAddress.Zero,
                     null,
                     [
                         new VideoManifestVideoSource("720.mp4", VideoType.Mp4, "720p", 32, [], SwarmReference.PlainZero)

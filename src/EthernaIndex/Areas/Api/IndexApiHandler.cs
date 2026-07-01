@@ -13,7 +13,6 @@
 // If not, see <https://www.gnu.org/licenses/>.
 
 using Etherna.Authentication;
-using Etherna.BeeNet.Models;
 using Etherna.EthernaIndex.Areas.Api.DtoModels;
 using Etherna.EthernaIndex.Configs;
 using Etherna.EthernaIndex.Domain;
@@ -26,6 +25,7 @@ using Etherna.EthernaIndex.Services.Exceptions;
 using Etherna.EthernaIndex.Services.Extensions;
 using Etherna.EthernaIndex.Services.Tasks;
 using Etherna.MongoDB.Driver.Linq;
+using Etherna.SwarmSdk.Models;
 using Hangfire;
 using Hangfire.States;
 using Microsoft.AspNetCore.Authorization;

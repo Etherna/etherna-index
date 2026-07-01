@@ -12,11 +12,11 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
-using Etherna.BeeNet.Models;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.Domain.Models.UserAgg;
 using Etherna.MongoDB.Driver.Linq;
+using Etherna.SwarmSdk.Models;
 using System;
 using System.Linq;
 using System.Threading.Tasks;

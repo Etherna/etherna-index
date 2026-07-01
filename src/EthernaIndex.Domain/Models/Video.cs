@@ -12,10 +12,10 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
-using Etherna.BeeNet.Models;
 using Etherna.EthernaIndex.Domain.Events;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg;
 using Etherna.MongODM.Core.Attributes;
+using Etherna.SwarmSdk.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;

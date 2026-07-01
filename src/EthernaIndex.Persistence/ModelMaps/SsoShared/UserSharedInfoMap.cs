@@ -12,11 +12,11 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
-using Etherna.BeeNet.Models;
 using Etherna.EthernaIndex.Domain.Models.UserAgg;
 using Etherna.EthernaIndex.Persistence.Serializers;
 using Etherna.MongODM.Core;
 using Etherna.MongODM.Core.Serialization;
+using Etherna.SwarmSdk.Models;
 
 namespace Etherna.EthernaIndex.Persistence.ModelMaps.SsoShared
 {

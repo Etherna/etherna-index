@@ -12,7 +12,6 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
-using Etherna.BeeNet.Models;
 using Etherna.DomainEvents;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
@@ -25,6 +24,7 @@ using Etherna.MongoDB.Driver;
 using Etherna.MongODM.Core.Serialization.Serializers;
 using Etherna.MongODM.Core.Utility;
 using Etherna.Sdk.Tools.Video.Models;
+using Etherna.SwarmSdk.Models;
 using Microsoft.Extensions.Logging;
 using Moq;
 using System;

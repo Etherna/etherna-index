@@ -61,10 +61,10 @@ namespace Etherna.EthernaIndex.Services.Infrastructure
     }
 }
 #else
-using Etherna.Sdk.Tools.Video.Services;
-using Etherna.BeeNet.Models;
-using Etherna.BeeNet.Stores;
 using Etherna.Sdk.Tools.Video.Models;
+using Etherna.Sdk.Tools.Video.Services;
+using Etherna.SwarmSdk.Models;
+using Etherna.SwarmSdk.Stores;
 using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Services.Infrastructure
