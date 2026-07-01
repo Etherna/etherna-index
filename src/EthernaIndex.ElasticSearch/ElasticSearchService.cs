@@ -23,6 +23,7 @@ using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.ElasticSearch
@@ -78,6 +79,7 @@ namespace Etherna.EthernaIndex.ElasticSearch
                     {
                         props.Text(c => c.Id);
                         props.Date(c => c.CreationDateTime);
+                        props.Date(c => c.IndexingDateTime);
                         props.Boolean(c => c.IsFrozen);
                         props.Date(c => c.LastUpdateDateTime);
                         props.Text(c => c.OwnerAddress);
@@ -90,6 +92,7 @@ namespace Etherna.EthernaIndex.ElasticSearch
                     {
                         props.Text(v => v.Id);
                         props.Date(v => v.CreationDateTime);
+                        props.Date(v => v.IndexingDateTime);
                         props.Text(v => v.Description);
                         props.LongNumber(v => v.Duration);
                         props.Boolean(v => v.IsFrozen);
@@ -141,6 +144,14 @@ namespace Etherna.EthernaIndex.ElasticSearch
             });
         }
 
+        public Task<long> RemoveCommentDocumentsIndexedBeforeAsync(DateTime threshold) =>
+            RemoveDocumentsIndexedBeforeAsync<CommentDocument>(
+                options.CommentsIndexName, c => c.IndexingDateTime, threshold);
+
+        public Task<long> RemoveVideoDocumentsIndexedBeforeAsync(DateTime threshold) =>
+            RemoveDocumentsIndexedBeforeAsync<VideoDocument>(
+                options.VideosIndexName, v => v.IndexingDateTime, threshold);
+
         public async Task<(IEnumerable<VideoDocument> Results, long TotalElements)> SearchVideoAsync(
             string query,
             int page,
@@ -178,6 +189,30 @@ namespace Etherna.EthernaIndex.ElasticSearch
             }
 
             return (searchResponse.Documents, searchResponse.Total);
+        }
+
+        // Helpers.
+        private async Task<long> RemoveDocumentsIndexedBeforeAsync<TDocument>(
+            string indexName,
+            Expression<Func<TDocument, object?>> indexingDateTimeField,
+            DateTime threshold)
+            where TDocument : class
+        {
+            var response = await client.DeleteByQueryAsync<TDocument>(
+                Indices.Index(indexName),
+                d => d.Query(q => q.Range(r => r.Date(dr => dr
+                    .Field(indexingDateTimeField)
+                    .Lt(threshold)))));
+
+            if (!response.IsValidResponse)
+            {
+                if (response.TryGetOriginalException(out var exception) &&
+                    exception is not null)
+                    throw exception;
+                throw new InvalidOperationException(response.DebugInformation);
+            }
+
+            return response.Deleted ?? 0;
         }
     }
 }

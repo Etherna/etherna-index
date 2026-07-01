@@ -1,35 +1,39 @@
-﻿// Copyright 2021-present Etherna SA
+// Copyright 2021-present Etherna SA
 // This file is part of Etherna Index.
-// 
+//
 // Etherna Index is free software: you can redistribute it and/or modify it under the terms of the
 // GNU Affero General Public License as published by the Free Software Foundation,
 // either version 3 of the License, or (at your option) any later version.
-// 
+//
 // Etherna Index is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
 // without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 // See the GNU Affero General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
+using Elastic.Transport;
+using Etherna.DomainEvents;
+using Etherna.DomainEvents.Events;
 using Etherna.EthernaIndex.Domain.Models;
-using Etherna.EthernaIndex.ElasticSearch.Documents;
-using System;
-using System.Collections.Generic;
+using Etherna.EthernaIndex.ElasticSearch;
 using System.Threading.Tasks;
 
-namespace Etherna.EthernaIndex.ElasticSearch
+namespace Etherna.EthernaIndex.Services.EventHandlers
 {
-    public interface IElasticSearchService
+    internal sealed class OnCommentDeletedThenRemoveFromElasticSearchHandler(
+        IElasticSearchService elasticSearchService)
+        : EventHandlerBase<EntityDeletedEvent<Comment>>
     {
-        Task AddCommentAsync(Comment comment);
-        Task AddVideoAsync(Video video);
-        Task CreateIndexesAsync();
-        Task DeleteCommentAsync(Comment comment);
-        Task DeleteVideoAsync(Video video);
-        Task DestroyIndexesAsync();
-        Task<long> RemoveCommentDocumentsIndexedBeforeAsync(DateTime threshold);
-        Task<long> RemoveVideoDocumentsIndexedBeforeAsync(DateTime threshold);
-        Task<(IEnumerable<VideoDocument> Results, long TotalElements)> SearchVideoAsync(string query, int page, int take);
+        // Methods.
+        public override async Task HandleAsync(EntityDeletedEvent<Comment> @event)
+        {
+            try
+            {
+                await elasticSearchService.DeleteCommentAsync(@event.Entity);
+            }
+            catch (TransportException)
+            { }
+        }
     }
 }

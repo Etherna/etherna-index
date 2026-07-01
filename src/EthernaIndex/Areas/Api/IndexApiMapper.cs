@@ -100,6 +100,26 @@ namespace Etherna.EthernaIndex.Areas.Api
                     (IIndexApiHandler handler) =>
                         handler.RebuildElasticIndexes())
                 .RequireAuthorization(CommonConsts.RequireAdministratorRolePolicy)
+                .WithSummary("Rebuild Elasticsearch indexes from scratch")
+                .WithDescription(
+                    "Enqueues a background job that drops the Elasticsearch indexes, recreates them and " +
+                    "reindexes every document. Use it to apply index mapping/settings changes or to recover " +
+                    "from a corrupted index. The indexes are unavailable while the job runs (downtime), so it " +
+                    "is a maintenance-window operation. For routine, zero-downtime orphan reconciliation use " +
+                    "\"search/reindex\" instead.")
+                .Produces(StatusCodes.Status200OK)
+                .Produces(StatusCodes.Status401Unauthorized);
+
+            builder.MapPost("search/reindex",
+                    (IIndexApiHandler handler) =>
+                        handler.ReindexElasticDocuments())
+                .RequireAuthorization(CommonConsts.RequireAdministratorRolePolicy)
+                .WithSummary("Reindex Elasticsearch documents and prune orphans")
+                .WithDescription(
+                    "Enqueues a background job that reindexes every document in place and then removes orphan " +
+                    "documents (still indexed but no longer present in the database). Search stays available for " +
+                    "the whole duration (zero-downtime). It does not apply index structure changes: for " +
+                    "mapping/settings migrations or to rebuild a corrupted index use \"search/rebuild\".")
                 .Produces(StatusCodes.Status200OK)
                 .Produces(StatusCodes.Status401Unauthorized);
 

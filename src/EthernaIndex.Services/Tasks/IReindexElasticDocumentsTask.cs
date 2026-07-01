@@ -12,24 +12,21 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
-using Etherna.EthernaIndex.Domain.Models;
-using Etherna.EthernaIndex.ElasticSearch.Documents;
-using System;
-using System.Collections.Generic;
+using Hangfire;
 using System.Threading.Tasks;
 
-namespace Etherna.EthernaIndex.ElasticSearch
+namespace Etherna.EthernaIndex.Services.Tasks
 {
-    public interface IElasticSearchService
+    /// <summary>
+    /// Reindexes all documents in place (existing indexes are kept) and then prunes orphan documents,
+    /// i.e. documents still indexed but no longer present in the primary store. Search stays available
+    /// throughout (zero-downtime), so this is the operation for routine reconciliation.
+    /// It does not apply index structure changes: for mapping/settings migrations or to rebuild a
+    /// corrupted index use <see cref="IRebuildElasticIndexesTask"/>.
+    /// </summary>
+    public interface IReindexElasticDocumentsTask
     {
-        Task AddCommentAsync(Comment comment);
-        Task AddVideoAsync(Video video);
-        Task CreateIndexesAsync();
-        Task DeleteCommentAsync(Comment comment);
-        Task DeleteVideoAsync(Video video);
-        Task DestroyIndexesAsync();
-        Task<long> RemoveCommentDocumentsIndexedBeforeAsync(DateTime threshold);
-        Task<long> RemoveVideoDocumentsIndexedBeforeAsync(DateTime threshold);
-        Task<(IEnumerable<VideoDocument> Results, long TotalElements)> SearchVideoAsync(string query, int page, int take);
+        [Queue(Queues.ELASTIC_SEARCH_MAINTENANCE)]
+        Task RunAsync();
     }
 }

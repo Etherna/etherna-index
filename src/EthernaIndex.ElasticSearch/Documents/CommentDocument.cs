@@ -28,6 +28,7 @@ namespace Etherna.EthernaIndex.ElasticSearch.Documents
 
             Id = comment.Id;
             CreationDateTime = comment.CreationDateTime;
+            IndexingDateTime = DateTime.UtcNow;
             IsFrozen = comment.IsFrozen;
             LastUpdateDateTime = comment.LastUpdateDateTime;
             OwnerAddress = userSharedInfo.EtherAddress.ToString();
@@ -41,6 +42,12 @@ namespace Etherna.EthernaIndex.ElasticSearch.Documents
         // Properties.
         public string Id { get; set; }
         public DateTime CreationDateTime { get; set; }
+
+        /// <summary>
+        /// Instant when this document was last (re)indexed. Used by the full reindex task to
+        /// detect and remove orphan documents left behind by deletions in the primary store.
+        /// </summary>
+        public DateTime IndexingDateTime { get; set; }
         public bool IsFrozen { get; set; }
         public DateTime LastUpdateDateTime { get; set; }
         public string OwnerAddress { get; set; }

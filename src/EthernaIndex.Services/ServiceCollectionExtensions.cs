@@ -65,6 +65,7 @@ namespace Etherna.EthernaIndex.Services
 
             // Tasks.
             services.AddTransient<IRebuildElasticIndexesTask, RebuildElasticIndexesTask>();
+            services.AddTransient<IReindexElasticDocumentsTask, ReindexElasticDocumentsTask>();
             services.AddTransient<IVideoManifestValidatorTask, VideoManifestValidatorTask>();
             
             // Clients.

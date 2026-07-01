@@ -731,6 +731,13 @@ namespace Etherna.EthernaIndex.Areas.Api
                 return Task.FromResult(Results.Ok());
             });
 
+        public Task<IResult> ReindexElasticDocuments() =>
+            ExceptionHandler.RunAsync(() =>
+            {
+                backgroundJobClient.Enqueue<IReindexElasticDocumentsTask>(t => t.RunAsync());
+                return Task.FromResult(Results.Ok());
+            });
+
         public Task<IResult> ReportVideoAsync(string id, SwarmReference reference, string description) =>
             ExceptionHandler.RunAsync(async () =>
             {
