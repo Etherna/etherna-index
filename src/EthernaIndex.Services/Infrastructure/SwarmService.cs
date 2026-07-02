@@ -13,11 +13,11 @@
 // If not, see <https://www.gnu.org/licenses/>.
 
 #if DEBUG_MOCKUP_SWARM
+using Etherna.Sdk.Tools.Video.Models;
+using Etherna.SwarmSdk.Models;
+using Etherna.SwarmSdk.Stores;
 using System;
 using System.Collections.Generic;
-using Etherna.BeeNet.Models;
-using Etherna.BeeNet.Stores;
-using Etherna.Sdk.Tools.Video.Models;
 using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Services.Infrastructure
@@ -46,7 +46,7 @@ namespace Etherna.EthernaIndex.Services.Infrastructure
                     "Test description",
                     TimeSpan.FromMinutes(10),
                     "Mocked sample video",
-                    Nethereum.Util.AddressUtil.ZERO_ADDRESS,
+                    EthAddress.Zero,
                     """{"test":"sample"}""",
                     [new VideoManifestVideoSource("sources/playlist.m3u8", VideoType.Hls, null, 100000000, [], SwarmReference.PlainZero)],
                     new VideoManifestImage(1.77f, "LEHV6nWB2yk8pyo0adR*.7kCMdnj", [new VideoManifestImageSource("myThumb.jpg", ImageType.Jpeg, 480, SwarmReference.PlainZero)]),
