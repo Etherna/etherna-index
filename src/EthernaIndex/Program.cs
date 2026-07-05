@@ -12,7 +12,6 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
-using Duende.AccessTokenManagement.OpenIdConnect;
 using Elastic.Ingest.Elasticsearch;
 using Elastic.Ingest.Elasticsearch.DataStreams;
 using Elastic.Serilog.Sinks;
@@ -21,6 +20,7 @@ using Etherna.ACR.Exceptions;
 using Etherna.ACR.Middlewares.DebugPages;
 using Etherna.Authentication;
 using Etherna.Authentication.AspNetCore;
+using Etherna.Authentication.ClientCredentials;
 using Etherna.DomainEvents;
 using Etherna.EthernaIndex.Areas.Api;
 using Etherna.EthernaIndex.Configs;
@@ -35,6 +35,7 @@ using Etherna.EthernaIndex.Services;
 using Etherna.EthernaIndex.Services.Settings;
 using Etherna.EthernaIndex.Services.Tasks;
 using Etherna.MongODM;
+using Etherna.MongODM.AspNetCore.Extensions;
 using Etherna.MongODM.AspNetCore.UI;
 using Etherna.MongODM.Core.Options;
 using Etherna.SwarmSdk.JsonConverters;
@@ -283,6 +284,7 @@ namespace Etherna.EthernaIndex
                     options.SaveTokens = true;
 
                     options.Scope.Add("ether_accounts");
+                    options.Scope.Add("offline_access"); //permit user access token refresh
                     options.Scope.Add("role");
 
                     // Handle unauthorized call on api with 401 response. For users not logged in.
@@ -342,7 +344,20 @@ namespace Etherna.EthernaIndex
             services.AddScoped<IAuthorizationHandler, RequireRoleAuthorizationHandler>();
 
             // Configure token management.
-            services.AddOpenIdConnectAccessTokenManagement();
+            //client credentials application authenticating the Index to the other Etherna services.
+            //currently used for authenticated Gateway downloads: acquires a token (aud userApi, scope
+            //userApi.gateway) from the SSO and attaches it as a bearer token on the named HttpClient
+            //consumed by the SwarmClient, so non-offered content can be indexed.
+            services.AddEthernaClientCredentials(
+                    new Uri(config["SsoServer:BaseUrl"] ?? throw new ServiceConfigurationException()),
+                    requireHttps: !allowUnsafeAuthorityConnection)
+                .AddClient(
+                    "ethernaServicesTokenClient",
+                    config["SsoServer:Clients:Services:ClientId"] ?? throw new ServiceConfigurationException(),
+                    config["SsoServer:Clients:Services:Secret"] ?? throw new ServiceConfigurationException(),
+                    [EthernaScopes.UserApiGateway],
+                    CommonConsts.GatewayHttpClientName,
+                    httpClient => httpClient.Timeout = TimeSpan.FromMinutes(10)); //match SwarmClient's default timeout
 
             // Configure Hangfire server.
             if (!env.IsStaging()) //don't start server in staging
@@ -402,6 +417,7 @@ namespace Etherna.EthernaIndex
 
             services.AddMongODMAdminDashboard(new DashboardOptions
             {
+                AppPath = "/" + CommonConsts.AdminArea,
                 AuthFilters = [new AdminAuthFilter()],
                 BasePath = CommonConsts.DatabaseAdminPath
             });
@@ -416,7 +432,7 @@ namespace Etherna.EthernaIndex
             });
 
             // Configure domain services.
-            services.AddDomainServices(config);
+            services.AddDomainServices(config, CommonConsts.GatewayHttpClientName);
         }
 
         private static void ConfigureApplication(WebApplication app)
@@ -475,6 +491,7 @@ namespace Etherna.EthernaIndex
                 CommonConsts.HangfireAdminPath,
                 new Hangfire.DashboardOptions
                 {
+                    AppPath = "/" + CommonConsts.AdminArea,
                     Authorization = [new Configs.Hangfire.AdminAuthFilter()]
                 });
 
