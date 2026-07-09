@@ -33,5 +33,7 @@ namespace Etherna.EthernaIndex.Configs
         public const string UserAuthenticationJwtScheme = "userAuthnJwtScheme";
 
         public const string SharedCookieApplicationName = "ethernaSharedCookie";
+
+        public const string GatewayHttpClientName = "ethernaGatewaySwarmHttpClient";
     }
 }
