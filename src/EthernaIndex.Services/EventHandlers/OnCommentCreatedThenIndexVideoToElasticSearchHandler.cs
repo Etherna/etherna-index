@@ -15,22 +15,34 @@
 using Elastic.Transport;
 using Etherna.DomainEvents;
 using Etherna.DomainEvents.Events;
+using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.ElasticSearch;
 using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Services.EventHandlers
 {
-    internal sealed class OnCommentDeletedThenRemoveFromElasticSearchHandler(
-        IElasticSearchService elasticSearchService)
-        : EventHandlerBase<EntityDeletedEvent<Comment>>
+    internal sealed class OnCommentCreatedThenIndexVideoToElasticSearchHandler(
+        IElasticSearchService elasticSearchService,
+        IIndexDbContext indexDbContext)
+        : EventHandlerBase<EntityCreatedEvent<Comment>>
     {
         // Methods.
-        public override async Task HandleAsync(EntityDeletedEvent<Comment> @event)
+        public override async Task HandleAsync(EntityCreatedEvent<Comment> @event)
         {
+            // Reload the video, because the comment could keep only a partial reference of it.
+            // The video could also have been deleted concurrently: the event is dispatched after
+            // the comment has been persisted, so tolerate a missing video instead of failing the
+            // user request.
+            var video = await indexDbContext.Videos.TryFindOneAsync(@event.Entity.Video.Id);
+
+            // A video without a valid manifest is not indexed, so there is no document to refresh.
+            if (video?.LastValidManifest is null)
+                return;
+
             try
             {
-                await elasticSearchService.DeleteCommentAsync(@event.Entity);
+                await elasticSearchService.AddVideoAsync(video);
             }
             catch (TransportException)
             { }
