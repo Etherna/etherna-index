@@ -12,6 +12,7 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
+using Etherna.EthernaIndex.Domain.Events;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -46,6 +47,7 @@ namespace Etherna.EthernaIndex.Domain.Models
             Assert.InRange(comment.LastUpdateDateTime, beforeTime, afterTime);
             Assert.Single(comment.TextHistory, KeyValuePair.Create(comment.LastUpdateDateTime, comment.LastText));
             Assert.Equal(videoMock.Object, comment.Video);
+            Assert.Empty(comment.Events);
         }
 
         [Fact]
@@ -74,6 +76,7 @@ namespace Etherna.EthernaIndex.Domain.Models
                 KeyValuePair.Create(comment.LastUpdateDateTime, comment.LastText)
             });
             Assert.Equal(videoMock.Object, comment.Video);
+            Assert.Contains(comment.Events, e => e is CommentTextUpdatedEvent evt && evt.Comment == comment);
         }
         
         [Fact]
@@ -120,6 +123,7 @@ namespace Etherna.EthernaIndex.Domain.Models
             Assert.InRange(comment.LastUpdateDateTime, beforeTime, afterTime);
             Assert.Single(comment.TextHistory, KeyValuePair.Create(comment.LastUpdateDateTime, comment.LastText));
             Assert.Equal(videoMock.Object, comment.Video);
+            Assert.Contains(comment.Events, e => e is CommentTextUpdatedEvent evt && evt.Comment == comment);
         }
         
         [Fact]
@@ -144,6 +148,7 @@ namespace Etherna.EthernaIndex.Domain.Models
             Assert.InRange(comment.LastUpdateDateTime, beforeTime, afterTime);
             Assert.Single(comment.TextHistory, KeyValuePair.Create(comment.LastUpdateDateTime, comment.LastText));
             Assert.Equal(videoMock.Object, comment.Video);
+            Assert.Contains(comment.Events, e => e is CommentTextUpdatedEvent evt && evt.Comment == comment);
         }
     }
 }

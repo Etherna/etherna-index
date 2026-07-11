@@ -40,13 +40,6 @@ namespace Etherna.EthernaIndex.Services.Tasks
             await elasticSearchService.CreateIndexesAsync();
 
             // Reindex documents into the fresh indexes.
-            //comments
-            var commentsCursor = await dbContext.Comments.FindAsync<Comment>(Builders<Comment>.Filter.Empty, new() { NoCursorTimeout = true });
-            while (await commentsCursor.MoveNextAsync())
-                foreach (var comment in commentsCursor.Current)
-                    await elasticSearchService.AddCommentAsync(comment);
-
-            //videos
             var videosCursor = await dbContext.Videos.FindAsync<Video>(Builders<Video>.Filter.Empty, new() { NoCursorTimeout = true });
             while (await videosCursor.MoveNextAsync())
                 foreach (var video in videosCursor.Current.Where(v => v.LastValidManifest != null))

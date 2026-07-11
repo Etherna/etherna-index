@@ -425,7 +425,7 @@ namespace Etherna.EthernaIndex
             // Configure infrastructure.
             services.AddElasticSearchServices(opts =>
             {
-                opts.IndexesPrefix = "etherna-mainindex-";
+                opts.IndexesPrefix = "index-main-";
                 opts.Urls = config.GetSection("Elastic:Urls").Get<string[]>() ?? throw new ServiceConfigurationException();
                 opts.Username = config["Elastic:Username"];
                 opts.Password = config["Elastic:Password"];

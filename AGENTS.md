@@ -69,7 +69,7 @@ Bugs and features are tracked in Jira project **EID** (https://etherna.atlassian
 - Never reference AI agents or assistants in commits or code — no agent names, no `Co-Authored-By` agent trailers, no "generated/assisted by" notes. Commit messages and code must read as the team's own work.
 - Exceptions to these conventions are accepted when strictly necessary or when they significantly improve code quality. Justify with a comment where needed.
 - All elements (usings, properties, methods, fields, enum members, etc.) are always alphabetically ordered within their respective sections.
-- Primary constructors are preferred everywhere the constructor is a simple parameter assignment.
+- Prefer primary constructors whenever possible — not limited to DI services. A parameter needing a light transformation still qualifies: capture it and derive a field. Fall back to a classic constructor only when the body needs real logic that can't be expressed as a field initializer.
 - Keep code clean: remove unused variables, dead code, and redundant imports.
 - Every source file starts with the standard AGPL-3.0 copyright header (`// Copyright 2021-present Etherna SA` … see any existing file).
 

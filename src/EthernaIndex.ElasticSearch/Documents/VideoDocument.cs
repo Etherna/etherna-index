@@ -16,6 +16,7 @@ using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV1;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 
@@ -25,10 +26,12 @@ namespace Etherna.EthernaIndex.ElasticSearch.Documents
     {
         // Constructors.
         public VideoDocument(
-            Video video)
+            Video video,
+            IEnumerable<string> commentTexts)
         {
             ArgumentNullException.ThrowIfNull(video);
-            
+            ArgumentNullException.ThrowIfNull(commentTexts);
+
             if (video.LastValidManifest?.Metadata is null)
             {
                 var ex = new InvalidOperationException("Null last valid manifest");
@@ -37,6 +40,7 @@ namespace Etherna.EthernaIndex.ElasticSearch.Documents
             }
 
             Id = video.Id;
+            Comments = commentTexts.ToArray();
             CreationDateTime = video.LastValidManifest.CreationDateTime;
             IndexingDateTime = DateTime.UtcNow;
             IsFrozen = video.IsFrozen;
@@ -89,6 +93,7 @@ namespace Etherna.EthernaIndex.ElasticSearch.Documents
 
         // Properties.
         public string Id { get; set; }
+        public IEnumerable<string> Comments { get; set; }
         public DateTime CreationDateTime { get; set; }
         public string Description { get; set; }
         public long Duration { get; set; }

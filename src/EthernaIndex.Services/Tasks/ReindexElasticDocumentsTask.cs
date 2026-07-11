@@ -45,13 +45,6 @@ namespace Etherna.EthernaIndex.Services.Tasks
             var reindexStartedAt = DateTime.UtcNow;
 
             // Reindex documents in place (existing documents are overwritten, not removed first).
-            //comments
-            var commentsCursor = await dbContext.Comments.FindAsync<Comment>(Builders<Comment>.Filter.Empty, new() { NoCursorTimeout = true });
-            while (await commentsCursor.MoveNextAsync())
-                foreach (var comment in commentsCursor.Current)
-                    await elasticSearchService.AddCommentAsync(comment);
-
-            //videos
             var videosCursor = await dbContext.Videos.FindAsync<Video>(Builders<Video>.Filter.Empty, new() { NoCursorTimeout = true });
             while (await videosCursor.MoveNextAsync())
                 foreach (var video in videosCursor.Current.Where(v => v.LastValidManifest != null))
@@ -60,7 +53,6 @@ namespace Etherna.EthernaIndex.Services.Tasks
             // Prune orphan documents: anything still indexed with a stamp older than the start of
             // this run no longer exists in the primary store (or lost its last valid manifest).
             // The enumeration and removal run entirely server-side on Elasticsearch.
-            await elasticSearchService.RemoveCommentDocumentsIndexedBeforeAsync(reindexStartedAt);
             await elasticSearchService.RemoveVideoDocumentsIndexedBeforeAsync(reindexStartedAt);
         }
     }

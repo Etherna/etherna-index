@@ -12,6 +12,7 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
+using Etherna.EthernaIndex.Domain.Events;
 using Etherna.MongODM.Core.Attributes;
 using System;
 using System.Collections.Generic;
@@ -74,6 +75,8 @@ namespace Etherna.EthernaIndex.Domain.Models
                 throw new InvalidOperationException();
 
             _textHistory.Add(DateTime.UtcNow, text);
+
+            AddEvent(new CommentTextUpdatedEvent(this));
         }
         
         [PropertyAlterer(nameof(IsFrozen))]
@@ -88,6 +91,8 @@ namespace Etherna.EthernaIndex.Domain.Models
             _textHistory.Clear();
             _textHistory.Add(DateTime.UtcNow, RemovedByAuthorReplaceText);
             IsFrozen = true;
+
+            AddEvent(new CommentTextUpdatedEvent(this));
         }
 
         [PropertyAlterer(nameof(IsFrozen))]
@@ -102,6 +107,8 @@ namespace Etherna.EthernaIndex.Domain.Models
             _textHistory.Clear();
             _textHistory.Add(DateTime.UtcNow, RemovedByModeratorReplaceText);
             IsFrozen = true;
+
+            AddEvent(new CommentTextUpdatedEvent(this));
         }
     }
 }
