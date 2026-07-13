@@ -171,6 +171,45 @@ namespace Etherna.EthernaIndex.Services.Tasks
         }
 
         [Fact]
+        public async Task FailValidationWithUnsupportedManifestVersion()
+        {
+            // Arrange.
+            var publishedVideoManifest = new PublishedVideoManifest(
+                manifestReference,
+                new Sdk.Tools.Video.Models.VideoManifest(
+                    1,
+                    DateTimeOffset.Now,
+                    "Description",
+                    TimeSpan.FromSeconds(600),
+                    "Title",
+                    EthAddress.Zero,
+                    null,
+                    [
+                        new VideoManifestVideoSource("720p.mp4", VideoType.Mp4, "720p", 32, [], SwarmReference.PlainZero)
+                    ],
+                    new VideoManifestImage(1, "", []),
+                    []),
+                [],
+                new Version(1, 2));
+            swarmServiceMock
+                .Setup(x => x.GetPublishedVideoManifestAsync(manifestReference, It.IsAny<IReadOnlyChunkStore>()))
+                .ReturnsAsync(publishedVideoManifest);
+
+            // Action.
+            await videoManifestValidatorTask.RunAsync(videoId, manifestReference.ToString());
+
+            // Assert.
+            Assert.False(videoManifest.IsValid);
+            Assert.NotNull(videoManifest.ValidationTime);
+            Assert.Contains(videoManifest.ValidationErrors,
+                i => i.ErrorType == ValidationErrorType.UnsupportedManifestVersion);
+            Assert.Null(videoManifest.Metadata);
+            Assert.Contains(video.VideoManifests,
+                i => i.ManifestReference == manifestReference);
+            Assert.Null(video.LastValidManifest);
+        }
+
+        [Fact]
         public async Task FailValidationWithWrongJson()
         {
             // Arrange.
@@ -211,14 +250,15 @@ namespace Etherna.EthernaIndex.Services.Tasks
                     ],
                     new VideoManifestImage(1, "", []),
                     []),
-                []);
+                [],
+                new Version(2, 1));
             swarmServiceMock
                 .Setup(x => x.GetPublishedVideoManifestAsync(manifestReference, It.IsAny<IReadOnlyChunkStore>()))
                 .ReturnsAsync(publishedVideoManifest);
-        
+
             // Action.
             await videoManifestValidatorTask.RunAsync(videoId, manifestReference.ToString());
-        
+
             // Assert.
             Assert.True(videoManifest.IsValid);
             Assert.NotNull(videoManifest.ValidationTime);
