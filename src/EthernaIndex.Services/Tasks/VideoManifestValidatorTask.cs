@@ -17,12 +17,14 @@ using Etherna.EthernaIndex.Domain.Models.VideoAgg;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2;
 using Etherna.EthernaIndex.Services.Extensions;
 using Etherna.EthernaIndex.Services.Infrastructure;
+using Etherna.Sdk.Tools.Video.Models;
 using Etherna.SwarmSdk;
 using Etherna.SwarmSdk.Stores;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ValidationError = Etherna.EthernaIndex.Domain.Models.VideoAgg.ValidationError;
 
 namespace Etherna.EthernaIndex.Services.Tasks
 {
@@ -55,7 +57,24 @@ namespace Etherna.EthernaIndex.Services.Tasks
 
             if (publishedVideoManifest.Manifest is not null)
             {
+                //legacy v1 manifests use direct swarm references as sources, and can't be
+                //represented with paths relative to the manifest root. Reject them explicitly,
+                //or they would be stored as v2 metadata with unresolvable paths (EID-252).
                 //assume is manifest v2, until https://etherna.atlassian.net/browse/EID-240
+                if (publishedVideoManifest.SchemaVersion is { Major: < 2 })
+                {
+                    validationErrors.Add(new ValidationError(
+                        ValidationErrorType.UnsupportedManifestVersion,
+                        $"Manifest schema v{publishedVideoManifest.SchemaVersion} is not supported"));
+
+                    video.FailedManifestValidation(videoManifest, validationErrors);
+                    await indexDbContext.SaveChangesAsync().ConfigureAwait(false);
+
+                    logger.VideoManifestValidationFailedWithErrors(videoId, manifestReference, null);
+
+                    return;
+                }
+
                 videoMetadata = new VideoManifestMetadataV2(
                     publishedVideoManifest.Manifest.Title,
                     publishedVideoManifest.Manifest.Description,
