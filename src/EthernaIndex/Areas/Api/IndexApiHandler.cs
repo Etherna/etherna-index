@@ -945,12 +945,23 @@ namespace Etherna.EthernaIndex.Areas.Api
             if (video.Owner.Id != currentUser.Id)
                 throw new UnauthorizedAccessException("User is not owner of the video");
 
-            // Create videoManifest.
-            var videoManifest = new VideoManifest(newReference);
-            await dbContext.VideoManifests.CreateAsync(videoManifest);
+            // Verify the reference is not already used by an existing manifest.
+            var existingManifest = await dbContext.VideoManifests.TryFindOneAsync(m => m.ManifestReference == newReference);
+            if (existingManifest is not null)
+            {
+                // Act as an idempotent call if the manifest is already owned by this video.
+                if (video.VideoManifests.Any(vm => vm.Id == existingManifest.Id))
+                    return existingManifest;
 
-            // Add manifest to video.
+                throw new DuplicatedManifestReferenceException(newReference);
+            }
+
+            // Create videoManifest.
+            /* Add it to the video before creating the document: if the video can't accept it,
+             * no orphan manifest document with a duplicated reference is left on db. */
+            var videoManifest = new VideoManifest(newReference);
             video.AddManifest(videoManifest);
+            await dbContext.VideoManifests.CreateAsync(videoManifest);
             await dbContext.SaveChangesAsync();
 
             // Create Validation Manifest Task.

@@ -17,10 +17,12 @@ using Etherna.EthernaIndex.Domain.Models.VideoAgg;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2;
 using Etherna.EthernaIndex.Services.Extensions;
 using Etherna.EthernaIndex.Services.Infrastructure;
+using Etherna.MongODM.Core.Utility;
 using Etherna.Sdk.Tools.Video.Models;
 using Etherna.SwarmSdk;
 using Etherna.SwarmSdk.Stores;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -40,20 +42,35 @@ namespace Etherna.EthernaIndex.Services.Tasks
         {
             logger.VideoManifestValidationStarted(videoId, manifestReference);
 
-            var video = await indexDbContext.Videos.FindOneAsync(videoId);
+            // A task has no user request scope, so open a db execution context manually before any
+            // db operation, wrapping the whole task body.
+            using var dbExecutionContext = new DbExecutionContextHandler(indexDbContext);
 
             VideoManifestMetadataBase videoMetadata;
             var validationErrors = new List<ValidationError>();
 
-            // Get manifest.
-            var videoManifest = await indexDbContext.VideoManifests.FindOneAsync(u => u.ManifestReference == manifestReference);
-
-            // Get video manifest.
+            // Get published video manifest.
+            /* Fetch it from swarm before reading models from db: the fetch can be slow, and validation
+             * results are saved replacing the whole video document, so models loaded before a long fetch
+             * could overwrite as stale any concurrent db update. */
             var chunkStore = new SwarmClientChunkStore(beeClient);
 #if DEBUG_MOCKUP_SWARM
             swarmService.SetupNewPublishedVideoManifestMockup(manifestReference);
 #endif
             var publishedVideoManifest = await swarmService.GetPublishedVideoManifestAsync(manifestReference, chunkStore);
+
+            // Get video with manifest.
+            /* The execution context can be shared with other task executions, and the db cache could
+             * already contain stale models. Clear it to read fresh data. */
+            indexDbContext.DbCache.ClearCache();
+
+            var video = await indexDbContext.Videos.FindOneAsync(videoId);
+
+            /* Resolve the manifest from the video's own manifest list, where documents are loaded by id.
+             * A global query by reference could resolve a different document with the same reference,
+             * not owned by this video. */
+            var videoManifest = video.VideoManifests.FirstOrDefault(m => m.ManifestReference == manifestReference) ??
+                throw new InvalidOperationException($"Video {videoId} doesn't own any manifest with reference {manifestReference}");
 
             if (publishedVideoManifest.Manifest is not null)
             {

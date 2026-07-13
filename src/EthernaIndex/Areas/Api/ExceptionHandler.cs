@@ -12,6 +12,7 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
+using Etherna.EthernaIndex.Services.Exceptions;
 using Etherna.MongODM.Core.Exceptions;
 using Etherna.SwarmSdk.Exceptions;
 using Microsoft.AspNetCore.Http;
@@ -56,6 +57,10 @@ namespace Etherna.EthernaIndex.Areas.Api
                     case KeyNotFoundException:
                     case MongodmEntityNotFoundException:
                         return ErrorResults.GetNotFoundErrorResult();
+
+                    // Error code 409.
+                    case DuplicatedManifestReferenceException:
+                        return ErrorResults.GetErrorResult(StatusCodes.Status409Conflict, e.Message);
                     
                     // Error code 503.
                     case SwarmSdkApiException:

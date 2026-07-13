@@ -17,6 +17,8 @@ using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.Domain.Models.UserAgg;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2;
 using Etherna.EthernaIndex.Services.Infrastructure;
+using Etherna.ExecContext.AsyncLocal;
+using Etherna.MongODM.Core.Utility;
 using Etherna.Sdk.Tools.Video.Models;
 using Etherna.SwarmSdk;
 using Etherna.SwarmSdk.Models;
@@ -25,7 +27,6 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using System;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -63,8 +64,8 @@ namespace Etherna.EthernaIndex.Services.Tasks
 
             // Mock Db Data.
             indexContext = new Mock<IIndexDbContext>();
-            indexContext.Setup(_ => _.VideoManifests.FindOneAsync(It.IsAny<Expression<Func<VideoManifest, bool>>>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(videoManifest);
+            indexContext.Setup(_ => _.DbCache).Returns(Mock.Of<IDbCache>());
+            indexContext.Setup(_ => _.ExecutionContext).Returns(AsyncLocalContext.Instance);
             indexContext.Setup(_ => _.Videos.FindOneAsync(videoId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(video);
 
@@ -124,8 +125,8 @@ namespace Etherna.EthernaIndex.Services.Tasks
             
             video.AddManifest(secondVideoManifest);
             var secondIndexContext = new Mock<IIndexDbContext>();
-            secondIndexContext.Setup(_ => _.VideoManifests.FindOneAsync(It.IsAny<Expression<Func<VideoManifest, bool>>>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(secondVideoManifest);
+            secondIndexContext.Setup(_ => _.DbCache).Returns(Mock.Of<IDbCache>());
+            secondIndexContext.Setup(_ => _.ExecutionContext).Returns(AsyncLocalContext.Instance);
             secondIndexContext.Setup(_ => _.Videos.FindOneAsync(videoId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(video);
             
@@ -267,6 +268,41 @@ namespace Etherna.EthernaIndex.Services.Tasks
             Assert.Contains(video.VideoManifests,
                 i => i.ManifestReference == manifestReference);
             Assert.Equal(manifestReference, video.LastValidManifest!.ManifestReference);
+        }
+
+        [Fact]
+        public async Task ThrowWhenManifestIsNotOwnedByVideo()
+        {
+            // Arrange.
+            SwarmReference notOwnedManifestReference = "3c789b1d73fd8f28d71e6b03d2e42f44721db94b734c2edcfe6fcd48b76a74f9";
+            var publishedVideoManifest = new PublishedVideoManifest(
+                notOwnedManifestReference,
+                new Sdk.Tools.Video.Models.VideoManifest(
+                    1,
+                    DateTimeOffset.Now,
+                    "Description",
+                    TimeSpan.FromSeconds(600),
+                    "Title",
+                    EthAddress.Zero,
+                    null,
+                    [
+                        new VideoManifestVideoSource("720.mp4", VideoType.Mp4, "720p", 32, [], SwarmReference.PlainZero)
+                    ],
+                    new VideoManifestImage(1, "", []),
+                    []),
+                [],
+                new Version(2, 1));
+            swarmServiceMock
+                .Setup(x => x.GetPublishedVideoManifestAsync(notOwnedManifestReference, It.IsAny<IReadOnlyChunkStore>()))
+                .ReturnsAsync(publishedVideoManifest);
+
+            // Action.
+            var exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+                videoManifestValidatorTask.RunAsync(videoId, notOwnedManifestReference.ToString()));
+
+            // Assert.
+            Assert.Contains("doesn't own any manifest", exception.Message, StringComparison.Ordinal);
+            Assert.Null(videoManifest.IsValid);
         }
     }
 }
