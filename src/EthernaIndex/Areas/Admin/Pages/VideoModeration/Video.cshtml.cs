@@ -39,16 +39,16 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoModeration
         public abstract class HistoryElementBase
         {
             // Properties.
-            public string Id { get; protected set; } = default!;
-            public string AuthorSharedInfoId { get; protected set; } = default!;
-            public string Description { get; protected set; } = default!;
+            public string Id { get; protected set; } = null!;
+            public string AuthorSharedInfoId { get; protected set; } = null!;
+            public string Description { get; protected set; } = null!;
             public DateTime CreationDateTime { get; protected set; }
         }
         
         public class InputModel
         {
             [Display(Name = "Reason")]
-            public string Reason { get; set; } = default!;
+            public string Reason { get; set; } = null!;
         }
         
         public class ReportHistoryElement : HistoryElementBase
@@ -85,12 +85,12 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoModeration
 
         // Properties.
         [BindProperty]
-        public InputModel Input { get; set; } = default!;
+        public InputModel Input { get; set; } = null!;
         public DateTime CreationDateTime { get; private set; }
-        public IEnumerable<HistoryElementBase> HistoryElements { get; private set; } = default!;
+        public IEnumerable<HistoryElementBase> HistoryElements { get; private set; } = null!;
         public bool IsFrozen { get; private set; }
         public VideoManifest? LastValidManifest { get; private set; }
-        public string VideoId { get; private set; } = default!;
+        public string VideoId { get; private set; } = null!;
 
         // Methods.
         public async Task OnGetAsync(

@@ -46,7 +46,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoModeration
         public string ErrorMessage { get; private set; } = "";
         public int CurrentPage { get; private set; }
         public long MaxPage { get; private set; }
-        public IEnumerable<VideoReportsAggregateDto> VideoUnsuitableReports { get; private set; } = default!;
+        public IEnumerable<VideoReportsAggregateDto> VideoUnsuitableReports { get; private set; } = null!;
 
         // Methods.
         public async Task<IActionResult> OnGetAsync(

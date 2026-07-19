@@ -39,7 +39,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
         public int CurrentPage { get; private set; }
         public string ErrorMessage { get; private set; } = "";
         public long MaxPage { get; private set; }
-        public IEnumerable<VideoManifestDto> VideoManifests { get; set; } = default!;
+        public IEnumerable<VideoManifestDto> VideoManifests { get; set; } = null!;
 
         // Methods.
         public async Task<IActionResult> OnGetAsync(

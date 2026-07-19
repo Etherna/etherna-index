@@ -162,7 +162,7 @@ Use principal-style section comments:
 - Nullable reference types enabled
 - `ArgumentNullException.ThrowIfNull()` or `?? throw new ArgumentNullException(nameof(param))`
 - `is null` / `is not null` patterns
-- Prefer `null` over `default` as default value for optional parameters
+- Prefer `null` over `default` wherever the type admits it: optional parameter defaults, late-init member initializers (`= null!`, not `= default!`), returns and assignments. Keep `default` only where `null` can't apply: non-nullable value types (e.g. `CancellationToken cancellationToken = default`) and unconstrained generic type parameters.
 - Switch expression with null pattern:
   ```csharp
   Metadata switch
@@ -197,6 +197,7 @@ Use principal-style section comments:
 - Collection expressions: `[]`, `[..spread]`
 - Prefer collection expressions over constructors to initialize any collection: `[]` not `new()`, `["a", "b"]` not `new List<string> { "a", "b" }`. Use a constructor only when a collection expression can't express the intent (e.g. presizing capacity with `new List<T>(capacity)`).
 - Target-typed `new()` for non-collection types when the type is clear from context
+- Lock fields: prefer the dedicated `System.Threading.Lock` type (.NET 9+) over a plain `object` — more expressive, and the compiler enforces correct `lock` usage on it.
 
 ## LINQ
 

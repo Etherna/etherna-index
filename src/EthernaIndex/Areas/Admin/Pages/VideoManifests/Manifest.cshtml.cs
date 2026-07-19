@@ -156,7 +156,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
         }
 
         // Properties.
-        public VideoManifestDto VideoManifest { get; private set; } = default!;
+        public VideoManifestDto VideoManifest { get; private set; } = null!;
 
         // Methods.
         public async Task OnGetAsync(SwarmReference manifestReference)
