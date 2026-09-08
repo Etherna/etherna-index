@@ -13,7 +13,7 @@
 // If not, see <https://www.gnu.org/licenses/>.
 
 using Etherna.EthernaIndex.Services.Exceptions;
-using Etherna.MongODM.Core.Exceptions;
+using Etherna.Scrinium.Core.Exceptions;
 using Etherna.SwarmSdk.Exceptions;
 using Microsoft.AspNetCore.Http;
 using Serilog;
@@ -45,7 +45,7 @@ namespace Etherna.EthernaIndex.Areas.Api
                     // Error code 400.
                     case ArgumentException:
                     case FormatException:
-                    case MongodmInvalidEntityTypeException:
+                    case ScriniumInvalidEntityTypeException:
                         return ErrorResults.GetBadRequestErrorResult();
 
                     // Error code 401.
@@ -55,7 +55,7 @@ namespace Etherna.EthernaIndex.Areas.Api
                     // Error code 404.
                     case SwarmSdkApiException { StatusCode: 404 }:
                     case KeyNotFoundException:
-                    case MongodmEntityNotFoundException:
+                    case ScriniumEntityNotFoundException:
                         return ErrorResults.GetNotFoundErrorResult();
 
                     // Error code 409.

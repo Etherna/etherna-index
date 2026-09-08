@@ -15,17 +15,17 @@
 using Etherna.EthernaIndex.Domain.Models;
 using Etherna.MongoDB.Bson;
 using Etherna.MongoDB.Bson.Serialization.Serializers;
-using Etherna.MongODM.Core;
-using Etherna.MongODM.Core.Serialization;
-using Etherna.MongODM.Core.Serialization.Serializers;
+using Etherna.Scrinium.Core;
+using Etherna.Scrinium.Core.Serialization;
+using Etherna.Scrinium.Core.Serialization.Serializers;
 
 namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
 {
     internal sealed class UserMap : IModelMapsCollector
     {
-        public void Register(IDbContext dbContext)
+        public void Register(IDbContextEngine dbContextEngine)
         {
-            dbContext.MapRegistry.AddModelMap<User>(
+            dbContextEngine.MapRegistry.AddModelMap<User>(
                 "9a2d9664-31d5-4394-9a20-c8789cf0600d", //v0.3.0
                 mm =>
                 {
@@ -35,10 +35,11 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
         }
 
         /// <summary>
-        /// The full entity serializer without relations
+        /// The full entity serializer without relations.
+        /// Users are never deleted, so no origin delete policy is declared.
         /// </summary>
-        public static ReferenceSerializer<User, string> InformationSerializer(IDbContext dbContext) =>
-            new(dbContext, config =>
+        public static ReferenceSerializer<User, string> InformationSerializer(IDbContextEngine dbContextEngine) =>
+            new(dbContextEngine, config =>
             {
                 config.AddModelMap<ModelBase>("f2b68f90-0851-40fc-a9af-556458f85662");
                 config.AddModelMap<EntityModelBase>("1401ce64-0eb9-4f64-b9b2-cd570934268b", mm => { });

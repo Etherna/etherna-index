@@ -13,29 +13,29 @@
 // If not, see <https://www.gnu.org/licenses/>.
 
 using Etherna.EthernaIndex.Persistence.Serializers;
-using Etherna.MongODM.Core;
-using Etherna.MongODM.Core.Serialization;
+using Etherna.Scrinium.Core;
+using Etherna.Scrinium.Core.Serialization;
 using Etherna.SwarmSdk.Models;
 
 namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
 {
     internal sealed class SwarmSdkMap : IModelMapsCollector
     {
-        public void Register(IDbContext dbContext)
+        public void Register(IDbContextEngine dbContextEngine)
         {
-            dbContext.MapRegistry.AddCustomSerializerMap<EthAddress>( //v0.3.15
+            dbContextEngine.MapRegistry.AddCustomSerializerMap<EthAddress>( //v0.3.15
                 new EthAddressSerializer());
             
-            dbContext.MapRegistry.AddCustomSerializerMap<PostageBatchId>( //v0.3.12
+            dbContextEngine.MapRegistry.AddCustomSerializerMap<PostageBatchId>( //v0.3.12
                 new PostageBatchIdSerializer());
             
-            dbContext.MapRegistry.AddCustomSerializerMap<SwarmAddress>( //v0.3.12
+            dbContextEngine.MapRegistry.AddCustomSerializerMap<SwarmAddress>( //v0.3.12
                 new SwarmAddressSerializer());
             
-            dbContext.MapRegistry.AddCustomSerializerMap<SwarmReference>( //v0.3.15
+            dbContextEngine.MapRegistry.AddCustomSerializerMap<SwarmReference>( //v0.3.15
                 new SwarmReferenceSerializer());
 
-            dbContext.MapRegistry.AddCustomSerializerMap<SwarmUri>( //v0.3.12
+            dbContextEngine.MapRegistry.AddCustomSerializerMap<SwarmUri>( //v0.3.12
                 new SwarmUriSerializer());
         }
     }

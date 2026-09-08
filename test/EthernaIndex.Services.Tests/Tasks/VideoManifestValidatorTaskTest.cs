@@ -17,8 +17,6 @@ using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.Domain.Models.UserAgg;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2;
 using Etherna.EthernaIndex.Services.Infrastructure;
-using Etherna.ExecContext.AsyncLocal;
-using Etherna.MongODM.Core.Utility;
 using Etherna.Sdk.Tools.Video.Models;
 using Etherna.SwarmSdk;
 using Etherna.SwarmSdk.Models;
@@ -64,8 +62,6 @@ namespace Etherna.EthernaIndex.Services.Tasks
 
             // Mock Db Data.
             indexContext = new Mock<IIndexDbContext>();
-            indexContext.Setup(_ => _.DbCache).Returns(Mock.Of<IDbCache>());
-            indexContext.Setup(_ => _.ExecutionContext).Returns(AsyncLocalContext.Instance);
             indexContext.Setup(_ => _.Videos.FindOneAsync(videoId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(video);
 
@@ -125,8 +121,6 @@ namespace Etherna.EthernaIndex.Services.Tasks
             
             video.AddManifest(secondVideoManifest);
             var secondIndexContext = new Mock<IIndexDbContext>();
-            secondIndexContext.Setup(_ => _.DbCache).Returns(Mock.Of<IDbCache>());
-            secondIndexContext.Setup(_ => _.ExecutionContext).Returns(AsyncLocalContext.Instance);
             secondIndexContext.Setup(_ => _.Videos.FindOneAsync(videoId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(video);
             

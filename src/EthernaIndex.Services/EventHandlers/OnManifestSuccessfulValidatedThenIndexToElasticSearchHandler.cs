@@ -14,6 +14,7 @@
 
 using Elastic.Transport;
 using Etherna.DomainEvents;
+using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Events;
 using Etherna.EthernaIndex.ElasticSearch;
 using System.Threading.Tasks;
@@ -21,15 +22,23 @@ using System.Threading.Tasks;
 namespace Etherna.EthernaIndex.Services.EventHandlers
 {
     internal sealed class OnManifestSuccessfulValidatedThenIndexToElasticSearchHandler(
-        IElasticSearchService elasticSearchService)
+        IElasticSearchService elasticSearchService,
+        IIndexDbContext indexDbContext)
         : EventHandlerBase<ManifestSuccessfulValidatedEvent>
     {
         // Methods.
         public override async Task HandleAsync(ManifestSuccessfulValidatedEvent @event)
         {
+            // Reload the video in this scope: the event carries the instance of the saving scope, whose
+            // references are summaries again after the save. The video could also have been deleted
+            // meanwhile, or have lost its last valid manifest.
+            var video = await indexDbContext.Videos.TryFindOneAsync(@event.Video.Id);
+            if (video?.LastValidManifest is null)
+                return;
+
             try
             {
-                await elasticSearchService.AddVideoAsync(@event.Video);
+                await elasticSearchService.AddVideoAsync(video);
             }
             catch (TransportException)
             { }

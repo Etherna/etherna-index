@@ -17,7 +17,6 @@ using Etherna.EthernaIndex.Domain.Models.VideoAgg;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2;
 using Etherna.EthernaIndex.Services.Extensions;
 using Etherna.EthernaIndex.Services.Infrastructure;
-using Etherna.MongODM.Core.Utility;
 using Etherna.Sdk.Tools.Video.Models;
 using Etherna.SwarmSdk;
 using Etherna.SwarmSdk.Stores;
@@ -42,17 +41,12 @@ namespace Etherna.EthernaIndex.Services.Tasks
         {
             logger.VideoManifestValidationStarted(videoId, manifestReference);
 
-            // A task has no user request scope, so open a db execution context manually before any
-            // db operation, wrapping the whole task body.
-            using var dbExecutionContext = new DbExecutionContextHandler(indexDbContext);
-
             VideoManifestMetadataBase videoMetadata;
             var validationErrors = new List<ValidationError>();
 
             // Get published video manifest.
-            /* Fetch it from swarm before reading models from db: the fetch can be slow, and validation
-             * results are saved replacing the whole video document, so models loaded before a long fetch
-             * could overwrite as stale any concurrent db update. */
+            /* Fetch it from swarm before reading models from db: the fetch can be slow, and the models
+             * read after it are the freshest when the validation outcome is saved. */
             var chunkStore = new SwarmClientChunkStore(beeClient);
 #if DEBUG_MOCKUP_SWARM
             swarmService.SetupNewPublishedVideoManifestMockup(manifestReference);
@@ -60,11 +54,14 @@ namespace Etherna.EthernaIndex.Services.Tasks
             var publishedVideoManifest = await swarmService.GetPublishedVideoManifestAsync(manifestReference, chunkStore);
 
             // Get video with manifest.
-            /* The execution context can be shared with other task executions, and the db cache could
-             * already contain stale models. Clear it to read fresh data. */
-            indexDbContext.DbCache.ClearCache();
-
             var video = await indexDbContext.Videos.FindOneAsync(videoId);
+
+            // The list items are id only summaries: preload what the lookup and the validation outcome read.
+            await indexDbContext.LoadValuesAsync(
+                video.VideoManifests,
+                m => m.CreationDateTime,
+                m => m.IsValid,
+                m => m.ManifestReference);
 
             /* Resolve the manifest from the video's own manifest list, where documents are loaded by id.
              * A global query by reference could resolve a different document with the same reference,

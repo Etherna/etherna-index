@@ -34,7 +34,7 @@ source together with its build and deployment configuration.
   through events; indexes can be rebuilt from MongoDB on demand.
 - **Comments and votes** — authenticated users can comment videos (with edit history) and vote them.
 - **Moderation** — unsuitable-video reports, manual reviews, and video/author moderation, managed from the
-  admin area; dashboards for Hangfire (`/admin/hangfire`) and MongODM (`/admin/db`) are admin-gated.
+  admin area; dashboards for Hangfire (`/admin/hangfire`) and Scrinium (`/admin/db`) are admin-gated.
 - **Authentication against Etherna SSO** — JWT bearer for API clients and cookie + OpenID Connect for the
   web app, with a deny-banned-users policy on every request.
 - **Authenticated Gateway downloads** — the Index authenticates to the Etherna Gateway with an OAuth2
@@ -48,7 +48,7 @@ A five-project layered solution (plus three test projects):
 
 - **`EthernaIndex.Domain`** — pure domain layer: aggregates, entities and domain events; exposes only
   DbContext interfaces, with no persistence types leaking out.
-- **`EthernaIndex.Persistence`** — MongoDB persistence via MongODM (model maps, repositories, the Index and
+- **`EthernaIndex.Persistence`** — MongoDB persistence via Scrinium (model maps, repositories, the Index and
   shared DbContexts, BSON serializers for the Swarm value types).
 - **`EthernaIndex.Services`** — application services, side effects, event handlers and Hangfire tasks.
 - **`EthernaIndex.ElasticSearch`** — Elasticsearch integration: document models, indexing and search.
@@ -165,7 +165,7 @@ variables — see [Configuration](#configuration).
 ```
 src/
   EthernaIndex.Domain          pure domain layer (aggregates, entities, domain events)
-  EthernaIndex.Persistence     MongODM persistence (model maps, repositories, DbContexts)
+  EthernaIndex.Persistence     Scrinium persistence (model maps, repositories, DbContexts)
   EthernaIndex.Services        application services, event handlers, Hangfire tasks
   EthernaIndex.ElasticSearch   Elasticsearch integration (documents, indexing, search)
   EthernaIndex                 ASP.NET Core host (API, admin area, authentication)

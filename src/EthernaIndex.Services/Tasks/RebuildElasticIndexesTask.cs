@@ -16,7 +16,6 @@ using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.ElasticSearch;
 using Etherna.MongoDB.Driver;
-using Etherna.MongODM.Core.Utility;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -30,20 +29,25 @@ namespace Etherna.EthernaIndex.Services.Tasks
         // Methods.
         public async Task RunAsync()
         {
-            // A task has no user request scope, so open a db execution context manually before any
-            // db operation, wrapping the whole task body.
-            using var dbExecutionContext = new DbExecutionContextHandler(dbContext);
-
             // Drop and recreate the indexes from scratch. This applies any mapping/settings change and
             // wipes stale documents, at the cost of leaving the indexes unavailable until the reindex ends.
             await elasticSearchService.DestroyIndexesAsync();
             await elasticSearchService.CreateIndexesAsync();
 
             // Reindex documents into the fresh indexes.
+            /* The scan reads the whole collection: a transient models scope per cursor batch evicts the
+             * videos, and the manifests they preload, once indexed, so the identity map doesn't grow
+             * with the collection while the models stay tracked for the explicit preloads. */
             var videosCursor = await dbContext.Videos.FindAsync<Video>(Builders<Video>.Filter.Empty, new() { NoCursorTimeout = true });
-            while (await videosCursor.MoveNextAsync())
+            while (true)
+            {
+                using var transientModelsScope = dbContext.StartTransientModelsScope();
+                if (!await videosCursor.MoveNextAsync())
+                    break;
+
                 foreach (var video in videosCursor.Current.Where(v => v.LastValidManifest != null))
                     await elasticSearchService.AddVideoAsync(video);
+            }
         }
     }
 }

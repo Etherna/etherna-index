@@ -16,21 +16,21 @@ using Etherna.EthernaIndex.Domain.Models;
 using Etherna.MongoDB.Bson;
 using Etherna.MongoDB.Bson.Serialization.IdGenerators;
 using Etherna.MongoDB.Bson.Serialization.Serializers;
-using Etherna.MongODM.Core;
-using Etherna.MongODM.Core.Serialization;
+using Etherna.Scrinium.Core;
+using Etherna.Scrinium.Core.Serialization;
 
 namespace Etherna.EthernaIndex.Persistence.ModelMaps.SsoShared
 {
     internal sealed class ModelBaseMap : IModelMapsCollector
     {
-        public void Register(IDbContext dbContext)
+        public void Register(IDbContextEngine dbContextEngine)
         {
             // register class maps.
-            dbContext.MapRegistry.AddModelMap<ModelBase>(
+            dbContextEngine.MapRegistry.AddModelMap<ModelBase>(
                 "d517f32d-cc45-4d21-8a99-27dca658bde5"); //from sso v0.3.0
-            dbContext.MapRegistry.AddModelMap<EntityModelBase>(
+            dbContextEngine.MapRegistry.AddModelMap<EntityModelBase>(
                 "4c17bb54-af84-4a21-83ae-cb1050b721f5"); //from sso v0.3.0
-            dbContext.MapRegistry.AddModelMap<EntityModelBase<string>>(
+            dbContextEngine.MapRegistry.AddModelMap<EntityModelBase<string>>(
                 "e5e834e0-30cc-42a8-a1a2-9d5c79d35485", //from sso v0.3.0
                 modelMap =>
                 {
