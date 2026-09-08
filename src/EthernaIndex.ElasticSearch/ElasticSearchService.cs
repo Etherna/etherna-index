@@ -62,6 +62,9 @@ namespace Etherna.EthernaIndex.ElasticSearch
             if (video.LastValidManifest is null)
                 throw new InvalidOperationException($"{nameof(video.LastValidManifest)} can't be null");
 
+            // The manifest summary carries no metadata: preload it before building the document.
+            await indexDbContext.LoadValuesAsync(video.LastValidManifest, m => m.Metadata);
+
             // Frozen comments are excluded because their text has been replaced by a removal placeholder.
             var comments = await indexDbContext.Comments.QueryElementsAsync(elements =>
                 elements.Where(c => c.Video.Id == video.Id)
@@ -200,11 +203,21 @@ namespace Etherna.EthernaIndex.ElasticSearch
             DateTime threshold)
             where TDocument : class
         {
+            /* Make the documents just indexed visible before pruning: without a refresh the delete
+             * query snapshot still sees them with their previous indexing stamp, and deleting a
+             * document changed after the snapshot is a version conflict, refused with a 409 by
+             * default. Documents updated during the prune, by an event handler indexing them, are
+             * skipped instead of aborting it: a document just rewritten is fresh by definition. */
+            var refreshResponse = await client.Indices.RefreshAsync(Indices.Index(indexName));
+            if (!refreshResponse.IsValidResponse)
+                throw new InvalidOperationException(refreshResponse.DebugInformation);
+
             var response = await client.DeleteByQueryAsync<TDocument>(
                 Indices.Index(indexName),
-                d => d.Query(q => q.Range(r => r.Date(dr => dr
-                    .Field(indexingDateTimeField)
-                    .Lt(threshold)))));
+                d => d.Conflicts(Conflicts.Proceed)
+                    .Query(q => q.Range(r => r.Date(dr => dr
+                        .Field(indexingDateTimeField)
+                        .Lt(threshold)))));
 
             if (!response.IsValidResponse)
             {

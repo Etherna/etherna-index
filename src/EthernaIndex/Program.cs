@@ -25,8 +25,8 @@ using Etherna.DomainEvents;
 using Etherna.EthernaIndex.Areas.Api;
 using Etherna.EthernaIndex.Configs;
 using Etherna.EthernaIndex.Configs.Authorization;
-using Etherna.EthernaIndex.Configs.MongODM;
 using Etherna.EthernaIndex.Configs.OpenApi;
+using Etherna.EthernaIndex.Configs.Scrinium;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.ElasticSearch;
 using Etherna.EthernaIndex.Extensions;
@@ -34,10 +34,10 @@ using Etherna.EthernaIndex.Persistence;
 using Etherna.EthernaIndex.Services;
 using Etherna.EthernaIndex.Services.Settings;
 using Etherna.EthernaIndex.Services.Tasks;
-using Etherna.MongODM;
-using Etherna.MongODM.AspNetCore.Extensions;
-using Etherna.MongODM.AspNetCore.UI;
-using Etherna.MongODM.Core.Options;
+using Etherna.Scrinium.AspNetCore.Extensions;
+using Etherna.Scrinium.AspNetCore.UI;
+using Etherna.Scrinium.Core.Options;
+using Etherna.Scrinium.Extensions;
 using Etherna.SwarmSdk.JsonConverters;
 using Hangfire;
 using Hangfire.Mongo;
@@ -65,7 +65,7 @@ using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-using DashboardOptions = Etherna.MongODM.AspNetCore.UI.DashboardOptions;
+using DashboardOptions = Etherna.Scrinium.AspNetCore.UI.DashboardOptions;
 using IPNetwork = System.Net.IPNetwork;
 
 namespace Etherna.EthernaIndex
@@ -86,6 +86,12 @@ namespace Etherna.EthernaIndex
 
                 // Configs.
                 builder.Host.UseSerilog();
+                builder.Host.UseDefaultServiceProvider(options =>
+                {
+                    // Db contexts are scoped: a singleton capturing one would silently pin its identity map
+                    // for the process lifetime, so validate scopes in every environment.
+                    options.ValidateScopes = true;
+                });
 
                 ConfigureServices(builder);
 
@@ -362,6 +368,9 @@ namespace Etherna.EthernaIndex
             // Configure Hangfire server.
             if (!env.IsStaging()) //don't start server in staging
             {
+                //open the domain events execution context in each job, like Scrinium does for its own
+                GlobalJobFilters.Filters.Add(new Configs.Hangfire.DomainEventsExecutionContextFilter());
+
                 //register hangfire server
                 services.AddHangfireServer(options =>
                 {
@@ -383,7 +392,7 @@ namespace Etherna.EthernaIndex
             services.AddScoped<IIndexApiHandler, IndexApiHandler>();
 
             // Configure persistence.
-            services.AddMongODMWithHangfire(configureHangfireOptions: options =>
+            services.AddScriniumWithHangfire(configureHangfireOptions: options =>
             {
                 options.ConnectionString = config["ConnectionStrings:HangfireDb"] ?? throw new ServiceConfigurationException();
                 options.StorageOptions = new MongoStorageOptions
@@ -394,7 +403,7 @@ namespace Etherna.EthernaIndex
                         BackupStrategy = new CollectionMongoBackupStrategy()
                     }
                 };
-            }, configureMongODMOptions: options =>
+            }, configureScriniumOptions: options =>
             {
                 options.DbMaintenanceQueueName = Queues.DB_MAINTENANCE;
             })
@@ -408,14 +417,21 @@ namespace Etherna.EthernaIndex
                 options =>
                 {
                     options.ConnectionString = config["ConnectionStrings:IndexDb"] ?? throw new ServiceConfigurationException();
+
+                    //a summary member read without a preload is a defect, not a query
+                    options.ImplicitLazyLoad = ReactionMode.Throw;
                 })
 
                 .AddDbContext<ISharedDbContext, SharedDbContext>(options =>
                 {
                     options.ConnectionString = config["ConnectionStrings:ServiceSharedDb"] ?? throw new ServiceConfigurationException();
+                    options.ImplicitLazyLoad = ReactionMode.Throw;
+
+                    //the SSO owns this database: any write, index or migration from here is denied
+                    options.IsReadOnly = true;
                 });
 
-            services.AddMongODMAdminDashboard(new DashboardOptions
+            services.AddScriniumAdminDashboard(new DashboardOptions
             {
                 AppPath = "/" + CommonConsts.AdminArea,
                 AuthFilters = [new AdminAuthFilter()],

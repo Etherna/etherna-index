@@ -13,7 +13,7 @@
 // If not, see <https://www.gnu.org/licenses/>.
 
 using Etherna.EthernaIndex.Domain;
-using Etherna.MongoDB.Driver;
+using Etherna.EthernaIndex.Domain.Models.VideoAgg;
 using Etherna.MongoDB.Driver.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -88,6 +88,9 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoModeration
                 var videos = await indexDbContext.Videos.QueryElementsAsync(elements =>
                    elements.Where(v => videoIds.Contains(v.Id))
                            .ToListAsync());
+                await indexDbContext.LoadValuesAsync(
+                    videos.Select(v => v.LastValidManifest).OfType<VideoManifest>(),
+                    m => m.Metadata);
 
                 VideoUnsuitableReports = paginatedReports.Elements.Select(r =>
                 {

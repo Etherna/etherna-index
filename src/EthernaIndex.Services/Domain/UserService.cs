@@ -43,9 +43,6 @@ namespace Etherna.EthernaIndex.Services.Domain
                 // Create a new user.
                 user = new User(userSharedInfo);
                 await indexDbContext.Users.CreateAsync(user);
-
-                // Get again, because of https://etherna.atlassian.net/browse/MODM-83
-                user = await indexDbContext.Users.FindOneAsync(user.Id);
             }
 
             return (user, userSharedInfo);

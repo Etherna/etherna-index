@@ -100,6 +100,8 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoModeration
 
             // Get video info
             var video = await indexDbContext.Videos.FindOneAsync(v => v.Id == id);
+            if (video.LastValidManifest is not null)
+                await indexDbContext.LoadValuesAsync(video.LastValidManifest, m => m.Metadata);
             CreationDateTime = video.CreationDateTime;
             IsFrozen = video.IsFrozen;
             LastValidManifest = video.LastValidManifest;

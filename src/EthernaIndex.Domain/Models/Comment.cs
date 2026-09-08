@@ -13,7 +13,6 @@
 // If not, see <https://www.gnu.org/licenses/>.
 
 using Etherna.EthernaIndex.Domain.Events;
-using Etherna.MongODM.Core.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -66,9 +65,6 @@ namespace Etherna.EthernaIndex.Domain.Models
         public virtual Video Video { get; protected set; }
 
         // Methods.
-        [PropertyAlterer(nameof(LastText))]
-        [PropertyAlterer(nameof(LastUpdateDateTime))]
-        [PropertyAlterer(nameof(TextHistory))]
         public virtual void EditByAuthor(string text)
         {
             if (!IsEditable)
@@ -79,10 +75,6 @@ namespace Etherna.EthernaIndex.Domain.Models
             AddEvent(new CommentTextUpdatedEvent(this));
         }
         
-        [PropertyAlterer(nameof(IsFrozen))]
-        [PropertyAlterer(nameof(LastText))]
-        [PropertyAlterer(nameof(LastUpdateDateTime))]
-        [PropertyAlterer(nameof(TextHistory))]
         public virtual void SetAsDeletedByAuthor()
         {
             if (IsFrozen)
@@ -95,10 +87,6 @@ namespace Etherna.EthernaIndex.Domain.Models
             AddEvent(new CommentTextUpdatedEvent(this));
         }
 
-        [PropertyAlterer(nameof(IsFrozen))]
-        [PropertyAlterer(nameof(LastText))]
-        [PropertyAlterer(nameof(LastUpdateDateTime))]
-        [PropertyAlterer(nameof(TextHistory))]
         public virtual void SetAsDeletedByModerator()
         {
             if (IsFrozen)

@@ -14,37 +14,39 @@
 
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
-using Etherna.MongODM.Core;
-using Etherna.MongODM.Core.Extensions;
-using Etherna.MongODM.Core.Serialization;
+using Etherna.Scrinium.Core;
+using Etherna.Scrinium.Core.Extensions;
+using Etherna.Scrinium.Core.Options;
+using Etherna.Scrinium.Core.Serialization;
 using System.Linq;
 
 namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
 {
     internal sealed class UnsuitableReportMap : IModelMapsCollector
     {
-        public void Register(IDbContext dbContext)
+        public void Register(IDbContextEngine dbContextEngine)
         {
             // register class maps.
-            dbContext.MapRegistry.AddModelMap<UnsuitableReportBase>(
+            dbContextEngine.MapRegistry.AddModelMap<UnsuitableReportBase>(
                 "d658ffcf-91ea-4e5e-b163-92eabb5490cc", //dev (pre v0.3.0), published for WAM event
                 mm =>
                 {
                     mm.AutoMap();
 
                     // Set members with custom serializers.
-                    mm.SetMemberSerializer(c => c.ReporterAuthor, UserMap.InformationSerializer(dbContext));
+                    mm.SetMemberSerializer(c => c.ReporterAuthor, UserMap.InformationSerializer(dbContextEngine));
                 });
 
-            dbContext.MapRegistry.AddModelMap<UnsuitableVideoReport>(
+            dbContextEngine.MapRegistry.AddModelMap<UnsuitableVideoReport>(
                 "39e398d3-3199-43e1-8147-2876b534fbec", //v0.3.0
                 mm =>
                 {
                     mm.AutoMap();
 
                     // Set members with custom serializers.
-                    mm.SetMemberSerializer(c => c.Video, VideoMap.ReferenceSerializer(dbContext));
-                    mm.SetMemberSerializer(c => c.VideoManifest, VideoManifestMap.ReferenceSerializer(dbContext));
+                    //moderation records survive the deletion of the reported video and manifest
+                    mm.SetMemberSerializer(c => c.Video, VideoMap.ReferenceSerializer(dbContextEngine, OriginDeleteMode.KeepReference));
+                    mm.SetMemberSerializer(c => c.VideoManifest, VideoManifestMap.ReferenceSerializer(dbContextEngine, OriginDeleteMode.KeepReference));
                 })
                 .AddSecondarySchema(
                     "91e7a66a-d1e2-48eb-9627-3c3c2ceb5e2d", //dev (pre v0.3.0), published for WAM event
@@ -53,9 +55,10 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                         mm.AutoMap();
 
                         // Set members with custom serializers.
-                        mm.SetMemberSerializer(c => c.VideoManifest, VideoManifestMap.PreviewInfoSerializer(dbContext));
+                        mm.SetMemberSerializer(c => c.Video, VideoMap.ReferenceSerializer(dbContextEngine, OriginDeleteMode.KeepReference));
+                        mm.SetMemberSerializer(c => c.VideoManifest, VideoManifestMap.PreviewInfoSerializer(dbContextEngine, OriginDeleteMode.KeepReference));
                     },
-                    fixDeserializedModelFunc: async model =>
+                    fixDeserializedModelFunc: async (dbContext, model) =>
                     {
                         var indexDbContext = (IIndexDbContext)dbContext;
                         var video = await indexDbContext.Videos.TryFindOneAsync(

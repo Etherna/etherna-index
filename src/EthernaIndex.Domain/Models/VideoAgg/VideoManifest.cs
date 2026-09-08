@@ -14,7 +14,6 @@
 
 using Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV1;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2;
-using Etherna.MongODM.Core.Attributes;
 using Etherna.SwarmSdk.Models;
 using System;
 using System.Collections.Generic;
@@ -71,10 +70,6 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
             };
 
         // Internal methods.
-        [PropertyAlterer(nameof(IsValid))]
-        [PropertyAlterer(nameof(Metadata))]
-        [PropertyAlterer(nameof(ValidationErrors))]
-        [PropertyAlterer(nameof(ValidationTime))]
         internal virtual void FailedValidation(IEnumerable<ValidationError> validationErrors)
         {
             IsValid = false;
@@ -83,10 +78,6 @@ namespace Etherna.EthernaIndex.Domain.Models.VideoAgg
             ValidationTime = DateTime.UtcNow;
         }
 
-        [PropertyAlterer(nameof(IsValid))]
-        [PropertyAlterer(nameof(Metadata))]
-        [PropertyAlterer(nameof(ValidationErrors))]
-        [PropertyAlterer(nameof(ValidationTime))]
         internal virtual void SucceededValidation(VideoManifestMetadataBase metadata)
         {
             IsValid = true;

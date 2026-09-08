@@ -16,7 +16,6 @@ using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.ElasticSearch;
 using Etherna.MongoDB.Driver;
-using Etherna.MongODM.Core.Utility;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -31,10 +30,6 @@ namespace Etherna.EthernaIndex.Services.Tasks
         // Methods.
         public async Task RunAsync()
         {
-            // A task has no user request scope, so open a db execution context manually before any
-            // db operation, wrapping the whole task body.
-            using var dbExecutionContext = new DbExecutionContextHandler(dbContext);
-
             // Make sure indexes exist with their expected mappings, without dropping existing
             // data: this keeps the reindex a zero-downtime, in-place operation.
             await elasticSearchService.CreateIndexesAsync();
@@ -45,10 +40,19 @@ namespace Etherna.EthernaIndex.Services.Tasks
             var reindexStartedAt = DateTime.UtcNow;
 
             // Reindex documents in place (existing documents are overwritten, not removed first).
+            /* The scan reads the whole collection: a transient models scope per cursor batch evicts the
+             * videos, and the manifests they preload, once indexed, so the identity map doesn't grow
+             * with the collection while the models stay tracked for the explicit preloads. */
             var videosCursor = await dbContext.Videos.FindAsync<Video>(Builders<Video>.Filter.Empty, new() { NoCursorTimeout = true });
-            while (await videosCursor.MoveNextAsync())
+            while (true)
+            {
+                using var transientModelsScope = dbContext.StartTransientModelsScope();
+                if (!await videosCursor.MoveNextAsync())
+                    break;
+
                 foreach (var video in videosCursor.Current.Where(v => v.LastValidManifest != null))
                     await elasticSearchService.AddVideoAsync(video);
+            }
 
             // Prune orphan documents: anything still indexed with a stamp older than the start of
             // this run no longer exists in the primary store (or lost its last valid manifest).
