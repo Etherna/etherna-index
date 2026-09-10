@@ -14,16 +14,13 @@
 
 using Etherna.Sdk.Tools.Video.Models;
 using Etherna.SwarmSdk.Models;
-using Etherna.SwarmSdk.Stores;
 using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Services.Infrastructure
 {
     public interface ISwarmService
     {
-        Task<PublishedVideoManifest> GetPublishedVideoManifestAsync(
-            SwarmReference manifestReference,
-            IReadOnlyChunkStore chunkStore);
+        Task<PublishedVideoManifest> GetPublishedVideoManifestAsync(SwarmReference manifestReference);
         
 #if DEBUG_MOCKUP_SWARM
         void SetupReferenceMockup(SwarmReference reference, object returnedObject);

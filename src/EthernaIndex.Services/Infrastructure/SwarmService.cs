@@ -15,7 +15,6 @@
 #if DEBUG_MOCKUP_SWARM
 using Etherna.Sdk.Tools.Video.Models;
 using Etherna.SwarmSdk.Models;
-using Etherna.SwarmSdk.Stores;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -28,9 +27,7 @@ namespace Etherna.EthernaIndex.Services.Infrastructure
         private readonly Dictionary<SwarmReference, object> SwarmObjectMockups = new(); //reference->object
         
         // Methods.
-        public Task<PublishedVideoManifest> GetPublishedVideoManifestAsync(
-            SwarmReference manifestReference,
-            IReadOnlyChunkStore chunkStore) =>
+        public Task<PublishedVideoManifest> GetPublishedVideoManifestAsync(SwarmReference manifestReference) =>
             Task.FromResult((PublishedVideoManifest)SwarmObjectMockups[manifestReference]);
 
         public void SetupReferenceMockup(SwarmReference reference, object returnedObject) =>
@@ -61,21 +58,30 @@ namespace Etherna.EthernaIndex.Services.Infrastructure
     }
 }
 #else
+using Etherna.Sdk.Tools.UniversalFiles;
 using Etherna.Sdk.Tools.Video.Models;
 using Etherna.Sdk.Tools.Video.Services;
+using Etherna.SwarmSdk;
 using Etherna.SwarmSdk.Models;
 using Etherna.SwarmSdk.Stores;
 using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Services.Infrastructure
 {
-    public class SwarmService(IVideoManifestService videoManifestService) : ISwarmService
+    public class SwarmService(
+        ISwarmClient beeClient,
+        IUFileProvider uFileProvider,
+        IVideoManifestService videoManifestService)
+        : ISwarmService
     {
         // Methods.
-        public Task<PublishedVideoManifest> GetPublishedVideoManifestAsync(
-            SwarmReference manifestReference,
-            IReadOnlyChunkStore chunkStore) =>
-            videoManifestService.GetPublishedVideoManifestAsync(manifestReference, chunkStore);
+        // Read the file contents whole from the gateway's bzz endpoint, through the file provider, and resolve
+        // the entry references chunk by chunk through the chunk store, with one mantaray walk per manifest.
+        public Task<PublishedVideoManifest> GetPublishedVideoManifestAsync(SwarmReference manifestReference) =>
+            videoManifestService.GetPublishedVideoManifestAsync(
+                manifestReference,
+                new SwarmClientChunkStore(beeClient),
+                uFileProvider);
     }
 }
 #endif

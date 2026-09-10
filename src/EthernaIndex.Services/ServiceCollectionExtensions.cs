@@ -18,6 +18,8 @@ using Etherna.EthernaIndex.Services.Domain;
 using Etherna.EthernaIndex.Services.Infrastructure;
 using Etherna.EthernaIndex.Services.Options;
 using Etherna.EthernaIndex.Services.Tasks;
+using Etherna.Sdk.Tools.UniversalFiles;
+using Etherna.Sdk.Tools.UniversalFiles.Extensions;
 using Etherna.Sdk.Tools.Video.Services;
 using Etherna.SwarmSdk;
 using Etherna.SwarmSdk.Services;
@@ -70,6 +72,9 @@ namespace Etherna.EthernaIndex.Services
             
             //tools
             services.AddScoped<IChunkService, ChunkService>();
+            services.AddSingleton<IUFileProvider>(sp =>
+                new UFileProvider(sp.GetRequiredService<IHttpClientFactory>())
+                    .UseSwarmUFiles(sp.GetRequiredService<ISwarmClient>())); //swarm files read whole from the gateway's bzz endpoint
             services.AddScoped<IVideoManifestService, VideoManifestService>();
 
             // Tasks.
