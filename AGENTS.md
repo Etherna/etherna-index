@@ -18,7 +18,7 @@ dotnet run  --project src/EthernaIndex             # local dev server, http://lo
 
 There is no frontend build step: the host serves Razor Pages plus static `wwwroot` assets (no npm, no bundler) — a plain `dotnet build` produces a runnable host.
 
-Running the app requires a reachable **MongoDB** instance (`ConnectionStrings`: `IndexDb`, `ServiceSharedDb`, `HangfireDb`, `DataProtectionDb`), **Elasticsearch** (`Elastic:Urls`, used both by the Serilog sink and by the search indexes), the **Etherna SSO server** (`SsoServer:*` settings), and a **Swarm gateway** (`Swarm:GatewayUrl`) — see `src/EthernaIndex/appsettings.Development.json` for dev defaults, plus the `ASPNETCORE_ENVIRONMENT` variable. To develop without a real Swarm/Bee node, build the `Debug-Mockup-Swarm` solution configuration: it defines `DEBUG_MOCKUP_SWARM` in `EthernaIndex.Services`, switching `SwarmService` to in-memory mockups (`ISwarmService.SetupNewPublishedVideoManifestMockup`).
+Running the app requires a reachable **MongoDB** instance (`ConnectionStrings`: `IndexDb`, `ServiceSharedDb`, `HangfireDb`, `DataProtectionDb`), **Elasticsearch** (`Elastic:Urls`, used both by the Serilog sink and by the search indexes), the **Etherna SSO server** (`SsoServer:*` settings), and a **Swarm gateway** (`Swarm:GatewayUrl`) — see `src/EthernaIndex/appsettings.Development.json` for dev defaults, plus the `ASPNETCORE_ENVIRONMENT` variable. Outside Development the CORS policy admits only the browser origins listed in `Cors:AllowedOrigins` (`appsettings.Production.json` ships `https://etherna.io` and `https://app.etherna.io`, each entry overridable from the environment as `Cors__AllowedOrigins__<n>`), and the host refuses to start when the list is empty or an entry is not a bare web origin (`scheme://host[:port]`, http or https, no path: a trailing slash would never match a browser's `Origin` header) (`Extensions/CorsPolicyBuilderExtensions`); Development allows any origin. To develop without a real Swarm/Bee node, build the `Debug-Mockup-Swarm` solution configuration: it defines `DEBUG_MOCKUP_SWARM` in `EthernaIndex.Services`, switching `SwarmService` to in-memory mockups (`ISwarmService.SetupNewPublishedVideoManifestMockup`).
 
 Docker: `docker build .` (uses `Dockerfile`, which also runs `dotnet test` as part of the build stage and exposes ports 80/443).
 
@@ -99,7 +99,7 @@ Bugs and features are tracked in Jira project **EID** (https://etherna.atlassian
 - One class per file, filename matches class name
 - Namespace mirrors folder structure exactly
 - Block-scoped namespaces: `namespace X { ... }` — NOT file-scoped
-- Using directives inside namespace block, always alphabetically ordered and kept to the minimum necessary
+- Using directives before the namespace block (never inside it), always alphabetically ordered and kept to the minimum necessary
 - No global usings
 
 ## Comments
