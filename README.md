@@ -129,6 +129,7 @@ Secrets (`*Password`, `*Secret`, MongoDB credentials) must be supplied via envir
 
 | Key | Example | Notes |
 |---|---|---|
+| `Cors:AllowedOrigins:<n>` | `https://app.etherna.io` | browser origins allowed to call the API outside Development (`appsettings.Production.json` lists `https://etherna.io` and `https://app.etherna.io`); each entry must be a bare web origin (`scheme://host[:port]`, http or https, no path or trailing slash); the host refuses to start when the list is empty or an entry is malformed. Development allows any origin |
 | `Elastic:Urls:<n>` | `http://elasticsearch:9200` | Elasticsearch endpoints, used by both the Serilog sink and the search indexes |
 | `Elastic:Username` | `etherna_services` | Basic Auth user (omit against an unsecured cluster) |
 | `Elastic:Password` | — | **secret** — Basic Auth password |
