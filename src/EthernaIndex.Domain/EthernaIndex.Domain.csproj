@@ -15,7 +15,7 @@
 
   <ItemGroup>
     <PackageReference Include="Etherna.DomainEvents" Version="1.5.0" />
-    <PackageReference Include="Etherna.Scrinium.Core" Version="0.25.1" />
+    <PackageReference Include="Etherna.Scrinium.Core" Version="0.25.2" />
     <PackageReference Include="EthernaSdk.Tools.Video" Version="0.4.0-alpha.240" />
   </ItemGroup>
 

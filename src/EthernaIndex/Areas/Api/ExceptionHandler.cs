@@ -13,6 +13,7 @@
 // If not, see <https://www.gnu.org/licenses/>.
 
 using Etherna.EthernaIndex.Services.Exceptions;
+using Etherna.MongoDB.Driver;
 using Etherna.Scrinium.Core.Exceptions;
 using Etherna.SwarmSdk.Exceptions;
 using Microsoft.AspNetCore.Http;
@@ -61,6 +62,11 @@ namespace Etherna.EthernaIndex.Areas.Api
                     // Error code 409.
                     case DuplicatedManifestReferenceException:
                         return ErrorResults.GetErrorResult(StatusCodes.Status409Conflict, e.Message);
+                    /* A transaction that lost a write conflict with a concurrent one, after the
+                     * retries of the db context: the request is legitimate and the client can
+                     * repeat it, so answer a conflict instead of a server error. */
+                    case MongoException mongoException when mongoException.HasErrorLabel("TransientTransactionError"):
+                        return ErrorResults.GetErrorResult(StatusCodes.Status409Conflict, "Concurrent write conflict, retry the request");
                     
                     // Error code 503.
                     case SwarmSdkApiException:
