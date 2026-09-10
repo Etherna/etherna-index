@@ -18,8 +18,6 @@ using Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2;
 using Etherna.EthernaIndex.Services.Extensions;
 using Etherna.EthernaIndex.Services.Infrastructure;
 using Etherna.Sdk.Tools.Video.Models;
-using Etherna.SwarmSdk;
-using Etherna.SwarmSdk.Stores;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -30,7 +28,6 @@ using ValidationError = Etherna.EthernaIndex.Domain.Models.VideoAgg.ValidationEr
 namespace Etherna.EthernaIndex.Services.Tasks
 {
     public class VideoManifestValidatorTask(
-        ISwarmClient beeClient,
         IIndexDbContext indexDbContext,
         ILogger<VideoManifestValidatorTask> logger,
         ISwarmService swarmService)
@@ -47,11 +44,10 @@ namespace Etherna.EthernaIndex.Services.Tasks
             // Get published video manifest.
             /* Fetch it from swarm before reading models from db: the fetch can be slow, and the models
              * read after it are the freshest when the validation outcome is saved. */
-            var chunkStore = new SwarmClientChunkStore(beeClient);
 #if DEBUG_MOCKUP_SWARM
             swarmService.SetupNewPublishedVideoManifestMockup(manifestReference);
 #endif
-            var publishedVideoManifest = await swarmService.GetPublishedVideoManifestAsync(manifestReference, chunkStore);
+            var publishedVideoManifest = await swarmService.GetPublishedVideoManifestAsync(manifestReference);
 
             // Get video with manifest.
             var video = await indexDbContext.Videos.FindOneAsync(videoId);

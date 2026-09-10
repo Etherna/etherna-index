@@ -18,9 +18,7 @@ using Etherna.EthernaIndex.Domain.Models.UserAgg;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2;
 using Etherna.EthernaIndex.Services.Infrastructure;
 using Etherna.Sdk.Tools.Video.Models;
-using Etherna.SwarmSdk;
 using Etherna.SwarmSdk.Models;
-using Etherna.SwarmSdk.Stores;
 using Microsoft.Extensions.Logging;
 using Moq;
 using System;
@@ -36,7 +34,6 @@ namespace Etherna.EthernaIndex.Services.Tasks
     {
         // Fields.
         private readonly PostageBatchId batchId = "db7fde96b8eb94c3ec43cf6547cf045b2a719a3d8b27489e08bb33c32afece4e";
-        private readonly Mock<ISwarmClient> beeClientMock = new();
         private readonly VideoManifestValidatorTask videoManifestValidatorTask;
         private readonly SwarmReference manifestReference = "1a345a1d73fd8f28d71e6b03d2e42f44721db94b734c2edcfe6fcd48b76a74f9";
         private readonly string videoId = "videoId";
@@ -67,7 +64,6 @@ namespace Etherna.EthernaIndex.Services.Tasks
 
             // Inizialize.
             videoManifestValidatorTask = new VideoManifestValidatorTask(
-                beeClientMock.Object,
                 indexContext.Object,
                 loggerMock.Object,
                 swarmServiceMock.Object);
@@ -96,7 +92,7 @@ namespace Etherna.EthernaIndex.Services.Tasks
                     []),
                 []);
             swarmServiceMock
-                .Setup(x => x.GetPublishedVideoManifestAsync(manifestReference, It.IsAny<IReadOnlyChunkStore>()))
+                .Setup(x => x.GetPublishedVideoManifestAsync(manifestReference))
                 .ReturnsAsync(firstManifest);
             await videoManifestValidatorTask.RunAsync(videoId, manifestReference.ToString());
 
@@ -126,10 +122,9 @@ namespace Etherna.EthernaIndex.Services.Tasks
             
             var secondSwarmService = new Mock<ISwarmService>();
             secondSwarmService
-                .Setup(x => x.GetPublishedVideoManifestAsync(secondManifestReference, It.IsAny<IReadOnlyChunkStore>()))
+                .Setup(x => x.GetPublishedVideoManifestAsync(secondManifestReference))
                 .ReturnsAsync(secondManifest);
             var secondMetadataVideoValidatorTask = new VideoManifestValidatorTask(
-                beeClientMock.Object,
                 secondIndexContext.Object,
                 loggerMock.Object,
                 secondSwarmService.Object);
@@ -152,7 +147,7 @@ namespace Etherna.EthernaIndex.Services.Tasks
         public async Task FailValidationWithInvalidMetadata()
         {
             // Arrange.
-            swarmServiceMock.Setup(x => x.GetPublishedVideoManifestAsync(manifestReference, It.IsAny<IReadOnlyChunkStore>()))
+            swarmServiceMock.Setup(x => x.GetPublishedVideoManifestAsync(manifestReference))
                 .ReturnsAsync(new PublishedVideoManifest(manifestReference, null, [new ValidationError(ValidationErrorType.Unknown)]));
         
             // Action.
@@ -187,7 +182,7 @@ namespace Etherna.EthernaIndex.Services.Tasks
                 [],
                 new Version(1, 2));
             swarmServiceMock
-                .Setup(x => x.GetPublishedVideoManifestAsync(manifestReference, It.IsAny<IReadOnlyChunkStore>()))
+                .Setup(x => x.GetPublishedVideoManifestAsync(manifestReference))
                 .ReturnsAsync(publishedVideoManifest);
 
             // Action.
@@ -208,7 +203,7 @@ namespace Etherna.EthernaIndex.Services.Tasks
         public async Task FailValidationWithWrongJson()
         {
             // Arrange.
-            swarmServiceMock.Setup(x => x.GetPublishedVideoManifestAsync(manifestReference, It.IsAny<IReadOnlyChunkStore>()))
+            swarmServiceMock.Setup(x => x.GetPublishedVideoManifestAsync(manifestReference))
                 .Returns(Task.FromResult(new PublishedVideoManifest(
                     manifestReference, null, [new(ValidationErrorType.JsonConvert, "Unable to parse json")])));
 
@@ -248,7 +243,7 @@ namespace Etherna.EthernaIndex.Services.Tasks
                 [],
                 new Version(2, 1));
             swarmServiceMock
-                .Setup(x => x.GetPublishedVideoManifestAsync(manifestReference, It.IsAny<IReadOnlyChunkStore>()))
+                .Setup(x => x.GetPublishedVideoManifestAsync(manifestReference))
                 .ReturnsAsync(publishedVideoManifest);
 
             // Action.
@@ -287,7 +282,7 @@ namespace Etherna.EthernaIndex.Services.Tasks
                 [],
                 new Version(2, 1));
             swarmServiceMock
-                .Setup(x => x.GetPublishedVideoManifestAsync(notOwnedManifestReference, It.IsAny<IReadOnlyChunkStore>()))
+                .Setup(x => x.GetPublishedVideoManifestAsync(notOwnedManifestReference))
                 .ReturnsAsync(publishedVideoManifest);
 
             // Action.
