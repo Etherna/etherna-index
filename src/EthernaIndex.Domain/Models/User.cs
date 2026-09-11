@@ -34,6 +34,6 @@ namespace Etherna.EthernaIndex.Domain.Models
          * pointing to SharedInfo internal property.
          */
         //protected virtual SharedUserInfo SharedInfo { get; set; }
-        public virtual string SharedInfoId { get; protected set; } = default!;
+        public virtual string SharedInfoId { get; protected set; } = null!;
     }
 }

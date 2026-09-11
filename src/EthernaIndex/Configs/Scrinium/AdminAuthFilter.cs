@@ -12,29 +12,27 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
-using Etherna.DomainEvents;
-using Etherna.DomainEvents.Events;
-using Etherna.EthernaIndex.Domain;
-using Etherna.EthernaIndex.Domain.Models;
-using Etherna.MongoDB.Driver.Linq;
+using Etherna.Authentication;
+using Etherna.Scrinium.AspNetCore.UI.Auth.Filters;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Etherna.EthernaIndex.Services.EventHandlers
+namespace Etherna.EthernaIndex.Configs.Scrinium
 {
-    internal sealed class OnVideoDeletedThenRemoveVideoCommentsHandler(
-        IIndexDbContext indexDbContext)
-        : EventHandlerBase<EntityDeletedEvent<Video>>
+    public class AdminAuthFilter : IDashboardAuthFilter
     {
-        // Methods.
-        public override async Task HandleAsync(EntityDeletedEvent<Video> @event)
+        public async Task<bool> AuthorizeAsync(HttpContext? context)
         {
-            var comments = await indexDbContext.Comments.QueryElementsAsync(
-                c => c.Where(i => i.Video.Id == @event.Entity.Id)
-                          .ToListAsync());
+            if (context?.User.Identity?.IsAuthenticated != true)
+                return false;
 
-            foreach (var comment in comments)
-                await indexDbContext.Comments.DeleteAsync(comment);
+            // Verify role on claims, without db reads: keeps the dashboard reachable while a migration locks the db context.
+            var ethernaOidcClient = context.RequestServices.GetRequiredService<IEthernaOpenIdConnectClient>();
+            var roles = await ethernaOidcClient.TryGetRolesAsync();
+
+            return roles?.Contains(CommonConsts.AdministratorRoleName) == true;
         }
     }
 }

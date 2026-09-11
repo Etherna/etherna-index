@@ -12,24 +12,21 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
-using Etherna.MongODM.AspNetCore.UI.Auth.Filters;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
+using Hangfire;
 using System.Threading.Tasks;
 
-namespace Etherna.EthernaIndex.Configs.MongODM
+namespace Etherna.EthernaIndex.Services.Tasks
 {
-    public class AdminAuthFilter : IDashboardAuthFilter
+    /// <summary>
+    /// Reindexes all documents in place (existing indexes are kept) and then prunes orphan documents,
+    /// i.e. documents still indexed but no longer present in the primary store. Search stays available
+    /// throughout (zero-downtime), so this is the operation for routine reconciliation.
+    /// It does not apply index structure changes: for mapping/settings migrations or to rebuild a
+    /// corrupted index use <see cref="IRebuildElasticIndexesTask"/>.
+    /// </summary>
+    public interface IReindexElasticDocumentsTask
     {
-        public async Task<bool> AuthorizeAsync(HttpContext? context)
-        {
-            if (context?.User is null)
-                return false;
-            var authorizationService = context.RequestServices.GetService<IAuthorizationService>()!;
-
-            var result = await authorizationService.AuthorizeAsync(context.User, CommonConsts.RequireAdministratorRolePolicy);
-            return result.Succeeded;
-        }
+        [Queue(Queues.ELASTIC_SEARCH_MAINTENANCE)]
+        Task RunAsync();
     }
 }

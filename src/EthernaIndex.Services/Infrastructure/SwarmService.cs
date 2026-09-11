@@ -13,11 +13,10 @@
 // If not, see <https://www.gnu.org/licenses/>.
 
 #if DEBUG_MOCKUP_SWARM
+using Etherna.Sdk.Tools.Video.Models;
+using Etherna.SwarmSdk.Models;
 using System;
 using System.Collections.Generic;
-using Etherna.BeeNet.Models;
-using Etherna.BeeNet.Stores;
-using Etherna.Sdk.Tools.Video.Models;
 using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Services.Infrastructure
@@ -28,9 +27,7 @@ namespace Etherna.EthernaIndex.Services.Infrastructure
         private readonly Dictionary<SwarmReference, object> SwarmObjectMockups = new(); //reference->object
         
         // Methods.
-        public Task<PublishedVideoManifest> GetPublishedVideoManifestAsync(
-            SwarmReference manifestReference,
-            IReadOnlyChunkStore chunkStore) =>
+        public Task<PublishedVideoManifest> GetPublishedVideoManifestAsync(SwarmReference manifestReference) =>
             Task.FromResult((PublishedVideoManifest)SwarmObjectMockups[manifestReference]);
 
         public void SetupReferenceMockup(SwarmReference reference, object returnedObject) =>
@@ -46,7 +43,7 @@ namespace Etherna.EthernaIndex.Services.Infrastructure
                     "Test description",
                     TimeSpan.FromMinutes(10),
                     "Mocked sample video",
-                    Nethereum.Util.AddressUtil.ZERO_ADDRESS,
+                    EthAddress.Zero,
                     """{"test":"sample"}""",
                     [new VideoManifestVideoSource("sources/playlist.m3u8", VideoType.Hls, null, 100000000, [], SwarmReference.PlainZero)],
                     new VideoManifestImage(1.77f, "LEHV6nWB2yk8pyo0adR*.7kCMdnj", [new VideoManifestImageSource("myThumb.jpg", ImageType.Jpeg, 480, SwarmReference.PlainZero)]),
@@ -61,21 +58,30 @@ namespace Etherna.EthernaIndex.Services.Infrastructure
     }
 }
 #else
-using Etherna.Sdk.Tools.Video.Services;
-using Etherna.BeeNet.Models;
-using Etherna.BeeNet.Stores;
+using Etherna.Sdk.Tools.UniversalFiles;
 using Etherna.Sdk.Tools.Video.Models;
+using Etherna.Sdk.Tools.Video.Services;
+using Etherna.SwarmSdk;
+using Etherna.SwarmSdk.Models;
+using Etherna.SwarmSdk.Stores;
 using System.Threading.Tasks;
 
 namespace Etherna.EthernaIndex.Services.Infrastructure
 {
-    public class SwarmService(IVideoManifestService videoManifestService) : ISwarmService
+    public class SwarmService(
+        ISwarmClient beeClient,
+        IUFileProvider uFileProvider,
+        IVideoManifestService videoManifestService)
+        : ISwarmService
     {
         // Methods.
-        public Task<PublishedVideoManifest> GetPublishedVideoManifestAsync(
-            SwarmReference manifestReference,
-            IReadOnlyChunkStore chunkStore) =>
-            videoManifestService.GetPublishedVideoManifestAsync(manifestReference, chunkStore);
+        // Read the file contents whole from the gateway's bzz endpoint, through the file provider, and resolve
+        // the entry references chunk by chunk through the chunk store, with one mantaray walk per manifest.
+        public Task<PublishedVideoManifest> GetPublishedVideoManifestAsync(SwarmReference manifestReference) =>
+            videoManifestService.GetPublishedVideoManifestAsync(
+                manifestReference,
+                new SwarmClientChunkStore(beeClient),
+                uFileProvider);
     }
 }
 #endif

@@ -12,7 +12,6 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
-using Etherna.BeeNet.Models;
 using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV1;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2;
@@ -27,10 +26,12 @@ namespace Etherna.EthernaIndex.ElasticSearch.Documents
     {
         // Constructors.
         public VideoDocument(
-            Video video)
+            Video video,
+            IEnumerable<string> commentTexts)
         {
             ArgumentNullException.ThrowIfNull(video);
-            
+            ArgumentNullException.ThrowIfNull(commentTexts);
+
             if (video.LastValidManifest?.Metadata is null)
             {
                 var ex = new InvalidOperationException("Null last valid manifest");
@@ -39,7 +40,9 @@ namespace Etherna.EthernaIndex.ElasticSearch.Documents
             }
 
             Id = video.Id;
+            Comments = commentTexts.ToArray();
             CreationDateTime = video.LastValidManifest.CreationDateTime;
+            IndexingDateTime = DateTime.UtcNow;
             IsFrozen = video.IsFrozen;
             ManifestReference = video.LastValidManifest.ManifestReference.ToString();
             OwnerSharedInfoId = video.Owner.SharedInfoId;
@@ -90,9 +93,16 @@ namespace Etherna.EthernaIndex.ElasticSearch.Documents
 
         // Properties.
         public string Id { get; set; }
+        public IEnumerable<string> Comments { get; set; }
         public DateTime CreationDateTime { get; set; }
         public string Description { get; set; }
         public long Duration { get; set; }
+
+        /// <summary>
+        /// Instant when this document was last (re)indexed. Used by the full reindex task to
+        /// detect and remove orphan documents left behind by deletions in the primary store.
+        /// </summary>
+        public DateTime IndexingDateTime { get; set; }
         public bool IsFrozen { get; set; }
         public string ManifestReference { get; set; }
         public string OwnerSharedInfoId { get; set; }

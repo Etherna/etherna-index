@@ -12,11 +12,11 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
-using Etherna.BeeNet.Models;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.Domain.Models.UserAgg;
 using Etherna.MongoDB.Driver.Linq;
+using Etherna.SwarmSdk.Models;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -43,9 +43,6 @@ namespace Etherna.EthernaIndex.Services.Domain
                 // Create a new user.
                 user = new User(userSharedInfo);
                 await indexDbContext.Users.CreateAsync(user);
-
-                // Get again, because of https://etherna.atlassian.net/browse/MODM-83
-                user = await indexDbContext.Users.FindOneAsync(user.Id);
             }
 
             return (user, userSharedInfo);

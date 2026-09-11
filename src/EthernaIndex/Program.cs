@@ -12,7 +12,6 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
-using Duende.AccessTokenManagement.OpenIdConnect;
 using Elastic.Ingest.Elasticsearch;
 using Elastic.Ingest.Elasticsearch.DataStreams;
 using Elastic.Serilog.Sinks;
@@ -21,13 +20,13 @@ using Etherna.ACR.Exceptions;
 using Etherna.ACR.Middlewares.DebugPages;
 using Etherna.Authentication;
 using Etherna.Authentication.AspNetCore;
-using Etherna.BeeNet.JsonConverters;
+using Etherna.Authentication.ClientCredentials;
 using Etherna.DomainEvents;
 using Etherna.EthernaIndex.Areas.Api;
 using Etherna.EthernaIndex.Configs;
 using Etherna.EthernaIndex.Configs.Authorization;
-using Etherna.EthernaIndex.Configs.MongODM;
 using Etherna.EthernaIndex.Configs.OpenApi;
+using Etherna.EthernaIndex.Configs.Scrinium;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.ElasticSearch;
 using Etherna.EthernaIndex.Extensions;
@@ -35,9 +34,11 @@ using Etherna.EthernaIndex.Persistence;
 using Etherna.EthernaIndex.Services;
 using Etherna.EthernaIndex.Services.Settings;
 using Etherna.EthernaIndex.Services.Tasks;
-using Etherna.MongODM;
-using Etherna.MongODM.AspNetCore.UI;
-using Etherna.MongODM.Core.Options;
+using Etherna.Scrinium.AspNetCore.Extensions;
+using Etherna.Scrinium.AspNetCore.UI;
+using Etherna.Scrinium.Core.Options;
+using Etherna.Scrinium.Extensions;
+using Etherna.SwarmSdk.JsonConverters;
 using Hangfire;
 using Hangfire.Mongo;
 using Hangfire.Mongo.Migration.Strategies;
@@ -55,7 +56,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 using Scalar.AspNetCore;
 using Serilog;
-using Serilog.Exceptions;
+using Serilog.Debugging;
 using System;
 using System.Globalization;
 using System.Linq;
@@ -64,7 +65,7 @@ using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-using DashboardOptions = Etherna.MongODM.AspNetCore.UI.DashboardOptions;
+using DashboardOptions = Etherna.Scrinium.AspNetCore.UI.DashboardOptions;
 using IPNetwork = System.Net.IPNetwork;
 
 namespace Etherna.EthernaIndex
@@ -85,6 +86,12 @@ namespace Etherna.EthernaIndex
 
                 // Configs.
                 builder.Host.UseSerilog();
+                builder.Host.UseDefaultServiceProvider(options =>
+                {
+                    // Db contexts are scoped: a singleton capturing one would silently pin its identity map
+                    // for the process lifetime, so validate scopes in every environment.
+                    options.ValidateScopes = true;
+                });
 
                 ConfigureServices(builder);
 
@@ -127,9 +134,13 @@ namespace Etherna.EthernaIndex
             var assemblyName = Assembly.GetExecutingAssembly().GetName().Name!.ToLower(CultureInfo.InvariantCulture).Replace(".", "-", StringComparison.InvariantCulture);
             var envName = env.ToLower(CultureInfo.InvariantCulture).Replace(".", "-", StringComparison.InvariantCulture);
 
+            // The Elasticsearch sink reports its own failures (export exceptions, documents the cluster rejects)
+            // only to Serilog's self log: show them on the console, or a dropped event leaves no trace.
+            SelfLog.Enable(Console.Error);
+
             Log.Logger = new LoggerConfiguration()
                 .Enrich.FromLogContext()
-                .Enrich.WithExceptionDetails()
+                .Enrich.WithIndexExceptionDetails()
                 .Enrich.WithMachineName()
                 .WriteTo.Debug(formatProvider: CultureInfo.InvariantCulture)
                 .WriteTo.Console(formatProvider: CultureInfo.InvariantCulture)
@@ -283,6 +294,7 @@ namespace Etherna.EthernaIndex
                     options.SaveTokens = true;
 
                     options.Scope.Add("ether_accounts");
+                    options.Scope.Add("offline_access"); //permit user access token refresh
                     options.Scope.Add("role");
 
                     // Handle unauthorized call on api with 401 response. For users not logged in.
@@ -332,7 +344,7 @@ namespace Etherna.EthernaIndex
                 {
                     policy.AuthenticationSchemes = [CommonConsts.UserAuthenticationJwtScheme];
                     policy.RequireAuthenticatedUser();
-                    policy.RequireClaim("scope", EthernaScopes.UserApiIndexScopeName);
+                    policy.RequireClaim("scope", EthernaScopes.UserApiIndex);
                     policy.AddRequirements(new DenyBannedAuthorizationRequirement());
                 });
             });
@@ -342,11 +354,27 @@ namespace Etherna.EthernaIndex
             services.AddScoped<IAuthorizationHandler, RequireRoleAuthorizationHandler>();
 
             // Configure token management.
-            services.AddOpenIdConnectAccessTokenManagement();
+            //client credentials application authenticating the Index to the other Etherna services.
+            //currently used for authenticated Gateway downloads: acquires a token (aud userApi, scope
+            //userApi.gateway) from the SSO and attaches it as a bearer token on the named HttpClient
+            //consumed by the SwarmClient, so non-offered content can be indexed.
+            services.AddEthernaClientCredentials(
+                    new Uri(config["SsoServer:BaseUrl"] ?? throw new ServiceConfigurationException()),
+                    requireHttps: !allowUnsafeAuthorityConnection)
+                .AddClient(
+                    "ethernaServicesTokenClient",
+                    config["SsoServer:Clients:Services:ClientId"] ?? throw new ServiceConfigurationException(),
+                    config["SsoServer:Clients:Services:Secret"] ?? throw new ServiceConfigurationException(),
+                    [EthernaScopes.UserApiGateway],
+                    CommonConsts.GatewayHttpClientName,
+                    httpClient => httpClient.Timeout = TimeSpan.FromMinutes(10)); //match SwarmClient's default timeout
 
             // Configure Hangfire server.
             if (!env.IsStaging()) //don't start server in staging
             {
+                //open the domain events execution context in each job, like Scrinium does for its own
+                GlobalJobFilters.Filters.Add(new Configs.Hangfire.DomainEventsExecutionContextFilter());
+
                 //register hangfire server
                 services.AddHangfireServer(options =>
                 {
@@ -368,7 +396,7 @@ namespace Etherna.EthernaIndex
             services.AddScoped<IIndexApiHandler, IndexApiHandler>();
 
             // Configure persistence.
-            services.AddMongODMWithHangfire(configureHangfireOptions: options =>
+            services.AddScriniumWithHangfire(configureHangfireOptions: options =>
             {
                 options.ConnectionString = config["ConnectionStrings:HangfireDb"] ?? throw new ServiceConfigurationException();
                 options.StorageOptions = new MongoStorageOptions
@@ -379,7 +407,7 @@ namespace Etherna.EthernaIndex
                         BackupStrategy = new CollectionMongoBackupStrategy()
                     }
                 };
-            }, configureMongODMOptions: options =>
+            }, configureScriniumOptions: options =>
             {
                 options.DbMaintenanceQueueName = Queues.DB_MAINTENANCE;
             })
@@ -393,15 +421,23 @@ namespace Etherna.EthernaIndex
                 options =>
                 {
                     options.ConnectionString = config["ConnectionStrings:IndexDb"] ?? throw new ServiceConfigurationException();
+
+                    //a summary member read without a preload is a defect, not a query
+                    options.ImplicitLazyLoad = ReactionMode.Throw;
                 })
 
                 .AddDbContext<ISharedDbContext, SharedDbContext>(options =>
                 {
                     options.ConnectionString = config["ConnectionStrings:ServiceSharedDb"] ?? throw new ServiceConfigurationException();
+                    options.ImplicitLazyLoad = ReactionMode.Throw;
+
+                    //the SSO owns this database: any write, index or migration from here is denied
+                    options.IsReadOnly = true;
                 });
 
-            services.AddMongODMAdminDashboard(new DashboardOptions
+            services.AddScriniumAdminDashboard(new DashboardOptions
             {
+                AppPath = "/" + CommonConsts.AdminArea,
                 AuthFilters = [new AdminAuthFilter()],
                 BasePath = CommonConsts.DatabaseAdminPath
             });
@@ -409,14 +445,14 @@ namespace Etherna.EthernaIndex
             // Configure infrastructure.
             services.AddElasticSearchServices(opts =>
             {
-                opts.IndexesPrefix = "etherna-mainindex-";
+                opts.IndexesPrefix = "index-main-";
                 opts.Urls = config.GetSection("Elastic:Urls").Get<string[]>() ?? throw new ServiceConfigurationException();
                 opts.Username = config["Elastic:Username"];
                 opts.Password = config["Elastic:Password"];
             });
 
             // Configure domain services.
-            services.AddDomainServices(config);
+            services.AddDomainServices(config, CommonConsts.GatewayHttpClientName);
         }
 
         private static void ConfigureApplication(WebApplication app)
@@ -438,23 +474,7 @@ namespace Etherna.EthernaIndex
                 app.UseHsts();
             }
 
-            app.UseCors(builder =>
-            {
-                if (env.IsDevelopment())
-                {
-                    builder.SetIsOriginAllowed(_ => true)
-                           .AllowAnyHeader()
-                           .AllowAnyMethod()
-                           .AllowCredentials();
-                }
-                else
-                {
-                    builder.WithOrigins("https://etherna.io")
-                           .AllowAnyHeader()
-                           .AllowAnyMethod()
-                           .AllowCredentials();
-                }
-            });
+            app.UseCors(builder => builder.ConfigureIndexPolicy(config, env));
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
@@ -475,6 +495,7 @@ namespace Etherna.EthernaIndex
                 CommonConsts.HangfireAdminPath,
                 new Hangfire.DashboardOptions
                 {
+                    AppPath = "/" + CommonConsts.AdminArea,
                     Authorization = [new Configs.Hangfire.AdminAuthFilter()]
                 });
 

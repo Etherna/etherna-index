@@ -16,7 +16,7 @@ using Etherna.DomainEvents;
 using Etherna.DomainEvents.Events;
 using Etherna.EthernaIndex.Domain.Models;
 using Etherna.MongoDB.Driver;
-using Etherna.MongODM.Core.Repositories;
+using Etherna.Scrinium.Core.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Linq;

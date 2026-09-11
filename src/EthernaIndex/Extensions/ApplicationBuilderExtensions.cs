@@ -26,8 +26,9 @@ namespace Etherna.EthernaIndex.Extensions
         {
             ArgumentNullException.ThrowIfNull(builder);
 
-            var serviceProvider = builder.ApplicationServices;
-            var service = serviceProvider.GetRequiredService<IElasticSearchService>();
+            // The service depends on a scoped db context: resolve it from a scope, not from the root provider.
+            using var scope = builder.ApplicationServices.CreateScope();
+            var service = scope.ServiceProvider.GetRequiredService<IElasticSearchService>();
 
             service.CreateIndexesAsync().Wait();
 

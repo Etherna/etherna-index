@@ -13,25 +13,26 @@
 // If not, see <https://www.gnu.org/licenses/>.
 
 using Etherna.EthernaIndex.Domain.Models;
-using Etherna.MongODM.Core;
-using Etherna.MongODM.Core.Extensions;
-using Etherna.MongODM.Core.Serialization;
+using Etherna.Scrinium.Core;
+using Etherna.Scrinium.Core.Extensions;
+using Etherna.Scrinium.Core.Options;
+using Etherna.Scrinium.Core.Serialization;
 
 namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
 {
     internal sealed class VoteMap : IModelMapsCollector
     {
-        public void Register(IDbContext dbContext)
+        public void Register(IDbContextEngine dbContextEngine)
         {
-            dbContext.MapRegistry.AddModelMap<VideoVote>(
+            dbContextEngine.MapRegistry.AddModelMap<VideoVote>(
                 "624955bf-8c09-427f-93da-fc6ddb9668a6", //dev (pre v0.3.0), published for WAM event
                 mm =>
                 {
                     mm.AutoMap();
 
                     // Set members with custom serializers.
-                    mm.SetMemberSerializer(v => v.Owner, UserMap.InformationSerializer(dbContext));
-                    mm.SetMemberSerializer(v => v.Video, VideoMap.ReferenceSerializer(dbContext));
+                    mm.SetMemberSerializer(v => v.Owner, UserMap.InformationSerializer(dbContextEngine));
+                    mm.SetMemberSerializer(v => v.Video, VideoMap.ReferenceSerializer(dbContextEngine, OriginDeleteMode.DeleteReferencingDocument));
                 });
         }
     }

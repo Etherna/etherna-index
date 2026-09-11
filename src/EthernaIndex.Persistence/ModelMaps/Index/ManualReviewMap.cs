@@ -13,35 +13,37 @@
 // If not, see <https://www.gnu.org/licenses/>.
 
 using Etherna.EthernaIndex.Domain.Models;
-using Etherna.MongODM.Core;
-using Etherna.MongODM.Core.Extensions;
-using Etherna.MongODM.Core.Serialization;
+using Etherna.Scrinium.Core;
+using Etherna.Scrinium.Core.Extensions;
+using Etherna.Scrinium.Core.Options;
+using Etherna.Scrinium.Core.Serialization;
 
 namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
 {
     internal sealed class ManualReviewMap : IModelMapsCollector
     {
-        public void Register(IDbContext dbContext)
+        public void Register(IDbContextEngine dbContextEngine)
         {
             // register class maps.
-            dbContext.MapRegistry.AddModelMap<ManualReviewBase>(
+            dbContextEngine.MapRegistry.AddModelMap<ManualReviewBase>(
                 "9f72b89d-ce18-417f-a2c2-bc05de28ef79", //v0.3.0
                 mm =>
                 {
                     mm.AutoMap();
 
                     // Set members with custom serializers.
-                    mm.SetMemberSerializer(r => r.Author, UserMap.InformationSerializer(dbContext));
+                    mm.SetMemberSerializer(r => r.Author, UserMap.InformationSerializer(dbContextEngine));
                 });
 
-            dbContext.MapRegistry.AddModelMap<ManualVideoReview>(
+            dbContextEngine.MapRegistry.AddModelMap<ManualVideoReview>(
                 "e3e734ab-d845-4ec2-8920-68956eba950d", //v0.3.0
                 mm =>
                 {
                     mm.AutoMap();
 
                     // Set members with custom serializers.
-                    mm.SetMemberSerializer(r => r.Video, VideoMap.ReferenceSerializer(dbContext));
+                    //moderation records survive the deletion of the reviewed video
+                    mm.SetMemberSerializer(r => r.Video, VideoMap.ReferenceSerializer(dbContextEngine, OriginDeleteMode.KeepReference));
                 });
         }
     }
