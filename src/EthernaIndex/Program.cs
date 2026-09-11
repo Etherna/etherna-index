@@ -22,6 +22,7 @@ using Etherna.Authentication;
 using Etherna.Authentication.AspNetCore;
 using Etherna.Authentication.ClientCredentials;
 using Etherna.DomainEvents;
+using Etherna.EthernaIndex.Areas.Admin.Services;
 using Etherna.EthernaIndex.Areas.Api;
 using Etherna.EthernaIndex.Configs;
 using Etherna.EthernaIndex.Configs.Authorization;
@@ -394,6 +395,9 @@ namespace Etherna.EthernaIndex
             
             // Configure api handler.
             services.AddScoped<IIndexApiHandler, IndexApiHandler>();
+
+            // Configure admin diagnostics.
+            services.AddScoped<IExternalServiceChecker, ExternalServiceChecker>();
 
             // Configure persistence.
             services.AddScriniumWithHangfire(configureHangfireOptions: options =>

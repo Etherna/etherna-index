@@ -1,0 +1,82 @@
+@page
+@using Etherna.EthernaIndex.Areas.Admin.Services
+@model Etherna.EthernaIndex.Areas.Admin.Pages.Services.IndexModel
+@{
+    ViewData["Title"] = "External services";
+}
+
+@functions {
+    static string BadgeClass(ExternalServiceProbe probe) => probe.Succeeded ? "badge-success" : "badge-danger";
+    static string BadgeText(ExternalServiceProbe probe) => probe.Succeeded ? "OK" : "FAILED";
+}
+
+<div class="row">
+    <div class="col-12 mb-3 text-center mt-1">
+        <h2>@ViewData["Title"]</h2>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12 mb-3">
+        <span class="mr-3">Checked at @Model.CheckedAt.ToString("u", System.Globalization.CultureInfo.InvariantCulture)</span>
+        <span class="mr-2">Refresh:</span>
+        @foreach (var seconds in Etherna.EthernaIndex.Areas.Admin.Pages.Services.IndexModel.SelectableRefreshSeconds)
+        {
+            <a class="btn btn-sm @(seconds == Model.RefreshSeconds ? "btn-primary" : "btn-outline-primary") mr-1"
+               asp-route-refresh="@seconds">@(seconds == 0 ? "off" : seconds + "s")</a>
+        }
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Service</th>
+                        <th>Address</th>
+                        <th>Reachability</th>
+                        <th>Authentication</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var status in Model.ServiceStatuses)
+                    {
+                        <tr>
+                            <td>@status.Name</td>
+                            <td><code>@status.Address</code></td>
+                            @foreach (var probe in new[] { status.Reachability, status.Authentication })
+                            {
+                                <td>
+                                    <span class="badge @BadgeClass(probe)">@BadgeText(probe)</span>
+                                    <div><small class="text-muted">@probe.Description</small></div>
+                                    @if (probe.Succeeded)
+                                    {
+                                        <div>
+                                            <small>@probe.Detail</small>
+                                            <small class="text-muted">(@probe.Duration.TotalMilliseconds.ToString("0", System.Globalization.CultureInfo.InvariantCulture) ms)</small>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div><small class="text-danger">@probe.Error</small></div>
+                                    }
+                                </td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @if (Model.RefreshSeconds > 0)
+    {
+        <script>
+            setTimeout(function () { location.reload(); }, @(Model.RefreshSeconds * 1000));
+        </script>
+    }
+}
