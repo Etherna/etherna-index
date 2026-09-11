@@ -12,7 +12,7 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
-using Etherna.MongODM.Core.Attributes;
+using Etherna.EthernaIndex.Domain.Events;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -65,21 +65,16 @@ namespace Etherna.EthernaIndex.Domain.Models
         public virtual Video Video { get; protected set; }
 
         // Methods.
-        [PropertyAlterer(nameof(LastText))]
-        [PropertyAlterer(nameof(LastUpdateDateTime))]
-        [PropertyAlterer(nameof(TextHistory))]
         public virtual void EditByAuthor(string text)
         {
             if (!IsEditable)
                 throw new InvalidOperationException();
 
             _textHistory.Add(DateTime.UtcNow, text);
+
+            AddEvent(new CommentTextUpdatedEvent(this));
         }
         
-        [PropertyAlterer(nameof(IsFrozen))]
-        [PropertyAlterer(nameof(LastText))]
-        [PropertyAlterer(nameof(LastUpdateDateTime))]
-        [PropertyAlterer(nameof(TextHistory))]
         public virtual void SetAsDeletedByAuthor()
         {
             if (IsFrozen)
@@ -88,12 +83,10 @@ namespace Etherna.EthernaIndex.Domain.Models
             _textHistory.Clear();
             _textHistory.Add(DateTime.UtcNow, RemovedByAuthorReplaceText);
             IsFrozen = true;
+
+            AddEvent(new CommentTextUpdatedEvent(this));
         }
 
-        [PropertyAlterer(nameof(IsFrozen))]
-        [PropertyAlterer(nameof(LastText))]
-        [PropertyAlterer(nameof(LastUpdateDateTime))]
-        [PropertyAlterer(nameof(TextHistory))]
         public virtual void SetAsDeletedByModerator()
         {
             if (IsFrozen)
@@ -102,6 +95,8 @@ namespace Etherna.EthernaIndex.Domain.Models
             _textHistory.Clear();
             _textHistory.Add(DateTime.UtcNow, RemovedByModeratorReplaceText);
             IsFrozen = true;
+
+            AddEvent(new CommentTextUpdatedEvent(this));
         }
     }
 }

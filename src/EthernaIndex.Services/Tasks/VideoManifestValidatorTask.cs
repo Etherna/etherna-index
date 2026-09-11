@@ -12,22 +12,22 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
-using Etherna.BeeNet;
-using Etherna.BeeNet.Stores;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg.ManifestV2;
 using Etherna.EthernaIndex.Services.Extensions;
 using Etherna.EthernaIndex.Services.Infrastructure;
+using Etherna.Sdk.Tools.Video.Models;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ValidationError = Etherna.EthernaIndex.Domain.Models.VideoAgg.ValidationError;
 
 namespace Etherna.EthernaIndex.Services.Tasks
 {
     public class VideoManifestValidatorTask(
-        ISwarmClient beeClient,
         IIndexDbContext indexDbContext,
         ILogger<VideoManifestValidatorTask> logger,
         ISwarmService swarmService)
@@ -38,24 +38,53 @@ namespace Etherna.EthernaIndex.Services.Tasks
         {
             logger.VideoManifestValidationStarted(videoId, manifestReference);
 
-            var video = await indexDbContext.Videos.FindOneAsync(videoId);
-
             VideoManifestMetadataBase videoMetadata;
             var validationErrors = new List<ValidationError>();
 
-            // Get manifest.
-            var videoManifest = await indexDbContext.VideoManifests.FindOneAsync(u => u.ManifestReference == manifestReference);
-
-            // Get video manifest.
-            var chunkStore = new SwarmClientChunkStore(beeClient);
+            // Get published video manifest.
+            /* Fetch it from swarm before reading models from db: the fetch can be slow, and the models
+             * read after it are the freshest when the validation outcome is saved. */
 #if DEBUG_MOCKUP_SWARM
             swarmService.SetupNewPublishedVideoManifestMockup(manifestReference);
 #endif
-            var publishedVideoManifest = await swarmService.GetPublishedVideoManifestAsync(manifestReference, chunkStore);
+            var publishedVideoManifest = await swarmService.GetPublishedVideoManifestAsync(manifestReference);
+
+            // Get video with manifest.
+            var video = await indexDbContext.Videos.FindOneAsync(videoId);
+
+            // The list items are id only summaries: preload what the lookup and the validation outcome read.
+            await indexDbContext.LoadValuesAsync(
+                video.VideoManifests,
+                m => m.CreationDateTime,
+                m => m.IsValid,
+                m => m.ManifestReference);
+
+            /* Resolve the manifest from the video's own manifest list, where documents are loaded by id.
+             * A global query by reference could resolve a different document with the same reference,
+             * not owned by this video. */
+            var videoManifest = video.VideoManifests.FirstOrDefault(m => m.ManifestReference == manifestReference) ??
+                throw new InvalidOperationException($"Video {videoId} doesn't own any manifest with reference {manifestReference}");
 
             if (publishedVideoManifest.Manifest is not null)
             {
+                //legacy v1 manifests use direct swarm references as sources, and can't be
+                //represented with paths relative to the manifest root. Reject them explicitly,
+                //or they would be stored as v2 metadata with unresolvable paths (EID-252).
                 //assume is manifest v2, until https://etherna.atlassian.net/browse/EID-240
+                if (publishedVideoManifest.SchemaVersion is { Major: < 2 })
+                {
+                    validationErrors.Add(new ValidationError(
+                        ValidationErrorType.UnsupportedManifestVersion,
+                        $"Manifest schema v{publishedVideoManifest.SchemaVersion} is not supported"));
+
+                    video.FailedManifestValidation(videoManifest, validationErrors);
+                    await indexDbContext.SaveChangesAsync().ConfigureAwait(false);
+
+                    logger.VideoManifestValidationFailedWithErrors(videoId, manifestReference, null);
+
+                    return;
+                }
+
                 videoMetadata = new VideoManifestMetadataV2(
                     publishedVideoManifest.Manifest.Title,
                     publishedVideoManifest.Manifest.Description,

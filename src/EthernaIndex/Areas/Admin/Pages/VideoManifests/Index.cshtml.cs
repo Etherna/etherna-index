@@ -12,8 +12,8 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
-using Etherna.BeeNet.Models;
 using Etherna.EthernaIndex.Domain;
+using Etherna.SwarmSdk.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System;
@@ -39,7 +39,7 @@ namespace Etherna.EthernaIndex.Areas.Admin.Pages.VideoManifests
         public int CurrentPage { get; private set; }
         public string ErrorMessage { get; private set; } = "";
         public long MaxPage { get; private set; }
-        public IEnumerable<VideoManifestDto> VideoManifests { get; set; } = default!;
+        public IEnumerable<VideoManifestDto> VideoManifests { get; set; } = null!;
 
         // Methods.
         public async Task<IActionResult> OnGetAsync(

@@ -12,10 +12,9 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
-using Etherna.BeeNet.Models;
 using Etherna.EthernaIndex.Domain.Events;
 using Etherna.EthernaIndex.Domain.Models.VideoAgg;
-using Etherna.MongODM.Core.Attributes;
+using Etherna.SwarmSdk.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -63,8 +62,6 @@ namespace Etherna.EthernaIndex.Domain.Models
         }
 
         // Methods.
-        [PropertyAlterer(nameof(LastValidManifest))]
-        [PropertyAlterer(nameof(VideoManifests))]
         public virtual void AddManifest(VideoManifest videoManifest)
         {
             ArgumentNullException.ThrowIfNull(videoManifest);
@@ -83,7 +80,6 @@ namespace Etherna.EthernaIndex.Domain.Models
             UpdateLastValidManifest();
         }
 
-        [PropertyAlterer(nameof(LastValidManifest))]
         public virtual void FailedManifestValidation(
             VideoManifest manifest,
             IEnumerable<ValidationError> validationErrors)
@@ -103,8 +99,6 @@ namespace Etherna.EthernaIndex.Domain.Models
             UpdateLastValidManifest();
         }
 
-        [PropertyAlterer(nameof(LastValidManifest))]
-        [PropertyAlterer(nameof(VideoManifests))]
         public virtual bool RemoveManifest(VideoManifest videoManifest)
         {
             ArgumentNullException.ThrowIfNull(videoManifest);
@@ -119,9 +113,6 @@ namespace Etherna.EthernaIndex.Domain.Models
             return result;
         }
 
-        [PropertyAlterer(nameof(IsFrozen))]
-        [PropertyAlterer(nameof(LastValidManifest))]
-        [PropertyAlterer(nameof(VideoManifests))]
         public virtual void SetAsUnsuitable()
         {
             IsFrozen = true;
@@ -130,7 +121,6 @@ namespace Etherna.EthernaIndex.Domain.Models
             AddEvent(new VideoModeratedEvent(this));
         }
 
-        [PropertyAlterer(nameof(LastValidManifest))]
         public virtual void SucceededManifestValidation(
             VideoManifest manifest,
             VideoManifestMetadataBase metadata)

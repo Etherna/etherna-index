@@ -12,8 +12,10 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
-using Etherna.BeeNet.Exceptions;
-using Etherna.MongODM.Core.Exceptions;
+using Etherna.EthernaIndex.Services.Exceptions;
+using Etherna.MongoDB.Driver;
+using Etherna.Scrinium.Core.Exceptions;
+using Etherna.SwarmSdk.Exceptions;
 using Microsoft.AspNetCore.Http;
 using Serilog;
 using System;
@@ -44,7 +46,7 @@ namespace Etherna.EthernaIndex.Areas.Api
                     // Error code 400.
                     case ArgumentException:
                     case FormatException:
-                    case MongodmInvalidEntityTypeException:
+                    case ScriniumInvalidEntityTypeException:
                         return ErrorResults.GetBadRequestErrorResult();
 
                     // Error code 401.
@@ -52,13 +54,22 @@ namespace Etherna.EthernaIndex.Areas.Api
                         return ErrorResults.GetUnauthorizedErrorResult();
 
                     // Error code 404.
-                    case BeeNetApiException { StatusCode: 404 }:
+                    case SwarmSdkApiException { StatusCode: 404 }:
                     case KeyNotFoundException:
-                    case MongodmEntityNotFoundException:
+                    case ScriniumEntityNotFoundException:
                         return ErrorResults.GetNotFoundErrorResult();
+
+                    // Error code 409.
+                    case DuplicatedManifestReferenceException:
+                        return ErrorResults.GetErrorResult(StatusCodes.Status409Conflict, e.Message);
+                    /* A transaction that lost a write conflict with a concurrent one, after the
+                     * retries of the db context: the request is legitimate and the client can
+                     * repeat it, so answer a conflict instead of a server error. */
+                    case MongoException mongoException when mongoException.HasErrorLabel("TransientTransactionError"):
+                        return ErrorResults.GetErrorResult(StatusCodes.Status409Conflict, "Concurrent write conflict, retry the request");
                     
                     // Error code 503.
-                    case BeeNetApiException:
+                    case SwarmSdkApiException:
                         return ErrorResults.GetServiceUnavailableErrorResult();
                         
                     // Error code 500.

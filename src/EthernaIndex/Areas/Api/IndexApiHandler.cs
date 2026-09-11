@@ -13,7 +13,6 @@
 // If not, see <https://www.gnu.org/licenses/>.
 
 using Etherna.Authentication;
-using Etherna.BeeNet.Models;
 using Etherna.EthernaIndex.Areas.Api.DtoModels;
 using Etherna.EthernaIndex.Configs;
 using Etherna.EthernaIndex.Domain;
@@ -26,6 +25,7 @@ using Etherna.EthernaIndex.Services.Exceptions;
 using Etherna.EthernaIndex.Services.Extensions;
 using Etherna.EthernaIndex.Services.Tasks;
 using Etherna.MongoDB.Driver.Linq;
+using Etherna.SwarmSdk.Models;
 using Hangfire;
 using Hangfire.States;
 using Microsoft.AspNetCore.Authorization;
@@ -140,7 +140,6 @@ namespace Etherna.EthernaIndex.Areas.Api
                 await dbContext.VideoManifests.CreateAsync(videoManifest);
 
                 // Add manifest to video.
-                video = await dbContext.Videos.FindOneAsync(video.Id); //find again because needs to be a proxy for update (see: MODM-83)
                 video.AddManifest(videoManifest);
                 await dbContext.SaveChangesAsync();
 
@@ -196,6 +195,7 @@ namespace Etherna.EthernaIndex.Areas.Api
                 var video = await dbContext.Videos.FindOneAsync(v => v.Id == id);
 
                 // Get VideoManifest.
+                await LoadLastValidManifestsAsync([video]);
                 var lastValidManifest = video.LastValidManifest;
 
                 // Get Owner User.
@@ -225,6 +225,7 @@ namespace Etherna.EthernaIndex.Areas.Api
                 var video = await dbContext.Videos.FindOneAsync(v => v.Id == id);
 
                 // Get VideoManifest.
+                await LoadLastValidManifestsAsync([video]);
                 var lastValidManifest = video.LastValidManifest;
 
                 // Get Owner User.
@@ -307,6 +308,7 @@ namespace Etherna.EthernaIndex.Areas.Api
             ExceptionHandler.RunAsync(async () =>
             {
                 var video = await dbContext.Videos.FindOneAsync(v => v.Id == id);
+                await LoadVideoManifestsAsync([video]);
 
                 foreach (var manifest in video.VideoManifests)
                 {
@@ -360,6 +362,8 @@ namespace Etherna.EthernaIndex.Areas.Api
                     elements => elements.Where(v => ids.Contains(v.Id))
                         .ToListAsync());
 
+                await LoadVideoManifestsAsync(videos);
+
                 logger.GetBulkVideoValidationStatusByIds(ids);
 
                 return Results.Json(
@@ -373,6 +377,8 @@ namespace Etherna.EthernaIndex.Areas.Api
                 var videos = await dbContext.Videos.QueryElementsAsync(
                     elements => elements.Where(v => ids.Contains(v.Id))
                         .ToListAsync());
+
+                await LoadVideoManifestsAsync(videos);
 
                 logger.GetBulkVideoValidationStatusByIds(ids);
 
@@ -414,6 +420,8 @@ namespace Etherna.EthernaIndex.Areas.Api
                     take,
                     true);
 
+                await LoadLastValidManifestsAsync(paginatedVideos.Elements);
+
                 // Get user info from video selected
                 var videoPreviews = new List<VideoPreviewDto>();
                 foreach (var video in paginatedVideos.Elements)
@@ -446,6 +454,8 @@ namespace Etherna.EthernaIndex.Areas.Api
                     take,
                     true);
 
+                await LoadLastValidManifestsAsync(paginatedVideos.Elements);
+
                 // Get user info from video selected
                 var videoDtos = new List<VideoDto>();
                 foreach (var video in paginatedVideos.Elements)
@@ -475,6 +485,8 @@ namespace Etherna.EthernaIndex.Areas.Api
                     page,
                     take,
                     true);
+
+                await LoadLastValidManifestsAsync(paginatedVideos.Elements);
 
                 // Get user info from video selected
                 var videoDtos = new List<VideoDto>();
@@ -594,6 +606,8 @@ namespace Etherna.EthernaIndex.Areas.Api
                     take,
                     true);
 
+                await LoadLastValidManifestsAsync(paginatedVideos.Elements);
+
                 logger.GetUserVideosPaginated(address, page, take);
 
                 return Results.Json(
@@ -621,6 +635,8 @@ namespace Etherna.EthernaIndex.Areas.Api
                     take,
                     true);
 
+                await LoadLastValidManifestsAsync(paginatedVideos.Elements);
+
                 logger.GetUserVideosPaginated(address, page, take);
 
                 return Results.Json(
@@ -644,6 +660,8 @@ namespace Etherna.EthernaIndex.Areas.Api
                     take,
                     true);
 
+                await LoadLastValidManifestsAsync(paginatedVideos.Elements);
+
                 logger.GetUserVideosPaginated(address, page, take);
 
                 return Results.Json(
@@ -658,6 +676,8 @@ namespace Etherna.EthernaIndex.Areas.Api
             ExceptionHandler.RunAsync(async () =>
             {
                 var video = await dbContext.Videos.FindOneAsync(i => i.Id == id);
+
+                await LoadVideoManifestsAsync([video]);
 
                 logger.GetVideoValidationStatusById(id);
 
@@ -683,6 +703,8 @@ namespace Etherna.EthernaIndex.Areas.Api
             {
                 var video = await dbContext.Videos.FindOneAsync(i => i.Id == id);
 
+                await LoadVideoManifestsAsync([video]);
+
                 logger.GetVideoValidationStatusById(id);
 
                 return Results.Json(
@@ -694,6 +716,8 @@ namespace Etherna.EthernaIndex.Areas.Api
             ExceptionHandler.RunAsync(async () =>
             {
                 var video = await dbContext.Videos.FindOneAsync(i => i.Id == id);
+
+                await LoadVideoManifestsAsync([video]);
 
                 logger.GetVideoValidationStatusById(id);
 
@@ -731,11 +755,19 @@ namespace Etherna.EthernaIndex.Areas.Api
                 return Task.FromResult(Results.Ok());
             });
 
+        public Task<IResult> ReindexElasticDocuments() =>
+            ExceptionHandler.RunAsync(() =>
+            {
+                backgroundJobClient.Enqueue<IReindexElasticDocumentsTask>(t => t.RunAsync());
+                return Task.FromResult(Results.Ok());
+            });
+
         public Task<IResult> ReportVideoAsync(string id, SwarmReference reference, string description) =>
             ExceptionHandler.RunAsync(async () =>
             {
                 // Get video and manifest.
                 var video = await dbContext.Videos.FindOneAsync(id);
+                await LoadVideoManifestsAsync([video]);
                 var manifest = video.VideoManifests.First(m => m.ManifestReference == reference);
 
                 // Get user info.
@@ -926,6 +958,28 @@ namespace Etherna.EthernaIndex.Areas.Api
                 paginatedComments.TotalElements);
         }
         
+        /// <summary>
+        /// Preload the last valid manifest metadata of the videos: the summary carries only
+        /// its id, validity, reference and creation date.
+        /// </summary>
+        private Task LoadLastValidManifestsAsync(IEnumerable<Video> videos) =>
+            dbContext.LoadValuesAsync(
+                videos.Select(v => v.LastValidManifest).OfType<VideoManifest>(),
+                m => m.Metadata);
+
+        /// <summary>
+        /// Preload the manifests of the videos: the list items are id only summaries, and both the
+        /// status DTOs and the aggregate methods read their members.
+        /// </summary>
+        private Task LoadVideoManifestsAsync(IEnumerable<Video> videos) =>
+            dbContext.LoadValuesAsync(
+                videos.SelectMany(v => v.VideoManifests),
+                m => m.CreationDateTime,
+                m => m.IsValid,
+                m => m.ManifestReference,
+                m => m.ValidationErrors,
+                m => m.ValidationTime);
+
         private async Task<VideoManifest> UpdateVideoHelperAsync(string id, SwarmReference newReference)
         {
             // Get data.
@@ -938,12 +992,24 @@ namespace Etherna.EthernaIndex.Areas.Api
             if (video.Owner.Id != currentUser.Id)
                 throw new UnauthorizedAccessException("User is not owner of the video");
 
-            // Create videoManifest.
-            var videoManifest = new VideoManifest(newReference);
-            await dbContext.VideoManifests.CreateAsync(videoManifest);
+            // Verify the reference is not already used by an existing manifest.
+            var existingManifest = await dbContext.VideoManifests.TryFindOneAsync(m => m.ManifestReference == newReference);
+            if (existingManifest is not null)
+            {
+                // Act as an idempotent call if the manifest is already owned by this video.
+                if (video.VideoManifests.Any(vm => vm.Id == existingManifest.Id))
+                    return existingManifest;
 
-            // Add manifest to video.
+                throw new DuplicatedManifestReferenceException(newReference);
+            }
+
+            // Create videoManifest.
+            /* Add it to the video before creating the document: if the video can't accept it,
+             * no orphan manifest document with a duplicated reference is left on db. */
+            await LoadVideoManifestsAsync([video]); //the aggregate reads the existing manifests
+            var videoManifest = new VideoManifest(newReference);
             video.AddManifest(videoManifest);
+            await dbContext.VideoManifests.CreateAsync(videoManifest);
             await dbContext.SaveChangesAsync();
 
             // Create Validation Manifest Task.

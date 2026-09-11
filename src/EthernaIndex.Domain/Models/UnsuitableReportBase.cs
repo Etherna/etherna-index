@@ -12,7 +12,6 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
-using Etherna.MongODM.Core.Attributes;
 using System;
 
 namespace Etherna.EthernaIndex.Domain.Models
@@ -38,15 +37,12 @@ namespace Etherna.EthernaIndex.Domain.Models
         public virtual User ReporterAuthor { get; protected set; }
 
         // Methods.
-        [PropertyAlterer(nameof(Description))]
-        [PropertyAlterer(nameof(LastUpdate))]
         public virtual void ChangeDescription(string description)
         {
             Description = description;
             LastUpdate = DateTime.UtcNow;
         }
 
-        [PropertyAlterer(nameof(IsArchived))]
         public virtual void SetArchived()
         {
             IsArchived = true;

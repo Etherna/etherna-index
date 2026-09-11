@@ -24,7 +24,6 @@ namespace Etherna.EthernaIndex.ElasticSearch.Options
         public IEnumerable<string> Urls { get; set; } = [];
         public string? Username { get; set; }
         
-        public string CommentsIndexName => (IndexesPrefix ?? "") + ElasticSearchService.CommentsIndexBaseName;
         public string VideosIndexName => (IndexesPrefix ?? "") + ElasticSearchService.VideosIndexBaseName;
     }
 }

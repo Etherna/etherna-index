@@ -14,6 +14,7 @@
 
 using Etherna.EthernaIndex.Domain.Models;
 using Etherna.EthernaIndex.ElasticSearch.Documents;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -21,12 +22,11 @@ namespace Etherna.EthernaIndex.ElasticSearch
 {
     public interface IElasticSearchService
     {
-        Task AddCommentAsync(Comment comment);
         Task AddVideoAsync(Video video);
         Task CreateIndexesAsync();
-        Task DeleteCommentAsync(Comment comment);
         Task DeleteVideoAsync(Video video);
         Task DestroyIndexesAsync();
+        Task<long> RemoveVideoDocumentsIndexedBeforeAsync(DateTime threshold);
         Task<(IEnumerable<VideoDocument> Results, long TotalElements)> SearchVideoAsync(string query, int page, int take);
     }
 }

@@ -12,7 +12,6 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
-using Etherna.BeeNet.Models;
 using Etherna.DomainEvents;
 using Etherna.EthernaIndex.Domain;
 using Etherna.EthernaIndex.Domain.Models;
@@ -22,14 +21,14 @@ using Etherna.EthernaIndex.Persistence.Helpers;
 using Etherna.MongoDB.Bson.IO;
 using Etherna.MongoDB.Bson.Serialization;
 using Etherna.MongoDB.Driver;
-using Etherna.MongODM.Core.Serialization.Serializers;
-using Etherna.MongODM.Core.Utility;
+using Etherna.Scrinium.Core.Serialization.Serializers;
+using Etherna.Scrinium.Core.Utility;
 using Etherna.Sdk.Tools.Video.Models;
+using Etherna.SwarmSdk.Models;
 using Microsoft.Extensions.Logging;
 using Moq;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Xunit;
 using ValidationError = Etherna.EthernaIndex.Domain.Models.VideoAgg.ValidationError;
@@ -37,7 +36,6 @@ using VideoManifest = Etherna.EthernaIndex.Domain.Models.VideoAgg.VideoManifest;
 
 namespace Etherna.EthernaIndex.Persistence.ModelMaps
 {
-    [SuppressMessage("Design", "CA1001:Types that own disposable fields should be disposable")]
     public class IndexDbContextDeserializationTest
     {
         // Fields.
@@ -1455,7 +1453,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
 
             // Setup.
             using var documentReader = new JsonReader(testElement.SourceDocument);
-            var modelMapSerializer = new ModelMapSerializer<Comment>(dbContext);
+            var modelMapSerializer = new ModelMapSerializer<Comment>(dbContext.Engine);
             var deserializationContext = BsonDeserializationContext.CreateRoot(documentReader);
             testElement.SetupAction(mongoDatabaseMock, dbContext);
 
@@ -1482,7 +1480,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
 
             // Setup.
             using var documentReader = new JsonReader(testElement.SourceDocument);
-            var modelMapSerializer = new ModelMapSerializer<ManualVideoReview>(dbContext);
+            var modelMapSerializer = new ModelMapSerializer<ManualVideoReview>(dbContext.Engine);
             var deserializationContext = BsonDeserializationContext.CreateRoot(documentReader);
             testElement.SetupAction(mongoDatabaseMock, dbContext);
 
@@ -1510,7 +1508,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
 
             // Setup.
             using var documentReader = new JsonReader(testElement.SourceDocument);
-            var modelMapSerializer = new ModelMapSerializer<UnsuitableVideoReport>(dbContext);
+            var modelMapSerializer = new ModelMapSerializer<UnsuitableVideoReport>(dbContext.Engine);
             var deserializationContext = BsonDeserializationContext.CreateRoot(documentReader);
             testElement.SetupAction(mongoDatabaseMock, dbContext);
 
@@ -1542,7 +1540,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
 
             // Setup.
             using var documentReader = new JsonReader(testElement.SourceDocument);
-            var modelMapSerializer = new ModelMapSerializer<User>(dbContext);
+            var modelMapSerializer = new ModelMapSerializer<User>(dbContext.Engine);
             var deserializationContext = BsonDeserializationContext.CreateRoot(documentReader);
             testElement.SetupAction(mongoDatabaseMock, dbContext);
 
@@ -1565,7 +1563,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
 
             // Setup.
             using var documentReader = new JsonReader(testElement.SourceDocument);
-            var modelMapSerializer = new ModelMapSerializer<Video>(dbContext);
+            var modelMapSerializer = new ModelMapSerializer<Video>(dbContext.Engine);
             var deserializationContext = BsonDeserializationContext.CreateRoot(documentReader);
             testElement.SetupAction(mongoDatabaseMock, dbContext);
 
@@ -1595,7 +1593,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
 
             // Setup.
             using var documentReader = new JsonReader(testElement.SourceDocument);
-            var modelMapSerializer = new ModelMapSerializer<VideoManifest>(dbContext);
+            var modelMapSerializer = new ModelMapSerializer<VideoManifest>(dbContext.Engine);
             var deserializationContext = BsonDeserializationContext.CreateRoot(documentReader);
             testElement.SetupAction(mongoDatabaseMock, dbContext);
 
@@ -1660,7 +1658,7 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps
 
             // Setup.
             using var documentReader = new JsonReader(testElement.SourceDocument);
-            var modelMapSerializer = new ModelMapSerializer<VideoVote>(dbContext);
+            var modelMapSerializer = new ModelMapSerializer<VideoVote>(dbContext.Engine);
             var deserializationContext = BsonDeserializationContext.CreateRoot(documentReader);
             testElement.SetupAction(mongoDatabaseMock, dbContext);
 
