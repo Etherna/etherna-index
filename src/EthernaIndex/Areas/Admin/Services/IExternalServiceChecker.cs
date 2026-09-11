@@ -1,4 +1,4 @@
-﻿// Copyright 2021-present Etherna SA
+// Copyright 2021-present Etherna SA
 // This file is part of Etherna Index.
 // 
 // Etherna Index is free software: you can redistribute it and/or modify it under the terms of the
@@ -12,8 +12,19 @@
 // You should have received a copy of the GNU Affero General Public License along with Etherna Index.
 // If not, see <https://www.gnu.org/licenses/>.
 
-using System;
-using System.Runtime.CompilerServices;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
-[assembly: CLSCompliant(false)]
-[assembly: InternalsVisibleTo("EthernaIndex.Tests")]
+namespace Etherna.EthernaIndex.Areas.Admin.Services
+{
+    public interface IExternalServiceChecker
+    {
+        /// <summary>
+        /// Check every external service the index depends on at runtime.
+        /// </summary>
+        /// <param name="cancellationToken">A cancellation token</param>
+        /// <returns>The state of each service, in the order they are checked</returns>
+        Task<IEnumerable<ExternalServiceStatus>> CheckAllAsync(CancellationToken cancellationToken = default);
+    }
+}
