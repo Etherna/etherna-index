@@ -25,6 +25,7 @@ using Etherna.Scrinium.Core.ProxyModels;
 using Etherna.Scrinium.Core.Repositories;
 using Etherna.Scrinium.Core.Serialization.Mapping;
 using Etherna.Scrinium.Core.Serialization.Modifiers;
+using Etherna.Scrinium.Core.Tasks;
 using Etherna.Scrinium.Core.Utility;
 using Moq;
 using System;
@@ -51,6 +52,7 @@ namespace Etherna.EthernaIndex.Persistence.Helpers
             dbDependenciesMock.Setup(d => d.ExecutionContext).Returns(execContext);
             dbDependenciesMock.Setup(d => d.MapRegistry).Returns(new MapRegistry());
             dbDependenciesMock.Setup(d => d.ProxyGenerator).Returns(new ProxyGenerator(execContext));
+            dbDependenciesMock.Setup(d => d.ReferencesRepairManager).Returns(new ReferencesRepairManager(new Mock<ITaskRunner>().Object));
             dbDependenciesMock.Setup(d => d.RepositoryRegistry).Returns(new RepositoryRegistry());
             dbDependenciesMock.Setup(d => d.SerializerModifierAccessor).Returns(new SerializerModifierAccessor(execContext));
 
