@@ -282,19 +282,33 @@ namespace Etherna.EthernaIndex.Persistence.ModelMaps.Index
                     mm.MapIdMember(m => m.Id);
                     mm.IdMemberMap.SetSerializer(new StringSerializer(BsonType.ObjectId));
                 });
-                config.AddModelMap<VideoManifest>("f7966611-14aa-4f18-92f4-8697b4927fb6", mm =>
-                {
-                    mm.MapMember(m => m.IsValid);
-                    mm.MapMember(m => m.ManifestReference);
+                config.AddModelMap<VideoManifest>(
+                    "8c4b7808-bc93-47c5-a4f3-68c1ce666311", //v0.3.20
+                    mm =>
+                    {
+                        mm.MapMember(m => m.IsValid);
+                        mm.MapMember(m => m.ManifestReference);
 
-                    //*** Add again after https://etherna.atlassian.net/browse/MODM-163
-                    //mm.MapMember(m => m.Duration).SetSerializer( //could be float in old documents
-                    //    new NullableSerializer<long>(
-                    //        new Int64Serializer(BsonType.Int64, new RepresentationConverter(false, true))));
-                    //mm.MapMember(m => m.Thumbnail);
-                    //mm.MapMember(m => m.Title);
-                    //******
-                });
+                        //*** Add again after https://etherna.atlassian.net/browse/MODM-163
+                        //mm.MapMember(m => m.Duration).SetSerializer( //could be float in old documents
+                        //    new NullableSerializer<long>(
+                        //        new Int64Serializer(BsonType.Int64, new RepresentationConverter(false, true))));
+                        //mm.MapMember(m => m.Thumbnail);
+                        //mm.MapMember(m => m.Title);
+                        //******
+                    })
+                    /* The manifest reference of this summary was stored as "ManifestHash" until
+                     * v0.3.15, and as a nested "Manifest" document with its "Hash" before v0.3.12,
+                     * all three shapes under the schema id of the first one: this schema reads the
+                     * documents carrying the second, and the ones carrying the first complete the
+                     * member from their origin document at their first read or write. */
+                    .AddSecondarySchema(
+                        "f7966611-14aa-4f18-92f4-8697b4927fb6", //v0.3.0
+                        mm =>
+                        {
+                            mm.MapMember(m => m.IsValid);
+                            mm.MapMember(m => m.ManifestReference).SetElementName("ManifestHash");
+                        });
             });
 
         /// <summary>
