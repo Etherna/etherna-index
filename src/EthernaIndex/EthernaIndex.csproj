@@ -20,13 +20,13 @@
     <PackageReference Include="Elastic.Serilog.Sinks" Version="9.0.0" />
     <PackageReference Include="Etherna.Authentication.AspNetCore" Version="0.4.0" />
     <PackageReference Include="Etherna.Authentication.ClientCredentials" Version="0.4.0" />
-    <PackageReference Include="Etherna.Scrinium" Version="0.25.3" />
-    <PackageReference Include="Etherna.Scrinium.AspNetCore.UI" Version="0.25.3" />
+    <PackageReference Include="Etherna.Scrinium" Version="0.25.4" />
+    <PackageReference Include="Etherna.Scrinium.AspNetCore.UI" Version="0.25.4" />
     <PackageReference Include="EthernaACR" Version="0.4.0-alpha.66" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.12" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="10.0.12" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.12" />
-    <PackageReference Include="Scalar.AspNetCore" Version="2.17.3" />
+    <PackageReference Include="Scalar.AspNetCore" Version="2.17.4" />
     <PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
     <PackageReference Include="Serilog.Enrichers.Environment" Version="3.0.1" />
     <PackageReference Include="Serilog.Exceptions" Version="8.4.0" />
